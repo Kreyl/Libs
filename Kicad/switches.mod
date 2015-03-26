@@ -1,0 +1,58 @@
+PCBNEW-LibModule-V1  16/10/2014 18:02:19
+# encoding utf-8
+Units mm
+$INDEX
+SW_SK12D07VG
+$EndINDEX
+$MODULE SW_SK12D07VG
+Po 0 0 0 15 543FCFE5 00000000 ~~
+Li SW_SK12D07VG
+Sc 0
+AR 
+Op 0 0 0
+T0 0 -1.6 0.6 0.6 0 0.15 N V 21 N "SW_SK12D07VG"
+T1 -0.1 1.7 0.6 0.6 0 0.15 N V 21 N "VAL**"
+DS 0 2.2 0 6.2 0.15 21
+DS 0 6.2 2 6.2 0.15 21
+DS 2 6.2 2 2.2 0.15 21
+DS -4.3 -2.2 4.3 -2.2 0.15 21
+DS 4.3 -2.2 4.3 2.2 0.15 21
+DS 4.3 2.2 -4.3 2.2 0.15 21
+DS -4.3 2.2 -4.3 -2.2 0.15 21
+$PAD
+Sh "2" C 1.6 1.6 0 0 0
+Dr 1 0 0
+At STD N 00E0FFFF
+Ne 0 ""
+Po 0 0
+$EndPAD
+$PAD
+Sh "1" C 1.6 1.6 0 0 0
+Dr 1 0 0
+At STD N 00E0FFFF
+Ne 0 ""
+Po -2 0
+$EndPAD
+$PAD
+Sh "3" C 1.6 1.6 0 0 0
+Dr 1 0 0
+At STD N 00E0FFFF
+Ne 0 ""
+Po 2 0
+$EndPAD
+$PAD
+Sh "H" C 2 2 0 0 0
+Dr 1.4 0 0
+At STD N 00E0FFFF
+Ne 0 ""
+Po -4.1 0
+$EndPAD
+$PAD
+Sh "H" C 2 2 0 0 0
+Dr 1.4 0 0
+At STD N 00E0FFFF
+Ne 0 ""
+Po 4.1 0
+$EndPAD
+$EndMODULE SW_SK12D07VG
+$EndLIBRARY

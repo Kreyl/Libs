@@ -1,0 +1,36 @@
+Documentation "How to add Silk Drawings on PCB"
+
+**NOTE: it's important information. Please do not avoid to read it carefully. 
+
+CREATE FOOTPRINT
+
+1. Choose the picture what you want to print. It may be *.png, *.bmp or *.jpg e.t.c.
+2. Open KiCad and choose "Bitmap2Component" (it is a tool to build component from image). Click on it.
+3. Now you see window "Bitmap to Component Converter". 
+
+4. Click "Load Bitmap" and select image witch you want to print.
+**NOTE: Carefully select the image size. 10 pixels is about 1mm on silk print.
+
+5. After load image you can use settings and buttons to make picture as you need.
+**NOTE: If you select Black&White picture the silk lines will be white and the black color is absent on PCB.
+
+6. When you make all settings and rejoice the result cleft click on button "Export to Pcbnew".
+
+7. Choose the folder "SilkDrawings" then name a *.mod file. Click Save.
+**NOTE: Every new footprint save in new *.mod file. If you select previous created file it will be rewrite!!
+
+INSERT PCB FOOTPRINT
+
+8. Open in Pcbnew *.kicad_pcb file of your project.
+
+9. Add a Library contained Silk file (Preferences -> Library -> Add).
+
+10. Click "Add Module" button on right control panel in Pcbnew.
+
+11. Click at every piont in PCB. You will see window "Load Module". Then "Select by Browser".
+In the left column select your library file created in part 7.
+
+12. Double left click on the second left column and your image will be insert.
+
+Ostranna, RJ. 
+2013

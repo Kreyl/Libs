@@ -1,0 +1,12 @@
+EESchema-DOCLIB  Version 2.0  Date: 03/12/2012 18:38:07
+#
+$CMP Generic_14pin
+D Quad Op amp in 14-pin package
+K AmpliOp
+$ENDCMP
+#
+$CMP Generic_8pin
+D Dual Op amp in 8-pin package
+$ENDCMP
+#
+#End Doc Library

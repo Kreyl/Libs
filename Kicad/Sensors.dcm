@@ -1,0 +1,63 @@
+EESchema-DOCLIB  Version 2.0  Date: 02/01/2015 15:22:21
+#
+$CMP AH1888
+D Magnet sensor
+$ENDCMP
+#
+$CMP APDS-9007-020
+D Luminocity sensor
+$ENDCMP
+#
+$CMP AT42QT101X
+D Touch sensor, 1 channel
+$ENDCMP
+#
+$CMP BALL_SNS
+D Ball vibration sensor
+$ENDCMP
+#
+$CMP IRA700
+D Piroelectric sensor
+$ENDCMP
+#
+$CMP L3G4200
+D Giroscope 3axis, 250/500/2000 dps
+$ENDCMP
+#
+$CMP LIS3
+D Accelerometer 3axis, +-2,4,8,16g
+$ENDCMP
+#
+$CMP LIS331
+D Accelerometer 3axis, +-24g
+$ENDCMP
+#
+$CMP LSM9DS0
+D 9-Axis sensor I2C-SPI
+$ENDCMP
+#
+$CMP MMA7455
+D Accelerometer I2C 8G 3Axis
+$ENDCMP
+#
+$CMP MMA8452Q
+D 3-Axis accelerometer 2-4-8g I2C
+$ENDCMP
+#
+$CMP MPR121
+D 12-chnl touch sensor, i2c bus
+$ENDCMP
+#
+$CMP QT100A
+D Touch sensor, 1 channel
+$ENDCMP
+#
+$CMP TSOP48XX
+D IR resceiver
+$ENDCMP
+#
+$CMP TSOP752XX
+D IR resceiver
+$ENDCMP
+#
+#End Doc Library

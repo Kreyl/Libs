@@ -1,0 +1,23 @@
+EESchema-DOCLIB  Version 2.0  Date: 12/15/2011 7:40:06 PM
+#
+$CMP AT90USB1287
+F D:/MyDocuments/Инструкции/AVR docs/AT90USB1287.pdf
+$ENDCMP
+#
+$CMP ATMEGA32U2
+F D:/MyDocuments/Инструкции/AVR docs/AT90USB1287.pdf
+$ENDCMP
+#
+$CMP ATMEGA32U4
+F D:/MyDocuments/Инструкции/AVR docs/AT90USB1287.pdf
+$ENDCMP
+#
+$CMP ATTINY26
+D 20 lines total
+$ENDCMP
+#
+$CMP ATTINY461
+D AVR
+$ENDCMP
+#
+#End Doc Library

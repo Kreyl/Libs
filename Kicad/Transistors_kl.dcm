@@ -1,0 +1,35 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP 2N7002
+D N-channel SOT-23 0.115A 60V
+$ENDCMP
+#
+$CMP IRLML6302
+D P-channel SOT-23 0.5A 20V
+$ENDCMP
+#
+$CMP IRLMS1503
+D N-channel SOT-23-6 3.2A 30V
+$ENDCMP
+#
+$CMP IRLMS6702
+D P-channel SOT-23-6 2.4A 20V
+$ENDCMP
+#
+$CMP MAX2602
+D RF power NPN w\diode 1W 15V
+$ENDCMP
+#
+$CMP MOSFET_P_3LEAD
+D P-channel 3-lead
+$ENDCMP
+#
+$CMP NPN
+D Generic NPN
+$ENDCMP
+#
+$CMP NPN_B1C2E3
+D NPN: B-1, C-2, E-3
+$ENDCMP
+#
+#End Doc Library

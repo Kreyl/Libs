@@ -1,0 +1,32 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP FT232R
+D USB to RS232 converter
+$ENDCMP
+#
+$CMP HIN202
+D RS232 level converter 2r 2t
+$ENDCMP
+#
+$CMP HIN211
+D RS232 level converter 5r 4t
+$ENDCMP
+#
+$CMP PCA9555
+D 16bit IO expander
+$ENDCMP
+#
+$CMP Transformer_2_1
+D Transformer 2-1
+$ENDCMP
+#
+$CMP USBLC6_2XX
+D ESD Protection for USB
+K ESD
+$ENDCMP
+#
+$CMP env8010
+D PowerLine tranceiver
+$ENDCMP
+#
+#End Doc Library

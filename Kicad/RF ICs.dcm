@@ -1,0 +1,51 @@
+EESchema-DOCLIB  Version 2.0  Date: 05/12/2014 20:46:33
+#
+$CMP BALUN868JOHANSON
+D Balun for CC1101
+$ENDCMP
+#
+$CMP BH1415
+D FM stereo transmitter
+$ENDCMP
+#
+$CMP CC1101
+D Tranceiver 300-915MHz
+$ENDCMP
+#
+$CMP CC1190
+D 868MHz PA(27dBm)+LNA(6dB)
+$ENDCMP
+#
+$CMP CC2500
+D 2.4 GHz tranciever
+$ENDCMP
+#
+$CMP EB570
+D GPS receiver
+$ENDCMP
+#
+$CMP HMC482
+D Gain block DC-5GHz 6-12V 19dB 24dBm
+$ENDCMP
+#
+$CMP M10GSM
+D M10 Quectel GSM module
+$ENDCMP
+#
+$CMP SI4432MODULE
+D RF22-S1 module
+$ENDCMP
+#
+$CMP SIM900
+D SIM900 Simcom GSM module
+$ENDCMP
+#
+$CMP UPG2214
+D RF switch 1-to-2, 0.3dB attenuation, +29dBm power
+$ENDCMP
+#
+$CMP WISMO228
+D GSM module
+$ENDCMP
+#
+#End Doc Library

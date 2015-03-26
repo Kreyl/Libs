@@ -1,0 +1,154 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP ATMEL_JTAG
+D JTAG conn for ATMEL
+$ENDCMP
+#
+$CMP BARREL_SOCKET
+D Power connector socket
+$ENDCMP
+#
+$CMP CONN_1
+D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_10
+D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_12
+D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_16
+D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_2
+D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_20
+D 20-pin connector, general form
+K CONN
+$ENDCMP
+#
+$CMP CONN_3
+D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_4
+D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_4_H
+D Connector with housing
+K CONN
+$ENDCMP
+#
+$CMP CONN_5
+D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_6
+D 6-pin connector
+K CONN
+$ENDCMP
+#
+$CMP CONN_6_H
+D 6-pin connector with housing
+K CONN
+$ENDCMP
+#
+$CMP CONN_7
+D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_8
+D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_AUDIOJACK
+D Audio Jack Connector, 6 pin
+$ENDCMP
+#
+$CMP CONN_AUDIO_SIMPLE
+D Audio Jack Connector, 3pin
+$ENDCMP
+#
+$CMP CONN_GOST_1
+D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_MICROSD
+D MicroSD connector
+$ENDCMP
+#
+$CMP CONN_NOKIA_BAT
+D Connector for Nokia battery
+$ENDCMP
+#
+$CMP CONN_NOKIA_LCD10
+D 10-pin Nokia 1110 LCD connector
+$ENDCMP
+#
+$CMP CONN_NOKIA_LCD22
+D Nokia LCD connector 22pins @ 0.5mm
+$ENDCMP
+#
+$CMP CONN_NOKIA_LCD24
+D Nokia LCD connector 24pins @ 0.4mm
+$ENDCMP
+#
+$CMP DB15
+D DB15 connector
+$ENDCMP
+#
+$CMP DB9
+D DB9 connector
+$ENDCMP
+#
+$CMP RJ11
+D RJ-11 (6P4C) connector
+$ENDCMP
+#
+$CMP RJ45
+D RJ-45 connector
+$ENDCMP
+#
+$CMP RJ6
+D RJ-6 (4P4C) connector
+$ENDCMP
+#
+$CMP SD_CONNECTOR
+D SD connector
+$ENDCMP
+#
+$CMP SMA_L
+D SMA RF inlet, 90dg to PCB
+$ENDCMP
+#
+$CMP ST_SWD
+D ST SWD connector
+$ENDCMP
+#
+$CMP TRS_3.5_SOCKET
+D Audio receptacle 3.5mm
+$ENDCMP
+#
+$CMP USB_AM_PCB
+D USB-A male plug, PCB-mount
+$ENDCMP
+#
+#End Doc Library

@@ -1,0 +1,80 @@
+PCBNEW-LibDoc----V1  17/03/2011 13:06:14
+#
+$MODULE DIL2x5
+Li DIL2x5
+Cd Double rangee de contacts 2 x 4 pins
+Kw CONN
+$EndMODULE
+#
+$MODULE RF_SMA_L
+Li RF_SMA_L
+Cd RF SMA connector
+$EndMODULE
+#
+$MODULE DIL2X3
+Li DIL2X3
+Cd Single-line connector 4-pin
+$EndMODULE
+#
+$MODULE SIL-2
+Li SIL-2
+Cd Connecteurs 2 pins
+Kw CONN DEV
+$EndMODULE
+#
+$MODULE CON_DB9_M
+Li CON_DB9_M
+Cd DB9 male connector, PCB mount, 90deg
+$EndMODULE
+#
+$MODULE SIL-3
+Li SIL-3
+Cd Connector 3-pin
+$EndMODULE
+#
+$MODULE SIL-1
+Li SIL-1
+Cd Connecteurs 2 pins
+Kw CONN DEV
+$EndMODULE
+#
+$MODULE SIL-4
+Li SIL-4
+Cd Single-line connector 4-pin
+$EndMODULE
+#
+$MODULE SIL-5
+Li SIL-5
+Cd Connecteur 5 pins
+Kw CONN DEV
+$EndMODULE
+#
+$MODULE SIL-7
+Li SIL-7
+Cd 7-pin single-line connector
+Kw conn
+$EndMODULE
+#
+$MODULE SIL-8
+Li SIL-8
+Cd Connecteur 5 pins
+Kw CONN DEV
+$EndMODULE
+#
+$MODULE PWRCON2PIN
+Li PWRCON2PIN
+Cd 2pin power connector
+$EndMODULE
+#
+$MODULE DIL2x4
+Li DIL2x4
+Cd Double rangee de contacts 2 x 4 pins
+Kw CONN
+$EndMODULE
+#
+$MODULE DIL2X3_SMD
+Li DIL2X3_SMD
+Cd Single-line connector 4-pin
+$EndMODULE
+#
+$EndLIBDOC

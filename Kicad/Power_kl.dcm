@@ -1,0 +1,174 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP AAT3221
+D SOT23-5 linear regulator
+F D:/MyDocuments/Инструкции/Datasheets/Power/AAT3221IGV-3.3-T1.pdf
+$ENDCMP
+#
+$CMP BAT
+D Battery
+$ENDCMP
+#
+$CMP BQ24010
+D LiIon linear charger, up to 1A
+$ENDCMP
+#
+$CMP HV9910
+D Buck LED driver, ext FET 8-450V
+$ENDCMP
+#
+$CMP IPS6041
+D Intelligent power switch with diag out (current limit 7A)
+$ENDCMP
+#
+$CMP L5973
+D Buck 2A 4-36V SO8
+$ENDCMP
+#
+$CMP L6470
+D Motor Driver
+$ENDCMP
+#
+$CMP LD1117
+D SOT223 linear regulator
+F D:/Мои документы/Инструкции/datasheets/Power/LD1117S33.pdf
+$ENDCMP
+#
+$CMP LED2001
+D LED driver: 3...18V, 4A
+$ENDCMP
+#
+$CMP LM2703
+D SOT23-5 Step-Up DC/DC Converter
+F D:/MyDocuments/Инструкции/Datasheets/Power/LM2703 2.2 to ~20.pdf
+$ENDCMP
+#
+$CMP LM317_SO8
+D LDO 1.25-37V 100mA SO8
+$ENDCMP
+#
+$CMP LM338
+D Linear, up to +35in, adj.out, 5A, TO220
+$ENDCMP
+#
+$CMP LM3410
+D SOT23-5 LED booster, no external FET needed
+$ENDCMP
+#
+$CMP LM3410_LLP
+D LLP6 LED booster, no external FET needed
+$ENDCMP
+#
+$CMP LM4041
+D Programmable precision reference
+$ENDCMP
+#
+$CMP LP2951
+D Linear, regulated output, 100mA, 30Vin, 75uA bias
+$ENDCMP
+#
+$CMP LP2981
+D SOT23-5 linear regulator
+F D:/MyDocuments/Инструкции/Datasheets/Power/AAT3221IGV-3.3-T1.pdf
+$ENDCMP
+#
+$CMP LT1932
+D LED boost driver: SOT23-6, 1-5Vin, 5...40mA Iout
+$ENDCMP
+#
+$CMP LTC4054
+D LiIon battery charger SOT23-5 upto700mA R-programmable
+$ENDCMP
+#
+$CMP MAX1555
+D SOT23-5 linear LiIon charger
+F D:/MyDocuments/Инструкции/Datasheets/Power/MAX1555EZK.pdf
+$ENDCMP
+#
+$CMP MAX1920
+D Step-down SOT23-6 2...5.5V in, adjustable output
+$ENDCMP
+#
+$CMP MAX712
+D NiCd & NiMH charger
+K Charger
+$ENDCMP
+#
+$CMP MAX8881
+D LDO 3.3V 200mA Icc 3.5uA
+$ENDCMP
+#
+$CMP MC34063
+D Universal converter (up, down, inverting) up to 1.5A
+$ENDCMP
+#
+$CMP MC34151
+D MOSFET driver
+$ENDCMP
+#
+$CMP MC7800
+D Linear, up to +30in, +5Vout, 1A, D2PAK
+F D:/Datasheets/Power/Linear regulators/MC7800-D 30V 1A out5V.pdf
+$ENDCMP
+#
+$CMP MCP73832
+D 1Cell LiPo Charger up to 500mA SOT23-5
+$ENDCMP
+#
+$CMP NCP1400
+D Step-up: Vin=0.2...5.5V, Vout=3.3V, Iout=100mA; SOT23-5
+$ENDCMP
+#
+$CMP NCP1529
+D Synchronous step-down 2V7 to 5V5 in, 0V9 to 3V9 out, 1A
+$ENDCMP
+#
+$CMP NCP3066
+D LED switching regulator BUCK and BOOST, SO8
+$ENDCMP
+#
+$CMP NCP5007
+D LED drv Boost SOT23-5
+$ENDCMP
+#
+$CMP NCP5623B
+D RGB LED driver charge-pump i2c
+$ENDCMP
+#
+$CMP NCP583SQ
+D LDO 1uA Iq, 150mA out, 6.5V in
+$ENDCMP
+#
+$CMP NCP662SQ
+D LDO 2.5uA Iq, 100mA out, 6V in
+$ENDCMP
+#
+$CMP ST1S10
+D Sync BUCK 18Vin 3A
+$ENDCMP
+#
+$CMP STCS1
+D LED driver 1.5A 24V
+$ENDCMP
+#
+$CMP TL431_SO8
+D Programmable precision reference
+$ENDCMP
+#
+$CMP TPS562200
+D Synchronous step-down 4V5 to 17V in, 0V7 to 7V out
+$ENDCMP
+#
+$CMP TPS61042
+D Boost up to 30V
+$ENDCMP
+#
+$CMP TPS71533
+D LDO 3.3V 50mA up to 24V; Iq=3.2uA
+$ENDCMP
+#
+$CMP ZXSC400
+D Step-up LED driver, ext. transistor, 3.0-4.5V input, up to 8 LEDs
+$ENDCMP
+#
+#End Doc Library

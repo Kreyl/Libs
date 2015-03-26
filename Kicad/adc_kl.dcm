@@ -1,0 +1,19 @@
+EESchema-DOCLIB  Version 2.0  Date: 15/07/2012 22:08:49
+#
+$CMP ADS1100
+D 16bit ADC, SOT23, 8SPS (128SPS@12bit), I2C
+$ENDCMP
+#
+$CMP ADS1242
+D 24-bit 4-channel SPI External Ref
+$ENDCMP
+#
+$CMP ADS1243
+D 24-bit 8-channel SPI External Ref
+$ENDCMP
+#
+$CMP ADS8320
+D 16bit ADC, MSOP8, 100kSPS), SPI
+$ENDCMP
+#
+#End Doc Library

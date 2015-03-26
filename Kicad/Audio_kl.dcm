@@ -1,0 +1,23 @@
+EESchema-DOCLIB  Version 2.0  Date: 14/01/2014 16:17:12
+#
+$CMP TDA2003
+D 10W AUDIO AMPLIFIER
+$ENDCMP
+#
+$CMP TPA6211
+D Mono power amplifier 2.5-5.5V 3W
+$ENDCMP
+#
+$CMP VS1003
+D MP3 decoder
+$ENDCMP
+#
+$CMP VS1011
+D MP3 decoder
+$ENDCMP
+#
+$CMP VS1103B
+D WAV & MIDI decoder
+$ENDCMP
+#
+#End Doc Library

@@ -1,0 +1,28 @@
+EESchema-DOCLIB  Version 2.0  Date: 10/12/2012 11:37:20
+#
+$CMP SC_QFN32
+D SmartCard
+$ENDCMP
+#
+$CMP SC_QFN32_INFINEON
+D SmartCard
+K Infineon
+$ENDCMP
+#
+$CMP SC_QFN32_NFC
+D SmartCard
+$ENDCMP
+#
+$CMP SC_SSOP20_NFC
+D SmartCard
+$ENDCMP
+#
+$CMP SIM_HOLDER
+D Sim-card holder
+$ENDCMP
+#
+$CMP SMARTCARD
+D SmartCard
+$ENDCMP
+#
+#End Doc Library

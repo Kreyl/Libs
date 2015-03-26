@@ -1,0 +1,13 @@
+PCBNEW-LibDoc----V1  3/3/2010 4:20:14 PM
+#
+$MODULE ANT_14443_2
+Li ANT_14443_2
+Cd PCB antenna two vias
+$EndMODULE
+#
+$MODULE ANT_14443_3
+Li ANT_14443_3
+Cd PCB antenna 3 vias
+$EndMODULE
+#
+$EndLIBDOC

@@ -1,0 +1,68 @@
+PCBNEW-LibDoc----V1  15/03/2011 17:18:31
+#
+$MODULE SOT23
+Li SOT23
+Cd Module SOT23
+$EndMODULE
+#
+$MODULE TO220
+Li TO220
+Cd Transistor TO 220
+Kw TR TO220 DEV
+$EndMODULE
+#
+$MODULE SMD_CAP_D
+Li SMD_CAP_D
+Cd Capacitor 7.3x4.3 mm
+$EndMODULE
+#
+$MODULE LED1206
+Li LED1206
+Cd LED 1206 smd package
+Kw LED led 1206 SMD smd SMT smt smdled SMDLED smtled SMTLED
+$EndMODULE
+#
+$MODULE TO220_SMD_VERTICAL
+Li TO220_SMD_VERTICAL
+Cd Transistor TO 220
+Kw TR TO220 DEV
+$EndMODULE
+#
+$MODULE RELAY_G6S
+Li RELAY_G6S
+Cd G6S housing
+$EndMODULE
+#
+$MODULE LED_2A1C
+Li LED_2A1C
+Cd Connector 3-pin
+$EndMODULE
+#
+$MODULE CRYSTAL_KX38
+Li CRYSTAL_KX38
+Cd Crystal 8x3d
+$EndMODULE
+#
+$MODULE BUTTON_PSM6
+Li BUTTON_PSM6
+Cd Switch hole-mounted, pitch 2.0 mm, 6x6
+$EndMODULE
+#
+$MODULE LED-5MM
+Li LED-5MM
+Cd LED 5mm - Lead pitch 100mil (2,54mm)
+Kw LED led 5mm 5MM 100mil 2,54mm
+$EndMODULE
+#
+$MODULE CRYSTAL_KX26
+Li CRYSTAL_KX26
+Cd Crystal 6x2d
+$EndMODULE
+#
+$MODULE LED-3MM
+Li LED-3MM
+Cd LED 3mm - Lead pitch 100mil (2,54mm)
+Kw LED led 3mm 3MM 100mil 2,54mm
+$EndMODULE
+#
+$EndLIBDOC
