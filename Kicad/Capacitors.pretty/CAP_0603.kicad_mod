@@ -1,6 +1,6 @@
-(module SMD_0603 (layer F.Cu) (tedit 551AC0D3)
+(module CAP_0603 (layer F.Cu) (tedit 551AC0D3)
   (attr smd)
-  (fp_text reference SMD_0603 (at -0.0635 -1.27) (layer F.SilkS)
+  (fp_text reference CAP_0603 (at -0.0635 -1.27) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
   (fp_text value Val** (at 0.09906 1.39954) (layer F.SilkS)
