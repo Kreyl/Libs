@@ -1,5 +1,9 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP ADUM1201
+D Dual-channel digital isolator, 2V7 to 5V5
+$ENDCMP
+#
 $CMP FT232R
 D USB to RS232 converter
 $ENDCMP
