@@ -4,6 +4,10 @@ $CMP ADUM1201
 D Dual-channel digital isolator, 2V7 to 5V5
 $ENDCMP
 #
+$CMP CP2102
+D USB to UART converter
+$ENDCMP
+#
 $CMP FT232R
 D USB to RS232 converter
 $ENDCMP

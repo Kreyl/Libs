@@ -5,6 +5,10 @@ D SOT23-5 linear regulator
 F D:/MyDocuments/Инструкции/Datasheets/Power/AAT3221IGV-3.3-T1.pdf
 $ENDCMP
 #
+$CMP ADP3330
+D LDO 200mA SOT23 UinMax=12V
+$ENDCMP
+#
 $CMP AIC286x
 D Sync BUCK, 4.75 to 23 VIn, 0.925 to 12V out, 2/3A
 $ENDCMP
