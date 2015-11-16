@@ -163,6 +163,10 @@ $CMP TL431_SO8
 D Programmable precision reference
 $ENDCMP
 #
+$CMP TPS20xxC
+D USB Current-Limited Switch, SOT23-5
+$ENDCMP
+#
 $CMP TPS562200
 D Synchronous step-down 4V5 to 17V in, 0V7 to 7V out
 $ENDCMP
