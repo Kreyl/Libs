@@ -1,4 +1,4 @@
-EESchema-DOCLIB  Version 2.0  Date: 15/07/2012 22:08:49
+EESchema-DOCLIB  Version 2.0
 #
 $CMP ADS1100
 D 16bit ADC, SOT23, 8SPS (128SPS@12bit), I2C
