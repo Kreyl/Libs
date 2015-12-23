@@ -4,4 +4,8 @@ $CMP DDR3_FBGA96
 D DDR3 in FBGA96_14x9 package
 $ENDCMP
 #
+$CMP W25Q64FV
+D 64MBit SO8 SPI
+$ENDCMP
+#
 #End Doc Library

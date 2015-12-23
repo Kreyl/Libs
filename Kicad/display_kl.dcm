@@ -1,4 +1,4 @@
-EESchema-DOCLIB  Version 2.0  Date: 31/03/2013 18:23:09
+EESchema-DOCLIB  Version 2.0
 #
 $CMP BCKLT_TIC48
 D Backlight module for Tic48
@@ -14,6 +14,10 @@ $ENDCMP
 #
 $CMP NOKIA1661
 D Nokia 1661/2608/2330c/5030: grafic, 160x128 RGB, with backlight
+$ENDCMP
+#
+$CMP Round2.2
+D Round 2.2" TFT LCD; R61505V
 $ENDCMP
 #
 #End Doc Library
