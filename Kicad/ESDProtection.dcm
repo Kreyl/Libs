@@ -4,4 +4,8 @@ $CMP DVIUC6-4SC6
 D 4-line ESD protection, SOT23-6
 $ENDCMP
 #
+$CMP DVIULC6-4SC6
+D 4-line ESD protection, SOT23-6
+$ENDCMP
+#
 #End Doc Library

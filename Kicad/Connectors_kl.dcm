@@ -19,7 +19,12 @@ K CONN
 $ENDCMP
 #
 $CMP CONN_12
-D Symbole general de connecteur
+D 12-pin connector, general form
+K CONN
+$ENDCMP
+#
+$CMP CONN_14
+D 14-pin connector, general form
 K CONN
 $ENDCMP
 #
@@ -40,6 +45,16 @@ $ENDCMP
 #
 $CMP CONN_3
 D Symbole general de connecteur
+K CONN
+$ENDCMP
+#
+$CMP CONN_30
+D 30-pin connector, general form
+K CONN
+$ENDCMP
+#
+$CMP CONN_38
+D 38-pin connector, general form
 K CONN
 $ENDCMP
 #

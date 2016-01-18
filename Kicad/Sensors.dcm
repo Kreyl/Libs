@@ -1,4 +1,4 @@
-EESchema-DOCLIB  Version 2.0  Date: 02/01/2015 15:22:21
+EESchema-DOCLIB  Version 2.0
 #
 $CMP AH1888
 D Magnet sensor
@@ -6,10 +6,6 @@ $ENDCMP
 #
 $CMP APDS-9007-020
 D Luminocity sensor
-$ENDCMP
-#
-$CMP AT42QT101X
-D Touch sensor, 1 channel
 $ENDCMP
 #
 $CMP BALL_SNS
@@ -50,10 +46,6 @@ $ENDCMP
 #
 $CMP QT100A
 D Touch sensor, 1 channel
-$ENDCMP
-#
-$CMP TSOP48XX
-D IR resceiver
 $ENDCMP
 #
 $CMP TSOP752XX

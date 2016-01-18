@@ -4,4 +4,8 @@ $CMP DIPx4
 D DIP switch x4
 $ENDCMP
 #
+$CMP DIPx6
+D DIP switch x4
+$ENDCMP
+#
 #End Doc Library
