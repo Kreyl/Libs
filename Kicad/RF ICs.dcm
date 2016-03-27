@@ -1,6 +1,10 @@
-EESchema-DOCLIB  Version 2.0  Date: 05/12/2014 20:46:33
+EESchema-DOCLIB  Version 2.0
 #
 $CMP BALUN868JOHANSON
+D Balun for CC1101
+$ENDCMP
+#
+$CMP BALUN868ST
 D Balun for CC1101
 $ENDCMP
 #
