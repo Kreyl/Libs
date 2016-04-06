@@ -61,12 +61,12 @@ $CMP LED_2COLOR
 D Two-color LED, common catode
 $ENDCMP
 #
-$CMP LED_DOUBLE
-D Two LEDs in one package
+$CMP LED_5050
+D LED in 5050 case
 $ENDCMP
 #
-$CMP LED_RGB
-D RGB LED
+$CMP LED_DOUBLE
+D Two LEDs in one package
 $ENDCMP
 #
 $CMP LED_RGB_CA

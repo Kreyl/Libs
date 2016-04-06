@@ -197,6 +197,20 @@ P 6 0 1 0  0 0  0 50  50 100  0 150  -50 100  0 50 N
 ENDDRAW
 ENDDEF
 #
+# PwrCtrled
+#
+DEF PwrCtrled #PWR 0 0 Y Y 1 F P
+F0 "#PWR" 0 -40 30 H I C CNN
+F1 "PwrCtrled" 80 30 30 H V C CNN
+F2 "" 0 0 60 H V C CNN
+F3 "" 0 0 60 H V C CNN
+DRAW
+X PwrCtrled 1 0 0 0 U 30 30 0 0 W N
+P 3 0 1 0  0 0  50 0  50 0 N
+P 6 0 1 0  50 0  30 10  90 0  30 -10  50 0  50 0 f
+ENDDRAW
+ENDDEF
+#
 # PwrMCU
 #
 DEF PwrMCU #PWR 0 0 Y Y 1 F P
