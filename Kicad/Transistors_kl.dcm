@@ -28,4 +28,8 @@ $CMP NPN_B1C2E3
 D NPN: B-1, C-2, E-3
 $ENDCMP
 #
+$CMP ULN200x
+D 7x darlingtons with common
+$ENDCMP
+#
 #End Doc Library

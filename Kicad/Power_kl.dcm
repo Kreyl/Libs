@@ -123,7 +123,7 @@ $CMP MCP73832
 D 1Cell LiPo Charger up to 500mA SOT23-5
 $ENDCMP
 #
-$CMP NCP1400
+$CMP NCP140x
 D Step-up: Vin=0.2...5.5V, Vout=3.3V, Iout=100mA; SOT23-5
 $ENDCMP
 #

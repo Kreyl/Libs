@@ -140,7 +140,7 @@ D DB9 connector
 $ENDCMP
 #
 $CMP RJ11
-D RJ-11 (6P4C) connector
+D RJ-11 connector
 $ENDCMP
 #
 $CMP RJ45
