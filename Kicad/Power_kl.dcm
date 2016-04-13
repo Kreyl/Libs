@@ -17,6 +17,10 @@ $CMP BAT
 D Battery
 $ENDCMP
 #
+$CMP BAT_NO_CONN
+D Battery with no connection
+$ENDCMP
+#
 $CMP BQ24010
 D LiIon linear charger, up to 1A
 $ENDCMP
