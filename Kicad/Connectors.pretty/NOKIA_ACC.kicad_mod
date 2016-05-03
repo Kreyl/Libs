@@ -1,4 +1,4 @@
-(module CONN_NOKIA_ACC locked (layer F.Cu) (tedit 5711FD71)
+(module NOKIA_ACC locked (layer F.Cu) (tedit 5711FD71)
   (fp_text reference XL5 (at -2.10058 0 90) (layer F.SilkS)
     (effects (font (size 0.59944 0.59944) (thickness 0.14986)))
   )

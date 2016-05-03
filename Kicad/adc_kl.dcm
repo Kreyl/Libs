@@ -16,4 +16,8 @@ $CMP ADS8320
 D 16bit ADC, MSOP8, 100kSPS), SPI
 $ENDCMP
 #
+$CMP MCP3551
+D 1x dif ch, 1x single ref in
+$ENDCMP
+#
 #End Doc Library

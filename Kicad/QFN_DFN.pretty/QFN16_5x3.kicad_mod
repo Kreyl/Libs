@@ -1,4 +1,4 @@
-(module QFN16_5_3 (layer F.Cu) (tedit 55283128)
+(module QFN16_5x3 (layer F.Cu) (tedit 55283128)
   (fp_text reference QFN16_5_3 (at 0 -2.99974) (layer F.SilkS)
     (effects (font (size 0.635 0.635) (thickness 0.14986)))
   )
