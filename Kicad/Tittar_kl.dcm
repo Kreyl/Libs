@@ -36,10 +36,6 @@ $CMP CT
 D Trimmer capacitor
 $ENDCMP
 #
-$CMP DALC208SC6
-D 4x transient voltage supressors, SOT23-6
-$ENDCMP
-#
 $CMP DIODE
 D Diode simple
 K Diode
@@ -89,10 +85,6 @@ $CMP OPTOCOUPLER_TR
 D Optocoupler with triac
 $ENDCMP
 #
-$CMP PESD1CAN
-D ESD-protection SOT23 2-Channel
-$ENDCMP
-#
 $CMP R
 D Resistor
 K R DEV
@@ -108,10 +100,6 @@ $ENDCMP
 #
 $CMP SWITCH_H
 D Switch with housing
-$ENDCMP
-#
-$CMP USBLC6_2XX
-D Low-capacitance ESD protection for USB
 $ENDCMP
 #
 #End Doc Library

@@ -1,15 +1,7 @@
 EESchema-DOCLIB  Version 2.0
 #
-$CMP 2N7002
-D N-channel SOT-23 0.115A 60V
-$ENDCMP
-#
 $CMP IRLMS1503
 D N-channel SOT-23-6 3.2A 30V
-$ENDCMP
-#
-$CMP IRLMS6702
-D P-channel SOT-23-6 2.4A 20V
 $ENDCMP
 #
 $CMP MAX2602
@@ -26,6 +18,22 @@ $ENDCMP
 #
 $CMP NPN_B1C2E3
 D NPN: B-1, C-2, E-3
+$ENDCMP
+#
+$CMP N_3PIN
+D N-channel 3pin
+$ENDCMP
+#
+$CMP Nx2_SO8
+D N-channel x2 in SO8 case
+$ENDCMP
+#
+$CMP P_3PIN
+D P-channel 3 pin
+$ENDCMP
+#
+$CMP P_6PIN
+D P-channel 3-lead
 $ENDCMP
 #
 $CMP ULN200x
