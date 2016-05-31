@@ -41,6 +41,10 @@ $CMP IPS6041
 D Intelligent power switch with diag out (current limit 7A)
 $ENDCMP
 #
+$CMP IR3856
+D Buck 1.5-16Vin 6A, integrated mosfets
+$ENDCMP
+#
 $CMP L5973
 D Buck 2A 4-36V SO8
 $ENDCMP
@@ -61,6 +65,10 @@ $ENDCMP
 $CMP LM2703
 D SOT23-5 Step-Up DC/DC Converter
 F D:/MyDocuments/Инструкции/Datasheets/Power/LM2703 2.2 to ~20.pdf
+$ENDCMP
+#
+$CMP LM3150
+D Buck 6-42Vin 12A
 $ENDCMP
 #
 $CMP LM317_SO8

@@ -36,6 +36,14 @@ $CMP P_6PIN
 D P-channel 3-lead
 $ENDCMP
 #
+$CMP P_8PIN
+D 8-pin P-channel
+$ENDCMP
+#
+$CMP Px2_SO8
+D P-channel x2 in SO8 case
+$ENDCMP
+#
 $CMP ULN200x
 D 7x darlingtons with common
 $ENDCMP
