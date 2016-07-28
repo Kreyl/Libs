@@ -4,6 +4,14 @@ $CMP ATMEL_JTAG
 D JTAG conn for ATMEL
 $ENDCMP
 #
+$CMP AudioJackSimple
+D Audio Jack Connector, 3pin
+$ENDCMP
+#
+$CMP AudioJackSimple_x4
+D Audio Jack Connector, 3pin
+$ENDCMP
+#
 $CMP BARREL_SOCKET
 D Power connector socket
 $ENDCMP
@@ -100,10 +108,6 @@ $ENDCMP
 #
 $CMP CONN_AUDIOJACK
 D Audio Jack Connector, 6 pin
-$ENDCMP
-#
-$CMP CONN_AUDIO_SIMPLE
-D Audio Jack Connector, 3pin
 $ENDCMP
 #
 $CMP CONN_GOST_1

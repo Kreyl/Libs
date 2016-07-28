@@ -1,5 +1,9 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP A3906
+D Dual DC motor driver
+$ENDCMP
+#
 $CMP AAT3221
 D SOT23-5 linear regulator
 F D:/MyDocuments/Инструкции/Datasheets/Power/AAT3221IGV-3.3-T1.pdf
@@ -200,6 +204,10 @@ D LED driver 1.5A 24V
 $ENDCMP
 #
 $CMP TL431_SO8
+D Programmable precision reference
+$ENDCMP
+#
+$CMP TL431_SOT23
 D Programmable precision reference
 $ENDCMP
 #

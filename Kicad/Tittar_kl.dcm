@@ -94,6 +94,10 @@ $CMP RELAY_DPDT
 D Relay with double switching contacts
 $ENDCMP
 #
+$CMP RVarWSw
+D Variable resistor with internal switch
+$ENDCMP
+#
 $CMP SWITCH
 D Switch
 $ENDCMP
