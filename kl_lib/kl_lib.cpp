@@ -107,36 +107,47 @@ void Timer_t::Deinit() const {
 }
 
 void Timer_t::SetupPrescaler(uint32_t PrescaledFreqHz) const {
-    uint32_t Freq;
+    uint32_t InputFreq;
 #if defined STM32L1XX
-    if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) Freq = Clk.APB2FreqHz * Clk.Timer9_11ClkMulti;
-    else Freq = Clk.APB1FreqHz * Clk.Timer2_7ClkMulti;
+    // APB2
+    if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) {
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 8;
+        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
+        else  InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
+    }
+    // APB1
+    else {
+        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
+        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
+        else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
+    }
 #elif defined STM32F0XX
-    Freq = Clk.APBFreqHz * Clk.TimerClkMulti;
+    InputFreq = Clk.APBFreqHz * Clk.TimerClkMulti;
 #elif defined STM32L4XX
     uint32_t Pre;
     if(ANY_OF_5(ITmr, TIM1, TIM8, TIM15, TIM16, TIM17)) {   // APB2
         Pre = (RCC->CFGR >> 11) & 0b111;
-        Freq = Clk.APB2FreqHz;
+        InputFreq = Clk.APB2FreqHz;
     }
     else {
         Pre = (RCC->CFGR >> 8) & 0b111;
-        Freq = Clk.APB1FreqHz;
+        InputFreq = Clk.APB1FreqHz;
     }
-    if(Pre >= 4) Freq *= 2;
+    if(Pre >= 4) InputFreq *= 2;
 #else
 #error "Timer Clk setup error"
 #endif
-    ITmr->PSC = (Freq / PrescaledFreqHz) - 1;
+    ITmr->PSC = (InputFreq / PrescaledFreqHz) - 1;
 }
 
 void PinOutputPWM_t::Init() const {
     Timer_t::Init();
     // GPIO
 #if defined STM32L1XX
-    if              (ITmr == TIM2)              PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF1);
-    else if(ANY_OF_2(ITmr, TIM3, TIM4))         PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF2);
-    else if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF3);
+    AlterFunc_t AF = AF1; // For TIM2
+    if(ANY_OF_2(ITmr, TIM3, TIM4)) AF = AF2;
+    else if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) AF = AF3;
+    PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF);
 #elif defined STM32F0XX
     if     (ITmr == TIM1)  PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF2);
     else if(ITmr == TIM3)  PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF1);
@@ -206,8 +217,18 @@ void Timer_t::SetUpdateFrequency(uint32_t FreqHz) const {
     else // APB1 is clock src
     	SetTopValue((*PClk * Clk.TimerAPB1ClkMulti) / FreqHz);
 #elif defined STM32L1XX
-    if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) InputFreq = Clk.APB2FreqHz * Clk.Timer9_11ClkMulti;
-    else InputFreq = Clk.APB1FreqHz * Clk.Timer2_7ClkMulti;
+    // APB2
+    if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) {
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 8;
+        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
+        else  InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
+    }
+    // APB1
+    else {
+        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
+        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
+        else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
+    }
 #elif defined STM32L4XX
     // APB2
     if(ITmr == TIM1 or ITmr == TIM8 or ITmr == TIM15 or ITmr == TIM16 or ITmr == TIM17) {
@@ -783,9 +804,6 @@ void Clk_t::UpdateFreqValues() {
     APB1FreqHz = AHBFreqHz >> tmp;
     tmp = APBPrescTable[APB2prs];
     APB2FreqHz = AHBFreqHz >> tmp;
-    // Timer multi
-    Timer2_7ClkMulti = (APB1prs < 4)? 1 : 2;
-    Timer9_11ClkMulti = (APB2prs < 4)? 1 : 2;
 }
 
 // ==== Common use ====
@@ -893,9 +911,8 @@ void Clk_t::SetupFlashLatency(uint8_t AHBClk_MHz) {
 
 void Clk_t::PrintFreqs() {
     Uart.Printf(
-            "AHBFreq=%uMHz; APB1Freq=%uMHz; APB2Freq=%uMHz; Tim 2...7 Multi=%u; Tim 9...11 Multi=%u\r",
-            Clk.AHBFreqHz/1000000, Clk.APB1FreqHz/1000000, Clk.APB2FreqHz/1000000,
-            Timer2_7ClkMulti, Timer9_11ClkMulti);
+            "AHBFreq=%uMHz; APB1Freq=%uMHz; APB2Freq=%uMHz\r",
+            Clk.AHBFreqHz/1000000, Clk.APB1FreqHz/1000000, Clk.APB2FreqHz/1000000);
 }
 
 // ==== V Core ====

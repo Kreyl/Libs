@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <kl_lib.h>
+#include "kl_lib.h"
 #include "ChunkTypes.h"
 #include "board.h"
 
@@ -21,6 +21,6 @@ private:
         return sltProceed;  // Always proceed
     }
 public:
-    Vibro_t(PortPinTim_t APin) : BaseSequencer_t(), IPin(APin) {}
+    Vibro_t(PwmSetup_t APin) : BaseSequencer_t(), IPin(APin) {}
     void Init() { IPin.Init(); }
 };

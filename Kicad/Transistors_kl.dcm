@@ -28,6 +28,10 @@ $CMP Nx2_SO8
 D N-channel x2 in SO8 case
 $ENDCMP
 #
+$CMP PNP
+D Generic PNP
+$ENDCMP
+#
 $CMP P_3PIN
 D P-channel 3 pin
 $ENDCMP

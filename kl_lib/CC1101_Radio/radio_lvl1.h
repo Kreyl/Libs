@@ -11,6 +11,7 @@
 #include "ch.h"
 #include "cc1101.h"
 #include "kl_buf.h"
+#include "uart.h"
 
 #if 0 // ========================= Signal levels ===============================
 // Python translation for db
@@ -54,20 +55,31 @@ static inline void Lvl250ToLvl1000(uint16_t *PLvl) {
 #endif
 
 #if 1 // =========================== Pkt_t =====================================
-struct rPkt_t {
-    uint32_t DWord;
+union rPkt_t {
+    uint32_t DWord32;
+    struct {
+        uint8_t ID;
+        uint8_t State;
+        uint8_t CheckID;
+        uint8_t CheckState;
+    };
+    bool operator == (const rPkt_t &APkt) { return (DWord32 == APkt.DWord32); }
+    rPkt_t& operator = (const rPkt_t &Right) { DWord32 = Right.DWord32; return *this; }
 } __attribute__ ((__packed__));
-#define RPKT_LEN        sizeof(rPkt_t)
+#define RPKT_LEN    sizeof(rPkt_t)
 #endif
 
-#define THE_WORD        0xCA115EA1
+//#define THE_WORD        0xCA115EA1
 
 // ==== Sizes ====
-#define RXTABLE_SZ      54
+#define RXTABLE_SZ      9
 #define RXTABLE_MAX_CNT 3   // Do not receive if this count reached. Will not indicate more anyway.
 
 #if 1 // ======================= Channels & cycles =============================
+#define REMCTRL_ID      8   // ID of remote control
+
 #define RCHNL_MIN       0
+#define RCHNL_MAX       8
 #define ID2RCHNL(ID)    (RCHNL_MIN + ID)
 #endif
 
@@ -75,8 +87,45 @@ struct rPkt_t {
 #define RX_T_MS                 180      // pkt duration at 10k is around 12 ms
 #define RX_SLEEP_T_MS           810
 #define MIN_SLEEP_DURATION_MS   18
-
 #endif
+
+class RxTable_t {
+private:
+    rPkt_t IBuf[RXTABLE_SZ];
+    uint32_t Cnt = 0;
+public:
+    void AddOrReplaceExisting(rPkt_t &APkt) {
+        for(uint32_t i=0; i<Cnt; i++) {
+            if(IBuf[i].ID == APkt.ID) {
+                IBuf[i] = APkt; // Replace with newer pkt
+                return;
+            }
+        }
+        IBuf[Cnt] = APkt;
+        if(Cnt < (RXTABLE_SZ-1)) Cnt++;
+    }
+    uint32_t GetCount() { return Cnt; }
+    void Clear() { Cnt = 0; }
+    uint8_t GetPktByID(uint8_t ID, rPkt_t **ptr) {
+        for(uint32_t i=0; i<Cnt; i++) {
+            if(IBuf[i].ID == ID) {
+                *ptr = &IBuf[i];
+                return OK;
+            }
+        }
+        return FAILURE;
+    }
+    bool IDPresents(uint8_t ID) {
+        for(uint32_t i=0; i<Cnt; i++) {
+            if(IBuf[i].ID == ID) return true;
+        }
+        return false;
+    }
+    void Print() {
+        Uart.Printf("RxTable Cnt: %u\r", Cnt);
+        for(uint32_t i=0; i<Cnt; i++) Uart.Printf("ID: %u; State: %u\r", IBuf[i].ID, IBuf[i].State);
+    }
+};
 
 class rLevel1_t {
 private:
@@ -88,10 +137,11 @@ private:
 public:
     thread_t *PThd;
     int8_t Rssi;
+    RxTable_t RxTable;
+    bool MustTx = false;
     uint8_t Init();
     // Inner use
     void ITask();
-//    rLevel1_t(): PThd(nullptr) Pkt({0}) {}
 };
 
 extern rLevel1_t Radio;

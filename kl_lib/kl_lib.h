@@ -418,6 +418,12 @@ enum PinPullUpDown_t {
     pudPullDown = 0b10
 };
 
+struct PinInputSetup_t {
+    GPIO_TypeDef *PGpio;
+    uint16_t Pin;
+    PinPullUpDown_t PullUpDown;
+};
+
 struct PwmSetup_t {
     GPIO_TypeDef *PGpio;
     uint16_t Pin;
@@ -470,11 +476,10 @@ enum AlterFunc_t {
 
 // Set/clear
 #if defined STM32L1XX || defined STM32F2XX || defined STM32F4XX || defined STM32F042x6
-static inline void PinSet(GPIO_TypeDef *PGpio, uint16_t APin) { PGpio->BSRRL = (1 << APin); }
-static inline void PinSet(const PortPin_t *APin) { APin->PGpio->BSRRL = (1 << APin->Pin); }
-static inline void PinSet(const PortPinOutput_t &APin) { APin.PGpio->BSRRL = (1 << APin.Pin); }
-static inline void PinClear(GPIO_TypeDef *PGpio, uint16_t APin) { PGpio->BSRRH = (1 << APin); }
-static inline void PinClear(const PortPin_t *APin) { APin->PGpio->BSRRH = (1 << APin->Pin); }
+__always_inline
+static inline void PinSetHi(GPIO_TypeDef *PGpio, uint16_t APin) { PGpio->BSRRL = (1 << APin); }
+__always_inline
+static inline void PinSetLo(GPIO_TypeDef *PGpio, uint16_t APin) { PGpio->BSRRH = (1 << APin); }
 
 #elif defined STM32F0XX || defined STM32F10X_LD_VL || defined STM32L4XX
 __always_inline
@@ -736,6 +741,31 @@ static inline void JtagDisable() {
 #endif
 
 #if 1 // ===================== Pin classes ========================
+class PinOutput_t {
+private:
+    GPIO_TypeDef *PGpio;
+    uint16_t Pin;
+    PinOutMode_t OutputType;
+public:
+    void Init() const { PinSetupOut(PGpio, Pin, OutputType); }
+    void Deinit() const { PinSetupAnalog(PGpio, Pin); }
+    void Hi() const { PinSetHi(PGpio, Pin); }
+    void Lo() const { PinSetLo(PGpio, Pin); }
+    PinOutput_t(GPIO_TypeDef *APGPIO, uint16_t APin, PinOutMode_t AOutputType) :
+        PGpio(APGPIO), Pin(APin), OutputType(AOutputType) {}
+};
+
+class PinInput_t {
+private:
+    const PinInputSetup_t ISetup;
+public:
+    void Init() const { PinSetupInput(ISetup.PGpio, ISetup.Pin, ISetup.PullUpDown); }
+    void Deinit() const { PinSetupAnalog(ISetup.PGpio, ISetup.Pin); }
+    bool IsHi() const { return PinIsHi(ISetup.PGpio, ISetup.Pin); }
+    PinInput_t(const PinInputSetup_t &ASetup) : ISetup(ASetup) {}
+};
+
+
 // ==== PWM output ====
 /* Example:
  * #define LED_R_PIN { GPIOB, 1, TIM3, 4, invInverted, omPushPull, 255 }
@@ -1033,7 +1063,7 @@ struct i2cParams_t {
     GPIO_TypeDef *PGpio;
     uint16_t SclPin;
     uint16_t SdaPin;
-    PinAF_t PinAF;
+    AlterFunc_t PinAF;
     uint32_t BitrateHz;
     // DMA
     const stm32_dma_stream_t *PDmaTx;
@@ -1227,8 +1257,6 @@ public:
     uint32_t AHBFreqHz;     // HCLK: AHB Bus, Core, Memory, DMA; 32 MHz max
     uint32_t APB1FreqHz;    // PCLK1: APB1 Bus clock; 32 MHz max
     uint32_t APB2FreqHz;    // PCLK2: APB2 Bus clock; 32 MHz max
-    uint8_t Timer2_7ClkMulti = 1;
-    uint8_t Timer9_11ClkMulti = 1;
     // SysClk switching
     uint8_t SwitchToHSI();
     uint8_t SwitchToHSE();

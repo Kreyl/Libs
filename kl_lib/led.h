@@ -177,6 +177,11 @@ public:
         G.Set(AColor.G);
         B.Set(AColor.B);
     }
+    void SetColor(uint8_t AR, uint8_t AG, uint8_t AB) {
+        R.Set(AR);
+        G.Set(AG);
+        B.Set(AB);
+    }
 };
 #endif
 

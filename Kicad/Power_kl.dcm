@@ -138,6 +138,10 @@ $CMP MAX8881
 D LDO 3.3V 200mA Icc 3.5uA
 $ENDCMP
 #
+$CMP MC33926
+D DC Motor Driver, H-bridge (5-28V, 5A)
+$ENDCMP
+#
 $CMP MC34063
 D Universal converter (up, down, inverting) up to 1.5A
 $ENDCMP

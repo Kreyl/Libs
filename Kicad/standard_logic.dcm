@@ -1,5 +1,9 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP 4x2AND
+D 4x 2AND gates
+$ENDCMP
+#
 $CMP MC74VHC1
 D Single Hi-Lo/Lo-Hi tri-state buffer SOT23-5
 $ENDCMP
