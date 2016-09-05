@@ -15,10 +15,10 @@
 
 struct Color_t {
     union {
+        uint32_t DWord32;
         struct {
             uint8_t R, G, B;
         };
-        uint32_t DWord32;
     };
     bool operator == (const Color_t &AColor) const { return (DWord32 == AColor.DWord32); }
     bool operator != (const Color_t &AColor) const { return (DWord32 != AColor.DWord32); }
@@ -86,7 +86,7 @@ struct Color_t {
     }
     void Print() { Uart.Printf("{%u, %u, %u}\r", R, G, B); }
     Color_t() : DWord32(0) {}
-    Color_t(uint8_t AR, uint8_t AG, uint8_t AB) : R(AR), G(AG), B(AB) {}
+    Color_t(uint8_t AR, uint8_t AG, uint8_t AB) { DWord32 = 0; R = AR; G = AG; B = AB; }
 } __attribute__((packed));
 
 

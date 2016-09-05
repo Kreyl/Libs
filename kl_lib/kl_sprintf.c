@@ -6,7 +6,7 @@
 
 #if PRINTF_FLOAT_EN
 #define FLOAT_PRECISION     9
-static const long pow10[FLOAT_PRECISION] = {
+static const long power10Table[FLOAT_PRECISION] = {
     10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
 };
 #endif
@@ -117,13 +117,14 @@ uint32_t kl_vsprintf(ftVoidChar PPutChar, uint32_t MaxLength, const char *format
                 }
                 int32_t n;
                 if((precision == 0) || (precision > FLOAT_PRECISION)) precision = FLOAT_PRECISION;
-                precision = pow10[precision - 1];
                 n = (int32_t)f;
                 IPutUint(n, 10);
                 if(CharCnt >= MaxLength) goto End;
                 PPutChar('.');
                 if(++CharCnt >= MaxLength) goto End;
-                n = (long)((f - n) * precision);
+                filler = '0';
+                width = precision;
+                n = (long)((f - n) * power10Table[precision - 1]);
                 IPutUint(n, 10);
             } break;
 #endif
