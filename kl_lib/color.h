@@ -60,9 +60,9 @@ struct Color_t {
             else B = 0;
         }
     }
-    void Set(uint8_t Red, uint8_t Green, uint8_t Blue) { R = Red; G = Green; B = Blue; }
-    void Set(const Color_t* p) { DWord32 = p->DWord32; }
-    void Get(uint8_t *PR, uint8_t *PG, uint8_t *PB) const { *PR = R; *PG = G; *PB = B; }
+    void FromRGB(uint8_t Red, uint8_t Green, uint8_t Blue) { R = Red; G = Green; B = Blue; }
+    void ToRGB(uint8_t *PR, uint8_t *PG, uint8_t *PB) const { *PR = R; *PG = G; *PB = B; }
+    bool IsEqualRGB(uint8_t Red, uint8_t Green, uint8_t Blue) { return (R == Red and G == Green and B == Blue); }
     uint8_t RGBTo565_HiByte() const {
         uint32_t rslt = R & 0b11111000;
         rslt |= G >> 5;

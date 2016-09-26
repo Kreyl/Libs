@@ -37,13 +37,10 @@ public:
 #endif
 
 
-#if 0 // ======================== Single Led Smooth ============================
-#define LED_TOP_VALUE       255
-#define LED_INVERTED_PWM    invInverted
-
+#if 1 // ======================== Single Led Smooth ============================
 class LedSmooth_t : public BaseSequencer_t<LedSmoothChunk_t> {
 private:
-    PinOutputPWM_t<LED_TOP_VALUE, LED_INVERTED_PWM> IChnl;
+    const PinOutputPWM_t IChnl;
     uint8_t ICurrentBrightness;
     void ISwitchOff() { SetBrightness(0); }
     SequencerLoopTask_t ISetup() {
@@ -61,7 +58,7 @@ private:
                 if(ICurrentBrightness == IPCurrentChunk->Brightness) IPCurrentChunk++;
                 else { // Not completed
                     // Calculate time to next adjustment
-                    uint32_t Delay = ICalcDelay(ICurrentBrightness, IPCurrentChunk->Value);
+                    uint32_t Delay = ClrCalcDelay(ICurrentBrightness, IPCurrentChunk->Value);
                     SetupDelay(Delay);
                     return sltBreak;
                 } // Not completed
@@ -71,8 +68,8 @@ private:
         return sltProceed;
     }
 public:
-    LedSmooth_t(const PinOutputPWM_t<LED_TOP_VALUE, LED_INVERTED_PWM> AChnl) :
-        BaseSequencer_t(), IChnl(AChnl), ICurrentBrightness(0) {}
+    LedSmooth_t(const PwmSetup_t APinSetup) :
+        BaseSequencer_t(), IChnl(APinSetup), ICurrentBrightness(0) {}
     void Init() {
         IChnl.Init();
         SetBrightness(0);
@@ -177,24 +174,19 @@ public:
         G.Set(AColor.G);
         B.Set(AColor.B);
     }
-    void SetColor(uint8_t AR, uint8_t AG, uint8_t AB) {
-        R.Set(AR);
-        G.Set(AG);
-        B.Set(AB);
-    }
 };
 #endif
 
-#if 0 // =========================== RGB LED with power ========================
+#if 1 // =========================== RGB LED with power ========================
 class LedRGBwPower_t : public LedRGBParent_t {
 private:
     const PinOutput_t PwrPin;
 public:
     LedRGBwPower_t(
-            const PortPinTim_t ARed,
-            const PortPinTim_t AGreen,
-            const PortPinTim_t ABlue,
-            const PortPinOutput_t APwrPin) :
+            const PwmSetup_t ARed,
+            const PwmSetup_t AGreen,
+            const PwmSetup_t ABlue,
+            const PinOutput_t APwrPin) :
                 LedRGBParent_t(ARed, AGreen, ABlue), PwrPin(APwrPin) {}
     void Init() {
         PwrPin.Init();

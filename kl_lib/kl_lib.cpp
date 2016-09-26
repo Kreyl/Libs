@@ -24,7 +24,9 @@ void Timer_t::Init() const {
     else if(ITmr == TIM11) { rccEnableAPB2(RCC_APB2ENR_TIM11EN, FALSE); }
 #elif defined STM32F0XX
     if     (ITmr == TIM1)  { rccEnableTIM1(FALSE); }
+#ifdef TIM2
     else if(ITmr == TIM2)  { rccEnableTIM2(FALSE); }
+#endif
     else if(ITmr == TIM3)  { rccEnableTIM3(FALSE); }
 #ifdef TIM6
     else if(ITmr == TIM6)  { rccEnableAPB1(RCC_APB1ENR_TIM6EN,  FALSE); }
@@ -80,7 +82,9 @@ void Timer_t::Deinit() const {
     TMR_DISABLE(ITmr);
 #if defined STM32F0XX
     if     (ITmr == TIM1)  { rccDisableTIM1(); }
+#ifdef TIM2
     else if(ITmr == TIM2)  { rccDisableTIM2(); }
+#endif
     else if(ITmr == TIM3)  { rccDisableTIM3(); }
 #ifdef TIM6
     else if(ITmr == TIM6)  { rccDisableTIM6(); }
@@ -149,11 +153,11 @@ void PinOutputPWM_t::Init() const {
     else if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) AF = AF3;
     PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF);
 #elif defined STM32F0XX
-    if     (ITmr == TIM1)  PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF2);
-    else if(ITmr == TIM3)  PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF1);
+    if     (ITmr == TIM1)  PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF2);
+    else if(ITmr == TIM3)  PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF1);
     else if(ITmr == TIM14) {
-        if(GPIO == GPIOA) PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF4);
-        else PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF0);
+        if(ISetup.PGpio == GPIOA) PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF4);
+        else PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF0);
     }
 #ifdef TIM15
     else if(ITmr == TIM15) {
@@ -162,8 +166,8 @@ void PinOutputPWM_t::Init() const {
     }
 #endif
     else if(ITmr == TIM16 or ITmr == TIM17) {
-        if(GPIO == GPIOA) PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF5);
-        else PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF2);
+        if(ISetup.PGpio == GPIOA) PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF5);
+        else PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF2);
     }
 #elif defined STM32F2XX || defined STM32F4XX
     if(ANY_OF_2(ITmr, TIM1, TIM2)) PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF1);
@@ -242,6 +246,9 @@ void Timer_t::SetUpdateFrequency(uint32_t FreqHz) const {
         if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
         else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
     }
+#elif defined STM32F0XX
+    if((RCC->CFGR & RCC_CFGR_PPRE_2) == 0) InputFreq = Clk.APBFreqHz; // APB1CLK = HCLK / 1
+    else InputFreq = Clk.APBFreqHz * 2;                               // APB1CLK = HCLK / (not 1)
 #endif
     uint32_t UpdFreqMax = InputFreq / (ITmr->ARR + 1);
     uint32_t div = UpdFreqMax / FreqHz;
@@ -635,6 +642,7 @@ uint8_t Eeprom_t::WriteBuf(void *PSrc, uint32_t Sz, uint32_t Addr) {
 
 #endif
 
+#if 0
 namespace Convert { // ============== Conversion operations ====================
 void U16ToArrAsBE(uint8_t *PArr, uint16_t N) {
     uint8_t *p8 = (uint8_t*)&N;
@@ -704,6 +712,7 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
     return (*p == '\0')? OK : NOT_A_NUMBER;
 }
 }; // namespace
+#endif
 
 #if 1 // ============================== Clocking ===============================
 Clk_t Clk;
@@ -964,6 +973,7 @@ uint8_t Clk_t::EnablePLL() {
     return 1; // Timeout
 }
 
+#ifdef RCC_CR2_HSI48ON
 uint8_t Clk_t::EnableHSI48() {
     RCC->CR2 |= RCC_CR2_HSI48ON;
     for(volatile uint32_t i=0; i<999; i++); // Let it to stabilize. Otherwise program counter flies to space with Ozzy Osbourne
@@ -974,6 +984,7 @@ uint8_t Clk_t::EnableHSI48() {
     } while(StartUpCounter < CLK_STARTUP_TIMEOUT);
     return 1; // Timeout
 }
+#endif
 
 void Clk_t::UpdateFreqValues() {
     uint32_t tmp, PllSrc, PreDiv, PllMul;
@@ -992,15 +1003,20 @@ void Clk_t::UpdateFreqValues() {
             PllSrc = RCC->CFGR & RCC_CFGR_PLLSRC;
             switch(PllSrc) {
                 case RCC_CFGR_PLLSRC_HSI_DIV2:   SysClkHz = HSI_FREQ_HZ / 2; break;
+#ifdef RCC_CFGR_PLLSRC_HSI_PREDIV
                 case RCC_CFGR_PLLSRC_HSI_PREDIV: SysClkHz = HSI_FREQ_HZ / PreDiv; break;
+#endif
                 case RCC_CFGR_PLLSRC_HSE_PREDIV: SysClkHz = CRYSTAL_FREQ_HZ / PreDiv; break;
+#ifdef RCC_CFGR_PLLSRC_HSI48_PREDIV
                 case RCC_CFGR_PLLSRC_HSI48_PREDIV: SysClkHz = HSI48_FREQ_HZ / PreDiv; break;
+#endif
                 default: break;
             }
             SysClkHz *= PllMul;
             break;
-
+#ifdef RCC_CFGR_PLLSRC_HSI48_PREDIV
         case csHSI48: SysClkHz = HSI48_FREQ_HZ; break;
+#endif
     } // switch
 
     // AHB freq
@@ -1070,11 +1086,13 @@ uint8_t Clk_t::SwitchTo(ClkSrc_t AClkSrc) {
             return WaitSWS(RCC_CFGR_SWS_PLL);
             break;
 
+#ifdef RCC_CFGR_SW_HSI48
         case csHSI48:
             if(EnableHSI48() != OK) return FAILURE;
             RCC->CFGR = tmp | RCC_CFGR_SW_HSI48;
             return WaitSWS(RCC_CFGR_SWS_HSI48);
             break;
+#endif
     } // switch
     return FAILURE;
 }
@@ -1113,6 +1131,7 @@ void Clk_t::PrintFreqs() {
             Clk.AHBFreqHz/1000000, Clk.APBFreqHz/1000000);
 }
 
+#ifdef RCC_CFGR_SW_HSI48
 void Clk_t::EnableCRS() {
     RCC->APB1ENR |= RCC_APB1ENR_CRSEN;      // Enable CRS clocking
     RCC->APB1RSTR |= RCC_APB1RSTR_CRSRST;   // }
@@ -1154,14 +1173,17 @@ void Clk_t::SwitchToHsi48() {
     UpdateFreqValues();
     chSysUnlock();
 }
+#endif
 
 void Clk_t::SwitchToHsi() {
     chSysLock();
     SetupBusDividers(ISavedAhbDividers);
+#ifdef RCC_CFGR_SW_HSI48
     if(!IHsi48WasOn) {    // Switch hsi48 off if was off
         SwitchTo(csHSI);
         DisableHSI48();
     }
+#endif
     UpdateFreqValues();
     SetupFlashLatency(AHBFreqHz);
     chSysUnlock();

@@ -705,6 +705,10 @@ static inline void PortInit(GPIO_TypeDef *PGpioPort,
         case psLow:      PGpioPort->OSPEEDR = 0x00000000; break;
         case psMedium:   PGpioPort->OSPEEDR = 0x55555555; break;
         case psHigh:     PGpioPort->OSPEEDR = 0xAAAAAAAA; break;
+#elif defined STM32F0XX
+        case psLow:      PGpioPort->OSPEEDR = 0x00000000; break;
+        case psMedium:   PGpioPort->OSPEEDR = 0x55555555; break;
+        case psHigh:     PGpioPort->OSPEEDR = 0xFFFFFFFF; break;
 #endif
     }
 }
@@ -1343,8 +1347,13 @@ enum PllMul_t {
     pllMul16=14
 };
 
+#ifdef STM32F030
+enum PllSrc_t {plsHSIdiv2=0b00, plsHSIdivPREDIV=0b01, plsHSEdivPREDIV=0b10};
+enum ClkSrc_t {csHSI=0b00, csHSE=0b01, csPLL=0b10};
+#else
 enum PllSrc_t {plsHSIdiv2=0b00, plsHSIdivPREDIV=0b01, plsHSEdivPREDIV=0b10, plsHSI48divPREDIV=0b11};
 enum ClkSrc_t {csHSI=0b00, csHSE=0b01, csPLL=0b10, csHSI48=0b11};
+#endif
 
 enum AHBDiv_t {
     ahbDiv1=0b0000,
@@ -1366,7 +1375,9 @@ private:
     uint8_t EnablePLL();
     // To Hsi48 and back again
     uint32_t ISavedAhbDividers;
+#ifdef RCC_CFGR_SW_HSI48
     bool IHsi48WasOn;
+#endif
 public:
     // Frequency values
     uint32_t AHBFreqHz;     // HCLK: AHB Bus, Core, Memory, DMA; 48 MHz max
@@ -1387,13 +1398,19 @@ public:
     void DisableHSE()   { RCC->CR  &= ~RCC_CR_HSEON; }
     void DisableHSI()   { RCC->CR  &= ~RCC_CR_HSION; }
     void DisablePLL()   { RCC->CR  &= ~RCC_CR_PLLON; }
+#ifdef RCC_CR2_HSI48ON
     void DisableHSI48() { RCC->CR2 &= ~RCC_CR2_HSI48ON; }
+#endif
     void DisableCRS();
     // Checks
+#ifdef RCC_CR2_HSI48ON
     bool IsHSI48On() { return (RCC->CR2 & RCC_CR2_HSI48ON); }
+#endif
     uint32_t GetAhbApbDividers() { return RCC->CFGR & (RCC_CFGR_HPRE | RCC_CFGR_PPRE); }
     // Setups
+#ifdef RCC_CFGR3_USBSW
     void SelectUSBClock_HSI48() { RCC->CFGR3 &= ~RCC_CFGR3_USBSW; }
+#endif
     void SetupBusDividers(AHBDiv_t AHBDiv, APBDiv_t APBDiv);
     void SetupBusDividers(uint32_t Dividers);
     uint8_t SetupPLLDividers(uint8_t HsePreDiv, PllMul_t PllMul);

@@ -81,10 +81,12 @@ public:
         PThread = APThread;
         EvtEnd = AEvt;
     }
-    void StartSequence(const TChunk *PChunk) {
+    void StartSequence(const TChunk *PChunk, eventmask_t AEvt = 0, thread_t *APThread = nullptr) {
         if(PChunk == nullptr) Stop();
         else {
             chSysLock();
+            if(AEvt != 0) EvtEnd = AEvt;
+            if(APThread != nullptr) PThread = APThread;
             IPStartChunk = PChunk;   // Save first chunk
             IPCurrentChunk = PChunk;
             IProcessSequenceI();
@@ -100,6 +102,8 @@ public:
         chSysUnlock();
     }
     const TChunk* GetCurrentSequence() { return IPStartChunk; }
+
+    bool IsIdle() const { return (IPStartChunk == nullptr); }
 
     void IProcessSequenceI() {
         if(chVTIsArmedI(&ITmr)) chVTResetI(&ITmr);  // Reset timer
@@ -126,7 +130,11 @@ public:
                     break;
 
                 case csEnd:
+                    // Signal End Of Sequence evt
                     if(PThread != nullptr) chEvtSignalI(PThread, EvtEnd);
+                    // Clear pointers
+                    IPStartChunk = nullptr;
+                    IPCurrentChunk = nullptr;
                     return;
                     break;
             } // switch
