@@ -1559,7 +1559,7 @@ void Clk_t::SetHiPerfMode() {
     // Try to enable HSE
     if(EnableHSE() == OK) {
         // Setup PLL (must be disabled first)
-        if(SetupPLLMulDiv(1, 24, 4, 6) == OK) { // 12MHz / 1 * 24 => 72 and 48MHz
+        if(SetupPllMulDiv(1, 24, 4, 6) == OK) { // 12MHz / 1 * 24 => 72 and 48MHz
             SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
             SetVoltageRange(mvrHiPerf);
             SetupFlashLatency(72, mvrHiPerf);
@@ -1590,7 +1590,7 @@ void Clk_t::SetVoltageRange(MCUVoltRange_t VoltRange) {
 }
 
 // M: 1...8; N: 8...86; R: 2,4,6,8
-uint8_t Clk_t::SetupPLLMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, uint32_t P) {
+uint8_t Clk_t::SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, uint32_t P) {
     if(!((M >= 1 and M <= 8) and (N >= 8 and N <= 86) and (R == 2 or R == 4 or R == 6 or R == 8))) return CMD_ERROR;
     if(RCC->CR & RCC_CR_PLLON) return BUSY; // PLL must be disabled to change dividers
     R = (R / 2) - 1;    // 2,4,6,8 => 0,1,2,3
@@ -1605,6 +1605,32 @@ uint8_t Clk_t::SetupPLLMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, ui
             (Q << 21) | RCC_PLLCFGR_PLLQEN;     // PLL48M1CLK output enable
     RCC->PLLCFGR = tmp;
     return 0;
+}
+
+uint8_t Clk_t::SetupPllSai1(uint32_t N, uint32_t R) {
+    // Disable PLLSAI1
+    CLEAR_BIT(RCC->CR, RCC_CR_PLLSAI1ON);
+    // Wait till PLLSAI1 is ready to be updated
+    uint32_t t = 45000;
+    while(READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) != 0) {
+        if(t-- == 0) {
+            Uart.Printf("Sai1Off Timeout %X\r", RCC->CR);
+            return FAILURE;
+        }
+    }
+    // Setup dividers
+    MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N, N << 8);
+    MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R, ((R >> 1U) - 1U) << 25);
+    SET_BIT(RCC->CR, RCC_CR_PLLSAI1ON); // Enable SAI
+    // Wait till PLLSAI1 is ready. May fail if PLL source disabled or not selected.
+    t = 45000;
+    while(READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) == 0) {
+        if(t-- == 0) {
+            Uart.Printf("SaiOn Timeout %X\r", RCC->CR);
+            return FAILURE;
+        }
+    }
+    return OK;
 }
 
 void Clk_t::Select48MhzSrc(Src48MHz_t Src) {

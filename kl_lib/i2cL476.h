@@ -46,6 +46,9 @@ public:
     i2c_t(const i2cParams_t *APParams) : PParams(APParams), PThd(nullptr), IState(istIdle), IPtr(nullptr), ILen(0) {}
     void Init();
     void ScanBus();
+    void Standby();
+    void Resume();
+    uint8_t CheckAddress(uint32_t Addr);
     uint8_t Write     (uint32_t Addr, uint8_t *WPtr,  uint32_t WLength);
     uint8_t WriteRead (uint32_t Addr, uint8_t *WPtr,  uint32_t WLength, uint8_t *RPtr, uint32_t RLength);
     uint8_t WriteWrite(uint32_t Addr, uint8_t *WPtr1, uint32_t WLength1, uint8_t *WPtr2, uint32_t WLength2);
@@ -54,4 +57,4 @@ public:
     void IServeErrIRQ(uint32_t isr);
 };
 
-extern i2c_t i2c1, i2c3;
+extern i2c_t i2c1, i2c2, i2c3;
