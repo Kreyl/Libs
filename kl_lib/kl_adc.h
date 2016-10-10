@@ -57,7 +57,12 @@ public:
     void EnableVRef()  { ADC->CCR |=  ADC_CCR_VREFEN; }
     void DisableVRef() { ADC->CCR &= ~ADC_CCR_VREFEN; }
     uint32_t GetResult(uint8_t AChannel);
-    uint32_t Adc2mV(uint32_t AdcChValue, uint32_t VrefValue);
+    uint32_t Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
+        return ((3300UL * ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
+    }
+    uint32_t Vref2mV(uint32_t VrefValue) {
+        return (3300UL * ADC_VREFINT_CAL) / VrefValue;
+    }
     void Stop() { ADC1->CR |= ADC_CR_ADSTP; }
     void Disable();
 };
@@ -151,7 +156,12 @@ public:
     void EnableVref()  { ADC123_COMMON->CCR |= ADC_CCR_VREFEN; }
     void DisableVref() { ADC123_COMMON->CCR &= ADC_CCR_VREFEN; }
     void StartMeasurement();
-    uint32_t Adc2mV(uint32_t AdcChValue, uint32_t VrefValue);
+    uint32_t Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
+        return ((3000UL * ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
+    }
+    uint32_t GetVDDA(uint32_t VrefValue) {
+        return (3000UL * ADC_VREFINT_CAL) / VrefValue;
+    }
     void Disable() { SET_BIT(ADC1->CR, ADC_CR_ADDIS); }
     void ClockOff() { rccDisableADC123(FALSE); }
     uint32_t GetResult(uint8_t AChannel);

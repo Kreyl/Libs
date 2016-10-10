@@ -19,9 +19,6 @@ Define symbol BUILD_TIME in main.cpp options with value "\"${current_date}\"".
 Maybe, to calm Eclipse, it will be required to write extra quote in the end: "\"${current_date}\"""
 */
 
-// Lib version
-#define KL_LIB_VERSION      "20160701_1045"
-
 #if defined STM32L1XX
 #include "stm32l1xx.h"
 #elif defined STM32F0XX
@@ -112,6 +109,12 @@ typedef void (*ftVoidPVoidLen)(void*p, uint32_t Len);
 #define TRIM_VALUE(v, Max)  { if((v) > (Max)) (v) = (Max); }
 #define IS_LIKE(v, precise, deviation)  (((precise - deviation) < v) and (v < (precise + deviation)))
 #define BitIsSet(r, b)  ((r) & (b))
+
+// Example: uint32_t us = Proportion<uint32_t>(Angle, 0, 180, imin_us, imax_us);
+template <typename T>
+static inline T Proportion(T x, T in_min, T in_max, T out_min, T out_max) {
+  return ((x - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
+}
 
 template <typename T>
 static T Average(T *p, uint32_t Len) {
@@ -432,6 +435,12 @@ struct PwmSetup_t {
     Inverted_t Inverted;
     PinOutMode_t OutputType;
     uint32_t TopValue;
+    PwmSetup_t(GPIO_TypeDef *APGpio, uint16_t APin,
+            TIM_TypeDef *APTimer, uint32_t ATimerChnl,
+            Inverted_t AInverted, PinOutMode_t AOutputType,
+            uint32_t ATopValue) : PGpio(APGpio), Pin(APin), PTimer(APTimer),
+                    TimerChnl(ATimerChnl), Inverted(AInverted), OutputType(AOutputType),
+                    TopValue(ATopValue) {}
 };
 
 #if defined STM32F2XX || defined STM32F4XX
@@ -633,15 +642,6 @@ static inline void PinSetupAnalog(GPIO_TypeDef *PGpioPort, const uint16_t APinNu
 #endif
 }
 
-#ifdef STM32L4XX
-static inline void PinConnectAdc(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber) {
-    SET_BIT(PGpioPort->ASCR, 1<<APinNumber);
-}
-static inline void PinDisconnectAdc(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber) {
-    CLEAR_BIT(PGpioPort->ASCR, 1<<APinNumber);
-}
-#endif
-
 static inline void PinSetupAlterFunc(
         GPIO_TypeDef *PGpioPort,
         const uint16_t APinNumber,
@@ -785,7 +785,7 @@ public:
  * PinOutputPWM_t Led {LedPin};
 */
 class PinOutputPWM_t : private Timer_t {
-private:
+protected:
     const PwmSetup_t ISetup;
 public:
     void Set(const uint16_t AValue) const { *TMR_PCCR(ITmr, ISetup.TimerChnl) = AValue; }    // CCR[N] = AValue
@@ -793,6 +793,11 @@ public:
     void Deinit() const { Timer_t::Deinit(); PinSetupAnalog(ISetup.PGpio, ISetup.Pin); }
     void SetFrequencyHz(uint32_t FreqHz) const { Timer_t::SetUpdateFrequency(FreqHz); }
     PinOutputPWM_t(const PwmSetup_t &ASetup) : Timer_t(ASetup.PTimer), ISetup(ASetup) {}
+    PinOutputPWM_t(GPIO_TypeDef *PGpio, uint16_t Pin,
+            TIM_TypeDef *PTimer, uint32_t TimerChnl,
+            Inverted_t Inverted, PinOutMode_t OutputType,
+            uint32_t TopValue) : Timer_t(PTimer),
+                    ISetup(PGpio, Pin, PTimer, TimerChnl, Inverted, OutputType, TopValue) {}
 };
 #endif
 
@@ -1070,7 +1075,7 @@ public:
 };
 #endif
 
-#if I2C1_ENABLED && !defined STM32L4XX // ========================= I2C ==============================
+#if 0 // ========================= I2C ==============================
 struct i2cParams_t {
     I2C_TypeDef *pi2c;
     GPIO_TypeDef *PGpio;
@@ -1544,11 +1549,11 @@ enum AHBDiv_t {
     ahbDiv256=0b1110,
     ahbDiv512=0b1111
 };
-
 enum APBDiv_t {apbDiv1=0b000, apbDiv2=0b100, apbDiv4=0b101, apbDiv8=0b110, apbDiv16=0b111};
+
 enum MCUVoltRange_t {mvrHiPerf, mvrLoPerf};
+
 enum Src48MHz_t { src48None = 0b00, src48PllSai1Q = 0b01, src48PllQ = 0b10, src48Msi = 0b11 };
-enum PllSrc_t { pllsrcNone = 0b00, pllsrcMsi = 0b01, pllsrcHsi16 = 0b10, pllsrcHse = 0b11 };
 
 class Clk_t {
 private:
@@ -1572,12 +1577,7 @@ public:
     void DisableMSI() { RCC->CR &= ~RCC_CR_MSION; }
 
     void SetupBusDividers(AHBDiv_t AHBDiv, APBDiv_t APB1Div, APBDiv_t APB2Div);
-    // PLL and PLLSAI
-    void SetupPllSrc(PllSrc_t Src) { MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, ((uint32_t)Src)); }
-    uint8_t SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, uint32_t P = 8);
-    uint8_t SetupPllSai1(uint32_t N, uint32_t R);
-    void EnableSai1ROut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1REN); }
-
+    uint8_t SetupPLLMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, uint32_t P = 8);
     void UpdateFreqValues();
     void EnablePrefeth() { FLASH->ACR |= FLASH_ACR_PRFTEN; }
     void SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange);

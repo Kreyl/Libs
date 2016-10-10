@@ -98,11 +98,6 @@ uint32_t Adc_t::GetResult(uint8_t AChannel) {
 //    Uart.Printf("\r");
     return Rslt / ADC_SAMPLE_CNT;
 }
-
-uint32_t Adc_t::Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
-    return ((3300UL * ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
-}
-
 #endif // stm32f0
 
 #if defined STM32F4XX || defined STM32L1XX
@@ -390,10 +385,6 @@ uint32_t Adc_t::GetResult(uint8_t AChannel) {
     }
 #endif
     return IBuf[0];
-}
-
-uint32_t Adc_t::Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
-    return ((3000UL * ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
 }
 #endif // L476
 

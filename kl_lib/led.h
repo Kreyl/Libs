@@ -193,8 +193,8 @@ public:
         LedRGBParent_t::Init();
     }
     void SetColor(Color_t AColor) {
-        if(AColor == clBlack) PwrPin.Lo();
-        else PwrPin.Hi();
+        if(AColor == clBlack) PwrPin.SetLo();
+        else PwrPin.SetHi();
         R.Set(AColor.R);
         G.Set(AColor.G);
         B.Set(AColor.B);
