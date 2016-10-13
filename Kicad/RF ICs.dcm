@@ -24,6 +24,10 @@ $CMP CC2500
 D 2.4 GHz tranciever
 $ENDCMP
 #
+$CMP CC2650RGZ
+D Bluetooth IC with ARM CM3
+$ENDCMP
+#
 $CMP EB570
 D GPS receiver
 $ENDCMP
