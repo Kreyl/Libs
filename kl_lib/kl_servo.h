@@ -29,18 +29,24 @@
 class Servo_t : private PinOutputPWM_t {
 private:
     const uint32_t imin_us, imax_us;
+
 public:
     void Init() const {
         PinOutputPWM_t::Init();
         PinOutputPWM_t::SetFrequencyHz(50);
         Set_us(imin_us);
+//        Release();
     }
-    void Set_us(uint32_t uS) const { PinOutputPWM_t::Set(uS); }
+    void Set_us(uint32_t uS, uint32_t ReleaseAfter_ms = 0) const {
+        PinOutputPWM_t::Set(uS);
+    }
 
-    void SetAngle_dg(uint32_t Angle) {
+    void SetAngle_dg(uint32_t Angle, uint32_t ReleaseAfter_ms = 0) const {
         uint32_t us = Proportion<uint32_t>(Angle, 0, 180, imin_us, imax_us);
-        Set_us(us);
+        Set_us(us, ReleaseAfter_ms);
     }
+
+    void Release() const { PinOutputPWM_t::Set(0); }
 
     Servo_t(GPIO_TypeDef *PGpio, uint16_t Pin, TIM_TypeDef *PTimer, uint32_t TimerChnl,
             uint32_t min_us = 544, uint32_t max_us = 2400) :

@@ -29,20 +29,20 @@ enum PillState_t { pillJustConnected, pillJustDisconnected, pillNoChange };
 class PillMgr_t {
 private:
     i2c_t *i2c;
-    const PinOutput_t IPwrPin;
+    const PinOutput_t PillPwr;
     void Standby();
     void Resume();
     bool IsConnectedNow;
-    uint8_t Read (uint8_t MemAddr, void *Ptr, uint32_t Length);
-    uint8_t Write(uint8_t MemAddr, void *Ptr, uint32_t Length);
 public:
     PillState_t State;
     Pill_t Pill;
     PillMgr_t(i2c_t *pi2c, const PinOutput_t APwrPin) :
-        i2c(pi2c), IPwrPin(APwrPin), IsConnectedNow(false), State(pillNoChange) {}
+        i2c(pi2c), PillPwr(APwrPin), IsConnectedNow(false), State(pillNoChange) {}
     void Init();
     void Check();
     uint8_t WritePill();
+    uint8_t Read (uint8_t MemAddr, void *Ptr, uint32_t Length);
+    uint8_t Write(uint8_t MemAddr, void *Ptr, uint32_t Length);
 };
 
 extern PillMgr_t PillMgr;

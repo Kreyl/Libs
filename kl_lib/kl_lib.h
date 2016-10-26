@@ -784,7 +784,7 @@ public:
  * #define LED_R_PIN { GPIOB, 1, TIM3, 4, invInverted, omPushPull, 255 }
  * PinOutputPWM_t Led {LedPin};
 */
-class PinOutputPWM_t : private Timer_t {
+class PinOutputPWM_t : protected Timer_t {
 protected:
     const PwmSetup_t ISetup;
 public:

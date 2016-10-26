@@ -7,6 +7,7 @@
 
 #include "pill_mgr.h"
 #include "board.h"
+#include "main.h"
 
 PillMgr_t PillMgr { &i2c2, PILL_PWR_PIN };
 
@@ -19,10 +20,12 @@ static void PillThread(void *arg) {
         PillMgr.Check();
         switch(PillMgr.State) {
             case pillJustConnected:
-                Uart.Printf("Pill: %d; %X\r", PillMgr.Pill.TypeInt32, PillMgr.Pill.AbilityMsk);
+//                Uart.Printf("Pill: %d; %X\r", PillMgr.Pill.TypeInt32, PillMgr.Pill.AbilityMsk);
+                App.SignalEvt(EVT_PILL_CONNECTED);
                 break;
             case pillJustDisconnected:
-                Uart.Printf("Pill Discon\r");
+                App.SignalEvt(EVT_PILL_DISCONNECTED);
+//                Uart.Printf("Pill Discon\r");
                 break;
             case pillNoChange:
                 break;
@@ -31,20 +34,20 @@ static void PillThread(void *arg) {
 }
 
 void PillMgr_t::Init() {
-    IPwrPin.Init();   // Power
+    PillPwr.Init();   // Power
     chThdCreateStatic(waPillThread, sizeof(waPillThread), NORMALPRIO, (tfunc_t)PillThread, NULL);
 }
 
 void PillMgr_t::Standby() {
     i2c->Standby();
-    IPwrPin.Lo();
+    PillPwr.SetLo();
     __NOP(); __NOP(); __NOP(); __NOP(); // Allow power to fade
-    IPwrPin.Deinit();
+    PillPwr.Deinit();
 }
 
 void PillMgr_t::Resume() {
-    IPwrPin.Init();
-    IPwrPin.Hi();
+    PillPwr.Init();
+    PillPwr.SetHi();
     __NOP(); __NOP(); __NOP(); __NOP(); // Allow power to rise
     i2c->Resume();
 }
@@ -100,13 +103,13 @@ uint8_t PillMgr_t::Write(uint8_t MemAddr, void *Ptr, uint32_t Length) {
             else {
                 Retries++;
                 if(Retries > 4) {
-                    Uart.Printf("Timeout\r");
+                    Uart.Printf("Timeout1\r");
                     Standby();
                     return TIMEOUT;
                 }
+                chThdSleepMilliseconds(4);   // Allow memory to complete writing
             }
         } // while trying
-        chThdSleepMilliseconds(5);   // Allow memory to complete writing
     }
     // Wait completion
     uint32_t Retries = 0;
@@ -114,12 +117,12 @@ uint8_t PillMgr_t::Write(uint8_t MemAddr, void *Ptr, uint32_t Length) {
 //        Uart.Printf("Wait: try %u\r", Retries);
         chThdSleepMilliseconds(1);
         Retries++;
-        if(Retries > 4) {
-            Uart.Printf("Timeout\r");
+        if(Retries > 5) {
+//            Uart.Printf("Timeout2\r");
             Standby();
             return TIMEOUT;
         }
-    } while(i2c->Write(PILL_I2C_ADDR, NULL, 0) != OK);
+    } while(i2c->CheckAddress(PILL_I2C_ADDR) != OK);
     Standby();
     return OK;
 }

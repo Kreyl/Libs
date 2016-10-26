@@ -7,7 +7,7 @@
 
 #pragma once
 
-enum PillType_t { pilltypeAbility, pilltypeSetup };
+enum PillType_t { pilltypeAbility = 0, pilltypeSetup = 1 };
 
 struct Pill_t {
     union {
@@ -15,7 +15,7 @@ struct Pill_t {
         PillType_t Type;
     };
     union {
-        int32_t AbilityMsk;
+        int32_t AbilityID;
         int32_t GyroTimeout;
     };
     // Contains dose value after pill application
