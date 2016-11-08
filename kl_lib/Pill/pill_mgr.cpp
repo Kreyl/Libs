@@ -9,7 +9,7 @@
 #include "board.h"
 #include "main.h"
 
-PillMgr_t PillMgr { &i2c2, PILL_PWR_PIN };
+PillMgr_t PillMgr { &I2C_PILL, PILL_PWR_PIN };
 
 static THD_WORKING_AREA(waPillThread, 128);
 __noreturn

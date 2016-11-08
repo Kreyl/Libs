@@ -11,10 +11,7 @@
 #include "ch.h"
 #include "pill.h"
 #include "kl_lib.h"
-
-#ifdef STM32L4XX
-#include "i2cL476.h"
-#endif
+#include "kl_i2c.h"
 
 #define PILL_CHECK_PERIOD_MS    540
 

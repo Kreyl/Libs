@@ -25,18 +25,18 @@
 
 #define CC_PWR_TABLE_SZ        12
 static const uint8_t CCPwrTable[CC_PWR_TABLE_SZ] = {
-        CC_PwrMinus30dBm, // 0
-        CC_PwrMinus27dBm, // 1
-        CC_PwrMinus25dBm, // 2
-        CC_PwrMinus20dBm, // 3
-        CC_PwrMinus15dBm, // 4
-        CC_PwrMinus10dBm, // 5
-        CC_PwrMinus6dBm,  // 6
-        CC_Pwr0dBm,       // 7
-        CC_PwrPlus5dBm,   // 8
-        CC_PwrPlus7dBm,   // 9
-        CC_PwrPlus10dBm,  // 10
-        CC_PwrPlus12dBm   // 11
+        CC_PwrMinus30dBm, // 0 = 0000
+        CC_PwrMinus27dBm, // 1 = 0001
+        CC_PwrMinus25dBm, // 2 = 0010
+        CC_PwrMinus20dBm, // 3 = 0011
+        CC_PwrMinus15dBm, // 4 = 0100
+        CC_PwrMinus10dBm, // 5 = 0101
+        CC_PwrMinus6dBm,  // 6 = 0110
+        CC_Pwr0dBm,       // 7 = 0111
+        CC_PwrPlus5dBm,   // 8 = 1000
+        CC_PwrPlus7dBm,   // 9 = 1001
+        CC_PwrPlus10dBm,  // 10 = 1010
+        CC_PwrPlus12dBm   // 11 = 1011
 };
 
 // ======================= Registers, strobes etc. =============================

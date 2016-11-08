@@ -16,8 +16,14 @@
 #include "ch.h"
 #include "hal.h"
 #include "kl_lib.h"
+#include "board.h"
 
-#define SIMPLESENSORS_ENABLED   TRUE
+#include "main.h" // App.thd here
+#include "evt_mask.h"
+
+#ifndef SIMPLESENSORS_ENABLED
+#define SIMPLESENSORS_ENABLED   FALSE
+#endif
 #define SNS_POLL_PERIOD_MS      72
 
 #if SIMPLESENSORS_ENABLED
@@ -25,26 +31,19 @@ enum PinSnsState_t {pssLo, pssHi, pssRising, pssFalling};
 typedef void (*ftVoidPSnsStLen)(PinSnsState_t *PState, uint32_t Len);
 
 // Single pin setup data
-struct PinSns_t {
-    GPIO_TypeDef *PGpio;
-    uint16_t Pin;
-    PinPullUpDown_t Pud;
+class PinSns_t : public PinInput_t {
+public:
     ftVoidPSnsStLen Postprocessor;
-    void Init() const { PinSetupInput(PGpio, Pin, Pud); }
-    void Off()  const { PinSetupAnalog(PGpio, Pin);  }
-    bool IsHi() const { return PinIsHi(PGpio, Pin); }
+    PinSns_t(PinInputSetup_t APin, ftVoidPSnsStLen pp) : PinInput_t(APin), Postprocessor(pp) {}
 };
 
 // ================================= Settings ==================================
 // Button handler
-extern void ProcessButtons(PinSnsState_t *BtnState, uint32_t Len);
+extern void ProcessButtons(PinSnsState_t *PState, uint32_t Len);
 
 const PinSns_t PinSns[] = {
         // Buttons
-        {BTN_GPIO, BTN_RED_PIN,   pudPullUp, ProcessButtons},
-        {BTN_GPIO, BTN_BLUE_PIN,  pudPullUp, ProcessButtons},
-        {BTN_GPIO, BTN_WHITE_PIN, pudPullUp, ProcessButtons},
-        {BTN_GPIO, BTN_OFF_PIN,   pudPullUp, ProcessButtons},
+        {BTN_PIN, ProcessButtons},
 };
 #define PIN_SNS_CNT     countof(PinSns)
 

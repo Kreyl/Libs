@@ -24,6 +24,7 @@ static systime_t LongPressTimer;
 static bool IsRepeating[BUTTONS_CNT];
 static systime_t RepeatTimer;
 #endif
+//static systime_t RepeatTimer, LongPressTimer;
 #if BTN_COMBO
     bool IsCombo;
 #endif
@@ -139,9 +140,9 @@ void AddEvtToQueue(BtnEvt_t AType, uint8_t KeyIndx) {
     IEvt.Type = AType;
 #if BTN_COMBO
     IEvt.BtnCnt = 1;
+#endif
+#if BUTTONS_CNT != 1
     IEvt.BtnID[0] = KeyIndx;
-#elif BUTTONS_CNT != 1
-    IEvt.BtnID = KeyIndx;
 #endif
     chSysLock();
     EvtBuf.Put(&IEvt);

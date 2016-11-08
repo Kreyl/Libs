@@ -107,7 +107,7 @@ void cc1101_t::SetChannel(uint8_t AChannel) {
 //    //Uart.Printf("\r");
 //}
 
-void cc1101_t::TransmitSync(void *Ptr) {
+void cc1101_t::Transmit(void *Ptr) {
     // WaitUntilChannelIsBusy();   // If this is not done, time after time FIFO is destroyed
     while(IState != CC_STB_IDLE) EnterIdle();
     WriteTX((uint8_t*)Ptr, IPktSz);
@@ -118,12 +118,12 @@ void cc1101_t::TransmitSync(void *Ptr) {
     chSysUnlock();  // Will be here when IRQ fires
 }
 
-// Enter RX mode and wait reception for Timeout_ms.
-uint8_t cc1101_t::ReceiveSync(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi) {
+// Enter RX mode and wait reception for Timeout_st.
+uint8_t cc1101_t::Receive_st(systime_t Timeout_st, void *Ptr, int8_t *PRssi) {
     FlushRxFIFO();
     chSysLock();
     EnterRX();
-    msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, MS2ST(Timeout_ms));    // Wait IRQ
+    msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, Timeout_st);    // Wait IRQ
     chSysUnlock();  // Will be here when IRQ will fire, or timeout occur - with appropriate message
 
     if(Rslt == MSG_TIMEOUT) {   // Nothing received, timeout occured
@@ -132,6 +132,11 @@ uint8_t cc1101_t::ReceiveSync(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi) {
     }
     else return ReadFIFO(Ptr, PRssi);
     return OK;
+}
+
+// Enter RX mode and wait reception for Timeout_ms.
+uint8_t cc1101_t::Receive(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi) {
+    return Receive_st(MS2ST(Timeout_ms), Ptr, PRssi);
 }
 
 // Return RSSI in dBm

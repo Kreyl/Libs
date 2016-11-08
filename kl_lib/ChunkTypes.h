@@ -133,6 +133,8 @@ public:
 
                 case csEnd:
                     if(PThread != nullptr) chEvtSignalI(PThread, EvtEnd);
+                    IPStartChunk = nullptr;
+                    IPCurrentChunk = nullptr;
                     return;
                     break;
             } // switch

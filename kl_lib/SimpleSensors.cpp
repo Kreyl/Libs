@@ -13,7 +13,7 @@ SimpleSensors_t PinSensors;
 
 // ==== Sensors Thread ====
 static THD_WORKING_AREA(waPinSnsThread, 64);
-__attribute__((noreturn))
+__noreturn
 static void SensorsThread(void *arg) {
     chRegSetThreadName("PinSensors");
     PinSensors.ITask();
@@ -29,9 +29,7 @@ void SimpleSensors_t::Init() {
     chThdCreateStatic(waPinSnsThread, sizeof(waPinSnsThread), (tprio_t)90, (tfunc_t)SensorsThread, NULL);
 }
 
-#define DSZ     sizeof(waPinSnsThread)
-
-__attribute__((noreturn))
+__noreturn
 void SimpleSensors_t::ITask() {
     while(true) {
         chThdSleepMilliseconds(SNS_POLL_PERIOD_MS);
@@ -56,9 +54,11 @@ void SimpleSensors_t::ITask() {
             if((i >= PIN_SNS_CNT) or (PinSns[i].Postprocessor != PostProcessor)) {
                 if(PostProcessor != nullptr) PostProcessor(PStates, GroupLen);
                 // Prepare for next group
-                PostProcessor = PinSns[i].Postprocessor;
+                if(i < PIN_SNS_CNT) {
+                    PostProcessor = PinSns[i].Postprocessor;
+                    PStates = &States[i];
+                }
                 GroupLen = 0;
-                PStates = &States[i];
             }
         } // while i
     } // while true

@@ -5,17 +5,16 @@
  * Created on 7 Март 2010 г., 12:42
  */
 
-#ifndef _CC_RF_SETTINGS_H
-#define	_CC_RF_SETTINGS_H
+#pragma once
 
 // All this is for 27.0 MHz crystal, and for 868 MHz carrier
 
 // Bitrate
-#define CC_BITRATE_10K
-//#define CC_BITRATE_38K4
-//#define  CC_BITRATE_100K
-//#define CC_BITRATE_250K
-//#define CC_BITRATE_500K
+//#define CC_BITRATE_10K        // 13ms 4-byte pkt tx duration
+#define CC_BITRATE_38K4       // 4.6ms
+//#define  CC_BITRATE_100K      // 2.8ms
+//#define CC_BITRATE_250K       // 2.14ms
+//#define CC_BITRATE_500K       // 1.9ms
 
 // ============================ Common use values ==============================
 #define CC_TX_FIFO_SIZE     33
@@ -219,7 +218,4 @@
 #define CC_SYNC0_VALUE      0x91
 
 #define CC_CHANNR_VALUE     0x00        // Channel number.
-
-
-#endif	/* _CC_RF_SETTINGS_H */
 

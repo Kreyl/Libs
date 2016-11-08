@@ -21,7 +21,7 @@ private:
     PinSnsState_t States[PIN_SNS_CNT];
 public:
     void Init();
-    void Shutdown() { for(uint32_t i=0; i<PIN_SNS_CNT; i++) PinSns[i].Off(); }
+    void Shutdown() { for(uint32_t i=0; i<PIN_SNS_CNT; i++) PinSns[i].Deinit(); }
     // Inner use
     void ITask();
 };

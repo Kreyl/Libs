@@ -6,10 +6,6 @@
  */
 
 #pragma once
-/*
- * Low-level operations are here.
- * Pkt level at top side, and SPI at bottom.
- */
 
 #include <inttypes.h>
 #include "kl_lib.h"
@@ -50,8 +46,9 @@ public:
     void SetTxPower(uint8_t APwr)  { WriteRegister(CC_PATABLE, APwr); }
     void SetPktSize(uint8_t ASize) { WriteRegister(CC_PKTLEN, ASize); IPktSz = ASize; }
     // State change
-    void TransmitSync(void *Ptr);
-    uint8_t ReceiveSync(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi=nullptr);
+    void Transmit(void *Ptr);
+    uint8_t Receive(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi=nullptr);
+    uint8_t Receive_st(systime_t Timeout_st, void *Ptr, int8_t *PRssi=nullptr);
     uint8_t EnterIdle()    { return WriteStrobe(CC_SIDLE); }
     uint8_t EnterPwrDown() { return WriteStrobe(CC_SPWD);  }
     uint8_t Recalibrate() {

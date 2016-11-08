@@ -183,28 +183,26 @@ public:
         B.Set(AB);
     }
 };
-
-extern LedRGB_t Led;
 #endif
 
-#if 0 // =========================== RGB LED with power ========================
+#if 1 // =========================== RGB LED with power ========================
 class LedRGBwPower_t : public LedRGBParent_t {
 private:
     const PinOutput_t PwrPin;
 public:
     LedRGBwPower_t(
-            const PortPinTim_t ARed,
-            const PortPinTim_t AGreen,
-            const PortPinTim_t ABlue,
-            const PortPinOutput_t APwrPin) :
+            const PwmSetup_t ARed,
+            const PwmSetup_t AGreen,
+            const PwmSetup_t ABlue,
+            const PinOutput_t APwrPin) :
                 LedRGBParent_t(ARed, AGreen, ABlue), PwrPin(APwrPin) {}
     void Init() {
         PwrPin.Init();
         LedRGBParent_t::Init();
     }
     void SetColor(Color_t AColor) {
-        if(AColor == clBlack) PwrPin.Lo();
-        else PwrPin.Hi();
+        if(AColor == clBlack) PwrPin.SetLo();
+        else PwrPin.SetHi();
         R.Set(AColor.R);
         G.Set(AColor.G);
         B.Set(AColor.B);
