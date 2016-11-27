@@ -56,6 +56,10 @@ $CMP QT100A
 D Touch sensor, 1 channel
 $ENDCMP
 #
+$CMP TCST1300
+D Transmissive Optical Sensor with Phototransistor Output
+$ENDCMP
+#
 $CMP TSOP752XX
 D IR resceiver
 $ENDCMP
