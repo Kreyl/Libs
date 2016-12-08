@@ -8,4 +8,8 @@ $CMP MC74VHC1
 D Single Hi-Lo/Lo-Hi tri-state buffer SOT23-5
 $ENDCMP
 #
+$CMP SN74LVC1G04
+D Single inverter in SOT-23
+$ENDCMP
+#
 #End Doc Library
