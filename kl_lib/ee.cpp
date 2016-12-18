@@ -10,8 +10,11 @@
 #include "kl_lib.h"
 #include "uart.h"
 
+#ifdef EE_PWR_PIN
 const EE_t ee { &i2c3, EE_PWR_PIN };
-
+#else
+const EE_t ee { &i2c3 };
+#endif
 
 uint8_t EE_t::Read(uint8_t MemAddr, void *Ptr, uint32_t Length) const {
     Resume();

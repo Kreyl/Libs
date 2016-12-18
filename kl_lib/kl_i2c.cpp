@@ -365,7 +365,7 @@ uint8_t i2c_t::WaitBTF() {
 }
 #endif // MCU type
 
-#ifdef STM32L476
+#ifdef STM32L476xx
 
 #if 1 // ==== Inner defines ====
 #define I2C_INT_MASK    ((uint32_t)(I2C_ISR_TCR | I2C_ISR_TC | I2C_ISR_STOPF | I2C_ISR_NACKF | I2C_ISR_ADDR | I2C_ISR_RXNE | I2C_ISR_TXIS))
@@ -802,3 +802,54 @@ OSAL_IRQ_HANDLER(STM32_I2C3_ERROR_HANDLER) {
 #endif
 
 #endif // L476
+
+// ==================================== EEPROM =================================
+uint8_t EE_t::Read(uint8_t MemAddr, void *Ptr, uint32_t Length) const {
+    Resume();
+    uint8_t Rslt = i2c->WriteRead(EE_I2C_ADDR, &MemAddr, 1, (uint8_t*)Ptr, Length);
+    Standby();
+    return Rslt;
+}
+
+uint8_t EE_t::Write(uint8_t MemAddr, void *Ptr, uint32_t Length) const {
+    uint8_t *p8 = (uint8_t*)Ptr;
+    Resume();
+    // Write page by page
+    while(Length) {
+        uint8_t ToWriteCnt = (Length > EE_PAGE_SZ)? EE_PAGE_SZ : Length;
+        // Try to write
+        uint32_t Retries = 0;
+        while(true) {
+//            Uart.Printf("Wr: try %u\r", Retries);
+            if(i2c->WriteWrite(EE_I2C_ADDR, &MemAddr, 1, p8, ToWriteCnt) == OK) {
+                Length -= ToWriteCnt;
+                p8 += ToWriteCnt;
+                MemAddr += ToWriteCnt;
+                break;  // get out of trying
+            }
+            else {
+                Retries++;
+                if(Retries > 7) {
+                    Uart.Printf("EE Timeout1\r");
+                    Standby();
+                    return TIMEOUT;
+                }
+                chThdSleepMilliseconds(1);   // Allow memory to complete writing
+            }
+        } // while trying
+    } // while(Length)
+    // Wait completion
+    uint32_t Retries = 0;
+    do {
+//        Uart.Printf("Wait: try %u\r", Retries);
+        chThdSleepMilliseconds(1);
+        Retries++;
+        if(Retries > 7) {
+            Uart.Printf("EE Timeout2\r");
+            Standby();
+            return TIMEOUT;
+        }
+    } while(i2c->CheckAddress(EE_I2C_ADDR) != OK);
+    Standby();
+    return OK;
+}

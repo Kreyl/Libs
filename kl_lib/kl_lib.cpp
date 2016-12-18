@@ -212,7 +212,7 @@ void PinOutputPWM_t::Init() const {
     Enable();
 }
 
-void Timer_t::SetUpdateFrequency(uint32_t FreqHz) const {
+void Timer_t::SetUpdateFrequencyChangingPrescaler(uint32_t FreqHz) const {
     // Figure out input timer freq
     uint32_t InputFreq;
 #if defined STM32F2XX || defined STM32F4XX
@@ -223,9 +223,9 @@ void Timer_t::SetUpdateFrequency(uint32_t FreqHz) const {
 #elif defined STM32L1XX
     // APB2
     if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) {
-        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 8;
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
         if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
-        else  InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
+        else InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
     }
     // APB1
     else {
@@ -235,16 +235,16 @@ void Timer_t::SetUpdateFrequency(uint32_t FreqHz) const {
     }
 #elif defined STM32L4XX
     // APB2
-    if(ITmr == TIM1 or ITmr == TIM8 or ITmr == TIM15 or ITmr == TIM16 or ITmr == TIM17) {
-        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 8;
+    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM15, TIM16, TIM17)) {
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
         if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
-        else  InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
+        else InputFreq = Clk.APB2FreqHz * 2;            // APB2CLK = HCLK / (not 1)
     }
     // APB1
     else {
         uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
         if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
-        else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
+        else InputFreq = Clk.APB1FreqHz * 2;            // APB1CLK = HCLK / (not 1)
     }
 #elif defined STM32F0XX
     if((RCC->CFGR & RCC_CFGR_PPRE_2) == 0) InputFreq = Clk.APBFreqHz; // APB1CLK = HCLK / 1
@@ -253,8 +253,45 @@ void Timer_t::SetUpdateFrequency(uint32_t FreqHz) const {
     uint32_t UpdFreqMax = InputFreq / (ITmr->ARR + 1);
     uint32_t div = UpdFreqMax / FreqHz;
     if(div != 0) div--;
+//    Uart.Printf("InputFreq=%u; UpdFreqMax=%u; div=%u; ARR=%u\r", InputFreq, UpdFreqMax, div, ITmr->ARR);
     ITmr->PSC = div;
 	ITmr->CNT = 0;  // Reset counter to start from scratch
+}
+
+void Timer_t::SetUpdateFrequencyChangingTopValue(uint32_t FreqHz) const {
+    uint32_t InputFreq, TopVal;
+#if defined STM32L1XX
+    // APB2
+    if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) {
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
+        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
+        else InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
+    }
+    // APB1
+    else {
+        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
+        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
+        else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
+    }
+#elif defined STM32L4XX
+    // APB2
+    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM15, TIM16, TIM17)) {
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
+        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
+        else InputFreq = Clk.APB2FreqHz * 2;            // APB2CLK = HCLK / (not 1)
+    }
+    // APB1
+    else {
+        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
+        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
+        else InputFreq = Clk.APB1FreqHz * 2;            // APB1CLK = HCLK / (not 1)
+    }
+#else
+#error "Timer_t::SetUpdateFrequencyChangingTopValue: MCU not defined"
+#endif
+    TopVal  = (InputFreq / FreqHz) - 1;
+//    Uart.Printf("Topval = %u\r", TopVal);
+    SetTopValue(TopVal);
 }
 #endif
 
@@ -275,6 +312,326 @@ void chDbgPanic(const char *msg1) {
 }
 #endif
 
+// ============================= I2C ==========================
+#if I2C1_ENABLED && defined STM32L1XX
+#if I2C1_ENABLED
+static const i2cParams_t I2C1Params = {
+        I2C1,
+        I2C1_GPIO, I2C1_SCL, I2C1_SDA, I2C1_AF,
+        I2C1_BAUDRATE,
+        I2C1_DMA_TX,
+        I2C1_DMA_RX
+};
+i2c_t i2c1 {&I2C1Params};
+#endif
+
+void i2cDmaIrqHandler(void *p, uint32_t flags) {
+    chSysLockFromISR();
+    i2c_t *pi2c = (i2c_t*)p;
+//    Uart.PrintfNow("\r===T===");
+    chThdResumeI(&pi2c->ThdRef, (msg_t)0);
+    chSysUnlockFromISR();
+}
+
+void i2c_t::Init() {
+    Standby();
+    Resume();
+    chBSemObjectInit(&BSemaphore, NOT_TAKEN);
+    // ==== DMA ====
+    // Here only unchanged parameters of the DMA are configured.
+#ifdef STM32F2XX
+    if      (ii2c == I2C1) DmaChnl = 1;
+    else if (ii2c == I2C2) DmaChnl = 7;
+    else                   DmaChnl = 3;   // I2C3
+#endif
+    dmaStreamAllocate(PParams->PDmaTx, IRQ_PRIO_MEDIUM, i2cDmaIrqHandler, this);
+    dmaStreamSetPeripheral(PParams->PDmaTx, &PParams->pi2c->DR);
+    dmaStreamAllocate(PParams->PDmaRx, IRQ_PRIO_MEDIUM, i2cDmaIrqHandler, this);
+    dmaStreamSetPeripheral(PParams->PDmaRx, &PParams->pi2c->DR);
+}
+
+void i2c_t::Standby() {
+    if(PParams->pi2c == I2C1) { rccResetI2C1(); rccDisableI2C1(FALSE); }
+#ifdef I2C2
+    else             { rccResetI2C2(); rccDisableI2C2(FALSE); }
+#endif
+#if I2C3
+    else if (ii2c == I2C3) { rccResetI2C3(); rccDisableI2C3(FALSE); }
+#endif
+    // Disable GPIOs
+    PinSetupAnalog(PParams->PGpio, PParams->SclPin);
+    PinSetupAnalog(PParams->PGpio, PParams->SdaPin);
+}
+
+void i2c_t::Resume() {
+    Error = false;
+    // ==== GPIOs ====
+    PinSetupAlterFunc(PParams->PGpio, PParams->SclPin, omOpenDrain, pudNone, PParams->PinAF);
+    PinSetupAlterFunc(PParams->PGpio, PParams->SdaPin, omOpenDrain, pudNone, PParams->PinAF);
+    // ==== Clock and reset ====
+    if(PParams->pi2c == I2C1) { rccEnableI2C1(FALSE); rccResetI2C1(); }
+#ifdef I2C2
+    else if (PParams->pi2c == I2C2) { rccEnableI2C2(FALSE); rccResetI2C2(); }
+#endif
+#ifdef I2C3
+    else if (ii2c == I2C3) { rccEnableI2C3(FALSE); rccResetI2C3(); }
+#endif
+
+    // Minimum clock is 2 MHz
+    uint32_t ClkMhz = Clk.APB1FreqHz / 1000000;
+    uint16_t tmpreg = PParams->pi2c->CR2;
+    tmpreg &= (uint16_t)~I2C_CR2_FREQ;
+    if(ClkMhz < 2)  ClkMhz = 2;
+    if(ClkMhz > 32) ClkMhz = 32;
+    tmpreg |= ClkMhz;
+    PParams->pi2c->CR2 = tmpreg;
+    PParams->pi2c->CR1 &= (uint16_t)~I2C_CR1_PE; // Disable i2c to setup TRise & CCR
+    PParams->pi2c->TRISE = (uint16_t)(((ClkMhz * 300) / 1000) + 1);
+    // 16/9
+    tmpreg = (uint16_t)(Clk.APB1FreqHz / (PParams->BitrateHz * 25));
+    if(tmpreg == 0) tmpreg = 1; // minimum allowed value
+    tmpreg |= I2C_CCR_FS | I2C_CCR_DUTY;
+    PParams->pi2c->CCR = tmpreg;
+    PParams->pi2c->CR1 |= I2C_CR1_PE;    // Enable i2c back
+    // ==== DMA ====
+    PParams->pi2c->CR2 |= I2C_CR2_DMAEN;
+}
+
+void i2c_t::Reset() {
+    Standby();
+    Resume();
+}
+
+uint8_t i2c_t::WriteRead(uint8_t Addr,
+        uint8_t *WPtr, uint8_t WLength,
+        uint8_t *RPtr, uint8_t RLength) {
+    if(chBSemWait(&BSemaphore) != MSG_OK) return BUSY;
+    uint8_t Rslt = OK;
+    if(IBusyWait() != OK) { Rslt = BUSY; goto WriteReadEnd; }
+    // Clear flags
+    PParams->pi2c->SR1 = 0;
+    while(RxIsNotEmpty()) (void)PParams->pi2c->DR;   // Read DR until it empty
+    ClearAddrFlag();
+    // Start transmission
+    SendStart();
+    if(WaitEv5() != OK) { Rslt = FAILURE; goto WriteReadEnd; }
+    SendAddrWithWrite(Addr);
+    if(WaitEv6() != OK) { SendStop(); Rslt = FAILURE; goto WriteReadEnd; }
+    ClearAddrFlag();
+    // Start TX DMA if needed
+    if(WLength != 0) {
+        if(WaitEv8() != OK) { Rslt = FAILURE; goto WriteReadEnd; }
+        dmaStreamSetMemory0(PParams->PDmaTx, WPtr);
+        dmaStreamSetMode   (PParams->PDmaTx, I2C_DMATX_MODE);
+        dmaStreamSetTransactionSize(PParams->PDmaTx, WLength);
+        chSysLock();
+        dmaStreamEnable(PParams->PDmaTx);
+        chThdSuspendS(&ThdRef);    // Wait IRQ
+        chSysUnlock();
+        dmaStreamDisable(PParams->PDmaTx);
+    }
+    // Read if needed
+    if(RLength != 0) {
+        if(WaitEv8() != OK) { Rslt = FAILURE; goto WriteReadEnd; }
+        // Send repeated start
+        SendStart();
+        if(WaitEv5() != OK) { Rslt = FAILURE; goto WriteReadEnd; }
+        SendAddrWithRead(Addr);
+        if(WaitEv6() != OK) { SendStop(); Rslt = FAILURE; goto WriteReadEnd; }
+        // If single byte is to be received, disable ACK before clearing ADDR flag
+        if(RLength == 1) AckDisable();
+        else AckEnable();
+        ClearAddrFlag();
+        dmaStreamSetMemory0(PParams->PDmaRx, RPtr);
+        dmaStreamSetMode   (PParams->PDmaRx, I2C_DMARX_MODE);
+        dmaStreamSetTransactionSize(PParams->PDmaRx, RLength);
+        SignalLastDmaTransfer(); // Inform DMA that this is last transfer => do not ACK last byte
+        chSysLock();
+        dmaStreamEnable(PParams->PDmaRx);
+        chThdSuspendS(&ThdRef);    // Wait IRQ
+        chSysUnlock();
+        dmaStreamDisable(PParams->PDmaRx);
+    } // if != 0
+    else WaitBTF(); // if nothing to read, just stop
+    SendStop();
+    WriteReadEnd:
+    chBSemSignal(&BSemaphore);
+    return Rslt;
+}
+
+uint8_t i2c_t::WriteWrite(uint8_t Addr,
+        uint8_t *WPtr1, uint8_t WLength1,
+        uint8_t *WPtr2, uint8_t WLength2) {
+    if(chBSemWait(&BSemaphore) != MSG_OK) return BUSY;
+    uint8_t Rslt = OK;
+    if(IBusyWait() != OK) { Rslt = BUSY; goto WriteWriteEnd; }
+    // Clear flags
+    PParams->pi2c->SR1 = 0;
+    while(RxIsNotEmpty()) (void)PParams->pi2c->DR;   // Read DR until it empty
+    ClearAddrFlag();
+    // Start transmission
+    SendStart();
+    if(WaitEv5() != OK) { Rslt = FAILURE; goto WriteWriteEnd; }
+    SendAddrWithWrite(Addr);
+    if(WaitEv6() != OK) { SendStop(); Rslt = FAILURE; goto WriteWriteEnd; }
+    ClearAddrFlag();
+    // Start TX DMA if needed
+    if(WLength1 != 0) {
+        if(WaitEv8() != OK) { Rslt = FAILURE; goto WriteWriteEnd; }
+        dmaStreamSetMemory0(PParams->PDmaTx, WPtr1);
+        dmaStreamSetMode   (PParams->PDmaTx, I2C_DMATX_MODE);
+        dmaStreamSetTransactionSize(PParams->PDmaTx, WLength1);
+        chSysLock();
+        dmaStreamEnable(PParams->PDmaTx);
+        chThdSuspendS(&ThdRef);    // Wait IRQ
+        chSysUnlock();
+        dmaStreamDisable(PParams->PDmaTx);
+    }
+    if(WLength2 != 0) {
+        if(WaitEv8() != OK) { Rslt = FAILURE; goto WriteWriteEnd; }
+        dmaStreamSetMemory0(PParams->PDmaTx, WPtr2);
+        dmaStreamSetMode   (PParams->PDmaTx, I2C_DMATX_MODE);
+        dmaStreamSetTransactionSize(PParams->PDmaTx, WLength2);
+        chSysLock();
+        dmaStreamEnable(PParams->PDmaTx);
+        chThdSuspendS(&ThdRef);    // Wait IRQ
+        chSysUnlock();
+        dmaStreamDisable(PParams->PDmaTx);
+    }
+    WaitBTF();
+    SendStop();
+    WriteWriteEnd:
+    chBSemSignal(&BSemaphore);
+    return Rslt;
+}
+
+uint8_t i2c_t::Write(uint8_t Addr, uint8_t *WPtr1, uint8_t WLength1) {
+    if(chBSemWait(&BSemaphore) != MSG_OK) return BUSY;
+    uint8_t Rslt = OK;
+    if(IBusyWait() != OK) { Rslt = BUSY; goto WriteEnd; }
+    // Clear flags
+    PParams->pi2c->SR1 = 0;
+    while(RxIsNotEmpty()) (void)PParams->pi2c->DR;   // Read DR until it empty
+    ClearAddrFlag();
+    // Start transmission
+    SendStart();
+    if(WaitEv5() != OK) { Rslt = FAILURE; goto WriteEnd; }
+    SendAddrWithWrite(Addr);
+    if(WaitEv6() != OK) { SendStop(); Rslt = FAILURE; goto WriteEnd; }
+    ClearAddrFlag();
+    // Start TX DMA if needed
+    if(WLength1 != 0) {
+        if(WaitEv8() != OK) { Rslt = FAILURE; goto WriteEnd; }
+        dmaStreamSetMemory0(PParams->PDmaTx, WPtr1);
+        dmaStreamSetMode   (PParams->PDmaTx, I2C_DMATX_MODE);
+        dmaStreamSetTransactionSize(PParams->PDmaTx, WLength1);
+        chSysLock();
+        dmaStreamEnable(PParams->PDmaTx);
+        chThdSuspendS(&ThdRef);    // Wait IRQ
+        chSysUnlock();
+        dmaStreamDisable(PParams->PDmaTx);
+    }
+    WaitBTF();
+    SendStop();
+    WriteEnd:
+    chBSemSignal(&BSemaphore);
+    return Rslt;
+}
+
+void i2c_t::ScanBus() {
+    Uart.Printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
+    uint8_t AddrHi, Addr;
+    for(AddrHi = 0; AddrHi < 0x80; AddrHi += 0x10) {
+        Uart.Printf("\r%02X: ", AddrHi);
+        for(uint8_t n=0; n<0x10; n++) {
+            Addr = AddrHi + n;
+            if(Addr <= 0x01 or Addr > 0x77) Uart.Printf("   ");
+            else {
+                // Try to get response from addr
+                if(IBusyWait() != OK) {
+                    Uart.Printf("i2cBusyWait\r");
+                    return;
+                }
+                // Clear flags
+                PParams->pi2c->SR1 = 0;
+                while(RxIsNotEmpty()) (void)PParams->pi2c->DR;   // Read DR until it empty
+                ClearAddrFlag();
+                // Start transmission
+                SendStart();
+                if(WaitEv5() != OK) continue;
+                SendAddrWithWrite(Addr);
+                if(WaitEv6() == OK) Uart.Printf("%02X ", Addr);
+                else Uart.Printf("__ ");
+                SendStop();
+            }
+        } // for n
+    } // for AddrHi
+    Uart.Printf("\r");
+}
+
+// ==== Flag operations ====
+// Busy flag
+uint8_t i2c_t::IBusyWait() {
+    uint8_t RetryCnt = 4;
+    while(RetryCnt--) {
+        if(!(PParams->pi2c->SR2 & I2C_SR2_BUSY)) return OK;
+        chThdSleepMilliseconds(1);
+    }
+    Error = true;
+    return TIMEOUT;
+}
+
+// BUSY, MSL & SB flags
+uint8_t i2c_t::WaitEv5() {
+    uint32_t RetryCnt = 450;
+    while(RetryCnt--) {
+        uint16_t Flag1 = PParams->pi2c->SR1;
+        uint16_t Flag2 = PParams->pi2c->SR2;
+        if((Flag1 & I2C_SR1_SB) and (Flag2 & (I2C_SR2_MSL | I2C_SR2_BUSY))) return OK;
+    }
+    Error = true;
+    return FAILURE;
+}
+
+uint8_t i2c_t::WaitEv6() {
+    uint32_t RetryCnt = 45;
+    uint16_t Flag1;
+    do {
+        Flag1 = PParams->pi2c->SR1;
+        if((RetryCnt-- == 0) or (Flag1 & I2C_SR1_AF)) return FAILURE;   // Fail if timeout or NACK
+    } while(!(Flag1 & I2C_SR1_ADDR)); // ADDR set when Address is sent and ACK received
+    return OK;
+}
+
+uint8_t i2c_t::WaitEv8() {
+    uint32_t RetryCnt = 45;
+    while(RetryCnt--)
+        if(PParams->pi2c->SR1 & I2C_SR1_TXE) return OK;
+    Error = true;
+    return TIMEOUT;
+}
+
+uint8_t i2c_t::WaitRx() {
+    uint32_t RetryCnt = 450;
+    while(RetryCnt--)
+        if(PParams->pi2c->SR1 & I2C_SR1_RXNE) return OK;
+    return TIMEOUT;
+}
+
+uint8_t i2c_t::WaitStop() {
+    uint32_t RetryCnt = 450;
+    while(RetryCnt--)
+        if(PParams->pi2c->CR1 & I2C_CR1_STOP) return OK;
+    return TIMEOUT;
+}
+
+uint8_t i2c_t::WaitBTF() {
+    uint32_t RetryCnt = 450;
+    while(RetryCnt--)
+        if(PParams->pi2c->SR1 & I2C_SR1_BTF) return OK;
+    return TIMEOUT;
+}
+#endif
 
 #ifdef FLASH_LIB_KL // ==================== FLASH & EEPROM =====================
 // Here not-fast write is used. I.e. interface will erase the word if it is not the same.
@@ -319,6 +676,7 @@ uint8_t Eeprom_t::WriteBuf(void *PSrc, uint32_t Sz, uint32_t Addr) {
     LockEE();
     return status;
 }
+
 #endif
 
 #if 0
@@ -1238,7 +1596,7 @@ void Clk_t::SetHiPerfMode() {
     // Try to enable HSE
     if(EnableHSE() == OK) {
         // Setup PLL (must be disabled first)
-        if(SetupPLLMulDiv(1, 24, 4, 6) == OK) { // 12MHz / 1 * 24 => 72 and 48MHz
+        if(SetupPllMulDiv(1, 24, 4, 6) == OK) { // 12MHz / 1 * 24 => 72 and 48MHz
             SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
             SetVoltageRange(mvrHiPerf);
             SetupFlashLatency(72, mvrHiPerf);
@@ -1269,7 +1627,7 @@ void Clk_t::SetVoltageRange(MCUVoltRange_t VoltRange) {
 }
 
 // M: 1...8; N: 8...86; R: 2,4,6,8
-uint8_t Clk_t::SetupPLLMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, uint32_t P) {
+uint8_t Clk_t::SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, uint32_t P) {
     if(!((M >= 1 and M <= 8) and (N >= 8 and N <= 86) and (R == 2 or R == 4 or R == 6 or R == 8))) return CMD_ERROR;
     if(RCC->CR & RCC_CR_PLLON) return BUSY; // PLL must be disabled to change dividers
     R = (R / 2) - 1;    // 2,4,6,8 => 0,1,2,3
@@ -1284,6 +1642,32 @@ uint8_t Clk_t::SetupPLLMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, ui
             (Q << 21) | RCC_PLLCFGR_PLLQEN;     // PLL48M1CLK output enable
     RCC->PLLCFGR = tmp;
     return 0;
+}
+
+uint8_t Clk_t::SetupPllSai1(uint32_t N, uint32_t R) {
+    // Disable PLLSAI1
+    CLEAR_BIT(RCC->CR, RCC_CR_PLLSAI1ON);
+    // Wait till PLLSAI1 is ready to be updated
+    uint32_t t = 45000;
+    while(READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) != 0) {
+        if(t-- == 0) {
+            Uart.Printf("Sai1Off Timeout %X\r", RCC->CR);
+            return FAILURE;
+        }
+    }
+    // Setup dividers
+    MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N, N << 8);
+    MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R, ((R >> 1U) - 1U) << 25);
+    SET_BIT(RCC->CR, RCC_CR_PLLSAI1ON); // Enable SAI
+    // Wait till PLLSAI1 is ready. May fail if PLL source disabled or not selected.
+    t = 45000;
+    while(READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) == 0) {
+        if(t-- == 0) {
+            Uart.Printf("SaiOn Timeout %X\r", RCC->CR);
+            return FAILURE;
+        }
+    }
+    return OK;
 }
 
 void Clk_t::Select48MhzSrc(Src48MHz_t Src) {
@@ -1326,10 +1710,19 @@ uint8_t Clk_t::EnablePLL() {
 }
 
 // ==== Switch ====
+// Enables HSE, switches to HSE
+uint8_t Clk_t::SwitchToHSE() {
+    if(EnableHSE() != 0) return 1;
+    RCC->CFGR &= ~RCC_CFGR_SW;      // }
+    RCC->CFGR |=  RCC_CFGR_SW_HSE;  // } Select HSE as system clock src
+    while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSE); // Wait till ready
+    return 0;
+}
+
 // Enables HSE, enables PLL, switches to PLL
 uint8_t Clk_t::SwitchToPLL() {
     RCC->CFGR |= RCC_CFGR_SW_PLL;   // Select PLL as system clock src
-    while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL); // Wait until ready
+    while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL); // Wait until ready
     return OK;
 }
 

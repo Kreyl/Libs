@@ -50,32 +50,18 @@ struct BeepChunk_t {   // Value == Volume
 #if 1 // ====================== Base sequencer class ===========================
 enum SequencerLoopTask_t {sltProceed, sltBreak};
 
-class BaseSequenceProcess_t {
-protected:
-    virtual SequencerLoopTask_t ISetup() = 0; // BaseSequencer_t::IProcessSequence() can call this
-    virtual void ISwitchOff() = 0;  // BaseSequencer_t::Stop() can call this
-public:
-    virtual void IProcessSequenceI() = 0;   // Common timer callback can call this
-};
-
-// Common Timer callback
-static void GeneralSequencerTmrCallback(void *p) {
-    chSysLockFromISR();
-    ((BaseSequenceProcess_t*)p)->IProcessSequenceI();
-    chSysUnlockFromISR();
-}
-
 template <class TChunk>
-class BaseSequencer_t : public BaseSequenceProcess_t {
-private:
-    virtual_timer_t ITmr;
+class BaseSequencer_t {
 protected:
+    virtual_timer_t ITmr;
     const TChunk *IPStartChunk, *IPCurrentChunk;
     BaseSequencer_t() : IPStartChunk(nullptr), IPCurrentChunk(nullptr),
             PThread(nullptr), EvtEnd(0) {}
-    void SetupDelay(uint32_t ms) { chVTSetI(&ITmr, MS2ST(ms), GeneralSequencerTmrCallback, this); }
     thread_t *PThread;
     eventmask_t EvtEnd;
+    virtual void ISwitchOff() = 0;
+    virtual SequencerLoopTask_t ISetup() = 0;
+    virtual void SetupDelay(uint32_t ms) = 0;
 public:
     void SetupSeqEndEvt(thread_t *APThread, eventmask_t AEvt = 0) {
         PThread = APThread;
