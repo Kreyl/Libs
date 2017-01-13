@@ -24,6 +24,10 @@ $CMP L3GD20
 D Giroscope 3axis, 250/500/2000 dps
 $ENDCMP
 #
+$CMP LIS2
+D Accelerometer 3axis, +-2,4,8,16g
+$ENDCMP
+#
 $CMP LIS3
 D Accelerometer 3axis, +-2,4,8,16g
 $ENDCMP

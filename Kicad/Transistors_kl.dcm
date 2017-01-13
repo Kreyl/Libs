@@ -1,17 +1,5 @@
 EESchema-DOCLIB  Version 2.0
 #
-$CMP IRLMS1503
-D N-channel SOT-23-6 3.2A 30V
-$ENDCMP
-#
-$CMP MAX2602
-D RF power NPN w\diode 1W 15V
-$ENDCMP
-#
-$CMP MOSFET_P_3LEAD
-D P-channel 3-lead
-$ENDCMP
-#
 $CMP NPN
 D Generic NPN
 $ENDCMP
@@ -21,7 +9,7 @@ D NPN: B-1, C-2, E-3
 $ENDCMP
 #
 $CMP N_3PIN
-D N-channel 3pin
+D N-channel 3 pin
 $ENDCMP
 #
 $CMP Nx2_SO8
@@ -37,11 +25,11 @@ D P-channel 3 pin
 $ENDCMP
 #
 $CMP P_6PIN
-D P-channel 3-lead
+D P-channel 6 pin
 $ENDCMP
 #
 $CMP P_8PIN
-D 8-pin P-channel
+D P-channel 8 pin
 $ENDCMP
 #
 $CMP Px2_SO8
