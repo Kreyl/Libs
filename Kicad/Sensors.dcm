@@ -12,6 +12,10 @@ $CMP BALL_SNS
 D Ball vibration sensor
 $ENDCMP
 #
+$CMP ICM20608
+D Acc + Gyro
+$ENDCMP
+#
 $CMP IRA700
 D Piroelectric sensor
 $ENDCMP
