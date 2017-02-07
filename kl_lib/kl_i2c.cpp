@@ -365,7 +365,7 @@ uint8_t i2c_t::WaitBTF() {
 }
 #endif // MCU type
 
-#ifdef STM32L476xx
+#if defined STM32L476 || defined STM32F030
 
 #if 1 // ==== Inner defines ====
 #define I2C_INT_MASK    ((uint32_t)(I2C_ISR_TCR | I2C_ISR_TC | I2C_ISR_STOPF | I2C_ISR_NACKF | I2C_ISR_ADDR | I2C_ISR_RXNE | I2C_ISR_TXIS))
@@ -390,8 +390,13 @@ static const i2cParams_t I2C1Params = {
         I2C1_DMA_RX,
         (STM32_DMA_CR_PSIZE_BYTE | STM32_DMA_CR_MSIZE_BYTE | STM32_DMA_CR_MINC | STM32_DMA_CR_DIR_M2P | STM32_DMA_CR_CHSEL(I2C1_DMA_CHNL) | DMA_PRIORITY_MEDIUM),
         (STM32_DMA_CR_PSIZE_BYTE | STM32_DMA_CR_MSIZE_BYTE | STM32_DMA_CR_MINC | STM32_DMA_CR_DIR_P2M | STM32_DMA_CR_CHSEL(I2C1_DMA_CHNL) | DMA_PRIORITY_MEDIUM),
+#if defined STM32L476
         STM32_I2C1_EVENT_NUMBER,
         STM32_I2C1_ERROR_NUMBER
+#else
+        STM32_I2C1_GLOBAL_NUMBER,
+        STM32_I2C1_GLOBAL_NUMBER
+#endif
 };
 i2c_t i2c1 {&I2C1Params};
 #endif
@@ -444,10 +449,12 @@ void i2c_t::Init() {
         rccResetI2C2();
         rccEnableI2C2(FALSE);
     }
+#ifdef I2C3
     else if(pi2c == I2C3) {
         rccResetI2C3();
         rccEnableI2C3(FALSE);
     }
+#endif
     pi2c->TIMINGR = PParams->Timing;    // setup timings
     // Analog filter enabled, digital disabled, clk stretch enabled, DMA enabled
     pi2c->CR1 = I2C_CR1_TXDMAEN | I2C_CR1_RXDMAEN;
@@ -462,7 +469,9 @@ void i2c_t::Init() {
 }
 
 void i2c_t::ScanBus() {
+#if I2C_USE_SEMAPHORE
     if(chBSemWait(&BSemaphore) != MSG_OK) return;
+#endif
     Uart.Printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
     uint32_t AddrHi, Addr;
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
@@ -485,11 +494,15 @@ void i2c_t::ScanBus() {
     // Disable I2C
     pi2c->CR1 &= ~I2C_CR1_PE;
     Uart.Printf("\r");
+#if I2C_USE_SEMAPHORE
     chBSemSignal(&BSemaphore);
+#endif
 }
 
 uint8_t i2c_t::CheckAddress(uint32_t Addr) {
+#if I2C_USE_SEMAPHORE
     if(chBSemWait(&BSemaphore) != MSG_OK) return FAILURE;
+#endif
     uint8_t Rslt;
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
     if(IBusyWait() != OK) {
@@ -505,12 +518,16 @@ uint8_t i2c_t::CheckAddress(uint32_t Addr) {
     else Rslt = OK;
 
     ChckEnd:
+#if I2C_USE_SEMAPHORE
     chBSemSignal(&BSemaphore);
+#endif
     return Rslt;
 }
 
 uint8_t i2c_t::Write(uint32_t Addr, uint8_t *WPtr, uint32_t WLength) {
+#if I2C_USE_SEMAPHORE
     if(chBSemWait(&BSemaphore) != MSG_OK) return FAILURE;
+#endif
     uint8_t Rslt;
     msg_t r;
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
@@ -544,12 +561,16 @@ uint8_t i2c_t::Write(uint32_t Addr, uint8_t *WPtr, uint32_t WLength) {
     }
     else Rslt = (IState == istFailure)? FAILURE : OK;
     WriteEnd:
+#if I2C_USE_SEMAPHORE
     chBSemSignal(&BSemaphore);
+#endif
     return Rslt;
 }
 
 uint8_t i2c_t::WriteRead(uint32_t Addr, uint8_t *WPtr, uint32_t WLength, uint8_t *RPtr, uint32_t RLength) {
+#if I2C_USE_SEMAPHORE
     if(chBSemWait(&BSemaphore) != MSG_OK) return FAILURE;
+#endif
     uint8_t Rslt;
     msg_t r;
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
@@ -591,12 +612,16 @@ uint8_t i2c_t::WriteRead(uint32_t Addr, uint8_t *WPtr, uint32_t WLength, uint8_t
     }
     else Rslt = (IState == istFailure)? FAILURE : OK;
     WriteReadEnd:
+#if I2C_USE_SEMAPHORE
     chBSemSignal(&BSemaphore);
+#endif
     return Rslt;
 }
 
 uint8_t i2c_t::WriteWrite(uint32_t Addr, uint8_t *WPtr1, uint32_t WLength1, uint8_t *WPtr2, uint32_t WLength2) {
+#if I2C_USE_SEMAPHORE
     if(chBSemWait(&BSemaphore) != MSG_OK) return FAILURE;
+#endif
     uint8_t Rslt;
     msg_t r;
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
@@ -634,7 +659,9 @@ uint8_t i2c_t::WriteWrite(uint32_t Addr, uint8_t *WPtr1, uint32_t WLength1, uint
     }
     else Rslt = (IState == istFailure)? FAILURE : OK;
     WriteWriteEnd:
+#if I2C_USE_SEMAPHORE
     chBSemSignal(&BSemaphore);
+#endif
     return Rslt;
 }
 
@@ -747,6 +774,7 @@ void i2c_t::IWakeup() {
 #if 1 // =============================== IRQs ==================================
 extern "C" {
 #if I2C1_ENABLED // ==== I2C1 ====
+#if defined STM32L476
 OSAL_IRQ_HANDLER(STM32_I2C1_EVENT_HANDLER) {
 //    Uart.PrintfI("i2c1 irq\r");
     uint32_t isr = I2C1->ISR;
@@ -763,6 +791,19 @@ OSAL_IRQ_HANDLER(STM32_I2C1_ERROR_HANDLER) {
     i2c1.IServeErrIRQ(isr);
     OSAL_IRQ_EPILOGUE();
 }
+#else
+OSAL_IRQ_HANDLER(STM32_I2C1_GLOBAL_HANDLER) {
+//    Uart.PrintfI("i2c1 irq\r");
+    uint32_t isr = I2C1->ISR;
+    uint32_t isrEvt = isr & I2C_INT_MASK;
+    uint32_t isrErr = isr & I2C_ERROR_MASK;
+    OSAL_IRQ_PROLOGUE();
+    I2C1->ICR = isr; // Clear IRQ bits
+    if(isrEvt != 0) i2c1.IServeIRQ(isrEvt);
+    if(isrErr != 0) i2c1.IServeErrIRQ(isrErr);
+    OSAL_IRQ_EPILOGUE();
+}
+#endif // MCU type
 #endif
 #if I2C2_ENABLED // ==== I2C2 ====
 OSAL_IRQ_HANDLER(STM32_I2C2_EVENT_HANDLER) {
@@ -802,54 +843,3 @@ OSAL_IRQ_HANDLER(STM32_I2C3_ERROR_HANDLER) {
 #endif
 
 #endif // L476
-
-// ==================================== EEPROM =================================
-uint8_t EE_t::Read(uint8_t MemAddr, void *Ptr, uint32_t Length) const {
-    Resume();
-    uint8_t Rslt = i2c->WriteRead(EE_I2C_ADDR, &MemAddr, 1, (uint8_t*)Ptr, Length);
-    Standby();
-    return Rslt;
-}
-
-uint8_t EE_t::Write(uint8_t MemAddr, void *Ptr, uint32_t Length) const {
-    uint8_t *p8 = (uint8_t*)Ptr;
-    Resume();
-    // Write page by page
-    while(Length) {
-        uint8_t ToWriteCnt = (Length > EE_PAGE_SZ)? EE_PAGE_SZ : Length;
-        // Try to write
-        uint32_t Retries = 0;
-        while(true) {
-//            Uart.Printf("Wr: try %u\r", Retries);
-            if(i2c->WriteWrite(EE_I2C_ADDR, &MemAddr, 1, p8, ToWriteCnt) == OK) {
-                Length -= ToWriteCnt;
-                p8 += ToWriteCnt;
-                MemAddr += ToWriteCnt;
-                break;  // get out of trying
-            }
-            else {
-                Retries++;
-                if(Retries > 7) {
-                    Uart.Printf("EE Timeout1\r");
-                    Standby();
-                    return TIMEOUT;
-                }
-                chThdSleepMilliseconds(1);   // Allow memory to complete writing
-            }
-        } // while trying
-    } // while(Length)
-    // Wait completion
-    uint32_t Retries = 0;
-    do {
-//        Uart.Printf("Wait: try %u\r", Retries);
-        chThdSleepMilliseconds(1);
-        Retries++;
-        if(Retries > 7) {
-            Uart.Printf("EE Timeout2\r");
-            Standby();
-            return TIMEOUT;
-        }
-    } while(i2c->CheckAddress(EE_I2C_ADDR) != OK);
-    Standby();
-    return OK;
-}

@@ -6,6 +6,7 @@
  */
 
 #include "SimpleSensors.h"
+#include "uart.h"
 
 #if SIMPLESENSORS_ENABLED
 
@@ -23,10 +24,10 @@ void SimpleSensors_t::Init() {
     // Init pins
     for(uint32_t i=0; i < PIN_SNS_CNT; i++) {
         PinSns[i].Init();
-        States[i] = pssLo;
+        States[i] = pssNone;
     }
     // Create and start thread
-    chThdCreateStatic(waPinSnsThread, sizeof(waPinSnsThread), (tprio_t)90, (tfunc_t)SensorsThread, NULL);
+    chThdCreateStatic(waPinSnsThread, sizeof(waPinSnsThread), NORMALPRIO, (tfunc_t)SensorsThread, NULL);
 }
 
 __noreturn
@@ -48,20 +49,20 @@ void SimpleSensors_t::ITask() {
                 if(States[i] == pssHi or States[i] == pssRising) States[i] = pssFalling;
                 else States[i] = pssLo;
             }
-            GroupLen++;
-            // Call postprocessor if this was last pin in group (or last at all)
-            i++;
-            if((i >= PIN_SNS_CNT) or (PinSns[i].Postprocessor != PostProcessor)) {
+
+            // Switch to another group if postprocessor changed
+            if(PinSns[i].Postprocessor != PostProcessor) {
                 if(PostProcessor != nullptr) PostProcessor(PStates, GroupLen);
                 // Prepare for next group
-                if(i < PIN_SNS_CNT) {
-                    PostProcessor = PinSns[i].Postprocessor;
-                    PStates = &States[i];
-                }
+                PostProcessor = PinSns[i].Postprocessor;
                 GroupLen = 0;
+                PStates = &States[i];
             }
+            else GroupLen++;    // else increase group len
+            i++;                // Get next pin
         } // while i
+        // Execute postprocessor for last group
+        if(PostProcessor != nullptr) PostProcessor(PStates, GroupLen);
     } // while true
 }
-
 #endif

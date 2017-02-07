@@ -85,7 +85,7 @@ extern i2c_t i2c1;
 
 #endif // MCU type
 
-#ifdef STM32L476xx
+#if defined STM32L476 || defined STM32F030
 struct i2cParams_t {
     I2C_TypeDef *pi2c;
     GPIO_TypeDef *PGpio;
@@ -102,7 +102,6 @@ struct i2cParams_t {
 };
 
 #define I2C_TIMEOUT_MS      999
-#define I2C_USE_SEMAPHORE   TRUE
 
 enum i2cState_t {istIdle, istWriteRead, istWriteWrite, istRead, istWrite, istFailure};
 
@@ -136,49 +135,3 @@ public:
 
 extern i2c_t i2c1, i2c2, i2c3;
 #endif
-
-// ================================== EEProm ===================================
-#define EE_I2C_ADDR     0x50    // A0=A1=A2=0
-// Number of bytes to be written simultaneously. IC dependant, see datasheet.
-#define EE_PAGE_SZ      8
-
-/* Declare it as: const EE_t ee { &i2c3, EE_PWR_PIN };
- * or: const EE_t ee { &i2c3 };
- */
-
-class EE_t {
-private:
-    i2c_t *i2c;
-#ifdef EE_PWR_PIN
-    const PinOutput_t IPwrPin;
-#endif
-public:
-    void Init() const {
-#ifdef EE_PWR_PIN
-        IPwrPin.Init();
-#endif
-    }
-    void Resume() const {
-#ifdef EE_PWR_PIN
-        IPwrPin.Init();
-        IPwrPin.SetHi();
-        __NOP(); __NOP(); __NOP(); __NOP(); // Allow power to rise
-#endif
-        i2c->Resume();
-    }
-    void Standby() const {
-        i2c->Standby();
-#ifdef EE_PWR_PIN
-        IPwrPin.SetLo();
-        IPwrPin.Deinit();
-#endif
-    }
-
-#ifdef EE_PWR_PIN
-    EE_t(i2c_t *pi2c, const PinOutput_t APwrPin) : i2c(pi2c), IPwrPin(APwrPin) {}
-#else
-    EE_t(i2c_t *pi2c) : i2c(pi2c) {}
-#endif
-    uint8_t Read (uint8_t MemAddr, void *Ptr, uint32_t Length) const;
-    uint8_t Write(uint8_t MemAddr, void *Ptr, uint32_t Length) const;
-};

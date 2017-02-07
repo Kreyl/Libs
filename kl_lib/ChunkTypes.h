@@ -67,6 +67,10 @@ public:
         PThread = APThread;
         EvtEnd = AEvt;
     }
+    void SetupSeqEndEvt(eventmask_t AEvt = 0) {
+        PThread = chThdGetSelfX();
+        EvtEnd = AEvt;
+    }
 
     void StartOrRestart(const TChunk *PChunk) {
         chSysLock();

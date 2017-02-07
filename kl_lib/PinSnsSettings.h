@@ -16,34 +16,37 @@
 #include "ch.h"
 #include "hal.h"
 #include "kl_lib.h"
-#include "board.h"
 
-#include "main.h" // App.thd here
-#include "evt_mask.h"
-
-#ifndef SIMPLESENSORS_ENABLED
-#define SIMPLESENSORS_ENABLED   FALSE
-#endif
-#define SNS_POLL_PERIOD_MS      72
+#define SIMPLESENSORS_ENABLED   TRUE
+#define SNS_POLL_PERIOD_MS      63
 
 #if SIMPLESENSORS_ENABLED
 enum PinSnsState_t {pssLo, pssHi, pssRising, pssFalling};
 typedef void (*ftVoidPSnsStLen)(PinSnsState_t *PState, uint32_t Len);
 
 // Single pin setup data
-class PinSns_t : public PinInput_t {
-public:
+struct PinSns_t {
+    GPIO_TypeDef *PGpio;
+    uint16_t Pin;
+    PinPullUpDown_t Pud;
     ftVoidPSnsStLen Postprocessor;
-    PinSns_t(PinInputSetup_t APin, ftVoidPSnsStLen pp) : PinInput_t(APin), Postprocessor(pp) {}
+    void Init() const { PinSetupInput(PGpio, Pin, Pud); }
+    void Off()  const { PinSetupAnalog(PGpio, Pin);  }
+    bool IsHi() const { return PinIsHi(PGpio, Pin); }
 };
 
 // ================================= Settings ==================================
 // Button handler
-extern void ProcessButtons(PinSnsState_t *PState, uint32_t Len);
+extern void ProcessButtons(PinSnsState_t *BtnState, uint32_t Len);
+// Charge handler
+extern void ProcessChargePin(PinSnsState_t *State, uint32_t Len);
 
 const PinSns_t PinSns[] = {
         // Buttons
-        {BTN_PIN, ProcessButtons},
+        {BTN_UP_PIN,   ProcessButtons},
+        {BTN_DOWN_PIN, ProcessButtons},
+        // Charging
+        {CHARGE_PIN,   ProcessChargePin}
 };
 #define PIN_SNS_CNT     countof(PinSns)
 

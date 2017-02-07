@@ -386,6 +386,10 @@ uint32_t Adc_t::GetResult(uint8_t AChannel) {
 #endif
     return IBuf[0];
 }
+
+uint32_t Adc_t::Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
+    return ((3000UL * ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
+}
 #endif // L476
 
 #endif  // ADC_REQUIRED

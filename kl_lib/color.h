@@ -9,15 +9,23 @@
 
 #include "inttypes.h"
 #include <sys/cdefs.h>
+#include "uart.h"
+
+#define LUM_MAX     100
 
 // Mixing two colors
 #define ClrMix(C, B, L)     ((C * L + B * (255 - L)) / 255)
+
+// Smooth delay
+static inline uint32_t ClrCalcDelay(uint16_t AValue, uint32_t Smooth) {
+    return (uint32_t)((Smooth / (AValue+4)) + 1);
+}
 
 struct Color_t {
     union {
         uint32_t DWord32;
         struct {
-            uint8_t R, G, B;
+            uint8_t R, G, B, Lum;
         };
     };
     bool operator == (const Color_t &AColor) const { return (DWord32 == AColor.DWord32); }
@@ -30,6 +38,8 @@ struct Color_t {
         else if(G > PColor.G) G--;
         if     (B < PColor.B) B++;
         else if(B > PColor.B) B--;
+        if     (Lum < PColor.Lum) Lum++;
+        else if(Lum > PColor.Lum) Lum--;
     }
     void Adjust(const Color_t &PColor, uint32_t Step) {
         uint32_t ThrsR = 255 - Step;
@@ -59,6 +69,15 @@ struct Color_t {
             if(B >= Step) B -= Step;
             else B = 0;
         }
+
+        if(Lum < PColor.Lum) {
+            Lum += Step;
+            if(Lum > LUM_MAX) Lum = LUM_MAX;
+        }
+        else if(Lum > PColor.Lum) {
+            if(Lum >= Step) Lum -= Step;
+            else Lum = 0;
+        }
     }
     void FromRGB(uint8_t Red, uint8_t Green, uint8_t Blue) { R = Red; G = Green; B = Blue; }
     void ToRGB(uint8_t *PR, uint8_t *PG, uint8_t *PB) const { *PR = R; *PG = G; *PB = B; }
@@ -84,9 +103,20 @@ struct Color_t {
         G = ClrMix(Fore.G, Back.G, Brt);
         B = ClrMix(Fore.B, Back.B, Brt);
     }
-    void Print() { Uart.Printf("{%u, %u, %u}\r", R, G, B); }
-    Color_t() : DWord32(0) {}
-    Color_t(uint8_t AR, uint8_t AG, uint8_t AB) { DWord32 = 0; R = AR; G = AG; B = AB; }
+    uint32_t DelayToNextAdj(const Color_t &AClr, uint32_t SmoothValue) {
+        uint32_t Delay, Delay2;
+        Delay = (R == AClr.R)? 0 : ClrCalcDelay(R, SmoothValue);
+        Delay2 = (G == AClr.G)? 0 : ClrCalcDelay(G, SmoothValue);
+        if(Delay2 > Delay) Delay = Delay2;
+        Delay2 = (B == AClr.B)? 0 : ClrCalcDelay(B, SmoothValue);
+        if(Delay2 > Delay) Delay = Delay2;
+        Delay2 = (Lum == AClr.Lum)? 0 : ClrCalcDelay(Lum, SmoothValue);
+        return (Delay2 > Delay)? Delay2 : Delay;
+    }
+    void Print() { Uart.Printf("{%u, %u, %u; %u}\r", R, G, B, Lum); }
+    Color_t() : R(0), G(0), B(0), Lum(LUM_MAX) {}
+    Color_t(uint8_t AR, uint8_t AG, uint8_t AB) : R(AR), G(AG), B(AB), Lum(LUM_MAX) {}
+    Color_t(uint8_t AR, uint8_t AG, uint8_t AB, uint8_t ALum) : R(AR), G(AG), B(AB), Lum(ALum) {}
 } __attribute__((packed));
 
 
@@ -94,11 +124,6 @@ struct Color_t {
 #define RED_OF(c)           (((c) & 0xF800)>>8)
 #define GREEN_OF(c)         (((c)&0x007E)>>3)
 #define BLUE_OF(c)          (((c)&0x001F)<<3)
-
-// Smooth delay
-static inline uint32_t ClrCalcDelay(uint16_t AValue, uint32_t Smooth) {
-    return (uint32_t)((Smooth / (AValue+4)) + 1);
-}
 
 static inline uint16_t RGBTo565(uint16_t r, uint16_t g, uint16_t b) {
     uint16_t rslt = (r & 0b11111000) << 8;
