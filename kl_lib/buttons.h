@@ -11,7 +11,6 @@
 #include "kl_lib.h"
 #include "kl_buf.h"
 
-#include "PinSnsSettings.h"
 #include "SimpleSensors.h"
 
 #if SIMPLESENSORS_ENABLED
@@ -31,16 +30,16 @@ if(Evt & EVT_BUTTONS) {
  */
 
 // ================================= Settings ==================================
-#define BUTTONS_CNT                 1
+//#define BUTTONS_CNT                 1
 // Select required events etc.
-#define BTN_SHORTPRESS              FALSE   // beShortPress evt
-#define BTN_RELEASE                 TRUE
-#define BTN_LONGPRESS               TRUE    // Send LongPress evt
-#define BTN_REPEAT                  FALSE   // Send Repeat evt
+#define BTN_SHORTPRESS              TRUE   // beShortPress evt
+#define BTN_RELEASE                 FALSE
+#define BTN_LONGPRESS               FALSE    // Send LongPress evt
+#define BTN_REPEAT                  TRUE   // Send Repeat evt
 #define BTN_COMBO                   FALSE   // Allow combo
-#define BTN_GETSTATE_REQUIRED       TRUE
+#define BTN_GETSTATE_REQUIRED       FALSE
 
-#define BTN_REPEAT_PERIOD_MS        180
+#define BTN_REPEAT_PERIOD_MS        450
 #define BTN_LONGPRESS_DELAY_MS      999
 #define BTN_DELAY_BEFORE_REPEAT_MS  (BTN_REPEAT_PERIOD_MS + BTN_LONGPRESS_DELAY_MS)
 
@@ -54,7 +53,7 @@ if(Evt & EVT_BUTTONS) {
 enum BtnName_t {btnUp=0, btnDown=1};
 
 // Define correct button behavior depending on schematic
-#define BTN_IDLE_LOW                TRUE
+#define BTN_IDLE_LOW                FALSE
 // =============================================================================
 
 // Selected depending on Idle state

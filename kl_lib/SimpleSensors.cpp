@@ -6,32 +6,17 @@
  */
 
 #include "SimpleSensors.h"
+#include "PinSnsSettings.h"
 #include "uart.h"
 
 #if SIMPLESENSORS_ENABLED
 
-SimpleSensors_t PinSensors;
+static PinSnsState_t States[PIN_SNS_CNT];
 
-// ==== Sensors Thread ====
 static THD_WORKING_AREA(waPinSnsThread, 64);
 __noreturn
 static void SensorsThread(void *arg) {
     chRegSetThreadName("PinSensors");
-    PinSensors.ITask();
-}
-
-void SimpleSensors_t::Init() {
-    // Init pins
-    for(uint32_t i=0; i < PIN_SNS_CNT; i++) {
-        PinSns[i].Init();
-        States[i] = pssNone;
-    }
-    // Create and start thread
-    chThdCreateStatic(waPinSnsThread, sizeof(waPinSnsThread), NORMALPRIO, (tfunc_t)SensorsThread, NULL);
-}
-
-__noreturn
-void SimpleSensors_t::ITask() {
     while(true) {
         chThdSleepMilliseconds(SNS_POLL_PERIOD_MS);
         ftVoidPSnsStLen PostProcessor = PinSns[0].Postprocessor;
@@ -65,4 +50,23 @@ void SimpleSensors_t::ITask() {
         if(PostProcessor != nullptr) PostProcessor(PStates, GroupLen);
     } // while true
 }
+
+
+namespace SimpleSensors {
+
+void Init() {
+    // Init pins
+    for(uint32_t i=0; i < PIN_SNS_CNT; i++) {
+        PinSns[i].Init();
+        States[i] = pssNone;
+    }
+    // Create and start thread
+    chThdCreateStatic(waPinSnsThread, sizeof(waPinSnsThread), NORMALPRIO, (tfunc_t)SensorsThread, NULL);
+}
+
+void Shutdown() {
+    for(uint32_t i=0; i<PIN_SNS_CNT; i++) PinSns[i].Off();
+}
+
+} // namespace
 #endif

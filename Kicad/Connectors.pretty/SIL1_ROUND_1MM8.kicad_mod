@@ -1,0 +1,11 @@
+(module SIL1_ROUND_1MM8 (layer F.Cu) (tedit 532EDE1F)
+  (descr "Connecteurs 2 pins")
+  (tags "CONN DEV")
+  (fp_text reference XL7 (at 0 -1.778) (layer F.SilkS) hide
+    (effects (font (size 0.14986 0.14986) (thickness 0.0381)))
+  )
+  (fp_text value CONN_1 (at 0 2.032) (layer F.SilkS) hide
+    (effects (font (size 0.635 0.635) (thickness 0.16002)))
+  )
+  (pad 1 thru_hole circle (at 0 0) (size 2.8 2.8) (drill 1.8) (layers *.Cu *.Mask F.SilkS))
+)

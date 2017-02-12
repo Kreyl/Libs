@@ -39,6 +39,7 @@ static void AddEvtToQueue(BtnEvt_t AType, uint8_t KeyIndx);
 
 // ========================= Postprocessor for PinSns ==========================
 void ProcessButtons(PinSnsState_t *BtnState, uint32_t Len) {
+//    Uart.Printf("  %S\r", __FUNCTION__);
 //    Uart.Printf("\r%A", BtnState, Len, ' ');
     for(uint8_t i=0; i<BUTTONS_CNT; i++) {
 #if BTN_GETSTATE_REQUIRED

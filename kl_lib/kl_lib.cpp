@@ -12,112 +12,14 @@
 #include "main.h"   // App is there
 
 #if 1 // ============================= Timer ===================================
-void Timer_t::Init() const {
-#if defined STM32L1XX
-    if     (ITmr == TIM2)  { rccEnableTIM2(FALSE); }
-    else if(ITmr == TIM3)  { rccEnableTIM3(FALSE); }
-    else if(ITmr == TIM4)  { rccEnableTIM4(FALSE); }
-    else if(ITmr == TIM6)  { rccEnableAPB1(RCC_APB1ENR_TIM6EN,  FALSE); }
-    else if(ITmr == TIM7)  { rccEnableAPB1(RCC_APB1ENR_TIM7EN,  FALSE); }
-    else if(ITmr == TIM9)  { rccEnableAPB2(RCC_APB2ENR_TIM9EN,  FALSE); }
-    else if(ITmr == TIM10) { rccEnableAPB2(RCC_APB2ENR_TIM10EN, FALSE); }
-    else if(ITmr == TIM11) { rccEnableAPB2(RCC_APB2ENR_TIM11EN, FALSE); }
-#elif defined STM32F0XX
-    if     (ITmr == TIM1)  { rccEnableTIM1(FALSE); }
-#ifdef TIM2
-    else if(ITmr == TIM2)  { rccEnableTIM2(FALSE); }
-#endif
-    else if(ITmr == TIM3)  { rccEnableTIM3(FALSE); }
-#ifdef TIM6
-    else if(ITmr == TIM6)  { rccEnableAPB1(RCC_APB1ENR_TIM6EN,  FALSE); }
-#endif
-    else if(ITmr == TIM14) { RCC->APB1ENR |= RCC_APB1ENR_TIM14EN; }
-#ifdef TIM15
-    else if(ITmr == TIM15) { RCC->APB2ENR |= RCC_APB2ENR_TIM15EN; }
-#endif
-    else if(ITmr == TIM16) { RCC->APB2ENR |= RCC_APB2ENR_TIM16EN; }
-    else if(ITmr == TIM17) { RCC->APB2ENR |= RCC_APB2ENR_TIM17EN; }
-#elif defined STM32F2XX || defined STM32F4XX
-    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM9, TIM10, TIM11)) PClk = &Clk.APB2FreqHz;
-    else PClk = &Clk.APB1FreqHz;
-    if     (ITmr == TIM1)  { rccEnableTIM1(FALSE); }
-    else if(ITmr == TIM2)  { rccEnableTIM2(FALSE); }
-    else if(ITmr == TIM3)  { rccEnableTIM3(FALSE); }
-    else if(ITmr == TIM4)  { rccEnableTIM4(FALSE); }
-    else if(ITmr == TIM5)  { rccEnableTIM5(FALSE); }
-    else if(ITmr == TIM6)  { rccEnableTIM6(FALSE); }
-    else if(ITmr == TIM7)  { rccEnableTIM7(FALSE); }
-    else if(ITmr == TIM8)  { rccEnableTIM8(FALSE); }
-    else if(ITmr == TIM9)  { rccEnableTIM9(FALSE); }
-    else if(ITmr == TIM10)  { RCC->APB2ENR |= RCC_APB2ENR_TIM10EN; }
-    else if(ITmr == TIM11)  { rccEnableTIM11(FALSE); }
-    else if(ITmr == TIM12)  { rccEnableTIM12(FALSE); }
-    else if(ITmr == TIM13)  { RCC->APB1ENR |= RCC_APB1ENR_TIM13EN; }
-    else if(ITmr == TIM14)  { rccEnableTIM14(FALSE); }
-#elif defined STM32F10X_LD_VL
-    if(ANY_OF_4(ITmr, TIM1, TIM15, TIM16, TIM17)) PClk = &Clk.APB2FreqHz;
-    else PClk = &Clk.APB1FreqHz;
-    if     (ITmr == TIM1)  { rccEnableTIM1(FALSE); }
-    else if(ITmr == TIM2)  { rccEnableTIM2(FALSE); }
-    else if(ITmr == TIM3)  { rccEnableTIM3(FALSE); }
-    else if(ITmr == TIM15) { RCC->APB2ENR |= RCC_APB2ENR_TIM15EN; }
-    else if(ITmr == TIM16) { RCC->APB2ENR |= RCC_APB2ENR_TIM16EN; }
-    else if(ITmr == TIM17) { RCC->APB2ENR |= RCC_APB2ENR_TIM17EN; }
-#elif defined STM32L4XX
-    if     (ITmr == TIM1)  { rccEnableTIM1(FALSE); }
-    else if(ITmr == TIM2)  { rccEnableTIM2(FALSE); }
-    else if(ITmr == TIM3)  { rccEnableTIM3(FALSE); }
-    else if(ITmr == TIM4)  { rccEnableTIM4(FALSE); }
-    else if(ITmr == TIM5)  { rccEnableTIM5(FALSE); }
-    else if(ITmr == TIM6)  { rccEnableTIM6(FALSE); }
-    else if(ITmr == TIM7)  { rccEnableTIM7(FALSE); }
-    else if(ITmr == TIM8)  { rccEnableTIM8(FALSE); }
-    else if(ITmr == TIM15) { rccEnableTIM15(FALSE); }
-    else if(ITmr == TIM16) { rccEnableTIM16(FALSE); }
-    else if(ITmr == TIM17) { rccEnableTIM17(FALSE); }
-#endif
-}
-
-void Timer_t::Deinit() const {
-    TMR_DISABLE(ITmr);
-#if defined STM32F0XX
-    if     (ITmr == TIM1)  { rccDisableTIM1(); }
-#ifdef TIM2
-    else if(ITmr == TIM2)  { rccDisableTIM2(); }
-#endif
-    else if(ITmr == TIM3)  { rccDisableTIM3(); }
-#ifdef TIM6
-    else if(ITmr == TIM6)  { rccDisableTIM6(); }
-#endif
-    else if(ITmr == TIM14) { rccDisableTIM14(); }
-#ifdef TIM15
-    else if(ITmr == TIM15) { rccDisableTIM15(); }
-#endif
-    else if(ITmr == TIM16) { rccDisableTIM16(); }
-    else if(ITmr == TIM17) { rccDisableTIM17(); }
-#elif defined STM32L4XX
-    if     (ITmr == TIM1)  { rccDisableTIM1(FALSE); }
-    else if(ITmr == TIM2)  { rccDisableTIM2(FALSE); }
-    else if(ITmr == TIM3)  { rccDisableTIM3(FALSE); }
-    else if(ITmr == TIM4)  { rccDisableTIM4(FALSE); }
-    else if(ITmr == TIM5)  { rccDisableTIM5(FALSE); }
-    else if(ITmr == TIM6)  { rccDisableTIM6(FALSE); }
-    else if(ITmr == TIM7)  { rccDisableTIM7(FALSE); }
-    else if(ITmr == TIM8)  { rccDisableTIM8(FALSE); }
-    else if(ITmr == TIM15) { rccDisableTIM15(FALSE); }
-    else if(ITmr == TIM16) { rccDisableTIM16(FALSE); }
-    else if(ITmr == TIM17) { rccDisableTIM17(FALSE); }
-#endif
-}
-
-void Timer_t::SetupPrescaler(uint32_t PrescaledFreqHz) const {
-    uint32_t InputFreq;
+static uint32_t GetTimInputFreq(TIM_TypeDef* ITmr) {
+    uint32_t InputFreq = 0;
 #if defined STM32L1XX
     // APB2
     if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) {
-        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 8;
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
         if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
-        else  InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
+        else InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
     }
     // APB1
     else {
@@ -126,22 +28,148 @@ void Timer_t::SetupPrescaler(uint32_t PrescaledFreqHz) const {
         else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
     }
 #elif defined STM32F0XX
-    InputFreq = Clk.APBFreqHz * Clk.TimerClkMulti;
+    uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE) >> 8;
+    if(APB1prs < 0b100) InputFreq = Clk.APBFreqHz;      // APB1CLK = HCLK / 1
+    else InputFreq = Clk.APBFreqHz * 2;                 // APB1CLK = HCLK / (not 1)
 #elif defined STM32L4XX
-    uint32_t Pre;
     if(ANY_OF_5(ITmr, TIM1, TIM8, TIM15, TIM16, TIM17)) {   // APB2
-        Pre = (RCC->CFGR >> 11) & 0b111;
-        InputFreq = Clk.APB2FreqHz;
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
+        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
+        else InputFreq = Clk.APB2FreqHz * 2;            // APB2CLK = HCLK / (not 1)
     }
-    else {
-        Pre = (RCC->CFGR >> 8) & 0b111;
-        InputFreq = Clk.APB1FreqHz;
+    else {                                              // APB1
+        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
+        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
+        else InputFreq = Clk.APB1FreqHz * 2;            // APB1CLK = HCLK / (not 1)
     }
-    if(Pre >= 4) InputFreq *= 2;
+#elif defined STM32F2XX
+    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM9, TIM10, TIM11)) {    // APB2
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 13;
+        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
+        else  InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
+    }
+    else {                                              // APB1
+        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 10;
+        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
+        else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
+    }
 #else
 #error "Timer Clk setup error"
 #endif
-    ITmr->PSC = (InputFreq / PrescaledFreqHz) - 1;
+    return InputFreq;
+}
+
+void Timer_t::Init() const {
+#ifdef TIM1
+    if     (ITmr == TIM1)  { rccEnableTIM1(FALSE); }
+#endif
+#ifdef TIM2
+    else if(ITmr == TIM2)  { rccEnableTIM2(FALSE); }
+#endif
+#ifdef TIM3
+    else if(ITmr == TIM3)  { rccEnableTIM3(FALSE); }
+#endif
+#ifdef TIM4
+    else if(ITmr == TIM4)  { rccEnableTIM4(FALSE); }
+#endif
+#ifdef TIM5
+    else if(ITmr == TIM5)  { rccEnableTIM5(FALSE); }
+#endif
+#ifdef TIM6
+    else if(ITmr == TIM6)  { rccEnableTIM6(FALSE); }
+#endif
+#ifdef TIM7
+    else if(ITmr == TIM7)  { rccEnableTIM7(FALSE); }
+#endif
+#ifdef TIM8
+    else if(ITmr == TIM8)  { rccEnableTIM8(FALSE); }
+#endif
+#ifdef TIM9
+    else if(ITmr == TIM9)  { rccEnableTIM9(FALSE); }
+#endif
+#ifdef TIM10
+    else if(ITmr == TIM10)  { rccEnableTIM10(FALSE); }
+#endif
+#ifdef TIM11
+    else if(ITmr == TIM11)  { rccEnableTIM11(FALSE); }
+#endif
+#ifdef TIM12
+    else if(ITmr == TIM12)  { rccEnableTIM12(FALSE); }
+#endif
+#ifdef TIM13
+    else if(ITmr == TIM13)  { rccEnableTIM13(FALSE); }
+#endif
+#ifdef TIM14
+    else if(ITmr == TIM14)  { rccEnableTIM14(FALSE); }
+#endif
+#ifdef TIM15
+    else if(ITmr == TIM15)  { rccDisableTIM15(FALSE); }
+#endif
+#ifdef TIM16
+    else if(ITmr == TIM16)  { rccDisableTIM16(FALSE); }
+#endif
+#ifdef TIM17
+    else if(ITmr == TIM17)  { rccDisableTIM17(FALSE); }
+#endif
+}
+
+void Timer_t::Deinit() const {
+    TMR_DISABLE(ITmr);
+#ifdef TIM1
+    if     (ITmr == TIM1)  { rccDisableTIM1(FALSE); }
+#endif
+#ifdef TIM2
+    else if(ITmr == TIM2)  { rccDisableTIM2(FALSE); }
+#endif
+#ifdef TIM3
+    else if(ITmr == TIM3)  { rccDisableTIM3(FALSE); }
+#endif
+#ifdef TIM4
+    else if(ITmr == TIM4)  { rccDisableTIM4(FALSE); }
+#endif
+#ifdef TIM5
+    else if(ITmr == TIM5)  { rccDisableTIM5(FALSE); }
+#endif
+#ifdef TIM6
+    else if(ITmr == TIM6)  { rccDisableTIM6(FALSE); }
+#endif
+#ifdef TIM7
+    else if(ITmr == TIM7)  { rccDisableTIM7(FALSE); }
+#endif
+#ifdef TIM8
+    else if(ITmr == TIM8)  { rccDisableTIM8(FALSE); }
+#endif
+#ifdef TIM9
+    else if(ITmr == TIM9)  { rccDisableTIM9(FALSE); }
+#endif
+#ifdef TIM10
+    else if(ITmr == TIM10)  { rccDisableTIM10(FALSE); }
+#endif
+#ifdef TIM11
+    else if(ITmr == TIM11)  { rccDisableTIM11(FALSE); }
+#endif
+#ifdef TIM12
+    else if(ITmr == TIM12)  { rccDisableTIM12(FALSE); }
+#endif
+#ifdef TIM13
+    else if(ITmr == TIM13)  { rccDisableTIM13(FALSE); }
+#endif
+#ifdef TIM14
+    else if(ITmr == TIM14)  { rccDisableTIM14(FALSE); }
+#endif
+#ifdef TIM15
+    else if(ITmr == TIM15)  { rccDisableTIM15(FALSE); }
+#endif
+#ifdef TIM16
+    else if(ITmr == TIM16)  { rccDisableTIM16(FALSE); }
+#endif
+#ifdef TIM17
+    else if(ITmr == TIM17)  { rccDisableTIM17(FALSE); }
+#endif
+}
+
+void Timer_t::SetupPrescaler(uint32_t PrescaledFreqHz) const {
+    ITmr->PSC = (GetTimInputFreq(ITmr) / PrescaledFreqHz) - 1;
 }
 
 void PinOutputPWM_t::Init() const {
@@ -170,10 +198,10 @@ void PinOutputPWM_t::Init() const {
         else PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF2);
     }
 #elif defined STM32F2XX || defined STM32F4XX
-    if(ANY_OF_2(ITmr, TIM1, TIM2)) PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF1);
-    else if(ANY_OF_3(ITmr, TIM3, TIM4, TIM5)) PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF2);
-    else if(ANY_OF_4(ITmr, TIM8, TIM9, TIM10, TIM11)) PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF3);
-    else if(ANY_OF_3(ITmr, TIM12, TIM13, TIM14)) PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF9);
+    if(ANY_OF_2(ITmr, TIM1, TIM2)) PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF1);
+    else if(ANY_OF_3(ITmr, TIM3, TIM4, TIM5)) PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF2);
+    else if(ANY_OF_4(ITmr, TIM8, TIM9, TIM10, TIM11)) PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF3);
+    else if(ANY_OF_3(ITmr, TIM12, TIM13, TIM14)) PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF9);
 #elif defined STM32F100_MCUCONF
     PinSetupAlterFunc(GPIO, N, OutputType, pudNone, AF0);   // Alternate function is dummy
 #elif defined STM32L4XX
@@ -214,43 +242,7 @@ void PinOutputPWM_t::Init() const {
 
 void Timer_t::SetUpdateFrequencyChangingPrescaler(uint32_t FreqHz) const {
     // Figure out input timer freq
-    uint32_t InputFreq;
-#if defined STM32F2XX || defined STM32F4XX
-    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM9, TIM10, TIM11))  // APB2 is clock src
-    	SetTopValue((*PClk * Clk.TimerAPB2ClkMulti) / FreqHz);
-    else // APB1 is clock src
-    	SetTopValue((*PClk * Clk.TimerAPB1ClkMulti) / FreqHz);
-#elif defined STM32L1XX
-    // APB2
-    if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) {
-        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
-        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
-        else InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
-    }
-    // APB1
-    else {
-        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
-        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
-        else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
-    }
-#elif defined STM32L4XX
-    // APB2
-    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM15, TIM16, TIM17)) {
-        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
-        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
-        else InputFreq = Clk.APB2FreqHz * 2;            // APB2CLK = HCLK / (not 1)
-    }
-    // APB1
-    else {
-        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
-        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
-        else InputFreq = Clk.APB1FreqHz * 2;            // APB1CLK = HCLK / (not 1)
-    }
-#elif defined STM32F0XX
-    if((RCC->CFGR & RCC_CFGR_PPRE_2) == 0) InputFreq = Clk.APBFreqHz; // APB1CLK = HCLK / 1
-    else InputFreq = Clk.APBFreqHz * 2;                               // APB1CLK = HCLK / (not 1)
-#endif
-    uint32_t UpdFreqMax = InputFreq / (ITmr->ARR + 1);
+    uint32_t UpdFreqMax = GetTimInputFreq(ITmr) / (ITmr->ARR + 1);
     uint32_t div = UpdFreqMax / FreqHz;
     if(div != 0) div--;
 //    Uart.Printf("InputFreq=%u; UpdFreqMax=%u; div=%u; ARR=%u\r", InputFreq, UpdFreqMax, div, ITmr->ARR);
@@ -259,41 +251,7 @@ void Timer_t::SetUpdateFrequencyChangingPrescaler(uint32_t FreqHz) const {
 }
 
 void Timer_t::SetUpdateFrequencyChangingTopValue(uint32_t FreqHz) const {
-    uint32_t InputFreq, TopVal;
-#if defined STM32L1XX
-    // APB2
-    if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) {
-        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
-        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
-        else InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
-    }
-    // APB1
-    else {
-        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
-        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
-        else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
-    }
-#elif defined STM32L4XX
-    // APB2
-    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM15, TIM16, TIM17)) {
-        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
-        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
-        else InputFreq = Clk.APB2FreqHz * 2;            // APB2CLK = HCLK / (not 1)
-    }
-    // APB1
-    else {
-        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
-        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
-        else InputFreq = Clk.APB1FreqHz * 2;            // APB1CLK = HCLK / (not 1)
-    }
-#elif defined STM32F0XX
-    uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE) >> 8;
-    if(APB1prs < 0b100) InputFreq = Clk.APBFreqHz;      // APB1CLK = HCLK / 1
-    else InputFreq = Clk.APBFreqHz * 2;                 // APB1CLK = HCLK / (not 1)
-#else
-#error "Timer_t::SetUpdateFrequencyChangingTopValue: MCU not defined"
-#endif
-    TopVal  = (InputFreq / FreqHz) - 1;
+    uint32_t TopVal  = (GetTimInputFreq(ITmr) / FreqHz) - 1;
 //    Uart.Printf("Topval = %u\r", TopVal);
     SetTopValue(TopVal);
 }

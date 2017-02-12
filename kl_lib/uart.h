@@ -91,3 +91,5 @@ public:
 };
 
 extern Uart_t Uart;
+
+#define UartPrintfFunc()    Uart.Printf(" %S\r", __FUNCTION__)

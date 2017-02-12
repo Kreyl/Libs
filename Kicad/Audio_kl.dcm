@@ -1,5 +1,9 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP CS42L52
+D Codec with headphone amp and D class amp
+$ENDCMP
+#
 $CMP TDA2003
 D 10W AUDIO AMPLIFIER
 $ENDCMP

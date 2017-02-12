@@ -286,7 +286,7 @@ static inline void DelayLoop(volatile uint32_t ACounter) { while(ACounter--); }
 namespace BackupSpc {
     static inline void EnableAccess() {
         rccEnablePWRInterface(FALSE);
-        rccEnableBKPInterface(FALSE);
+        rccEnableBKPSRAM(FALSE);
         PWR->CR |= PWR_CR_DBP;
     }
     static inline void DisableAccess() { PWR->CR &= ~PWR_CR_DBP; }
@@ -294,6 +294,17 @@ namespace BackupSpc {
     static inline void Reset() {
         RCC->BDCR |=  RCC_BDCR_BDRST;
         RCC->BDCR &= ~RCC_BDCR_BDRST;
+    }
+
+    // RegN = 0...19
+    static inline uint32_t ReadBackupRegister(uint32_t RegN) {
+        volatile uint32_t tmp = RTC_BASE + 0x50 + (RegN * 4);
+        return (*(volatile uint32_t *)tmp);
+    }
+
+    static inline void WriteBackupRegister(uint32_t RegN, uint32_t Data) {
+        volatile uint32_t tmp = RTC_BASE + 0x50 + (RegN * 4);
+        *(volatile uint32_t *)tmp = Data;
     }
 } // namespace
 #endif // STM32F2xx/F4xx
@@ -435,14 +446,14 @@ struct PwmSetup_t {
     uint32_t TopValue;
 };
 
-#if defined STM32F2XX || defined STM32F4XX
+#if defined STM32F2XX
 enum PinSpeed_t {
-    ps2MHz  = 0b00,
-    ps25MHz = 0b01,
-    ps50MHz = 0b10,
-    ps100MHz = 0b11
+    psLow  = 0b00,
+    psMedium = 0b01,
+    psFast = 0b10,
+    psHigh = 0b11
 };
-#define PIN_SPEED_DEFAULT   ps50MHz
+#define PIN_SPEED_DEFAULT   psFast
 #elif defined STM32L1XX
 enum PinSpeed_t {
     psVeryLow = 0b00,
@@ -466,6 +477,8 @@ enum PinSpeed_t {
     psVeryHigh = 0b11
 };
 #define PIN_SPEED_DEFAULT   psMedium
+#else
+#error "GPIO: MCU not set"
 #endif
 
 enum AlterFunc_t {
@@ -476,13 +489,17 @@ enum AlterFunc_t {
 };
 
 // Set/clear
-#if defined STM32L1XX || defined STM32F2XX || defined STM32F4XX || defined STM32F042x6
+#if defined STM32L1XX || defined STM32F4XX || defined STM32F042x6
 __always_inline
 static inline void PinSetHi(GPIO_TypeDef *PGpio, uint16_t APin) { PGpio->BSRRL = (1 << APin); }
 __always_inline
 static inline void PinSetLo(GPIO_TypeDef *PGpio, uint16_t APin) { PGpio->BSRRH = (1 << APin); }
-
-#elif defined STM32F0XX || defined STM32F10X_LD_VL || defined STM32L4XX
+#elif defined STM32F2XX
+__always_inline
+static inline void PinSetHi(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BSRR = 1 << APin; }
+__always_inline
+static inline void PinSetLo(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BSRR = 1 << (APin + 16);  }
+#elif defined STM32F0XX || || defined STM32F10X_LD_VL || defined STM32L4XX
 __always_inline
 static inline void PinSetHi(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BSRR = 1 << APin; }
 __always_inline
@@ -719,6 +736,11 @@ static inline void PortInit(GPIO_TypeDef *PGpioPort,
         case psLow:      PGpioPort->OSPEEDR = 0x00000000; break;
         case psMedium:   PGpioPort->OSPEEDR = 0x55555555; break;
         case psHigh:     PGpioPort->OSPEEDR = 0xFFFFFFFF; break;
+#elif defined STM32F2XX
+        case psLow:     PGpioPort->OSPEEDR = 0x00000000; break;
+        case psMedium:  PGpioPort->OSPEEDR = 0x55555555; break;
+        case psFast:    PGpioPort->OSPEEDR = 0xAAAAAAAA; break;
+        case psHigh:    PGpioPort->OSPEEDR = 0xFFFFFFFF; break;
 #endif
     }
 }
@@ -781,6 +803,7 @@ public:
     void Deinit() const { PinSetupAnalog(ISetup.PGpio, ISetup.Pin); }
     bool IsHi() const { return PinIsHi(ISetup.PGpio, ISetup.Pin); }
     PinInput_t(const PinInputSetup_t &ASetup) : ISetup(ASetup) {}
+    PinInput_t(GPIO_TypeDef *PGpio, uint16_t Pin, PinPullUpDown_t PullUpDown) : ISetup({PGpio, Pin, PullUpDown}) {}
 };
 
 
@@ -804,7 +827,7 @@ public:
 #if 1 // ==== External IRQ ====
 enum ExtiTrigType_t {ttRising, ttFalling, ttRisingFalling};
 
-#if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX
+#if defined STM32L1XX || defined STM32F2XX || defined STM32F4XX || defined STM32L4XX
 #define PIN2IRQ_CHNL(Pin)   \
     (((Pin) > 9)? EXTI15_10_IRQn : (((Pin) > 4)? EXTI9_5_IRQn : ((Pin) + EXTI0_IRQn)))
 #elif defined STM32F030 || defined STM32F0
@@ -893,6 +916,7 @@ public:
     bool IsIrqPending() const { return BitIsSet(EXTI->PR, (1 << PinN)); }
     void GenerateIrq()  const { EXTI->SWIER = (1 << PinN); }
 #endif
+    bool IsHi() const { return PinIsHi(PGpio, PinN); }
 };
 #endif // EXTI
 
@@ -950,7 +974,7 @@ public:
 #if 1 // ============================== Sleep ==================================
 namespace Sleep {
 static inline void EnterStandby() {
-#if defined STM32F0XX || defined STM32L4XX
+#if defined STM32F0XX || defined STM32L4XX || defined STM32F2XX
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
 #else
     SCB->SCR |= SCB_SCR_SLEEPDEEP;
@@ -974,15 +998,17 @@ static inline void EnableWakeup1Pin()  { PWR->CR3 |=  PWR_CR3_EWUP1; }
 static inline void DisableWakeup1Pin() { PWR->CR3 &= ~PWR_CR3_EWUP1; }
 static inline void EnableWakeup2Pin()  { PWR->CR3 |=  PWR_CR3_EWUP2; }
 static inline void DisableWakeup2Pin() { PWR->CR3 &= ~PWR_CR3_EWUP2; }
+#elif defined STM32F2XX
+static inline void EnableWakeupPin()  { PWR->CSR |=  PWR_CSR_EWUP; }
+static inline void DisableWakeupPin() { PWR->CSR &= ~PWR_CSR_EWUP; }
 #else
 static inline void EnableWakeup1Pin()  { PWR->CSR |=  PWR_CSR_EWUP1; }
 static inline void DisableWakeup1Pin() { PWR->CSR &= ~PWR_CSR_EWUP1; }
 static inline void EnableWakeup2Pin()  { PWR->CSR |=  PWR_CSR_EWUP2; }
 static inline void DisableWakeup2Pin() { PWR->CSR &= ~PWR_CSR_EWUP2; }
-
+#endif
 static inline bool WasInStandby() { return (PWR->CSR & PWR_CSR_SBF); }
 static inline void ClearStandbyFlag() { PWR->CR |= PWR_CR_CSBF; }
-#endif
 
 }; // namespace
 #endif
@@ -1360,13 +1386,9 @@ public:
     void PrintFreqs();
 };
 
-#elif defined STM32F4xx_MCUCONF
-#include "stm32f4xx.h"
-#include "board.h"
-
+#elif defined STM32F4xx_MCUCONF || defined STM32F2XX
 #define HSI_FREQ_HZ         16000000    // Freq of internal generator, not adjustable
 #define LSI_FREQ_HZ         32000       // Freq of low power internal generator, may vary depending on voltage, not adjustable
-#define CLK_STARTUP_TIMEOUT 2007        // tics
 
 enum ClkSrc_t {csHSI, csHSE, csPLL};
 enum AHBDiv_t {
@@ -1396,9 +1418,6 @@ public:
     uint32_t AHBFreqHz;     // HCLK: AHB Buses, Core, Memory, DMA; 120 MHz max
     uint32_t APB1FreqHz;    // PCLK1: APB1 Bus clock; 30 MHz max
     uint32_t APB2FreqHz;    // PCLK2: APB2 Bus clock; 60 MHz max
-    uint32_t UsbSdioFreqHz; // Clock is intended to be 48 MHz
-    uint8_t TimerAPB1ClkMulti = 1;
-    uint8_t TimerAPB2ClkMulti = 1;
     // Clk switching
     uint8_t SwitchToHSI();
     uint8_t SwitchToHSE();
@@ -1446,15 +1465,6 @@ public:
     void MCO2Enable(Mco2Src_t Src, McoDiv_t Div);
     void MCO2Disable();
 };
-
-/*
- * Early initialization code.
- * This initialization must be performed just after stack setup and before
- * any other initialization.
- */
-extern "C" {
-void __early_init(void);
-}
 
 #elif defined STM32L4XX
 // Values of the Internal oscillator in Hz
