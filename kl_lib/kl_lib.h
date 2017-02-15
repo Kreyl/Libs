@@ -1049,7 +1049,7 @@ public:
         if(CPOL == cpolIdleHigh) PSpi->CR1 |= SPI_CR1_CPOL;     // CPOL
         if(CPHA == cphaSecondEdge) PSpi->CR1 |= SPI_CR1_CPHA;   // CPHA
         PSpi->CR1 |= ((uint16_t)Baudrate) << 3;                 // Baudrate
-#if defined STM32L1XX || defined STM32F10X_LD_VL || defined STM32F4XX
+#if defined STM32L1XX || defined STM32F10X_LD_VL || defined STM32F4XX || defined STM32F2XX
         if(BitNumber == bitn16) PSpi->CR1 |= SPI_CR1_DFF;
         PSpi->CR2 = 0;
 #elif defined STM32F030
