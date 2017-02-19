@@ -31,12 +31,10 @@ void Uart_t::IRQDmaTxHandler() {
 
 extern "C" {
 void PrintfC(const char *format, ...) {
-//    chSysLock();
     va_list args;
     va_start(args, format);
     Uart.IPrintf(format, args);
     va_end(args);
-//    chSysUnlock();
 }
 }
 
@@ -208,7 +206,7 @@ void Uart_t::Init(uint32_t ABaudrate, GPIO_TypeDef *PGpioTx, const uint16_t APin
     dmaStreamEnable       (UART_DMA_RX);
     // Thread
     IPThd = chThdCreateStatic(waUartRxThread, sizeof(waUartRxThread), LOWPRIO, UartRxThread, NULL);
-#else
+#else // if UART_RX_ENABLED
     UART->CR1 = USART_CR1_TE;     // Transmitter enabled
 #if UART_USE_DMA
     UART->CR3 = USART_CR3_DMAT;   // Enable DMA at transmitter

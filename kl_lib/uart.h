@@ -17,9 +17,10 @@
 #define UART_RX_ENABLED     TRUE
 
 #define UART_USE_DMA        TRUE
+// On F0xx MCU, remap is done automatically
 
 // ==== TX ====
-#define UART_TXBUF_SZ       16000
+#define UART_TXBUF_SZ       256
 
 #define UART_DMA_TX_MODE    STM32_DMA_CR_CHSEL(UART_DMA_CHNL) | \
                             DMA_PRIORITY_LOW | \

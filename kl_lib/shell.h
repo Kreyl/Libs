@@ -63,6 +63,15 @@ public:
             return OK;
         }
     }
+    uint8_t GetNextUint16(uint16_t *POutput) {
+        int32_t dw32;
+        uint8_t r = GetNextInt32(&dw32);
+        if(r != OK) return r;
+        else {
+            *POutput = (uint16_t)dw32;
+            return OK;
+        }
+    }
 
     uint8_t GetArray(int32_t *Ptr, int32_t Len) {
         int32_t dw32 = 0;
