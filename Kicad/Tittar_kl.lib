@@ -367,7 +367,7 @@ ENDDEF
 DEF Fuse0R F 0 0 N Y 1 F N
 F0 "F" -70 0 50 V V C CNN
 F1 "Fuse0R" 0 0 50 V V C CNN
-F2 "" -170 -100 60 V I C CNN
+F2 "Resistors:RES_0603_FUSE" -170 -100 60 V I C CNN
 F3 "" -70 0 60 V I C CNN
 F4 "1" 30 100 60 V I C CNN "SolderPoints"
 F5 "0" 130 200 60 V I C CNN "Price"

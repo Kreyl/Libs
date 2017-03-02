@@ -42,7 +42,7 @@ K Diode
 $ENDCMP
 #
 $CMP DIODE_TVS
-D Protection TVS diode 
+D Protection TVS diode
 $ENDCMP
 #
 $CMP FUSE

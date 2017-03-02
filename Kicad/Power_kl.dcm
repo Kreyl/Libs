@@ -200,7 +200,7 @@ D LDO 2.5uA Iq, 100mA out, 6V in
 $ENDCMP
 #
 $CMP ST1CC40_SO8
-D LED driver Buck 3A 
+D LED driver Buck 3A
 $ENDCMP
 #
 $CMP ST1S10

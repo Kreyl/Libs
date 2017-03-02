@@ -1,7 +1,7 @@
 EESchema-DOCLIB  Version 2.0
 #
 $CMP STM32F030C8Tx
-D Cortex-M0, LQFP48 
+D Cortex-M0, LQFP48
 $ENDCMP
 #
 $CMP STM32F030F6Px

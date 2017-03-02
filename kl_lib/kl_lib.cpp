@@ -320,8 +320,8 @@ uint8_t Eeprom_t::WriteBuf(void *PSrc, uint32_t Sz, uint32_t Addr) {
 
 #endif
 
-#if 0
-namespace Convert { // ============== Conversion operations ====================
+#if 1 // ============== Conversion operations ====================
+namespace Convert {
 void U16ToArrAsBE(uint8_t *PArr, uint16_t N) {
     uint8_t *p8 = (uint8_t*)&N;
     *PArr++ = *(p8 + 1);
@@ -880,7 +880,7 @@ void __early_init(void) {
     // shared among multiple drivers using external IRQs
     rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, 1);
 }
-#elif defined STM32F40_41xxx
+#elif defined STM32F2XX
 uint8_t Clk_t::HSEEnable() {
     RCC->CR |= RCC_CR_HSEON;    // Enable HSE
     // Wait until ready
@@ -955,22 +955,19 @@ void Clk_t::UpdateFreqValues() {
     APB1FreqHz = AHBFreqHz >> tmp;
     tmp = APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE2) >> 13];
     APB2FreqHz = AHBFreqHz >> tmp;
-    // Timer clock multiplier: 1 if APB_divider==1, 2 otherwise
-    TimerAPB1ClkMulti = (RCC->CFGR & RCC_CFGR_PPRE1_2)? 2 : 1;
-    TimerAPB2ClkMulti = (RCC->CFGR & RCC_CFGR_PPRE2_2)? 2 : 1;
 
     // ==== USB and SDIO freq ====
-    UsbSdioFreqHz = 0;      // Will be changed only in case of PLL enabled
-    if(RCC->CR & RCC_CR_PLLON) {
-        // Get different PLL dividers
-        InputDiv_M = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
-        Multi_N    = (RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> 6;
-        uint32_t SysDiv_Q = (RCC->PLLCFGR & RCC_PLLCFGR_PLLQ) >> 24;
-        // Calculate pll freq
-        pllvco = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC_HSE)? CRYSTAL_FREQ_HZ : HSI_FREQ_HZ;
-        pllvco = (pllvco / InputDiv_M) * Multi_N;
-        if(SysDiv_Q >= 2) UsbSdioFreqHz = pllvco / SysDiv_Q;
-    }
+//    UsbSdioFreqHz = 0;      // Will be changed only in case of PLL enabled
+//    if(RCC->CR & RCC_CR_PLLON) {
+//        // Get different PLL dividers
+//        InputDiv_M = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
+//        Multi_N    = (RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> 6;
+//        uint32_t SysDiv_Q = (RCC->PLLCFGR & RCC_PLLCFGR_PLLQ) >> 24;
+//        // Calculate pll freq
+//        pllvco = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC_HSE)? CRYSTAL_FREQ_HZ : HSI_FREQ_HZ;
+//        pllvco = (pllvco / InputDiv_M) * Multi_N;
+//        if(SysDiv_Q >= 2) UsbSdioFreqHz = pllvco / SysDiv_Q;
+//    }
 }
 
 // ==== Common use ====
@@ -1073,7 +1070,7 @@ uint8_t Clk_t::SetupFlashLatency(uint8_t AHBClk_MHz, uint16_t Voltage_mV) {
 }
 
 void Clk_t::MCO1Enable(Mco1Src_t Src, McoDiv_t Div) {
-    PinSetupAlterFunc(GPIOA, 8, omPushPull, pudNone, AF0, ps100MHz);
+    PinSetupAlterFunc(GPIOA, 8, omPushPull, pudNone, AF0, psHigh);
     RCC->CFGR &= ~(RCC_CFGR_MCO1 | RCC_CFGR_MCO1PRE);   // First, disable output and clear settings
     RCC->CFGR |= ((uint32_t)Src) | ((uint32_t)Div << 24);
 }
@@ -1082,7 +1079,7 @@ void Clk_t::MCO1Disable() {
     RCC->CFGR &= ~(RCC_CFGR_MCO1 | RCC_CFGR_MCO1PRE);
 }
 void Clk_t::MCO2Enable(Mco2Src_t Src, McoDiv_t Div) {
-    PinSetupAlterFunc(GPIOC, 9, omPushPull, pudNone, AF0, ps100MHz);
+    PinSetupAlterFunc(GPIOC, 9, omPushPull, pudNone, AF0, psHigh);
     RCC->CFGR &= ~(RCC_CFGR_MCO2 | RCC_CFGR_MCO2PRE);   // First, disable output and clear settings
     RCC->CFGR |= ((uint32_t)Src) | ((uint32_t)Div << 27);
 }
@@ -1093,9 +1090,8 @@ void Clk_t::MCO2Disable() {
 
 void Clk_t::PrintFreqs() {
     Uart.Printf(
-            "\rAHBFreq=%uMHz; APB1Freq=%uMHz; APB2Freq=%uMHz; TimMulti1=%u, TimMulti2=%u",
-            Clk.AHBFreqHz/1000000, Clk.APB1FreqHz/1000000, Clk.APB2FreqHz/1000000,
-            TimerAPB1ClkMulti, TimerAPB2ClkMulti);
+            "AHBFreq=%uMHz; APB1Freq=%uMHz; APB2Freq=%uMHz\r",
+            Clk.AHBFreqHz/1000000, Clk.APB1FreqHz/1000000, Clk.APB2FreqHz/1000000);
 }
 
 /*

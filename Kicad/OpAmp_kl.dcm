@@ -1,4 +1,8 @@
-EESchema-DOCLIB  Version 2.0  Date: 03/12/2012 18:38:07
+EESchema-DOCLIB  Version 2.0
+#
+$CMP AD8211
+D Current sense amplifier
+$ENDCMP
 #
 $CMP Generic_14pin
 D Quad Op amp in 14-pin package
