@@ -5,14 +5,15 @@
  *      Author: kreyl
  */
 
-#pragma once
+#ifndef KL_BUF_H_
+#define KL_BUF_H_
 
 #include "ch.h"
 #include "string.h" // for memcpy
-#include "kl_lib.h"
+#include <kl_lib.h>
 
 // Lib version
-#define KL_BUF_VERSION      "20160514_1217"
+#define KL_BUF_VERSION      "20151102_1339"
 
 enum AddRslt_t {addrOk, addrFail, addrSwitch};
 
@@ -29,40 +30,35 @@ protected:
     uint32_t IFullSlotsCount=0;
     T IBuf[Sz], *PRead=IBuf, *PWrite=IBuf;
 public:
-    // Copies object
     uint8_t Get(T *p) {
-        if(IFullSlotsCount == 0) return EMPTY;
+        if(IFullSlotsCount == 0) return retvEmpty;
         memcpy(p, PRead, sizeof(T));
         if(++PRead > (IBuf + Sz - 1)) PRead = IBuf;     // Circulate buffer
         IFullSlotsCount--;
-        return OK;
+        return retvOk;
     }
-    // Outputs pointer to object in buffer
     uint8_t GetPAndMove(T **pp) {
-    	if(IFullSlotsCount == 0) return EMPTY;
+    	if(IFullSlotsCount == 0) return retvEmpty;
     	*pp = PRead;
         if(++PRead > (IBuf + Sz - 1)) PRead = IBuf;     // Circulate buffer
         IFullSlotsCount--;
-        return OK;
+        return retvOk;
     }
-    // Outputs pointer to last object in buffer
     uint8_t GetLastP(T **pp) {
-    	if(IFullSlotsCount == 0) return EMPTY;
+    	if(IFullSlotsCount == 0) return retvEmpty;
 		*pp = PRead;
-		return OK;
+		return retvOk;
     }
 
-    void PutAnyway(T *p) {
+    uint8_t PutAnyway(T *p) {
 		memcpy(PWrite, p, sizeof(T));
 		if(++PWrite > (IBuf + Sz - 1)) PWrite = IBuf;   // Circulate buffer
 		if(IFullSlotsCount < Sz) IFullSlotsCount++;
+		return retvOk;
 	}
     uint8_t Put(T *p) {
-        if(IFullSlotsCount >= Sz) return OVERFLOW;
-        else {
-            PutAnyway(p);
-            return OK;
-        }
+        if(IFullSlotsCount >= Sz) return retvOverflow;
+        return PutAnyway(p);
     }
 
     inline bool IsEmpty() { return (IFullSlotsCount == 0); }
@@ -141,7 +137,7 @@ public:
     }
 
     uint8_t Put(T *p, uint32_t Length) {
-        uint8_t Rslt = FAILURE;
+        uint8_t Rslt = retvFail;
         if(this->GetEmptyCount() >= Length) {    // check if Buffer overflow
             this->IFullSlotsCount += Length;                      // 'Length' slots will be occupied
             uint32_t PartSz = (this->IBuf + Sz) - this->PWrite;  // Data from PWrite to right bound
@@ -154,31 +150,31 @@ public:
             memcpy(this->PWrite, p, Length);
             this->PWrite += Length;
             if(this->PWrite >= (this->IBuf + Sz)) this->PWrite = this->IBuf; // Circulate pointer
-            Rslt = OK;
+            Rslt = retvOk;
         }
         return Rslt;
     }
 
     uint8_t Get(T *p) {
-        if(this->IFullSlotsCount == 0) return FAILURE;
+        if(this->IFullSlotsCount == 0) return retvFail;
         *p = *this->PRead;
         if(++this->PRead > (this->IBuf + Sz - 1)) this->PRead = this->IBuf;     // Circulate buffer
         this->IFullSlotsCount--;
-        return OK;
+        return retvOk;
     }
 
     uint8_t Put(T Value) {
         *this->PWrite = Value;
         if(++this->PWrite > (this->IBuf + Sz - 1)) this->PWrite = this->IBuf;   // Circulate buffer
-        if(this->IFullSlotsCount >= Sz) return OVERFLOW;
+        if(this->IFullSlotsCount >= Sz) return retvOverflow;
         else {
             this->IFullSlotsCount++;
-            return OK;
+            return retvOk;
         }
     }
 
     uint8_t PutIfNotOverflow(T *p) {
-        if(this->IFullSlotsCount >= Sz) return OVERFLOW;
+        if(this->IFullSlotsCount >= Sz) return retvOverflow;
         else return Put(p);
     }
 };
@@ -233,33 +229,6 @@ public:
     }
     uint32_t GetCount() { return Cnt; }
     void Clear() { Cnt = 0; }
-};
-#endif
-
-#if 1 // =========================== Frame buffer ==============================
-template <typename T, uint32_t Len>
-class FrameBuffer_t {
-private:
-    uint32_t W, H;
-public:
-    T Buf[Len];
-    uint8_t Setup(uint32_t Width, uint32_t Height) {
-        if(Width * Height > Len) return OVERFLOW;
-        else {
-            W = Width;
-            H = Height;
-            return OK;
-        }
-    }
-    uint8_t Put(uint32_t x, uint32_t y, T Value) {
-        uint32_t Indx = x + y * W;
-        if(Indx > Len) return OVERFLOW;
-        else {
-            Buf[Indx] = Value;
-            return OK;
-        }
-    }
-    T Get(uint32_t x, uint32_t y) { return Buf[x + y * W]; }
 };
 #endif
 
@@ -328,4 +297,4 @@ public:
     }
 };
 */
-
+#endif /* KL_BUF_H_ */

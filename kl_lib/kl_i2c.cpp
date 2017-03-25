@@ -505,8 +505,8 @@ uint8_t i2c_t::CheckAddress(uint32_t Addr) {
 #endif
     uint8_t Rslt;
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
-    if(IBusyWait() != OK) {
-        Rslt = BUSY;
+    if(IBusyWait() != retvOk) {
+        Rslt = retvBusy;
         Uart.Printf("i2cC Busy\r");
         goto ChckEnd;
     }
@@ -514,8 +514,8 @@ uint8_t i2c_t::CheckAddress(uint32_t Addr) {
     pi2c->CR2 = (Addr << 1) | I2C_CR2_AUTOEND;
     pi2c->CR2 |= I2C_CR2_START;     // Start
     while(!(pi2c->ISR & I2C_ISR_STOPF));
-    if(pi2c->ISR & I2C_ISR_NACKF) Rslt = NOT_FOUND;
-    else Rslt = OK;
+    if(pi2c->ISR & I2C_ISR_NACKF) Rslt = retvNotFound;
+    else Rslt = retvOk;
 
     ChckEnd:
 #if I2C_USE_SEMAPHORE
@@ -531,9 +531,9 @@ uint8_t i2c_t::Write(uint32_t Addr, uint8_t *WPtr, uint32_t WLength) {
     uint8_t Rslt;
     msg_t r;
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
-    if(WLength == 0 or WPtr == nullptr) { Rslt = CMD_ERROR; goto WriteEnd; }
-    if(IBusyWait() != OK) {
-        Rslt = BUSY;
+    if(WLength == 0 or WPtr == nullptr) { Rslt = retvCmdError; goto WriteEnd; }
+    if(IBusyWait() != retvOk) {
+        Rslt = retvBusy;
         Uart.Printf("i2cW Busy\r");
         goto WriteEnd;
     }
@@ -557,9 +557,9 @@ uint8_t i2c_t::Write(uint32_t Addr, uint8_t *WPtr, uint32_t WLength) {
     pi2c->CR1 &= ~(I2C_CR1_TCIE | I2C_CR1_ERRIE | I2C_CR1_NACKIE);
     if(r == MSG_TIMEOUT) {
         pi2c->CR2 |= I2C_CR2_STOP;
-        Rslt = TIMEOUT;
+        Rslt = retvTimeout;
     }
-    else Rslt = (IState == istFailure)? FAILURE : OK;
+    else Rslt = (IState == istFailure)? retvFail : retvOk;
     WriteEnd:
 #if I2C_USE_SEMAPHORE
     chBSemSignal(&BSemaphore);
@@ -574,9 +574,9 @@ uint8_t i2c_t::WriteRead(uint32_t Addr, uint8_t *WPtr, uint32_t WLength, uint8_t
     uint8_t Rslt;
     msg_t r;
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
-    if(WLength == 0 or WPtr == nullptr) { Rslt = CMD_ERROR; goto WriteReadEnd; }
-    if(IBusyWait() != OK) {
-        Rslt = BUSY;
+    if(WLength == 0 or WPtr == nullptr) { Rslt = retvCmdError; goto WriteReadEnd; }
+    if(IBusyWait() != retvOk) {
+        Rslt = retvBusy;
         Uart.Printf("i2cWR Busy\r");
         goto WriteReadEnd;
     }
@@ -608,9 +608,9 @@ uint8_t i2c_t::WriteRead(uint32_t Addr, uint8_t *WPtr, uint32_t WLength, uint8_t
     pi2c->CR1 &= ~(I2C_CR1_TCIE | I2C_CR1_ERRIE | I2C_CR1_NACKIE);
     if(r == MSG_TIMEOUT) {
         pi2c->CR2 |= I2C_CR2_STOP;
-        Rslt = TIMEOUT;
+        Rslt = retvTimeout;
     }
-    else Rslt = (IState == istFailure)? FAILURE : OK;
+    else Rslt = (IState == istFailure)? retvFail : retvOk;
     WriteReadEnd:
 #if I2C_USE_SEMAPHORE
     chBSemSignal(&BSemaphore);
@@ -625,8 +625,8 @@ uint8_t i2c_t::WriteWrite(uint32_t Addr, uint8_t *WPtr1, uint32_t WLength1, uint
     uint8_t Rslt;
     msg_t r;
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
-    if(WLength1 == 0 or WPtr1 == nullptr) { Rslt = CMD_ERROR; goto WriteWriteEnd; }
-    if(IBusyWait() != OK) { Rslt = BUSY; goto WriteWriteEnd; }
+    if(WLength1 == 0 or WPtr1 == nullptr) { Rslt = retvCmdError; goto WriteWriteEnd; }
+    if(IBusyWait() != retvOk) { Rslt = retvBusy; goto WriteWriteEnd; }
     IReset(); // Reset I2C
     // Prepare TX DMA
     dmaStreamSetMode(PParams->PDmaTx, PParams->DmaModeTx);
@@ -655,9 +655,9 @@ uint8_t i2c_t::WriteWrite(uint32_t Addr, uint8_t *WPtr1, uint32_t WLength1, uint
     pi2c->CR1 &= ~(I2C_CR1_TCIE | I2C_CR1_ERRIE | I2C_CR1_NACKIE);
     if(r == MSG_TIMEOUT) {
         pi2c->CR2 |= I2C_CR2_STOP;
-        Rslt = TIMEOUT;
+        Rslt = retvTimeout;
     }
-    else Rslt = (IState == istFailure)? FAILURE : OK;
+    else Rslt = (IState == istFailure)? retvFail : retvOk;
     WriteWriteEnd:
 #if I2C_USE_SEMAPHORE
     chBSemSignal(&BSemaphore);
@@ -687,10 +687,10 @@ void i2c_t::Resume() {
 uint8_t i2c_t::IBusyWait() {
     uint8_t RetryCnt = 4;
     while(RetryCnt--) {
-        if(!(PParams->pi2c->ISR & I2C_ISR_BUSY)) return OK;
+        if(!(PParams->pi2c->ISR & I2C_ISR_BUSY)) return retvOk;
         chThdSleepMilliseconds(1);
     }
-    return TIMEOUT;
+    return retvTimeout;
 }
 
 

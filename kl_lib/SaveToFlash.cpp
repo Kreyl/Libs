@@ -34,26 +34,26 @@ static inline void Lock(void) { FLASH->CR |= CR_LOCK_Set; }
 static inline void ClearFlag(uint32_t FLASH_FLAG) { FLASH->SR = FLASH_FLAG; }
 
 static uint8_t GetBank1Status(void) {
-    if(FLASH->SR & FLASH_SR_BSY) return BUSY;
-    else if(FLASH->SR & FLASH_SR_PGERR) return FAILURE;
-    else if(FLASH->SR & FLASH_SR_WRPRTERR) return FAILURE;
-    else return OK;
+    if(FLASH->SR & FLASH_SR_BSY) return retvBusy;
+    else if(FLASH->SR & FLASH_SR_PGERR) return retvFail;
+    else if(FLASH->SR & FLASH_SR_WRPRTERR) return retvFail;
+    else return retvOk;
 }
 
 static uint8_t WaitForLastOperation(uint32_t Timeout) {
-    uint8_t status = OK;
+    uint8_t status = retvOk;
     // Wait for a Flash operation to complete or a TIMEOUT to occur
     do {
         status = GetBank1Status();
         Timeout--;
-    } while((status == BUSY) and (Timeout != 0x00));
-    if(Timeout == 0x00) status = TIMEOUT;
+    } while((status == retvBusy) and (Timeout != 0x00));
+    if(Timeout == 0x00) status = retvTimeout;
     return status;
 }
 
 static uint8_t ErasePage(uint32_t PageAddress) {
     uint8_t status = WaitForLastOperation(EraseTimeout);
-    if(status == OK) {
+    if(status == retvOk) {
         FLASH->CR |= CR_PER_Set;
         FLASH->AR = PageAddress;
         FLASH->CR |= CR_STRT_Set;
@@ -67,12 +67,12 @@ static uint8_t ErasePage(uint32_t PageAddress) {
 
 static uint8_t ProgramWord(uint32_t Address, uint32_t Data) {
     uint8_t status = WaitForLastOperation(ProgramTimeout);
-    if(status == OK) {
+    if(status == retvOk) {
         FLASH->CR |= CR_PG_Set; // program the new first half word
         *(__IO uint16_t*)Address = (uint16_t)Data;
         /* Wait for last operation to be completed */
         status = WaitForLastOperation(ProgramTimeout);
-        if(status == OK) {
+        if(status == retvOk) {
             // program the new second half word
             uint32_t tmp = Address + 2;
             *(__IO uint16_t*)tmp = Data >> 16;
@@ -93,7 +93,7 @@ void Load(uint32_t *ptr, uint32_t ByteSz) {
 }
 
 uint8_t Save(uint32_t *ptr, uint32_t ByteSz) {
-    uint8_t status = OK;
+    uint8_t status = retvOk;
     uint32_t FAddr = (uint32_t)&IData[0];
 //    Uart.PrintfI("F addr: %08X\r", FAddr);
     uint32_t DataWordCount = (ByteSz + 3) / 4;
@@ -103,14 +103,14 @@ uint8_t Save(uint32_t *ptr, uint32_t ByteSz) {
     ClearFlag(FLASH_SR_EOP | FLASH_SR_PGERR | FLASH_SR_WRPRTERR);   // Clear all pending flags
     status = ErasePage(FAddr);
     //Uart.Printf("  Flash erase %u: %u\r", i, FLASHStatus);
-    if(status != OK) {
+    if(status != retvOk) {
         Uart.PrintfI("Flash erase error\r");
         goto end;
     }
     // Program flash
     for(uint32_t i=0; i<DataWordCount; i++) {
         status = ProgramWord(FAddr, *ptr);
-        if(status != OK) {
+        if(status != retvOk) {
             Uart.PrintfI("Flash write error\r");
             goto end;
         }

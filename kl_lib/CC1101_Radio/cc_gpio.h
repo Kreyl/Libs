@@ -22,4 +22,12 @@
 #define GDO0_IRQ_HANDLER     Vector68
 #endif
 
+#elif defined STM32F072xB
+    #if (CC_GDO0 == 0) || (CC_GDO0 == 1)
+    #define GDO0_IRQ_HANDLER     Vector54
+    #elif (CC_GDO0 == 2) || (CC_GDO0 == 3)
+    #define GDO0_IRQ_HANDLER     Vector58
+    #else
+    #define GDO0_IRQ_HANDLER     Vector5C
+    #endif
 #endif

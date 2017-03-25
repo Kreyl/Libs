@@ -22,7 +22,7 @@ uint8_t cc1101_t::Init() {
     PinSetupAlterFunc(CC_GPIO, CC_MISO, omPushPull, pudNone, CC_SPI_AF);
     PinSetupAlterFunc(CC_GPIO, CC_MOSI, omPushPull, pudNone, CC_SPI_AF);
     IGdo0.Init(ttFalling);
-    //PinSetupAnalog   (CC_GPIO, CC_GDO2);    // GDO2 not used
+    PinSetupAnalog   (CC_GPIO, CC_GDO2);    // GDO2 not used
     CsHi();
     // ==== SPI ====
     // MSB first, master, ClkLowIdle, FirstEdge, Baudrate no more than 6.5MHz
@@ -108,8 +108,9 @@ void cc1101_t::SetChannel(uint8_t AChannel) {
 //}
 
 void cc1101_t::Transmit(void *Ptr) {
-    // WaitUntilChannelIsBusy();   // If this is not done, time after time FIFO is destroyed
-    while(IState != CC_STB_IDLE) EnterIdle();
+//     WaitUntilChannelIsBusy();   // If this is not done, time after time FIFO is destroyed
+//    while(IState != CC_STB_IDLE) EnterIdle();
+    Recalibrate();
     WriteTX((uint8_t*)Ptr, IPktSz);
     // Enter TX and wait IRQ
     chSysLock();
@@ -118,12 +119,13 @@ void cc1101_t::Transmit(void *Ptr) {
     chSysUnlock();  // Will be here when IRQ fires
 }
 
-// Enter RX mode and wait reception for Timeout_st.
-uint8_t cc1101_t::Receive_st(systime_t Timeout_st, void *Ptr, int8_t *PRssi) {
+// Enter RX mode and wait reception for Timeout_ms.
+uint8_t cc1101_t::Receive(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi) {
+    Recalibrate();
     FlushRxFIFO();
     chSysLock();
     EnterRX();
-    msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, Timeout_st);    // Wait IRQ
+    msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, MS2ST(Timeout_ms));    // Wait IRQ
     chSysUnlock();  // Will be here when IRQ will fire, or timeout occur - with appropriate message
 
     if(Rslt == MSG_TIMEOUT) {   // Nothing received, timeout occured
@@ -132,11 +134,6 @@ uint8_t cc1101_t::Receive_st(systime_t Timeout_st, void *Ptr, int8_t *PRssi) {
     }
     else return ReadFIFO(Ptr, PRssi);
     return OK;
-}
-
-// Enter RX mode and wait reception for Timeout_ms.
-uint8_t cc1101_t::Receive(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi) {
-    return Receive_st(MS2ST(Timeout_ms), Ptr, PRssi);
 }
 
 // Return RSSI in dBm

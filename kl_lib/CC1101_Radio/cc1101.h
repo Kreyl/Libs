@@ -48,7 +48,6 @@ public:
     // State change
     void Transmit(void *Ptr);
     uint8_t Receive(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi=nullptr);
-    uint8_t Receive_st(systime_t Timeout_st, void *Ptr, int8_t *PRssi=nullptr);
     uint8_t EnterIdle()    { return WriteStrobe(CC_SIDLE); }
     uint8_t EnterPwrDown() { return WriteStrobe(CC_SPWD);  }
     uint8_t Recalibrate() {
