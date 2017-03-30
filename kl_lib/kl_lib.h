@@ -111,6 +111,12 @@ typedef void (*ftVoidVoid)(void);
 typedef void (*ftVoidPVoid)(void*p);
 typedef void (*ftVoidPVoidLen)(void*p, uint32_t Len);
 
+// Virtual class for IRQ handlers and timer callbacks
+class IrqHandler_t {
+public:
+    virtual void IIrqHandler() = 0;
+};
+
 // ==== Math ====
 #define MIN(a, b)   ( ((a)<(b))? (a) : (b) )
 #define MAX(a, b)   ( ((a)>(b))? (a) : (b) )
@@ -166,7 +172,9 @@ void U16ToArrAsBE(uint8_t *PArr, uint16_t N);
 void U32ToArrAsBE(uint8_t *PArr, uint32_t N);
 uint16_t ArrToU16AsBE(uint8_t *PArr);
 uint32_t ArrToU32AsBE(uint8_t *PArr);
-void U16ChangeEndianness(uint16_t *p);
+//void ReverseByteOrder16(uint16_t *p);
+//void ReverseByteOrder16(int16_t *p);
+#define ReverseByteOrder16(p)   (p) = __REV16(p)
 #define ReverseByteOrder32(p)   (p) = __REV(p)
 uint8_t TryStrToUInt32(char* S, uint32_t *POutput);
 uint8_t TryStrToInt32(char* S, int32_t *POutput);
@@ -201,7 +209,6 @@ static inline uint32_t GetUniqID3() {
 #endif
 
 #if 1 // ======================= Virtual Timer =================================
-#define TIMER_KL    TRUE
 /*
  * Example:
  * TmrKL_t TmrCheckBtn {MS2ST(54), EVT_BUTTONS, tktPeriodic};
@@ -212,7 +219,7 @@ void TmrKLCallback(void *p);    // Universal VirtualTimer callback
 
 enum TmrKLType_t {tktOneShot, tktPeriodic};
 
-class TmrKL_t {
+class TmrKL_t : private IrqHandler_t {
 private:
     virtual_timer_t Tmr;
     void StartI() { chVTSetI(&Tmr, Period, TmrKLCallback, this); }
@@ -220,6 +227,10 @@ private:
     systime_t Period;
     eventmask_t EvtMsk;
     TmrKLType_t TmrType;
+    void IIrqHandler() {    // Call it inside callback
+        chEvtSignalI(PThread, EvtMsk);
+        if(TmrType == tktPeriodic) StartI();
+    }
 public:
     void InitAndStart(thread_t *APThread) {
         PThread = APThread;
@@ -254,12 +265,6 @@ public:
     void Restart() {
         chVTReset(&Tmr);
         Start();
-    }
-    void CallbackHandler() {    // Call it inside callback
-        chSysLockFromISR();
-        chEvtSignalI(PThread, EvtMsk);
-        if(TmrType == tktPeriodic) StartI();
-        chSysUnlockFromISR();
     }
     TmrKL_t(systime_t APeriod, eventmask_t AEvtMsk, TmrKLType_t AType) :
         PThread(nullptr), Period(APeriod), EvtMsk(AEvtMsk), TmrType(AType) {}
@@ -509,16 +514,16 @@ __always_inline
 static inline void PinToggle(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->ODR ^= 1 << APin; }
 // Check input
 __always_inline
-static inline bool PinIsHi(GPIO_TypeDef *PGpio, uint32_t APin) {
-    return PGpio->IDR & (1 << APin);
-}
+static inline bool PinIsHi(GPIO_TypeDef *PGpio, uint32_t APin) { return PGpio->IDR & (1 << APin); }
 __always_inline
-static inline bool PinIsLo(GPIO_TypeDef *PGpio, uint32_t APin) {
-    return !(PGpio->IDR & (1 << APin));
-}
+static inline bool PinIsHi(const GPIO_TypeDef *PGpio, uint32_t APin) { return PGpio->IDR & (1 << APin); }
+__always_inline
+static inline bool PinIsLo(GPIO_TypeDef *PGpio, uint32_t APin) { return !(PGpio->IDR & (1 << APin)); }
+__always_inline
+static inline bool PinIsLo(const GPIO_TypeDef *PGpio, uint32_t APin) { return !(PGpio->IDR & (1 << APin)); }
 
 // Setup
-static void PinClockEnable(GPIO_TypeDef *PGpioPort) {
+static void PinClockEnable(const GPIO_TypeDef *PGpioPort) {
 #if defined STM32F2XX || defined STM32F4XX
     if     (PGpioPort == GPIOA) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
     else if(PGpioPort == GPIOB) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
@@ -818,28 +823,60 @@ public:
 };
 #endif
 
-#if 1 // ==== External IRQ ====
+#if 1 // =========================== External IRQ ==============================
 enum ExtiTrigType_t {ttRising, ttFalling, ttRisingFalling};
 
+/* Make your class descendant of IrqHandler_t:
+class cc1101_t : public IrqHandler_t {
+    const PinIrq_t IGdo0;
+    void IIrqHandler() { ... }
+    cc1101_t(...) ... IGdo0(APGpio, AGdo0, pudNone, this), ...
+}
+    ...IGdo0.Init(ttFalling);
+    ...IGdo0.EnableIrq(IRQ_PRIO_HIGH);
+*/
+
+// Pin to IRQ channel
 #if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX
-#define PIN2IRQ_CHNL(Pin)   \
-    (((Pin) > 9)? EXTI15_10_IRQn : (((Pin) > 4)? EXTI9_5_IRQn : ((Pin) + EXTI0_IRQn)))
+#define PIN2IRQ_CHNL(Pin)   (((Pin) > 9)? EXTI15_10_IRQn : (((Pin) > 4)? EXTI9_5_IRQn : ((Pin) + EXTI0_IRQn)))
 #elif defined STM32F030 || defined STM32F0
-#define PIN2IRQ_CHNL(Pin)   \
-    (((Pin) > 3)? EXTI4_15_IRQn : (((Pin) > 1)? EXTI2_3_IRQn : EXTI0_1_IRQn))
+#define PIN2IRQ_CHNL(Pin)   (((Pin) > 3)? EXTI4_15_IRQn : (((Pin) > 1)? EXTI2_3_IRQn : EXTI0_1_IRQn))
 #endif
 
-/* Example:
- const PinIrq_t GPinDrdy {ACC_DRDY_PIN};
- GPinDrdy.Init(ACC_DRDY_GPIO, pudNone, ttRising);
-*/
+// IRQ handlers
+extern "C" {
+#if INDIVIDUAL_EXTI_IRQ_REQUIRED
+extern IrqHandler_t *ExtiIrqHandler[16];
+#else
+#if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX
+extern IrqHandler_t *ExtiIrqHandler[5], *ExtiIrqHandler_9_5, *ExtiIrqHandler_15_10;
+#elif defined STM32F030 || defined STM32F0
+extern IrqHandler_t *ExtiIrqHandler_0_1, *ExtiIrqHandler_2_3, *ExtiIrqHandler_4_15;
+#endif
+#endif // INDIVIDUAL_EXTI_IRQ_REQUIRED
+}
+
 class PinIrq_t {
 public:
     GPIO_TypeDef *PGpio;
     uint16_t PinN;
     PinPullUpDown_t PullUpDown;
-    PinIrq_t(GPIO_TypeDef *APGpio, uint16_t APinN, PinPullUpDown_t APullUpDown) :
-        PGpio(APGpio), PinN(APinN), PullUpDown(APullUpDown) {}
+    PinIrq_t(GPIO_TypeDef *APGpio, uint16_t APinN, PinPullUpDown_t APullUpDown, IrqHandler_t *PIrqHandler) :
+        PGpio(APGpio), PinN(APinN), PullUpDown(APullUpDown) {
+#if INDIVIDUAL_EXTI_IRQ_REQUIRED
+        PIrqHandler[APinN] = PIrqHandler;
+#else
+    #if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX
+        if(APinN >= 0 and APinN <= 4) ExtiIrqHandler[APinN] = PIrqHandler;
+        else if(APinN <= 9) ExtiIrqHandler_9_5 = PIrqHandler;
+        else ExtiIrqHandler_15_10 = PIrqHandler;
+    #elif defined STM32F030 || defined STM32F0
+        if(APinN == 0 or APinN == 1) PIrqHandler_0_1 = PIrqHandler;
+        else if(APinN == 2 or APinN == 3) PIrqHandler_2_3 = PIrqHandler;
+        else PIrqHandler_4_15 = PIrqHandler;
+    #endif
+#endif // INDIVIDUAL_EXTI_IRQ_REQUIRED
+    }
 
     void SetTriggerType(ExtiTrigType_t ATriggerType) const {
         uint32_t IrqMsk = 1 << PinN;
@@ -1003,25 +1040,24 @@ static inline void ClearStandbyFlag() { PWR->CR |= PWR_CR_CSBF; }
 #if 1 // ============================== SPI ====================================
 enum CPHA_t {cphaFirstEdge, cphaSecondEdge};
 enum CPOL_t {cpolIdleLow, cpolIdleHigh};
-enum SpiBaudrate_t {
-    sbFdiv2   = 0b000,
-    sbFdiv4   = 0b001,
-    sbFdiv8   = 0b010,
-    sbFdiv16  = 0b011,
-    sbFdiv32  = 0b100,
-    sbFdiv64  = 0b101,
-    sbFdiv128 = 0b110,
-    sbFdiv256 = 0b111,
+enum SpiClkDivider_t {
+    sclkDiv2   = 0b000,
+    sclkDiv4   = 0b001,
+    sclkDiv8   = 0b010,
+    sclkDiv16  = 0b011,
+    sclkDiv32  = 0b100,
+    sclkDiv64  = 0b101,
+    sclkDiv128 = 0b110,
+    sclkDiv256 = 0b111,
 };
 
 class Spi_t {
-private:
-    SPI_TypeDef *PSpi;
 public:
+    SPI_TypeDef *PSpi;
     Spi_t(SPI_TypeDef *ASpi) : PSpi(ASpi) {}
     // Example: boMSB, cpolIdleLow, cphaFirstEdge, sbFdiv2, bitn8
     void Setup(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
-            SpiBaudrate_t Baudrate, BitNumber_t BitNumber = bitn8) const {
+            SpiClkDivider_t Divider, BitNumber_t BitNumber = bitn8) const {
         // Clocking
         if      (PSpi == SPI1) { rccEnableSPI1(FALSE); }
 #ifdef SPI2
@@ -1035,22 +1071,13 @@ public:
         if(BitOrder == boLSB) PSpi->CR1 |= SPI_CR1_LSBFIRST;    // MSB/LSB
         if(CPOL == cpolIdleHigh) PSpi->CR1 |= SPI_CR1_CPOL;     // CPOL
         if(CPHA == cphaSecondEdge) PSpi->CR1 |= SPI_CR1_CPHA;   // CPHA
-        PSpi->CR1 |= ((uint16_t)Baudrate) << 3;                 // Baudrate
+        PSpi->CR1 |= ((uint16_t)Divider) << 3;                  // Clock divider
 #if defined STM32L1XX || defined STM32F10X_LD_VL || defined STM32F4XX
         if(BitNumber == bitn16) PSpi->CR1 |= SPI_CR1_DFF;
         PSpi->CR2 = 0;
-#elif defined STM32F030
-        PSpi->CR2 = (uint16_t)0b1111 << 8;  // 16 bit data size only
-#elif defined STM32F072xB
-        if(BitNumber == bitn16) PSpi->CR2 = (uint16_t)0b1111 << 8;
-        else PSpi->CR2 = ((uint16_t)0b0111 << 8) | SPI_CR2_FRXTH; // 8 bit
-        PSpi->I2SCFGR &= ~((uint16_t)SPI_I2SCFGR_I2SMOD);       // Disable I2S
-#elif defined STM32L4XX
-        // Generate RXNE when FIFO level is greater or equal to 1/4 (8 bit)
-        if(BitNumber == bitn8) PSpi->CR2 |= 0x0700; // 8bit
-        else if(BitNumber == bitn16) PSpi->CR2 |= 0x0F00;
-        PSpi->CR2 |= SPI_CR2_FRXTH;
-
+#elif defined STM32F030 || defined STM32F072xB || defined STM32L4XX
+        if(BitNumber == bitn16) PSpi->CR2 = (uint16_t)0b1111 << 8;  // 16 bit, RXNE generated when 16 bit is received
+        else PSpi->CR2 = ((uint16_t)0b0111 << 8) | SPI_CR2_FRXTH;   // 8 bit, RXNE generated when 8 bit is received
 #endif
     }
     void Enable ()       const { PSpi->CR1 |=  SPI_CR1_SPE; }
@@ -1297,7 +1324,7 @@ enum PllMul_t {
 };
 
 #ifdef STM32F030
-enum PllSrc_t {plsHSIdiv2=0b00, plsHSIdivPREDIV=0b01, plsHSEdivPREDIV=0b10};
+enum PllSrc_t {pllSrcHSIdiv2, pllSrcHSE};
 enum ClkSrc_t {csHSI=0b00, csHSE=0b01, csPLL=0b10};
 #else
 enum PllSrc_t {plsHSIdiv2=0b00, plsHSIdivPREDIV=0b01, plsHSEdivPREDIV=0b10, plsHSI48divPREDIV=0b11};
@@ -1363,6 +1390,7 @@ public:
     void SetupBusDividers(AHBDiv_t AHBDiv, APBDiv_t APBDiv);
     void SetupBusDividers(uint32_t Dividers);
     uint8_t SetupPLLDividers(uint8_t HsePreDiv, PllMul_t PllMul);
+    void SetupPLLSrc(PllSrc_t Src);
     void UpdateFreqValues();
     void SetupFlashLatency(uint32_t FrequencyHz);
     void EnablePrefetch()  { FLASH->ACR |=  FLASH_ACR_PRFTBE; }

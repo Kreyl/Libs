@@ -9,7 +9,7 @@
 
 #include "ChunkTypes.h"
 
-#if 0 // ============================ LED blink ================================
+#if 0 // ============================ LED RGB blink ============================
 const LedChunk_t lsqIdle[] = {
         {csSetup, 0, clBlack},
         {csEnd}
@@ -190,12 +190,9 @@ const LedChunk_t lsqBlinkGreenX2[] = {
 
 #if 1 // ============================ LED RGB ==================================
 const LedRGBChunk_t lsqStart[] = {
-        {csSetup, 0, clDarkRed},
-        {csWait, 180},
-        {csSetup, 0, clDarkGreen},
-        {csWait, 180},
-        {csSetup, 0, clDarkBlue},
-        {csWait, 180},
+        {csSetup, 99, clRed},
+        {csSetup, 99, clGreen},
+        {csSetup, 99, clBlue},
         {csSetup, 0, clBlack},
         {csEnd}
 };
@@ -215,47 +212,129 @@ const LedRGBChunk_t lsqFailure[] = {
         {csEnd}
 };
 
-const LedRGBChunk_t lsqDischarged[] = {
-        {csSetup, 0, clRed},
-        {csWait, 270},
-        {csSetup, 0, clBlack},
-        {csWait, 720},
-        {csGoto, 0}
-};
+//const LedRGBChunk_t lsqCharging[] = {
+//        {csSetup, 540, {0,9,0}},
+//        {csSetup, 540, clBlack},
+//        {csWait, 900},
+//        {csGoto, 0}
+//};
+//
+//const LedRGBChunk_t lsqChargingDone[] = {
+//        {csSetup, 0, {0,9,0}},
+//        {csEnd}
+//};
+//
+//const LedRGBChunk_t lsqDischarged[] = {
+//        {csSetup, 0, clRed},
+//        {csWait, 180},
+//        {csSetup, 0, clBlack},
+//        {csWait, 360},
+//        {csGoto, 0}
+//};
+#endif
 
-const LedRGBChunk_t lsqCharging[] = {
-        {csSetup, 360, clGreen},
-        {csSetup, 360, clBlack},
-        {csWait, 630},
-        {csGoto, 0}
-};
-
-const LedRGBChunk_t lsqChargingDone[] = {
-        {csSetup, 0, clGreen},
+#if 1 // ======================== Simple LED blink =============================
+#define BLINK_DELAY_MS      180
+const BaseChunk_t lbsqBlink3[] = {
+        {csSetup, 1},
+        {csWait, BLINK_DELAY_MS},
+        {csSetup, 0},
+        {csWait, BLINK_DELAY_MS},
+        {csSetup, 1},
+        {csWait, BLINK_DELAY_MS},
+        {csSetup, 0},
+        {csWait, BLINK_DELAY_MS},
+        {csSetup, 1},
+        {csWait, BLINK_DELAY_MS},
+        {csSetup, 0},
         {csEnd}
 };
-
 #endif
 
 #if 0 // =========================== LED Smooth ================================
 #define LED_TOP_BRIGHTNESS  255
 
-const LedSmoothChunk_t lsqFadeIn[] = {
-        {csSetup, 630, LED_TOP_BRIGHTNESS},
+const LedSmoothChunk_t lsqSmoothStart[] = {
+        {csSetup, 207, LED_TOP_BRIGHTNESS},
+        {csSetup, 207, 0},
         {csEnd}
 };
-const LedSmoothChunk_t lsqFadeOut[] = {
-        {csSetup, 630, 0},
+
+const LedSmoothChunk_t lsqSmoothPrepare[] = {
+        {csSetup, 207, LED_TOP_BRIGHTNESS},
+        {csSetup, 207, 4},
+        {csGoto, 0}
+};
+
+const LedSmoothChunk_t lsqSmoothReload[] = {
+        {csSetup, 0, 54},
+        {csWait, 99},
+        {csSetup, 0, 4},
+        {csWait, 99},
+        {csGoto, 0}
+};
+
+const LedSmoothChunk_t lsqSmoothHit[] = {
+        {csSetup, 0, LED_TOP_BRIGHTNESS},
+        {csWait, 99},
+        {csSetup, 0, 0},
+        {csWait, 360},
         {csEnd}
 };
-const LedSmoothChunk_t lsqEnterActive[] = {
+
+const LedSmoothChunk_t lsqSmoothDamaged[] = {
+        {csSetup, 0, 108},
+        {csEnd}
+};
+
+const LedSmoothChunk_t lsqFire[] = {
+        {csSetup, 0, LED_TOP_BRIGHTNESS},
+        {csWait, 99},
+        {csSetup, 54, 0},
+        {csEnd}
+};
+
+const LedSmoothChunk_t lsqDamageEndOff[] = {
+        {csSetup, 0, LED_TOP_BRIGHTNESS},
+        {csWait, 99},
+        {csSetup, 180, 0},
+        {csEnd}
+};
+
+const LedSmoothChunk_t lsqDamageEndLow[] = {
+        {csSetup, 0, 0},
+        {csWait, 99},
+        {csSetup, 0, LED_TOP_BRIGHTNESS},
+        {csWait, 99},
+        {csSetup, 180, 90},
+        {csEnd}
+};
+
+const LedSmoothChunk_t lsqSteady[] = {
         {csSetup, 0, LED_TOP_BRIGHTNESS},
         {csEnd}
 };
-const LedSmoothChunk_t lsqEnterIdle[] = {
-        {csSetup, 360, 0},
+const LedSmoothChunk_t lsqSteadyLow[] = {
+        {csSetup, 0, 18},
         {csEnd}
 };
+const LedSmoothChunk_t lsqOff[] = {
+        {csSetup, 0, 0},
+        {csEnd}
+};
+
+//const LedSmoothChunk_t lsqFadeOut[] = {
+//        {csSetup, 630, 0},
+//        {csEnd}
+//};
+//const LedSmoothChunk_t lsqEnterActive[] = {
+//        {csSetup, 0, LED_TOP_BRIGHTNESS},
+//        {csEnd}
+//};
+//const LedSmoothChunk_t lsqEnterIdle[] = {
+//        {csSetup, 360, 0},
+//        {csEnd}
+//};
 
 #endif
 
@@ -409,7 +488,7 @@ const BeepChunk_t bsqBeepPillBad[] = {
 #endif // ext
 #endif // beeper
 
-#if 1 // ============================== Vibro ==================================
+#if 0 // ============================== Vibro ==================================
 #define VIBRO_VOLUME        100
 
 #define VIBRO_SHORT_MS      99
@@ -432,14 +511,20 @@ const BaseChunk_t vsqBrrBrr[] = {
         {csEnd}
 };
 
-const BaseChunk_t vsqActive[] = {
+const BaseChunk_t vsqDischarged[] = {
         {csSetup, VIBRO_VOLUME},
-        {csWait, 99},
+        {csWait, VIBRO_SHORT_MS},
         {csSetup, 0},
-        {csWait, 720},
-        {csGoto, 0}
+        {csWait, 99},
+        {csSetup, VIBRO_VOLUME},
+        {csWait, VIBRO_SHORT_MS},
+        {csSetup, 0},
+        {csWait, 99},
+        {csSetup, VIBRO_VOLUME},
+        {csWait, VIBRO_SHORT_MS},
+        {csSetup, 0},
+        {csEnd}
 };
-
 
 // Gestures
 #define VMORSE_TONE         {csSetup, VIBRO_VOLUME}

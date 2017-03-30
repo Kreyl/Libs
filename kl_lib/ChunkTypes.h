@@ -51,7 +51,7 @@ struct BeepChunk_t {   // Value == Volume
 enum SequencerLoopTask_t {sltProceed, sltBreak};
 
 template <class TChunk>
-class BaseSequencer_t {
+class BaseSequencer_t : private IrqHandler_t {
 protected:
     virtual_timer_t ITmr;
     const TChunk *IPStartChunk, *IPCurrentChunk;
@@ -61,43 +61,10 @@ protected:
     eventmask_t EvtEnd;
     virtual void ISwitchOff() = 0;
     virtual SequencerLoopTask_t ISetup() = 0;
-    virtual void SetupDelay(uint32_t ms) = 0;
-public:
-    void SetupSeqEndEvt(thread_t *APThread, eventmask_t AEvt = 0) {
-        PThread = APThread;
-        EvtEnd = AEvt;
-    }
-    void SetupSeqEndEvt(eventmask_t AEvt = 0) {
-        PThread = chThdGetSelfX();
-        EvtEnd = AEvt;
-    }
+    void SetupDelay(uint32_t ms) { chVTSetI(&ITmr, MS2ST(ms), TmrKLCallback, this); }
 
-    void StartOrRestart(const TChunk *PChunk) {
-        chSysLock();
-        IPStartChunk = PChunk;   // Save first chunk
-        IPCurrentChunk = PChunk;
-        IProcessSequenceI();
-        chSysUnlock();
-    }
-
-    void StartOrContinue(const TChunk *PChunk) {
-        if(PChunk == IPStartChunk) return; // Same sequence
-        else StartOrRestart(PChunk);
-    }
-
-    void Stop() {
-        if(IPStartChunk != nullptr) {
-            chSysLock();
-            if(chVTIsArmedI(&ITmr)) chVTResetI(&ITmr);
-            IPStartChunk = nullptr;
-            IPCurrentChunk = nullptr;
-            chSysUnlock();
-        }
-        ISwitchOff();
-    }
-    const TChunk* GetCurrentSequence() { return IPStartChunk; }
-
-    void IProcessSequenceI() {
+    // Process sequence
+    void IIrqHandler() {
         if(chVTIsArmedI(&ITmr)) chVTResetI(&ITmr);  // Reset timer
         while(true) {   // Process the sequence
             switch(IPCurrentChunk->ChunkSort) {
@@ -130,5 +97,35 @@ public:
             } // switch
         } // while
     } // IProcessSequenceI
+public:
+    void SetupSeqEndEvt(thread_t *APThread, eventmask_t AEvt = 0) {
+        PThread = APThread;
+        EvtEnd = AEvt;
+    }
+
+    void StartOrRestart(const TChunk *PChunk) {
+        chSysLock();
+        IPStartChunk = PChunk;   // Save first chunk
+        IPCurrentChunk = PChunk;
+        IIrqHandler();
+        chSysUnlock();
+    }
+
+    void StartOrContinue(const TChunk *PChunk) {
+        if(PChunk == IPStartChunk) return; // Same sequence
+        else StartOrRestart(PChunk);
+    }
+
+    void Stop() {
+        if(IPStartChunk != nullptr) {
+            chSysLock();
+            if(chVTIsArmedI(&ITmr)) chVTResetI(&ITmr);
+            IPStartChunk = nullptr;
+            IPCurrentChunk = nullptr;
+            chSysUnlock();
+        }
+        ISwitchOff();
+    }
+    const TChunk* GetCurrentSequence() { return IPStartChunk; }
 };
 #endif

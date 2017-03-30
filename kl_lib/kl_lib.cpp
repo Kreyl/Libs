@@ -257,10 +257,12 @@ void Timer_t::SetUpdateFrequencyChangingTopValue(uint32_t FreqHz) const {
 }
 #endif
 
-#if TIMER_KL // =================== Virtual Timers =====================
+#if 1 // ========================= Virtual Timers ==============================
 // Universal VirtualTimer callback
 void TmrKLCallback(void *p) {
-    reinterpret_cast<TmrKL_t*>(p)->CallbackHandler();
+    chSysLockFromISR();
+    ((IrqHandler_t*)p)->IIrqHandler();
+    chSysUnlockFromISR();
 }
 #endif
 
@@ -320,7 +322,165 @@ uint8_t Eeprom_t::WriteBuf(void *PSrc, uint32_t Sz, uint32_t Addr) {
 
 #endif
 
-#if 0
+#if 1 // =========================== External IRQ ==============================
+// IRQ handlers
+extern "C" {
+extern void PrintfCNow(const char *format, ...);
+
+#if INDIVIDUAL_EXTI_IRQ_REQUIRED
+IrqHandler_t* ExtiIrqHandler[16];
+#else
+#if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX
+IrqHandler_t *ExtiIrqHandler[5], *ExtiIrqHandler_9_5, *ExtiIrqHandler_15_10;
+#elif defined STM32F030 || defined STM32F0
+IrqHandler_t *ExtiIrqHandler_0_1, *ExtiIrqHandler_2_3, *ExtiIrqHandler_4_15;
+#endif
+#endif // INDIVIDUAL_EXTI_IRQ_REQUIRED
+
+#if defined STM32L4XX
+// EXTI 0
+void Vector58() {
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    if(ExtiIrqHandler[0] != nullptr) ExtiIrqHandler[0]->IIrqHandler();
+    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    EXTI->PR1 = 0x0001; // Clean IRQ flags
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+// EXTI 1
+void Vector5C() {
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    if(ExtiIrqHandler[1] != nullptr) ExtiIrqHandler[1]->IIrqHandler();
+    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    EXTI->PR1 = 0x0002; // Clean IRQ flags
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+// EXTI 2
+void Vector60() {
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    if(ExtiIrqHandler[2] != nullptr) ExtiIrqHandler[2]->IIrqHandler();
+    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    EXTI->PR1 = 0x0004; // Clean IRQ flags
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+// EXTI 3
+void Vector64() {
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    if(ExtiIrqHandler[3] != nullptr) ExtiIrqHandler[3]->IIrqHandler();
+    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    EXTI->PR1 = 0x0008; // Clean IRQ flags
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+// EXTI 4
+void Vector68() {
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    if(ExtiIrqHandler[4] != nullptr) ExtiIrqHandler[4]->IIrqHandler();
+    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    EXTI->PR1 = 0x0010; // Clean IRQ flags
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+// EXTI 9_5
+void Vector9C() {
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+#if INDIVIDUAL_EXTI_IRQ_REQUIRED
+    for(int i=5; i<=9; i++) {
+        if(ExtiIrqHandler[i] != nullptr) ExtiIrqHandler[i]->IIrqHandler();
+    }
+#else
+    if(ExtiIrqHandler_9_5 != nullptr) ExtiIrqHandler_9_5->IIrqHandler();
+    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+#endif
+    EXTI->PR1 = 0x03E0; // Clean IRQ flags
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+// EXTI 15_10
+void VectorE0() {
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+#if INDIVIDUAL_EXTI_IRQ_REQUIRED
+    for(int i=10; i<=15; i++) {
+        if(ExtiIrqHandler[i] != nullptr) ExtiIrqHandler[i]->IIrqHandler();
+    }
+#else
+    if(ExtiIrqHandler_15_10 != nullptr) ExtiIrqHandler_15_10->IIrqHandler();
+    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+#endif
+    EXTI->PR1 = 0xFC00; // Clean IRQ flags
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+#elif defined STM32F030 || defined STM32F0
+// EXTI0_1
+void Vector54() {
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+#if INDIVIDUAL_EXTI_IRQ_REQUIRED
+    if(ExtiIrqHandler[0] != nullptr) ExtiIrqHandler[0]->IIrqHandler();
+    if(ExtiIrqHandler[1] != nullptr) ExtiIrqHandler[1]->IIrqHandler();
+#else
+    if(ExtiIrqHandler_0_1 != nullptr) ExtiIrqHandler_0_1->IIrqHandler();
+    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+#endif
+    EXTI->PR = 0x0003;  // Clean IRQ flag
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+// EXTI2_3
+void Vector58() {
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+#if INDIVIDUAL_EXTI_IRQ_REQUIRED
+    if(ExtiIrqHandler[2] != nullptr) ExtiIrqHandler[2]->IIrqHandler();
+    if(ExtiIrqHandler[3] != nullptr) ExtiIrqHandler[3]->IIrqHandler();
+#else
+    if(ExtiIrqHandler_2_3 != nullptr) ExtiIrqHandler_2_3->IIrqHandler();
+    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+#endif
+    EXTI->PR = 0x000C;  // Clean IRQ flag
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+// EXTI4_15
+void Vector5C() {
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+#if INDIVIDUAL_EXTI_IRQ_REQUIRED
+    for(int i=4; i<=15; i++) {
+        if(ExtiIrqHandler[i] != nullptr) ExtiIrqHandler[i]->IIrqHandler();
+    }
+#else
+    if(ExtiIrqHandler_4_15 != nullptr) ExtiIrqHandler_4_15->IIrqHandler();
+    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+#endif
+    EXTI->PR = 0xFFF0;  // Clean IRQ flag
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+#endif
+} // extern c
+#endif
+
+#if 1
 namespace Convert { // ============== Conversion operations ====================
 void U16ToArrAsBE(uint8_t *PArr, uint16_t N) {
     uint8_t *p8 = (uint8_t*)&N;
@@ -350,18 +510,18 @@ uint32_t ArrToU32AsBE(uint8_t *PArr) {
     *p8 = *PArr;
     return N;
 }
-void U16ChangeEndianness(uint16_t *p) { *p = __REV16(*p); }
+
 uint8_t TryStrToUInt32(char* S, uint32_t *POutput) {
-    if(*S == '\0') return EMPTY;
+    if(*S == '\0') return retvEmpty;
     char *p;
     *POutput = strtoul(S, &p, 0);
-    return (*p == 0)? OK : NOT_A_NUMBER;
+    return (*p == 0)? retvOk : retvNotANumber;
 }
 uint8_t TryStrToInt32(char* S, int32_t *POutput) {
-    if(*S == '\0') return EMPTY;
+    if(*S == '\0') return retvEmpty;
     char *p;
     *POutput = strtol(S, &p, 0);
-    return (*p == '\0')? OK : NOT_A_NUMBER;
+    return (*p == '\0')? retvOk : retvNotANumber;
 }
 
 uint16_t BuildUint16(uint8_t Lo, uint8_t Hi) {
@@ -384,10 +544,10 @@ uint32_t BuildUint32(uint8_t Lo, uint8_t MidLo, uint8_t MidHi, uint8_t Hi) {
 
 // ==== Float ====
 uint8_t TryStrToFloat(char* S, float *POutput) {
-    if(*S == '\0') return EMPTY;
+    if(*S == '\0') return retvEmpty;
     char *p;
     *POutput = strtof(S, &p);
-    return (*p == '\0')? OK : NOT_A_NUMBER;
+    return (*p == '\0')? retvOk : retvNotANumber;
 }
 }; // namespace
 #endif
@@ -759,7 +919,8 @@ uint8_t Clk_t::SwitchTo(ClkSrc_t AClkSrc) {
             break;
 
         case csPLL:
-            if(EnablePLL() != retvOk) return 3;
+            if(EnableHSE() != retvOk) return 3;
+            if(EnablePLL() != retvOk) return 4;
             RCC->CFGR = tmp | RCC_CFGR_SW_PLL; // Select PLL as system clock src
             return WaitSWS(RCC_CFGR_SWS_PLL);
             break;
@@ -792,6 +953,11 @@ uint8_t Clk_t::SetupPLLDividers(uint8_t HsePreDiv, PllMul_t PllMul) {
     tmp |= ((uint32_t)PllMul) << 18;
     RCC->CFGR = tmp;
     return 0;
+}
+
+void Clk_t::SetupPLLSrc(PllSrc_t Src) {
+    if(Src == pllSrcHSIdiv2) RCC->CFGR &= ~RCC_CFGR_PLLSRC;
+    else RCC->CFGR |= RCC_CFGR_PLLSRC;
 }
 
 // Setup Flash latency depending on CPU freq. Page 60 of ref manual.

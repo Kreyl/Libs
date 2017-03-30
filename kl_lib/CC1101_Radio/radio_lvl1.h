@@ -11,7 +11,6 @@
 #include "ch.h"
 #include "cc1101.h"
 #include "kl_buf.h"
-#include "uart.h"
 
 #if 0 // ========================= Signal levels ===============================
 // Python translation for db
@@ -55,129 +54,65 @@ static inline void Lvl250ToLvl1000(uint16_t *PLvl) {
 #endif
 
 #if 1 // =========================== Pkt_t =====================================
-union rPkt_t {
-    uint32_t DWord32;
-//    struct {
-//        uint8_t R, G, B;
-//    };
-    bool operator == (const rPkt_t &APkt) { return (DWord32 == APkt.DWord32); }
-    rPkt_t& operator = (const rPkt_t &Right) { DWord32 = Right.DWord32; return *this; }
-} __attribute__ ((__packed__));
+union rPkt_t  {
+    struct {
+        uint32_t DWord;
+        uint8_t b;
+    } __packed;
+    // Real data
+    struct {
+        union {
+            // Host to Device
+            struct {
+                uint8_t ParamID;
+                uint8_t ParamValue;
+            } __packed;
+        } __packed;
+        // Common
+        uint8_t ID;
+    } __packed;
+    rPkt_t() : DWord(0) { }
+    rPkt_t(uint8_t AID, uint8_t AParamID, uint8_t AParamValue) :
+        ParamID(AParamID), ParamValue(AParamValue), ID(AID) { }
+    rPkt_t& operator = (const rPkt_t &Right) {
+        DWord = Right.DWord;
+        return *this;
+    }
+} __packed;
 #define RPKT_LEN    sizeof(rPkt_t)
-
-#define THE_WORD        0xCA115EA1
 #endif
 
-#if 1 // =================== Channels, cycles, Rssi  ===========================
-#define RCHNL_SERVICE   0
-#define RCHNL_COMMON    1
-#define RCHNL_EACH_OTH  7
-#define RCHNL_MIN       3
-#define RCHNL_MAX       19
+#define THE_WORD        0xCA115EA1
+
+// ==== Sizes ====
+#define RXTABLE_SZ      54
+#define RXTABLE_MAX_CNT 3   // Do not receive if this count reached. Will not indicate more anyway.
+
+#if 1 // ======================= Channels & cycles =============================
+#define RCHNL_MIN       0
 #define ID2RCHNL(ID)    (RCHNL_MIN + ID)
+#endif
 
-#define RSSI_MIN        -75
-
-// Feel-Each-Other related
-#define CYCLE_CNT           4
-#define SLOT_CNT            30
-#define SLOT_DURATION_MS    5
-
-// Timings
+#if 1 // =========================== Timings ===================================
 #define RX_T_MS                 180      // pkt duration at 10k is around 12 ms
 #define RX_SLEEP_T_MS           810
 #define MIN_SLEEP_DURATION_MS   18
-#endif
+#define RETRY_CNT               4
 
-#if 1 // ============================= RX Table ================================
-#define RXTABLE_SZ              4
-#define RXT_PKT_REQUIRED        FALSE
-class RxTable_t {
-private:
-#if RXT_PKT_REQUIRED
-    rPkt_t IBuf[RXTABLE_SZ];
-#else
-    uint8_t IdBuf[RXTABLE_SZ];
-#endif
-    uint32_t Cnt = 0;
-public:
-#if RXT_PKT_REQUIRED
-    void AddOrReplaceExistingPkt(rPkt_t &APkt) {
-        if(Cnt >= RXTABLE_SZ) return;   // Buffer is full, nothing to do here
-        for(uint32_t i=0; i<Cnt; i++) {
-            if(IBuf[i].ID == APkt.ID) {
-                IBuf[i] = APkt; // Replace with newer pkt
-                return;
-            }
-        }
-        IBuf[Cnt] = APkt;
-        Cnt++;
-    }
-
-    uint8_t GetPktByID(uint8_t ID, rPkt_t **ptr) {
-        for(uint32_t i=0; i<Cnt; i++) {
-            if(IBuf[i].ID == ID) {
-                *ptr = &IBuf[i];
-                return OK;
-            }
-        }
-        return FAILURE;
-    }
-
-    bool IDPresents(uint8_t ID) {
-        for(uint32_t i=0; i<Cnt; i++) {
-            if(IBuf[i].ID == ID) return true;
-        }
-        return false;
-    }
-#else
-    void AddId(uint8_t ID) {
-        if(Cnt >= RXTABLE_SZ) return;   // Buffer is full, nothing to do here
-        for(uint32_t i=0; i<Cnt; i++) {
-            if(IdBuf[i] == ID) return;
-        }
-        IdBuf[Cnt] = ID;
-        Cnt++;
-    }
-
-#endif
-    uint32_t GetCount() { return Cnt; }
-    void Clear() { Cnt = 0; }
-
-    void Print() {
-        Uart.Printf("RxTable Cnt: %u\r", Cnt);
-        for(uint32_t i=0; i<Cnt; i++) {
-#if RXT_PKT_REQUIRED
-            Uart.Printf("ID: %u; State: %u\r", IBuf[i].ID, IBuf[i].State);
-#else
-            Uart.Printf("ID: %u\r", IdBuf[i]);
-#endif
-        }
-    }
-};
 #endif
 
 class rLevel1_t {
-public:
-    rPkt_t PktRx, PktTx;
-    bool MustTx = false;
-    thread_t *PThd;
-    int8_t Rssi;
-    RxTable_t RxTable;
-    uint8_t TxPwr = CC_PwrMinus30dBm;
-    uint8_t Init();
-    // Inner use
+private:
     void TryToSleep(uint32_t SleepDuration) {
         if(SleepDuration >= MIN_SLEEP_DURATION_MS) CC.EnterPwrDown();
         chThdSleepMilliseconds(SleepDuration);
     }
-    void TryToReceive(uint32_t RxDuration);
-    // Different modes of operation
-    void TaskTransmitter();
-    void TaskReceiverMany();
-    void TaskReceiverSingle();
-    void TaskFeelEachOtherSingle();
-    void TaskFeelEachOtherMany();
+public:
+    int8_t Rssi;
+    uint8_t Init();
+    rPkt_t PktRx, PktTx;
+    // Inner use
+    void ITask();
 };
 
 extern rLevel1_t Radio;

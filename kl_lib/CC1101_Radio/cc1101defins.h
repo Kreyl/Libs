@@ -5,7 +5,8 @@
  * Created on 3 Март 2010 г., 11:08
  */
 
-#pragma once
+#ifndef _CC1101DEFINS_H
+#define	_CC1101DEFINS_H
 
 #include <inttypes.h>
 
@@ -22,22 +23,6 @@
 #define CC_PwrPlus7dBm         0xCD
 #define CC_PwrPlus10dBm        0xC5
 #define CC_PwrPlus12dBm        0xC0
-
-#define CC_PWR_TABLE_SZ        12
-static const uint8_t CCPwrTable[CC_PWR_TABLE_SZ] = {
-        CC_PwrMinus30dBm, // 0 = 0000
-        CC_PwrMinus27dBm, // 1 = 0001
-        CC_PwrMinus25dBm, // 2 = 0010
-        CC_PwrMinus20dBm, // 3 = 0011
-        CC_PwrMinus15dBm, // 4 = 0100
-        CC_PwrMinus10dBm, // 5 = 0101
-        CC_PwrMinus6dBm,  // 6 = 0110
-        CC_Pwr0dBm,       // 7 = 0111
-        CC_PwrPlus5dBm,   // 8 = 1000
-        CC_PwrPlus7dBm,   // 9 = 1001
-        CC_PwrPlus10dBm,  // 10 = 1010
-        CC_PwrPlus12dBm   // 11 = 1011
-};
 
 // ======================= Registers, strobes etc. =============================
 // Flags
@@ -163,4 +148,7 @@ static const uint8_t CCPwrTable[CC_PWR_TABLE_SZ] = {
 
 // FIFO
 #define CC_FIFO     0x3F
+
+
+#endif	/* _CC1101DEFINS_H */
 

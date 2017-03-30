@@ -385,7 +385,7 @@ uint8_t i2c_t::WaitBTF() {
 static const i2cParams_t I2C1Params = {
         I2C1,
         I2C1_GPIO, I2C1_SCL, I2C1_SDA, I2C_AF,
-        0xE14,                          // Calculated by Cube for 100kHz
+        0x20B,                          // Calculated by Cube for 400kHz
         I2C1_DMA_TX,
         I2C1_DMA_RX,
         (STM32_DMA_CR_PSIZE_BYTE | STM32_DMA_CR_MSIZE_BYTE | STM32_DMA_CR_MINC | STM32_DMA_CR_DIR_M2P | STM32_DMA_CR_CHSEL(I2C1_DMA_CHNL) | DMA_PRIORITY_MEDIUM),

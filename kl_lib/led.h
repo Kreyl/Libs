@@ -13,12 +13,22 @@
 #include "uart.h"
 #include "kl_lib.h"
 
-#if 0 // ========================= Single LED blinker ==========================
-#define LED_RGB_BLINKER
-
-class LedBlinker_t : public BaseSequencer_t<BaseChunk_t> {
+#if 1 // ==================== LED on/off, no sequences =========================
+class LedOnOff_t {
 protected:
-    PinOutputPushPull_t IChnl;
+    PinOutput_t IChnl;
+public:
+    LedOnOff_t(GPIO_TypeDef *APGPIO, uint16_t APin, PinOutMode_t AOutputType) :
+        IChnl(APGPIO, APin, AOutputType) {}
+    void Init() { IChnl.Init(); Off(); }
+    void On()  { IChnl.SetHi(); }
+    void Off() { IChnl.SetLo(); }
+};
+#endif
+
+#if 1 // ========================= Simple LED blinker ==========================
+class LedBlinker_t : public BaseSequencer_t<BaseChunk_t>, public LedOnOff_t {
+protected:
     void ISwitchOff() { Off(); }
     SequencerLoopTask_t ISetup() {
         IChnl.Set(IPCurrentChunk->Value);
@@ -26,24 +36,17 @@ protected:
         return sltProceed;  // Always proceed
     }
 public:
-    LedBlinker_t(const PinOutputPushPull_t AChnl) : BaseSequencer_t(), IChnl(AChnl) {}
-    void Init() {
-        IChnl.Init();
-        Off();
-    }
-    void Off() { IChnl.Set(0); }
-    void On()  { IChnl.Set(1); }
+    LedBlinker_t(GPIO_TypeDef *APGPIO, uint16_t APin, PinOutMode_t AOutputType) :
+        BaseSequencer_t(), LedOnOff_t(APGPIO, APin, AOutputType) {}
 };
 #endif
 
 #if 1 // ======================== Single Led Smooth ============================
-void LedSmoothTmrCallback(void *p);
-
 class LedSmooth_t : public BaseSequencer_t<LedSmoothChunk_t> {
 private:
     const PinOutputPWM_t IChnl;
     uint8_t ICurrentBrightness;
-    void SetupDelay(uint32_t ms) { chVTSetI(&ITmr, MS2ST(ms), LedSmoothTmrCallback, this); }
+//    void SetupDelay(uint32_t ms) { chVTSetI(&ITmr, MS2ST(ms), LedSmoothTmrCallback, this); }
     void ISwitchOff() { SetBrightness(0); }
     SequencerLoopTask_t ISetup() {
         if(ICurrentBrightness != IPCurrentChunk->Brightness) {
@@ -110,8 +113,6 @@ public:
 #endif
 
 #if 1 // =========================== LedRGB Parent =============================
-void LedRGBTmrCallback(void *p);
-
 class LedRGBParent_t : public BaseSequencer_t<LedRGBChunk_t> {
 protected:
     const PinOutputPWM_t  R, G, B;
@@ -144,7 +145,6 @@ protected:
         else IPCurrentChunk++; // Color is the same, goto next chunk
         return sltProceed;
     }
-    void SetupDelay(uint32_t ms) { chVTSetI(&ITmr, MS2ST(ms), LedRGBTmrCallback, this); }
 public:
     LedRGBParent_t(
             const PwmSetup_t ARed,
@@ -183,7 +183,7 @@ public:
 };
 #endif
 
-#if 0 // =========================== RGB LED with power ========================
+#if 1 // =========================== RGB LED with power ========================
 class LedRGBwPower_t : public LedRGBParent_t {
 private:
     const PinOutput_t PwrPin;
@@ -192,8 +192,9 @@ public:
             const PwmSetup_t ARed,
             const PwmSetup_t AGreen,
             const PwmSetup_t ABlue,
-            const PinOutput_t APwrPin) :
-                LedRGBParent_t(ARed, AGreen, ABlue), PwrPin(APwrPin) {}
+            const PinOutput_t APwrPin,
+            const uint32_t AFreq = 0xFFFFFFFF) :
+                LedRGBParent_t(ARed, AGreen, ABlue, AFreq), PwrPin(APwrPin) {}
     void Init() {
         PwrPin.Init();
         LedRGBParent_t::Init();
