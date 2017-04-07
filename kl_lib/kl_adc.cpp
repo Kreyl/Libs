@@ -8,20 +8,20 @@
 #include "kl_adc.h"
 #include "main.h"
 #include "board.h"
+#include "evt_mask.h"
 
 #if ADC_REQUIRED
 
 Adc_t Adc;
+static TmrKL_t TmrAdc {MS2ST(ADC_MEASURE_PERIOD_MS), EVT_SAMPLING, tktPeriodic};
 
-static const uint8_t AdcChannels[] = ADC_CHANNELS;
-
-#if defined STM32F0XX
+const uint8_t AdcChannels[ADC_CHANNEL_CNT] = ADC_CHANNELS;
 
 // Wrapper for IRQ
 extern "C" {
 void AdcTxIrq(void *p, uint32_t flags) {
     dmaStreamDisable(ADC_DMA);
-    Adc.Stop();
+    Adc.Disable();
     // Signal event
     chSysLockFromISR();
     App.SignalEvtI(EVT_ADC_DONE);
@@ -29,6 +29,7 @@ void AdcTxIrq(void *p, uint32_t flags) {
 }
 } // extern C
 
+#if defined STM32F0XX
 void Adc_t::Init() {
     rccResetADC1();
     rccEnableADC1(FALSE);           // Enable digital clock
@@ -100,20 +101,9 @@ uint32_t Adc_t::GetResult(uint8_t AChannel) {
 }
 #endif // stm32f0
 
-#if defined STM32F4XX || defined STM32L1XX
-// Wrapper for IRQ
-extern "C" {
-void AdcTxIrq(void *p, uint32_t flags) {
-    dmaStreamDisable(ADC_DMA);
-    Adc.Disable();
-    // Signal event
-    chSysLockFromISR();
-    App.SignalEvtI(EVT_ADC_DONE);
-    chSysUnlockFromISR();
-}
-} // extern C
-
+#if defined STM32F2XX || defined STM32F4XX || defined STM32L1XX
 void Adc_t::Init() {
+    FirstConversion = true;
     rccEnableADC1(FALSE);   	// Enable digital clock
     SetupClk(ADC_CLK_DIVIDER);  // Setup ADCCLK
     // Setup channels
@@ -129,13 +119,15 @@ void Adc_t::Init() {
     dmaStreamSetMode      (ADC_DMA, ADC_DMA_MODE);
 }
 
+void Adc_t::TmrInitAndStart() { TmrAdc.InitAndStart(); }
+
 void Adc_t::SetSequenceLength(uint32_t ALen) {
     ADC1->SQR1 &= ~ADC_SQR1_L;  // Clear count
     ADC1->SQR1 |= (ALen - 1) << 20;
 }
 void Adc_t::SetChannelSampleTime(uint32_t AChnl, AdcSampleTime_t ASampleTime) {
     uint32_t Offset;
-#if defined STM32F4XX
+#if defined STM32F2XX || defined STM32F4XX
     if(AChnl <= 9) {
         Offset = AChnl * 3;
         ADC1->SMPR2 &= ~((uint32_t)0b111 << Offset);    // Clear bits
@@ -166,7 +158,7 @@ void Adc_t::SetChannelSampleTime(uint32_t AChnl, AdcSampleTime_t ASampleTime) {
 }
 void Adc_t::SetSequenceItem(uint8_t SeqIndx, uint32_t AChnl) {
     uint32_t Offset;
-#if defined STM32F4XX
+#if defined STM32F2XX || defined STM32F4XX
     if(SeqIndx <= 6) {
         Offset = (SeqIndx - 1) * 5;
         ADC1->SQR3 &= ~(uint32_t)(0b11111 << Offset);

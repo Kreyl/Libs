@@ -116,14 +116,6 @@ public:
 #define IS_LIKE(v, precise, deviation)  (((precise - deviation) < v) and (v < (precise + deviation)))
 #define BitIsSet(r, b)  ((r) & (b))
 
-template <typename T>
-static T Average(T *p, uint32_t Len) {
-    T Rslt = 0;
-    for(uint32_t i=0; i<Len; i++) Rslt += *p++;
-    Rslt /= Len;
-    return Rslt;
-}
-
 #define ANY_OF_2(a, b1, b2)             (((a)==(b1)) or ((a)==(b2)))
 #define ANY_OF_3(a, b1, b2, b3)         (((a)==(b1)) or ((a)==(b2)) or ((a)==(b3)))
 #define ANY_OF_4(a, b1, b2, b3, b4)     (((a)==(b1)) or ((a)==(b2)) or ((a)==(b3)) or ((a)==(b4)))
@@ -140,6 +132,39 @@ static T Average(T *p, uint32_t Len) {
 #define DMA_PRIORITY_MEDIUM     STM32_DMA_CR_PL(0b01)
 #define DMA_PRIORITY_HIGH       STM32_DMA_CR_PL(0b10)
 #define DMA_PRIORITY_VERYHIGH   STM32_DMA_CR_PL(0b11)
+
+template <typename T>
+static T Average(T *p, uint32_t Len) {
+    T Rslt = 0;
+    for(uint32_t i=0; i<Len; i++) Rslt += *p++;
+    Rslt /= Len;
+    return Rslt;
+}
+
+template <typename T>
+static T FindMediana(T *Arr, int32_t N) {
+    int32_t L = 1, r = N, i, j, k = N / 2;
+    T x;
+    while(L < r) {
+        x = Arr[k];
+        i = L;
+        j = r;
+        do {
+            while(Arr[i] < x) i++;
+            while(x < Arr[j]) j--;
+            if(i <= j) {
+                T tmp = Arr[i];
+                Arr[i] = Arr[j];
+                Arr[j] = tmp;
+                i++;
+                j--;
+            }
+            if(j < k) L = i;
+            if(k < i) r = j;
+        } while(i <= j);
+    }
+    return Arr[k];
+}
 
 namespace Convert { // ============== Conversion operations ====================
 union DWordBytes_t {
@@ -173,11 +198,6 @@ uint16_t BuildUint16(uint8_t Lo, uint8_t Hi);
 uint32_t BuildUint32(uint8_t Lo, uint8_t MidLo, uint8_t MidHi, uint8_t Hi);
 uint8_t TryStrToFloat(char* S, float *POutput);
 }; // namespace
-
-// Init, to calm compiler
-extern "C" {
-void __attribute__ ((weak)) _init(void)  {}
-}
 #endif
 
 #if 1 // ========================== Uniq ID ====================================
