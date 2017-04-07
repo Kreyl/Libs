@@ -8,10 +8,14 @@
 #include "cc1101.h"
 #include "uart.h"
 
+#define CC_MAX_BAUDRATE_HZ  6500000
+
 uint8_t cc1101_t::Init() {
     // ==== GPIO ====
 #if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX
-
+    AlterFunc_t CC_AF;
+    if(ISpi.PSpi == SPI1 or ISpi.PSpi == SPI2) CC_AF = AF5;
+    else CC_AF = AF6;
 #elif defined STM32F030 || defined STM32F0
 #define CC_AF   AF0
 #endif
@@ -20,15 +24,15 @@ uint8_t cc1101_t::Init() {
     PinSetupAlterFunc((GPIO_TypeDef*)PGpio, Miso, omPushPull, pudNone, CC_AF);
     PinSetupAlterFunc((GPIO_TypeDef*)PGpio, Mosi, omPushPull, pudNone, CC_AF);
     IGdo0.Init(ttFalling);
-//    PinSetupAnalog   (CC_GPIO, CC_GDO2);    // GDO2 not used
     CsHi();
     // ==== SPI ====
     // MSB first, master, ClkLowIdle, FirstEdge, Baudrate no more than 6.5MHz
     uint32_t div;
 #if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX
-
+    if(ISpi.PSpi == SPI1) div = Clk.APB2FreqHz / CC_MAX_BAUDRATE_HZ;
+    else div = Clk.APB1FreqHz / CC_MAX_BAUDRATE_HZ;
 #elif defined STM32F030 || defined STM32F0
-    div = Clk.APBFreqHz / 6500000;
+    div = Clk.APBFreqHz / CC_MAX_BAUDRATE_HZ;
 #endif
     SpiClkDivider_t ClkDiv = sclkDiv2;
     if     (div > 128) ClkDiv = sclkDiv256;
@@ -47,12 +51,20 @@ uint8_t cc1101_t::Init() {
         Uart.Printf("CC Rst Fail\r");
         return retvFail;
     }
-    // Check if success
-    WriteRegister(CC_PKTLEN, 7);
-    uint8_t Rpl = ReadRegister(CC_PKTLEN);
-    if(Rpl != 7) {
-        ISpi.Disable();
-        Uart.Printf("CC R/W Fail; rpl=%u\r", Rpl);
+    // Check if Write/Read ok
+    if(WriteRegister(CC_PKTLEN, 7) != retvOk) {
+        Uart.Printf("CC W Fail\r");
+        return retvFail;
+    }
+    uint8_t b = 0;
+    if(ReadRegister(CC_PKTLEN, &b) == retvOk) {
+        if(b != 7) {
+            Uart.Printf("CC R/W Fail; rpl=%u\r", b);
+            return retvFail;
+        }
+    }
+    else {
+        Uart.Printf("CC R Fail\r");
         return retvFail;
     }
     // Proceed with init
@@ -160,16 +172,16 @@ int8_t cc1101_t::RSSI_dBm(uint8_t ARawRSSI) {
 #endif
 
 #if 1 // ======================== Registers & Strobes ==========================
-uint8_t cc1101_t::ReadRegister (uint8_t ARegAddr) {
+uint8_t cc1101_t::ReadRegister (uint8_t ARegAddr, uint8_t *PData) {
     CsLo();                     // Start transmission
     if(BusyWait() != retvOk) {  // Wait for chip to become ready
         CsHi();
         return retvFail;
     }
     ISpi.ReadWriteByte(ARegAddr | CC_READ_FLAG);    // Transmit header byte
-    uint8_t FReply = ISpi.ReadWriteByte(0);         // Read reply
+    *PData = ISpi.ReadWriteByte(0);                 // Read reply
     CsHi();                                         // End transmission
-    return FReply;
+    return retvOk;
 }
 uint8_t cc1101_t::WriteRegister (uint8_t ARegAddr, uint8_t AData) {
     CsLo();                     // Start transmission
@@ -184,10 +196,10 @@ uint8_t cc1101_t::WriteRegister (uint8_t ARegAddr, uint8_t AData) {
 }
 uint8_t cc1101_t::WriteStrobe (uint8_t AStrobe) {
     CsLo();                     // Start transmission
-//    if(BusyWait() != retvOk) {  // Wait for chip to become ready
-//        CsHi();
-//        return retvFail;
-//    }
+    if(BusyWait() != retvOk) {  // Wait for chip to become ready
+        CsHi();
+        return retvFail;
+    }
     IState = ISpi.ReadWriteByte(AStrobe);   // Write strobe
     CsHi();                                 // End transmission
     IState &= 0b01110000;                   // Mask needed bits
@@ -215,7 +227,7 @@ uint8_t cc1101_t::WriteTX(uint8_t* Ptr, uint8_t Length) {
 uint8_t cc1101_t::ReadFIFO(void *Ptr, int8_t *PRssi) {
     uint8_t b, *p = (uint8_t*)Ptr;
      // Check if received successfully
-     b = ReadRegister(CC_PKTSTATUS);
+     if(ReadRegister(CC_PKTSTATUS, &b) != retvOk) return retvFail;
      //    Uart.Printf("St: %X  ", b);
      if(b & 0x80) {  // CRC OK
          // Read FIFO

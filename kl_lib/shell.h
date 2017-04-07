@@ -45,43 +45,42 @@ public:
         Token = strtok(NULL, DELIMITERS);
         return (*Token == '\0')? retvEmpty : retvOk;
     }
-    uint8_t GetNextInt32(int32_t *POutput) {
+
+    template <typename T>
+    uint8_t GetNextNumber(T *POutput) {
         uint8_t r = GetNextString();
-        if(r != retvOk) return r;
-        else {
+        if(r == retvOk) {
             char *p;
-            *POutput = strtol(Token, &p, 0);
-            return (*p == '\0')? retvOk : retvNotANumber;
+            int32_t dw32 = strtol(Token, &p, 0);
+            if(*p == '\0') *POutput = (T)dw32;
+            else r = retvNotANumber;
         }
-    }
-    uint8_t GetNextByte(uint8_t *POutput) {
-        int32_t dw32;
-        uint8_t r = GetNextInt32(&dw32);
-        if(r != retvOk) return r;
-        else {
-            *POutput = (uint8_t)dw32;
-            return retvOk;
-        }
+        return r;
     }
 
-    uint8_t GetArray(int32_t *Ptr, int32_t Len) {
-        int32_t dw32 = 0;
+    template <typename T>
+    uint8_t GetArray(T *Ptr, int32_t Len) {
         for(int32_t i=0; i<Len; i++) {
-            uint8_t r = GetNextInt32(&dw32);
-            if(r == retvOk) *Ptr++ = dw32;
+            T Number;
+            uint8_t r = GetNextNumber<T>(&Number);
+            if(r == retvOk) *Ptr++ = Number;
             else return r;
         }
         return retvOk;
     }
 
-    uint8_t GetArray(uint8_t *Ptr, int32_t Len) {
-        int32_t dw32 = 0;
-        for(int32_t i=0; i<Len; i++) {
-            uint8_t r = GetNextInt32(&dw32);
-            if(r == retvOk) *Ptr++ = (uint8_t)dw32;
-            else return r;
+    template <typename T>
+    uint8_t GetParams(uint8_t Cnt, ...) {
+        uint8_t Rslt = retvOk;
+        va_list args;
+        va_start(args, Cnt);
+        while(Cnt--) {
+            T* ptr = va_arg(args, T*);
+            Rslt = GetNextNumber<T>(ptr);
+            if(Rslt != retvOk) break;
         }
-        return retvOk;
+        va_end(args);
+        return Rslt;
     }
 
     bool NameIs(const char *SCmd) { return (strcasecmp(Name, SCmd) == 0); }

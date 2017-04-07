@@ -19,11 +19,18 @@
     } > flash
  */
 
+#define FLASH_SAVE_PLACES   1
+
 #define FLASH_PAGE_SIZE     1024
 
 namespace Flash {
 
 void Load(uint32_t *ptr, uint32_t ByteSz);
 uint8_t Save(uint32_t *ptr, uint32_t ByteSz);
+
+#if FLASH_SAVE_PLACES > 1
+void Load2(uint32_t *ptr, uint32_t ByteSz);
+uint8_t Save2(uint32_t *ptr, uint32_t ByteSz);
+#endif
 
 }

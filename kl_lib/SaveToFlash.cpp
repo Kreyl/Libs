@@ -26,12 +26,17 @@
 __attribute__ ((section("MyFlash")))
 const uint32_t IData[(FLASH_PAGE_SIZE/4)] = { 0xCA115EA1 };
 
+#if FLASH_SAVE_PLACES > 1
+__attribute__ ((section("MyFlash2")))
+const uint32_t IData2[(FLASH_PAGE_SIZE/4)] = { 0xCA115EA1 };
+#endif
+
 static inline void Unlock() {
     FLASH->KEYR = FLASH_KEY1;
     FLASH->KEYR = FLASH_KEY2;
 }
 static inline void Lock(void) { FLASH->CR |= CR_LOCK_Set; }
-static inline void ClearFlag(uint32_t FLASH_FLAG) { FLASH->SR = FLASH_FLAG; }
+static inline void ClearFlag(uint32_t FlashFlag) { FLASH->SR = FlashFlag; }
 
 static uint8_t GetBank1Status(void) {
     if(FLASH->SR & FLASH_SR_BSY) return retvBusy;
@@ -86,22 +91,15 @@ static uint8_t ProgramWord(uint32_t Address, uint32_t Data) {
     return status;
 }
 
-namespace Flash {
-
-void Load(uint32_t *ptr, uint32_t ByteSz) {
-    memcpy(ptr, IData, ByteSz);
-}
-
-uint8_t Save(uint32_t *ptr, uint32_t ByteSz) {
+static uint8_t SaveCommon(uint32_t *ptr, uint32_t ByteSz, uint32_t Addr) {
     uint8_t status = retvOk;
-    uint32_t FAddr = (uint32_t)&IData[0];
 //    Uart.PrintfI("F addr: %08X\r", FAddr);
     uint32_t DataWordCount = (ByteSz + 3) / 4;
     chSysLock();
     Unlock();
     // Erase flash
     ClearFlag(FLASH_SR_EOP | FLASH_SR_PGERR | FLASH_SR_WRPRTERR);   // Clear all pending flags
-    status = ErasePage(FAddr);
+    status = ErasePage(Addr);
     //Uart.Printf("  Flash erase %u: %u\r", i, FLASHStatus);
     if(status != retvOk) {
         Uart.PrintfI("Flash erase error\r");
@@ -109,12 +107,12 @@ uint8_t Save(uint32_t *ptr, uint32_t ByteSz) {
     }
     // Program flash
     for(uint32_t i=0; i<DataWordCount; i++) {
-        status = ProgramWord(FAddr, *ptr);
+        status = ProgramWord(Addr, *ptr);
         if(status != retvOk) {
             Uart.PrintfI("Flash write error\r");
             goto end;
         }
-        FAddr += 4;
+        Addr += 4;
         ptr++;
     }
     Lock();
@@ -122,5 +120,24 @@ uint8_t Save(uint32_t *ptr, uint32_t ByteSz) {
     chSysUnlock();
     return status;
 }
+
+namespace Flash {
+
+void Load(uint32_t *ptr, uint32_t ByteSz) {
+    memcpy(ptr, IData, ByteSz);
+}
+uint8_t Save(uint32_t *ptr, uint32_t ByteSz) {
+    return SaveCommon(ptr, ByteSz, (uint32_t)&IData[0]);
+}
+
+#if FLASH_SAVE_PLACES > 1
+void Load2(uint32_t *ptr, uint32_t ByteSz) {
+    memcpy(ptr, IData2, ByteSz);
+}
+
+uint8_t Save2(uint32_t *ptr, uint32_t ByteSz) {
+    return SaveCommon(ptr, ByteSz, (uint32_t)&IData2[0]);
+}
+#endif
 
 } // namespace

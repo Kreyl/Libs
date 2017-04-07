@@ -14,7 +14,7 @@
 
 #define CC_BUSYWAIT_TIMEOUT     99000   // tics, not ms
 
-class cc1101_t : public ExtiHandler_t {
+class cc1101_t : public IrqHandler_t {
 private:
     const Spi_t ISpi;
     const GPIO_TypeDef *PGpio;
@@ -37,7 +37,7 @@ private:
     int8_t RSSI_dBm(uint8_t ARawRSSI);
     // Registers and buffers
     uint8_t WriteRegister(const uint8_t Addr, const uint8_t AData);
-    uint8_t ReadRegister(const uint8_t Addr);
+    uint8_t ReadRegister(const uint8_t Addr, uint8_t *PData);
     uint8_t WriteStrobe(uint8_t AStrobe);
     uint8_t WriteTX(uint8_t* Ptr, uint8_t Length);
     // Strobes
@@ -73,5 +73,3 @@ public:
         IGdo0(APGpio, AGdo0, pudNone, this),
         IState(0), IPktSz(0), ThdRef(nullptr) {}
 };
-
-extern cc1101_t CC;

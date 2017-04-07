@@ -55,8 +55,6 @@ class BaseSequencer_t : private IrqHandler_t {
 protected:
     virtual_timer_t ITmr;
     const TChunk *IPStartChunk, *IPCurrentChunk;
-    BaseSequencer_t() : IPStartChunk(nullptr), IPCurrentChunk(nullptr),
-            PThread(nullptr), EvtEnd(0) {}
     thread_t *PThread;
     eventmask_t EvtEnd;
     virtual void ISwitchOff() = 0;
