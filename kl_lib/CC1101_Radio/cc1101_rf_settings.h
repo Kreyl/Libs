@@ -5,8 +5,7 @@
  * Created on 7 Март 2010 г., 12:42
  */
 
-#ifndef _CC_RF_SETTINGS_H
-#define	_CC_RF_SETTINGS_H
+#pragma once
 
 // All this is for 27.0 MHz crystal, and for 868 MHz carrier
 

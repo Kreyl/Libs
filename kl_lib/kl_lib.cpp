@@ -12,7 +12,7 @@
 #include "main.h"   // App is there
 
 #if 1 // ============================ General ==================================
-// To replace standard error handler
+// To replace standard error handler in case of virtual methods implementation
 //extern "C" void __cxa_pure_virtual() {
 //    Uart.PrintfNow("pure_virtual\r");
 //}
@@ -68,10 +68,10 @@ static uint32_t GetTimInputFreq(TIM_TypeDef* ITmr) {
 
 void Timer_t::Init() const {
 #ifdef TIM1
-    if     (ITmr == TIM1)  { rccEnableTIM1(FALSE); }
+    if(ITmr == TIM1)  { rccEnableTIM1(FALSE); }
 #endif
 #ifdef TIM2
-    else if(ITmr == TIM2)  { rccEnableTIM2(FALSE); }
+    if(ITmr == TIM2)  { rccEnableTIM2(FALSE); }
 #endif
 #ifdef TIM3
     else if(ITmr == TIM3)  { rccEnableTIM3(FALSE); }
@@ -123,10 +123,10 @@ void Timer_t::Init() const {
 void Timer_t::Deinit() const {
     TMR_DISABLE(ITmr);
 #ifdef TIM1
-    if     (ITmr == TIM1)  { rccDisableTIM1(FALSE); }
+    if(ITmr == TIM1)  { rccDisableTIM1(FALSE); }
 #endif
 #ifdef TIM2
-    else if(ITmr == TIM2)  { rccDisableTIM2(FALSE); }
+    if(ITmr == TIM2)  { rccDisableTIM2(FALSE); }
 #endif
 #ifdef TIM3
     else if(ITmr == TIM3)  { rccDisableTIM3(FALSE); }
@@ -284,18 +284,54 @@ void chDbgPanic(const char *msg1) {
 #endif
 
 #ifdef FLASH_LIB_KL // ==================== FLASH & EEPROM =====================
+namespace Flash {
+
+uint8_t GetStatus() {
+    if(FLASH->SR & FLASH_SR_BSY) return retvBusy;
+    else if(FLASH->SR & FLASH_SR_WRPERR) return retvWriteProtect;
+    else if(FLASH->SR & (uint32_t)0x1E00) return retvFail;
+    else return retvOk;
+}
+
+uint8_t WaitForLastOperation() {
+    uint32_t Timeout = FLASH_WAIT_TIMEOUT;
+    while(Timeout--) {
+        // Get status
+        uint8_t status = GetStatus();
+        if(status != retvBusy) return status;
+    }
+    return retvTimeout;
+}
+
+#if defined STM32L151xB
+void UnlockEE() {
+    if(FLASH->PECR & FLASH_PECR_PELOCK) {
+        // Unlocking the Data memory and FLASH_PECR register access
+        chSysLock();
+        FLASH->PEKEYR = FLASH_PEKEY1;
+        FLASH->PEKEYR = FLASH_PEKEY2;
+        chSysUnlock();
+        FLASH->SR = FLASH_SR_WRPERR;        // Clear WriteProtectErr
+        FLASH->PECR &= ~FLASH_PECR_FTDW;    // Disable fixed time programming
+    }
+}
+
+void LockEE() { FLASH->PECR |= FLASH_PECR_PELOCK; }
+#endif
+}; // namespace Flash
+
 // Here not-fast write is used. I.e. interface will erase the word if it is not the same.
 uint8_t Eeprom_t::Write32(uint32_t Addr, uint32_t W) {
     Addr += EEPROM_BASE_ADDR;
 //    Uart.Printf("EAdr=%u\r", Addr);
-    UnlockEE();
+    Flash::UnlockEE();
     // Wait for last operation to be completed
-    uint8_t status = WaitForLastOperation();
-    if(status == OK) {
+    uint8_t status = Flash::WaitForLastOperation();
+    if(status == retvOk) {
         *(volatile uint32_t*)Addr = W;
-        status = WaitForLastOperation();
+        status = Flash::WaitForLastOperation();
     }
-    LockEE();
+    Flash::LockEE();
     return status;
 }
 
@@ -313,17 +349,17 @@ uint8_t Eeprom_t::WriteBuf(void *PSrc, uint32_t Sz, uint32_t Addr) {
     uint32_t *p32 = (uint32_t*)PSrc;
     Addr += EEPROM_BASE_ADDR;
     Sz = (Sz + 3) / 4;  // Size in words32
-    UnlockEE();
+    Flash::UnlockEE();
     // Wait for last operation to be completed
-    uint8_t status = WaitForLastOperation();
-    while((status == OK) and (Sz > 0))  {
+    uint8_t status = Flash::WaitForLastOperation();
+    while((status == retvOk) and (Sz > 0))  {
         *(volatile uint32_t*)Addr = *p32;
-        status = WaitForLastOperation();
+        status = Flash::WaitForLastOperation();
         p32++;
         Addr += 4;
         Sz--;
     }
-    LockEE();
+    Flash::LockEE();
     return status;
 }
 
@@ -344,14 +380,21 @@ IrqHandler_t *ExtiIrqHandler_0_1, *ExtiIrqHandler_2_3, *ExtiIrqHandler_4_15;
 #endif
 #endif // INDIVIDUAL_EXTI_IRQ_REQUIRED
 
-#if defined STM32L4XX
+#if defined STM32L1XX || defined STM32F2XX || defined STM32L4XX
+// EXTI pending register
+#if defined STM32L1XX || defined STM32F2XX
+#define EXTI_PENDING_REG    EXTI->PR
+#elif defined STM32L4XX
+#define EXTI_PENDING_REG    EXTI->PR1
+#endif
+
 // EXTI 0
 void Vector58() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
     if(ExtiIrqHandler[0] != nullptr) ExtiIrqHandler[0]->IIrqHandler();
     else PrintfCNow("Unhandled %S\r", __FUNCTION__);
-    EXTI->PR1 = 0x0001; // Clean IRQ flags
+    EXTI_PENDING_REG = 0x0001; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -362,7 +405,7 @@ void Vector5C() {
     chSysLockFromISR();
     if(ExtiIrqHandler[1] != nullptr) ExtiIrqHandler[1]->IIrqHandler();
     else PrintfCNow("Unhandled %S\r", __FUNCTION__);
-    EXTI->PR1 = 0x0002; // Clean IRQ flags
+    EXTI_PENDING_REG = 0x0002; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -373,7 +416,7 @@ void Vector60() {
     chSysLockFromISR();
     if(ExtiIrqHandler[2] != nullptr) ExtiIrqHandler[2]->IIrqHandler();
     else PrintfCNow("Unhandled %S\r", __FUNCTION__);
-    EXTI->PR1 = 0x0004; // Clean IRQ flags
+    EXTI_PENDING_REG = 0x0004; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -384,7 +427,7 @@ void Vector64() {
     chSysLockFromISR();
     if(ExtiIrqHandler[3] != nullptr) ExtiIrqHandler[3]->IIrqHandler();
     else PrintfCNow("Unhandled %S\r", __FUNCTION__);
-    EXTI->PR1 = 0x0008; // Clean IRQ flags
+    EXTI_PENDING_REG = 0x0008; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -395,7 +438,7 @@ void Vector68() {
     chSysLockFromISR();
     if(ExtiIrqHandler[4] != nullptr) ExtiIrqHandler[4]->IIrqHandler();
     else PrintfCNow("Unhandled %S\r", __FUNCTION__);
-    EXTI->PR1 = 0x0010; // Clean IRQ flags
+    EXTI_PENDING_REG = 0x0010; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -412,7 +455,7 @@ void Vector9C() {
     if(ExtiIrqHandler_9_5 != nullptr) ExtiIrqHandler_9_5->IIrqHandler();
     else PrintfCNow("Unhandled %S\r", __FUNCTION__);
 #endif
-    EXTI->PR1 = 0x03E0; // Clean IRQ flags
+    EXTI_PENDING_REG = 0x03E0; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -429,7 +472,7 @@ void VectorE0() {
     if(ExtiIrqHandler_15_10 != nullptr) ExtiIrqHandler_15_10->IIrqHandler();
     else PrintfCNow("Unhandled %S\r", __FUNCTION__);
 #endif
-    EXTI->PR1 = 0xFC00; // Clean IRQ flags
+    EXTI_PENDING_REG = 0xFC00; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -561,8 +604,10 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
 
 #if 1 // ============================== Clocking ===============================
 Clk_t Clk;
-
 #define CLK_STARTUP_TIMEOUT     9999
+#ifndef CRYSTAL_FREQ_HZ
+#define CRYSTAL_FREQ_HZ     12000000
+#endif
 
 #if defined STM32L1XX
 // ==== Inner use ====
@@ -571,11 +616,11 @@ uint8_t Clk_t::EnableHSE() {
     // Wait until ready, 1ms typical according to datasheet
     uint32_t StartUpCounter=0;
     do {
-        if(RCC->CR & RCC_CR_HSERDY) return OK;   // HSE is ready
+        if(RCC->CR & RCC_CR_HSERDY) return retvOk;   // HSE is ready
         StartUpCounter++;
     } while(StartUpCounter < CLK_STARTUP_TIMEOUT);
     RCC->CR &= ~RCC_CR_HSEON;   // Disable HSE
-    return TIMEOUT;
+    return retvTimeout;
 }
 
 uint8_t Clk_t::EnableHSI() {
@@ -687,20 +732,20 @@ uint8_t Clk_t::SwitchToHSI() {
 uint8_t Clk_t::SwitchToHSE() {
     // Try to enable HSE several times
     for(uint32_t i=0; i<11; i++) {
-        if(EnableHSE() == OK) {
+        if(EnableHSE() == retvOk) {
             uint32_t tmp = RCC->CFGR;
             tmp &= ~RCC_CFGR_SW;
             tmp |=  RCC_CFGR_SW_HSE;  // Select HSE as system clock src
             RCC->CFGR = tmp;
             while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSE); // Wait till ready
-            return OK;
+            return retvOk;
         }
         else {
             DisableHSE();
             for(volatile uint32_t i=0; i<999; i++);
         }
     } // for
-    return FAILURE;
+    return retvFail;
 }
 
 // Enables HSE, enables PLL, switches to PLL

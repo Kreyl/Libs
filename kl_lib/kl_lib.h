@@ -898,6 +898,8 @@ public:
 #endif // INDIVIDUAL_EXTI_IRQ_REQUIRED
     }
 
+    bool IsHi() { return PinIsHi(PGpio, PinN); }
+
     void SetTriggerType(ExtiTrigType_t ATriggerType) const {
         uint32_t IrqMsk = 1 << PinN;
         switch(ATriggerType) {
@@ -1118,6 +1120,7 @@ public:
     void WaitFTLVLZero() const { while(PSpi->SR & SPI_SR_FTLVL); }
 #endif
     void WaitBsyHi2Lo()  const { while(PSpi->SR & SPI_SR_BSY); }
+    void WaitTxEHi()     const { while(!(PSpi->SR & SPI_SR_TXE)); }
     void ClearRxBuf()    const { while(PSpi->SR & SPI_SR_RXNE) (void)PSpi->DR; }
     uint8_t ReadWriteByte(uint8_t AByte) const {
         *((volatile uint8_t*)&PSpi->DR) = AByte;
@@ -1145,7 +1148,7 @@ public:
 };
 #endif
 
-#if 0 // ====================== FLASH & EEPROM =================================
+#if 1 // ====================== FLASH & EEPROM =================================
 #define FLASH_LIB_KL
 #define EEPROM_BASE_ADDR    ((uint32_t)0x08080000)
 // ==== Flash keys ====
@@ -1164,38 +1167,14 @@ public:
 #define FLASH_OPTKEY2   ((uint32_t)0x24252627)
 
 #define FLASH_WAIT_TIMEOUT  36000
-class Flash_t {
-public:
-    static uint8_t GetStatus() {
-        if(FLASH->SR & FLASH_SR_BSY) return retvBusy;
-        else if(FLASH->SR & FLASH_SR_WRPERR) return retvWriteProtect;
-        else if(FLASH->SR & (uint32_t)0x1E00) return retvFail;
-        else return retvOk;
-    }
-    static uint8_t WaitForLastOperation() {
-        uint32_t Timeout = FLASH_WAIT_TIMEOUT;
-        while(Timeout--) {
-            // Get status
-            uint8_t status = GetStatus();
-            if(status != retvBusy) return status;
-        }
-        return retvTimeout;
-    }
-    static void UnlockEE() {
-        if(FLASH->PECR & FLASH_PECR_PELOCK) {
-            // Unlocking the Data memory and FLASH_PECR register access
-            chSysLock();
-            FLASH->PEKEYR = FLASH_PEKEY1;
-            FLASH->PEKEYR = FLASH_PEKEY2;
-            chSysUnlock();
-            FLASH->SR = FLASH_SR_WRPERR;        // Clear WriteProtectErr
-            FLASH->PECR &= ~FLASH_PECR_FTDW;    // Disable fixed time programming
-        }
-    }
-    static void LockEE() { FLASH->PECR |= FLASH_PECR_PELOCK; }
-};
+namespace Flash {
+    uint8_t GetStatus();
+    uint8_t WaitForLastOperation();
+    void UnlockEE();
+    void LockEE();
+}; // namespace
 
-class Eeprom_t : private Flash_t {
+class Eeprom_t {
 public:
     uint32_t Read32(uint32_t Addr) { return *((uint32_t*)(Addr + EEPROM_BASE_ADDR)); }
     uint8_t Write32(uint32_t Addr, uint32_t W);

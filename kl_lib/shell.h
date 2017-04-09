@@ -47,7 +47,7 @@ public:
     }
 
     template <typename T>
-    uint8_t GetNextNumber(T *POutput) {
+    uint8_t GetNext(T *POutput) {
         uint8_t r = GetNextString();
         if(r == retvOk) {
             char *p;
@@ -62,7 +62,7 @@ public:
     uint8_t GetArray(T *Ptr, int32_t Len) {
         for(int32_t i=0; i<Len; i++) {
             T Number;
-            uint8_t r = GetNextNumber<T>(&Number);
+            uint8_t r = GetNext<T>(&Number);
             if(r == retvOk) *Ptr++ = Number;
             else return r;
         }
@@ -76,7 +76,7 @@ public:
         va_start(args, Cnt);
         while(Cnt--) {
             T* ptr = va_arg(args, T*);
-            Rslt = GetNextNumber<T>(ptr);
+            Rslt = GetNext<T>(ptr);
             if(Rslt != retvOk) break;
         }
         va_end(args);
