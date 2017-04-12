@@ -24,6 +24,10 @@ $CMP PCA9555
 D 16bit IO expander
 $ENDCMP
 #
+$CMP TXB0102
+D 2-chnl bidir lvl translator
+$ENDCMP
+#
 $CMP Transformer_2_1
 D Transformer 2-1
 $ENDCMP

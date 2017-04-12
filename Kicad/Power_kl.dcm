@@ -37,6 +37,10 @@ $CMP BQ2461x
 D PWM Bat Charger with AC ctrl
 $ENDCMP
 #
+$CMP DRV8835
+D Motor drv 2 chnl 1.5A
+$ENDCMP
+#
 $CMP HV9910
 D Buck LED driver, ext FET 8-450V
 $ENDCMP
