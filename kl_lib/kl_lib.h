@@ -233,7 +233,7 @@ enum TmrKLType_t {tktOneShot, tktPeriodic};
 class TmrKL_t : private IrqHandler_t {
 private:
     virtual_timer_t Tmr;
-    void StartI() { chVTSetI(&Tmr, Period, TmrKLCallback, this); }
+    void StartI() { chVTSetI(&Tmr, Period, TmrKLCallback, this); }  // Will be reset before start
     thread_t *PThread;
     systime_t Period;
     eventmask_t EvtMsk;
@@ -245,24 +245,23 @@ private:
 public:
     void InitAndStart(thread_t *APThread) {
         PThread = APThread;
-        Start();
+        StartOrRestart();
     }
     void InitAndStart() {
         PThread = chThdGetSelfX();
-        Start();
+        StartOrRestart();
     }
 
     void Init(thread_t *APThread) { PThread = APThread; }
     void Init() { PThread = chThdGetSelfX(); }
 
-    void Start() {
+    void StartOrRestart() {
         chSysLock();
         StartI();
         chSysUnlock();
     }
-    void Start(systime_t NewPeriod) {
+    void StartOrRestart(systime_t NewPeriod) {
         chSysLock();
-        chVTResetI(&Tmr);
         Period = NewPeriod;
         StartI();
         chSysUnlock();
@@ -273,10 +272,10 @@ public:
         chSysUnlock();
     }
     void Stop() { chVTReset(&Tmr); }
-    void Restart() {
-        chVTReset(&Tmr);
-        Start();
-    }
+
+    void SetNewPeriod_ms(uint32_t NewPeriod) { Period = MS2ST(NewPeriod); }
+    void SetNewPeriod_s(uint32_t NewPeriod) { Period = S2ST(NewPeriod); }
+
     TmrKL_t(systime_t APeriod, eventmask_t AEvtMsk, TmrKLType_t AType) :
         PThread(nullptr), Period(APeriod), EvtMsk(AEvtMsk), TmrType(AType) {}
     // Dummy period is set
@@ -1100,7 +1099,7 @@ public:
         if(CPOL == cpolIdleHigh) PSpi->CR1 |= SPI_CR1_CPOL;     // CPOL
         if(CPHA == cphaSecondEdge) PSpi->CR1 |= SPI_CR1_CPHA;   // CPHA
         PSpi->CR1 |= ((uint16_t)Divider) << 3;                  // Clock divider
-#if defined STM32L1XX || defined STM32F10X_LD_VL || defined STM32F4XX
+#if defined STM32L1XX || defined STM32F10X_LD_VL || defined STM32F2XX || defined STM32F4XX
         if(BitNumber == bitn16) PSpi->CR1 |= SPI_CR1_DFF;
         PSpi->CR2 = 0;
 #elif defined STM32F030 || defined STM32F072xB || defined STM32L4XX
