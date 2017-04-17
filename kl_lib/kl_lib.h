@@ -142,6 +142,11 @@ static T Average(T *p, uint32_t Len) {
 }
 
 template <typename T>
+static inline T Proportion(T MinX, T MaxX, T MinY, T MaxY, T x) {
+    return (((x - MaxX) * (MaxY - MinY)) / (MaxX - MinX)) + MaxY;
+}
+
+template <typename T>
 static T FindMediana(T *Arr, int32_t N) {
     int32_t L = 1, r = N, i, j, k = N / 2;
     T x;

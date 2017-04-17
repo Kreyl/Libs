@@ -49,14 +49,24 @@ public:
     EE_t(i2c_t *pi2c) : i2c(pi2c) {}
 #endif
 
-    uint8_t Read (uint8_t MemAddr, void *Ptr, uint32_t Length) const {
+    uint8_t Read(uint8_t MemAddr, void *Ptr, uint32_t Length) const {
         Resume();
         uint8_t Rslt = i2c->WriteRead(EE_I2C_ADDR, &MemAddr, 1, (uint8_t*)Ptr, Length);
+        Standby();
+//        Uart.Printf("Read: %u\r", Rslt);
+        return Rslt;
+    }
+
+    template <typename T>
+    uint8_t Read(uint8_t MemAddr, T* Ptr) const {
+        Resume();
+        uint8_t Rslt = i2c->WriteRead(EE_I2C_ADDR, &MemAddr, 1, (uint8_t*)Ptr, sizeof(T));
         Standby();
         return Rslt;
     }
 
     uint8_t Write(uint8_t MemAddr, void *Ptr, uint32_t Length) const {
+//        Uart.Printf("Wr: %u; len=%u\r", MemAddr, Length);
         uint8_t *p8 = (uint8_t*)Ptr;
         Resume();
         // Write page by page
@@ -65,7 +75,7 @@ public:
             // Try to write
             uint32_t Retries = 0;
             while(true) {
-    //            Uart.Printf("Wr: try %u\r", Retries);
+//                Uart.Printf("Wr: try %u\r", Retries);
                 if(i2c->WriteWrite(EE_I2C_ADDR, &MemAddr, 1, p8, ToWriteCnt) == retvOk) {
                     Length -= ToWriteCnt;
                     p8 += ToWriteCnt;
@@ -97,5 +107,10 @@ public:
         } while(i2c->CheckAddress(EE_I2C_ADDR) != retvOk);
         Standby();
         return retvOk;
+    }
+
+    template <typename T>
+    uint8_t Write(uint8_t MemAddr, T *Ptr) const {
+        return Write(MemAddr, Ptr, sizeof(T));
     }
 };

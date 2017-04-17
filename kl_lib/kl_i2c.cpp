@@ -1,16 +1,51 @@
 #include "uart.h"
 #include "kl_i2c.h"
 
-#if defined STM32L1XX
+#if defined STM32L1XX || defined STM32F2XX
+#define I2C_DMATX_MODE  DMA_PRIORITY_LOW | \
+                        STM32_DMA_CR_MSIZE_BYTE | \
+                        STM32_DMA_CR_PSIZE_BYTE | \
+                        STM32_DMA_CR_MINC |     /* Memory pointer increase */ \
+                        STM32_DMA_CR_DIR_M2P |  /* Direction is memory to peripheral */ \
+                        STM32_DMA_CR_TCIE       /* Enable Transmission Complete IRQ */
+
+#define I2C_DMARX_MODE  DMA_PRIORITY_LOW | \
+                        STM32_DMA_CR_MSIZE_BYTE | \
+                        STM32_DMA_CR_PSIZE_BYTE | \
+                        STM32_DMA_CR_MINC |         /* Memory pointer increase */ \
+                        STM32_DMA_CR_DIR_P2M |      /* Direction is peripheral to memory */ \
+                        STM32_DMA_CR_TCIE           /* Enable Transmission Complete IRQ */
+
+#if defined STM32F2XX
+#define I2C1_DMA_CHNL   1
+#define I2C2_DMA_CHNL   7
+#define I2C3_DMA_CHNL   3
+#endif
+
 #if I2C1_ENABLED
 static const i2cParams_t I2C1Params = {
         I2C1,
         I2C1_GPIO, I2C1_SCL, I2C1_SDA, I2C1_AF,
         I2C1_BAUDRATE,
         I2C1_DMA_TX,
-        I2C1_DMA_RX
+        I2C1_DMA_RX,
+        (I2C_DMATX_MODE | STM32_DMA_CR_CHSEL(I2C1_DMA_CHNL)),
+        (I2C_DMARX_MODE | STM32_DMA_CR_CHSEL(I2C1_DMA_CHNL))
 };
 i2c_t i2c1 {&I2C1Params};
+#endif
+
+#if I2C2_ENABLED
+static const i2cParams_t I2C2Params = {
+        I2C2,
+        I2C2_GPIO, I2C2_SCL, I2C2_SDA, I2C2_AF,
+        I2C2_BAUDRATE,
+        I2C2_DMA_TX,
+        I2C2_DMA_RX,
+        (I2C_DMATX_MODE | STM32_DMA_CR_CHSEL(I2C2_DMA_CHNL)),
+        (I2C_DMARX_MODE | STM32_DMA_CR_CHSEL(I2C2_DMA_CHNL))
+};
+i2c_t i2c2 {&I2C2Params};
 #endif
 
 void i2cDmaIrqHandler(void *p, uint32_t flags) {
@@ -29,11 +64,6 @@ void i2c_t::Init() {
 #endif
     // ==== DMA ====
     // Here only unchanged parameters of the DMA are configured.
-#ifdef STM32F2XX
-    if      (ii2c == I2C1) DmaChnl = 1;
-    else if (ii2c == I2C2) DmaChnl = 7;
-    else                   DmaChnl = 3;   // I2C3
-#endif
     dmaStreamAllocate(PParams->PDmaTx, IRQ_PRIO_MEDIUM, i2cDmaIrqHandler, this);
     dmaStreamSetPeripheral(PParams->PDmaTx, &PParams->pi2c->DR);
     dmaStreamAllocate(PParams->PDmaRx, IRQ_PRIO_MEDIUM, i2cDmaIrqHandler, this);
@@ -43,10 +73,10 @@ void i2c_t::Init() {
 void i2c_t::Standby() {
     if(PParams->pi2c == I2C1) { rccResetI2C1(); rccDisableI2C1(FALSE); }
 #ifdef I2C2
-    else             { rccResetI2C2(); rccDisableI2C2(FALSE); }
+    else if(PParams->pi2c == I2C2) { rccResetI2C2(); rccDisableI2C2(FALSE); }
 #endif
-#if I2C3
-    else if (ii2c == I2C3) { rccResetI2C3(); rccDisableI2C3(FALSE); }
+#if defined I2C3
+    else if (PParams->pi2c == I2C3) { rccResetI2C3(); rccDisableI2C3(FALSE); }
 #endif
     // Disable GPIOs
     PinSetupAnalog(PParams->PGpio, PParams->SclPin);
@@ -64,7 +94,7 @@ void i2c_t::Resume() {
     else if (PParams->pi2c == I2C2) { rccEnableI2C2(FALSE); rccResetI2C2(); }
 #endif
 #ifdef I2C3
-    else if (ii2c == I2C3) { rccEnableI2C3(FALSE); rccResetI2C3(); }
+    else if (PParams->pi2c == I2C3) { rccEnableI2C3(FALSE); rccResetI2C3(); }
 #endif
 
     // Minimum clock is 2 MHz
@@ -96,25 +126,25 @@ uint8_t i2c_t::WriteRead(uint8_t Addr,
         uint8_t *WPtr, uint8_t WLength,
         uint8_t *RPtr, uint8_t RLength) {
 #if I2C_USE_SEMAPHORE
-    if(chBSemWait(&BSemaphore) != MSG_OK) return BUSY;
+    if(chBSemWait(&BSemaphore) != MSG_OK) return retvBusy;
 #endif
-    uint8_t Rslt = OK;
-    if(IBusyWait() != OK) { Rslt = BUSY; goto WriteReadEnd; }
+    uint8_t Rslt = retvOk;
+    if(IBusyWait() != retvOk) { Rslt = retvBusy; goto WriteReadEnd; }
     // Clear flags
     PParams->pi2c->SR1 = 0;
     while(RxIsNotEmpty()) (void)PParams->pi2c->DR;   // Read DR until it empty
     ClearAddrFlag();
     // Start transmission
     SendStart();
-    if(WaitEv5() != OK) { Rslt = FAILURE; goto WriteReadEnd; }
+    if(WaitEv5() != retvOk) { Rslt = retvFail; goto WriteReadEnd; }
     SendAddrWithWrite(Addr);
-    if(WaitEv6() != OK) { SendStop(); Rslt = FAILURE; goto WriteReadEnd; }
+    if(WaitEv6() != retvOk) { SendStop(); Rslt = retvFail; goto WriteReadEnd; }
     ClearAddrFlag();
     // Start TX DMA if needed
     if(WLength != 0) {
-        if(WaitEv8() != OK) { Rslt = FAILURE; goto WriteReadEnd; }
+        if(WaitEv8() != retvOk) { Rslt = retvFail; goto WriteReadEnd; }
         dmaStreamSetMemory0(PParams->PDmaTx, WPtr);
-        dmaStreamSetMode   (PParams->PDmaTx, I2C_DMATX_MODE);
+        dmaStreamSetMode   (PParams->PDmaTx, PParams->DmaModeTx);
         dmaStreamSetTransactionSize(PParams->PDmaTx, WLength);
         chSysLock();
         dmaStreamEnable(PParams->PDmaTx);
@@ -124,18 +154,18 @@ uint8_t i2c_t::WriteRead(uint8_t Addr,
     }
     // Read if needed
     if(RLength != 0) {
-        if(WaitEv8() != OK) { Rslt = FAILURE; goto WriteReadEnd; }
+        if(WaitEv8() != retvOk) { Rslt = retvFail; goto WriteReadEnd; }
         // Send repeated start
         SendStart();
-        if(WaitEv5() != OK) { Rslt = FAILURE; goto WriteReadEnd; }
+        if(WaitEv5() != retvOk) { Rslt = retvFail; goto WriteReadEnd; }
         SendAddrWithRead(Addr);
-        if(WaitEv6() != OK) { SendStop(); Rslt = FAILURE; goto WriteReadEnd; }
+        if(WaitEv6() != retvOk) { SendStop(); Rslt = retvFail; goto WriteReadEnd; }
         // If single byte is to be received, disable ACK before clearing ADDR flag
         if(RLength == 1) AckDisable();
         else AckEnable();
         ClearAddrFlag();
         dmaStreamSetMemory0(PParams->PDmaRx, RPtr);
-        dmaStreamSetMode   (PParams->PDmaRx, I2C_DMARX_MODE);
+        dmaStreamSetMode   (PParams->PDmaRx, PParams->DmaModeRx);
         dmaStreamSetTransactionSize(PParams->PDmaRx, RLength);
         SignalLastDmaTransfer(); // Inform DMA that this is last transfer => do not ACK last byte
         chSysLock();
@@ -157,25 +187,25 @@ uint8_t i2c_t::WriteWrite(uint8_t Addr,
         uint8_t *WPtr1, uint8_t WLength1,
         uint8_t *WPtr2, uint8_t WLength2) {
 #if I2C_USE_SEMAPHORE
-    if(chBSemWait(&BSemaphore) != MSG_OK) return BUSY;
+    if(chBSemWait(&BSemaphore) != MSG_OK) return retvBusy;
 #endif
-    uint8_t Rslt = OK;
-    if(IBusyWait() != OK) { Rslt = BUSY; goto WriteWriteEnd; }
+    uint8_t Rslt = retvOk;
+    if(IBusyWait() != retvOk) { Rslt = retvBusy; goto WriteWriteEnd; }
     // Clear flags
     PParams->pi2c->SR1 = 0;
     while(RxIsNotEmpty()) (void)PParams->pi2c->DR;   // Read DR until it empty
     ClearAddrFlag();
     // Start transmission
     SendStart();
-    if(WaitEv5() != OK) { Rslt = FAILURE; goto WriteWriteEnd; }
+    if(WaitEv5() != retvOk) { Rslt = retvFail; goto WriteWriteEnd; }
     SendAddrWithWrite(Addr);
-    if(WaitEv6() != OK) { SendStop(); Rslt = FAILURE; goto WriteWriteEnd; }
+    if(WaitEv6() != retvOk) { SendStop(); Rslt = retvFail; goto WriteWriteEnd; }
     ClearAddrFlag();
     // Start TX DMA if needed
     if(WLength1 != 0) {
-        if(WaitEv8() != OK) { Rslt = FAILURE; goto WriteWriteEnd; }
+        if(WaitEv8() != retvOk) { Rslt = retvFail; goto WriteWriteEnd; }
         dmaStreamSetMemory0(PParams->PDmaTx, WPtr1);
-        dmaStreamSetMode   (PParams->PDmaTx, I2C_DMATX_MODE);
+        dmaStreamSetMode   (PParams->PDmaTx, PParams->DmaModeTx);
         dmaStreamSetTransactionSize(PParams->PDmaTx, WLength1);
         chSysLock();
         dmaStreamEnable(PParams->PDmaTx);
@@ -184,9 +214,9 @@ uint8_t i2c_t::WriteWrite(uint8_t Addr,
         dmaStreamDisable(PParams->PDmaTx);
     }
     if(WLength2 != 0) {
-        if(WaitEv8() != OK) { Rslt = FAILURE; goto WriteWriteEnd; }
+        if(WaitEv8() != retvOk) { Rslt = retvFail; goto WriteWriteEnd; }
         dmaStreamSetMemory0(PParams->PDmaTx, WPtr2);
-        dmaStreamSetMode   (PParams->PDmaTx, I2C_DMATX_MODE);
+        dmaStreamSetMode   (PParams->PDmaTx, PParams->DmaModeTx);
         dmaStreamSetTransactionSize(PParams->PDmaTx, WLength2);
         chSysLock();
         dmaStreamEnable(PParams->PDmaTx);
@@ -205,11 +235,11 @@ uint8_t i2c_t::WriteWrite(uint8_t Addr,
 
 uint8_t i2c_t::CheckAddress(uint32_t Addr) {
 #if I2C_USE_SEMAPHORE
-    if(chBSemWait(&BSemaphore) != MSG_OK) return FAILURE;
+    if(chBSemWait(&BSemaphore) != MSG_OK) return retvFail;
 #endif
-    uint8_t Rslt = FAILURE;
-    if(IBusyWait() != OK) {
-        Rslt = BUSY;
+    uint8_t Rslt = retvFail;
+    if(IBusyWait() != retvOk) {
+        Rslt = retvBusy;
         Uart.Printf("i2cC Busy\r");
         goto ChckEnd;
     }
@@ -220,10 +250,10 @@ uint8_t i2c_t::CheckAddress(uint32_t Addr) {
     ClearAddrFlag();
     // Start transmission
     SendStart();
-    if(WaitEv5() == OK) {
+    if(WaitEv5() == retvOk) {
         SendAddrWithWrite(Addr);
-        if(WaitEv6() == OK) Rslt = OK;
-        else Rslt = NOT_FOUND;
+        if(WaitEv6() == retvOk) Rslt = retvOk;
+        else Rslt = retvNotFound;
     }
     SendStop();
     ChckEnd:
@@ -235,25 +265,25 @@ uint8_t i2c_t::CheckAddress(uint32_t Addr) {
 
 uint8_t i2c_t::Write(uint8_t Addr, uint8_t *WPtr1, uint8_t WLength1) {
 #if I2C_USE_SEMAPHORE
-    if(chBSemWait(&BSemaphore) != MSG_OK) return BUSY;
+    if(chBSemWait(&BSemaphore) != MSG_OK) return retvBusy;
 #endif
-    uint8_t Rslt = OK;
-    if(IBusyWait() != OK) { Rslt = BUSY; goto WriteEnd; }
+    uint8_t Rslt = retvOk;
+    if(IBusyWait() != retvOk) { Rslt = retvBusy; goto WriteEnd; }
     // Clear flags
     PParams->pi2c->SR1 = 0;
     while(RxIsNotEmpty()) (void)PParams->pi2c->DR;   // Read DR until it empty
     ClearAddrFlag();
     // Start transmission
     SendStart();
-    if(WaitEv5() != OK) { Rslt = FAILURE; goto WriteEnd; }
+    if(WaitEv5() != retvOk) { Rslt = retvFail; goto WriteEnd; }
     SendAddrWithWrite(Addr);
-    if(WaitEv6() != OK) { SendStop(); Rslt = FAILURE; goto WriteEnd; }
+    if(WaitEv6() != retvOk) { SendStop(); Rslt = retvFail; goto WriteEnd; }
     ClearAddrFlag();
     // Start TX DMA if needed
     if(WLength1 != 0) {
-        if(WaitEv8() != OK) { Rslt = FAILURE; goto WriteEnd; }
+        if(WaitEv8() != retvOk) { Rslt = retvFail; goto WriteEnd; }
         dmaStreamSetMemory0(PParams->PDmaTx, WPtr1);
-        dmaStreamSetMode   (PParams->PDmaTx, I2C_DMATX_MODE);
+        dmaStreamSetMode   (PParams->PDmaTx, PParams->DmaModeTx);
         dmaStreamSetTransactionSize(PParams->PDmaTx, WLength1);
         chSysLock();
         dmaStreamEnable(PParams->PDmaTx);
@@ -280,7 +310,7 @@ void i2c_t::ScanBus() {
             if(Addr <= 0x01 or Addr > 0x77) Uart.Printf("   ");
             else {
                 // Try to get response from addr
-                if(IBusyWait() != OK) {
+                if(IBusyWait() != retvOk) {
                     Uart.Printf("i2cBusyWait\r");
                     return;
                 }
@@ -290,9 +320,9 @@ void i2c_t::ScanBus() {
                 ClearAddrFlag();
                 // Start transmission
                 SendStart();
-                if(WaitEv5() != OK) continue;
+                if(WaitEv5() != retvOk) continue;
                 SendAddrWithWrite(Addr);
-                if(WaitEv6() == OK) Uart.Printf("%02X ", Addr);
+                if(WaitEv6() == retvOk) Uart.Printf("%02X ", Addr);
                 else Uart.Printf("__ ");
                 SendStop();
             }
@@ -302,66 +332,68 @@ void i2c_t::ScanBus() {
 }
 
 // ==== Flag operations ====
+#define RETRY_CNT_LONG      450
+#define RETRY_CNT_SHORT     450
 // Busy flag
 uint8_t i2c_t::IBusyWait() {
     uint8_t RetryCnt = 4;
     while(RetryCnt--) {
-        if(!(PParams->pi2c->SR2 & I2C_SR2_BUSY)) return OK;
+        if(!(PParams->pi2c->SR2 & I2C_SR2_BUSY)) return retvOk;
         chThdSleepMilliseconds(1);
     }
     Error = true;
-    return TIMEOUT;
+    return retvTimeout;
 }
 
 // BUSY, MSL & SB flags
 uint8_t i2c_t::WaitEv5() {
-    uint32_t RetryCnt = 450;
+    uint32_t RetryCnt = RETRY_CNT_LONG;
     while(RetryCnt--) {
         uint16_t Flag1 = PParams->pi2c->SR1;
         uint16_t Flag2 = PParams->pi2c->SR2;
-        if((Flag1 & I2C_SR1_SB) and (Flag2 & (I2C_SR2_MSL | I2C_SR2_BUSY))) return OK;
+        if((Flag1 & I2C_SR1_SB) and (Flag2 & (I2C_SR2_MSL | I2C_SR2_BUSY))) return retvOk;
     }
     Error = true;
-    return FAILURE;
+    return retvFail;
 }
 
 uint8_t i2c_t::WaitEv6() {
-    uint32_t RetryCnt = 45;
+    uint32_t RetryCnt = RETRY_CNT_SHORT;
     uint16_t Flag1;
     do {
         Flag1 = PParams->pi2c->SR1;
-        if((RetryCnt-- == 0) or (Flag1 & I2C_SR1_AF)) return FAILURE;   // Fail if timeout or NACK
+        if((RetryCnt-- == 0) or (Flag1 & I2C_SR1_AF)) return retvFail;   // Fail if timeout or NACK
     } while(!(Flag1 & I2C_SR1_ADDR)); // ADDR set when Address is sent and ACK received
-    return OK;
+    return retvOk;
 }
 
 uint8_t i2c_t::WaitEv8() {
-    uint32_t RetryCnt = 45;
+    uint32_t RetryCnt = RETRY_CNT_SHORT;
     while(RetryCnt--)
-        if(PParams->pi2c->SR1 & I2C_SR1_TXE) return OK;
+        if(PParams->pi2c->SR1 & I2C_SR1_TXE) return retvOk;
     Error = true;
-    return TIMEOUT;
+    return retvTimeout;
 }
 
 uint8_t i2c_t::WaitRx() {
-    uint32_t RetryCnt = 450;
+    uint32_t RetryCnt = RETRY_CNT_LONG;
     while(RetryCnt--)
-        if(PParams->pi2c->SR1 & I2C_SR1_RXNE) return OK;
-    return TIMEOUT;
+        if(PParams->pi2c->SR1 & I2C_SR1_RXNE) return retvOk;
+    return retvTimeout;
 }
 
 uint8_t i2c_t::WaitStop() {
-    uint32_t RetryCnt = 450;
+    uint32_t RetryCnt = RETRY_CNT_LONG;
     while(RetryCnt--)
-        if(PParams->pi2c->CR1 & I2C_CR1_STOP) return OK;
-    return TIMEOUT;
+        if(PParams->pi2c->CR1 & I2C_CR1_STOP) return retvOk;
+    return retvTimeout;
 }
 
 uint8_t i2c_t::WaitBTF() {
-    uint32_t RetryCnt = 450;
+    uint32_t RetryCnt = RETRY_CNT_LONG;
     while(RetryCnt--)
-        if(PParams->pi2c->SR1 & I2C_SR1_BTF) return OK;
-    return TIMEOUT;
+        if(PParams->pi2c->SR1 & I2C_SR1_BTF) return retvOk;
+    return retvTimeout;
 }
 #endif // MCU type
 
