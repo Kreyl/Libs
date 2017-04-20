@@ -283,17 +283,102 @@ void chDbgPanic(const char *msg1) {
 }
 #endif
 
-#ifdef FLASH_LIB_KL // ==================== FLASH & EEPROM =====================
+#if 1 // ================= FLASH & EEPROM ====================
 namespace Flash {
 
-uint8_t GetStatus() {
+static uint8_t GetBankStatus(void) {
+    if(FLASH->SR & FLASH_SR_BSY) return retvBusy;
+    else if(FLASH->SR & FLASH_SR_PGERR) return retvFail;
+    else if(FLASH->SR & FLASH_SR_WRPRTERR) return retvFail;
+    else return retvOk;
+}
+
+uint8_t WaitForLastOperation(uint32_t Timeout) {
+    uint8_t status = retvOk;
+    // Wait for a Flash operation to complete or a TIMEOUT to occur
+    do {
+        status = GetBankStatus();
+        Timeout--;
+    } while((status == retvBusy) and (Timeout != 0x00));
+    if(Timeout == 0x00) status = retvTimeout;
+    return status;
+}
+
+bool FirmwareIsLocked() {
+    return (FLASH->OBR & 0b0110);
+}
+
+void EnableOptionBytesWriting() {
+    FLASH->OPTKEYR = FLASH_OPTKEY1;
+    FLASH->OPTKEYR = FLASH_OPTKEY2;
+}
+void DisableOptionBytesWriting() {
+    CLEAR_BIT(FLASH->CR, FLASH_CR_OPTWRE);
+}
+
+void WriteOptionByteRDP(uint8_t Value) {
+    chSysLock();
+    Unlock();
+    ClearFlag(FLASH_SR_EOP | FLASH_SR_PGERR | FLASH_SR_WRPRTERR);   // Clear all pending flags
+    EnableOptionBytesWriting();
+    if(WaitForLastOperation(FLASH_ProgramTimeout) == retvOk) {
+        // Erase option bytes
+        SET_BIT(FLASH->CR, FLASH_CR_OPTER);
+        SET_BIT(FLASH->CR, FLASH_CR_STRT);
+        uint8_t Rslt = WaitForLastOperation(FLASH_ProgramTimeout);
+        CLEAR_BIT(FLASH->CR, FLASH_CR_OPTER);
+        if(Rslt == retvOk) {
+            SET_BIT(FLASH->CR, FLASH_CR_OPTPG); // Enable the Option Bytes Programming operation
+            OB->RDP = Value;
+            WaitForLastOperation(FLASH_ProgramTimeout);
+            CLEAR_BIT(FLASH->CR, FLASH_CR_OPTPG); // Disable the Option Bytes Programming operation
+        }
+    }
+    DisableOptionBytesWriting();
+    Lock();
+    chSysUnlock();
+}
+
+void LockFirmware() {
+    WriteOptionByteRDP(0x1D); // Any value except 0xAA or 0xCC
+    // Set the OBL_Launch bit to reset system and launch the option byte loading
+    SET_BIT(FLASH->CR, FLASH_CR_OBL_LAUNCH);
+}
+
+};
+
+#if defined STM32L151xB // ================= FLASH & EEPROM ====================
+#define EEPROM_BASE_ADDR    ((uint32_t)0x08080000)
+
+// ==== Flash keys ====
+#define FLASH_PDKEY1    ((uint32_t)0x04152637) // Flash power down key1
+// Flash power down key2: used with FLASH_PDKEY1 to unlock the RUN_PD bit in FLASH_ACR
+#define FLASH_PDKEY2    ((uint32_t)0xFAFBFCFD)
+#define FLASH_PEKEY1    ((uint32_t)0x89ABCDEF) // Flash program erase key1
+// Flash program erase key: used with FLASH_PEKEY2 to unlock the write access
+// to the FLASH_PECR register and data EEPROM
+#define FLASH_PEKEY2    ((uint32_t)0x02030405)
+#define FLASH_PRGKEY1   ((uint32_t)0x8C9DAEBF) // Flash program memory key1
+// Flash program memory key2: used with FLASH_PRGKEY2 to unlock the program memory
+#define FLASH_PRGKEY2   ((uint32_t)0x13141516)
+#ifndef FLASH_OPTKEY1
+#define FLASH_OPTKEY1   ((uint32_t)0xFBEAD9C8) // Flash option key1
+#endif
+// Flash option key2: used with FLASH_OPTKEY1 to unlock the write access to the option byte block
+#ifndef FLASH_OPTKEY2
+#define FLASH_OPTKEY2   ((uint32_t)0x24252627)
+#endif
+
+#define FLASH_WAIT_TIMEOUT  36000
+
+uint8_t FlashGetStatus() {
     if(FLASH->SR & FLASH_SR_BSY) return retvBusy;
     else if(FLASH->SR & FLASH_SR_WRPERR) return retvWriteProtect;
     else if(FLASH->SR & (uint32_t)0x1E00) return retvFail;
     else return retvOk;
 }
 
-uint8_t WaitForLastOperation() {
+uint8_t FlashWaitForLastOperation() {
     uint32_t Timeout = FLASH_WAIT_TIMEOUT;
     while(Timeout--) {
         // Get status
@@ -303,8 +388,7 @@ uint8_t WaitForLastOperation() {
     return retvTimeout;
 }
 
-#if defined STM32L151xB
-void UnlockEE() {
+void FlashUnlockEE() {
     if(FLASH->PECR & FLASH_PECR_PELOCK) {
         // Unlocking the Data memory and FLASH_PECR register access
         chSysLock();
@@ -316,9 +400,9 @@ void UnlockEE() {
     }
 }
 
-void LockEE() { FLASH->PECR |= FLASH_PECR_PELOCK; }
-#endif
-}; // namespace Flash
+void FlashLockEE() { FLASH->PECR |= FLASH_PECR_PELOCK; }
+
+uint32_t Eeprom_t::Read32(uint32_t Addr) { return *((uint32_t*)(Addr + EEPROM_BASE_ADDR)); }
 
 // Here not-fast write is used. I.e. interface will erase the word if it is not the same.
 uint8_t Eeprom_t::Write32(uint32_t Addr, uint32_t W) {
@@ -364,6 +448,8 @@ uint8_t Eeprom_t::WriteBuf(void *PSrc, uint32_t Sz, uint32_t Addr) {
 }
 
 #endif
+
+#endif // Flash & ee
 
 #if 1 // =========================== External IRQ ==============================
 // IRQ handlers
@@ -1096,6 +1182,7 @@ void __early_init(void) {
     while(!(RCC->CR & RCC_CR_HSIRDY));
     // SYSCFG clock enabled here because it is a multi-functional unit
     // shared among multiple drivers using external IRQs
+    // DMA depends on it, too
     rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, 1);
 }
 

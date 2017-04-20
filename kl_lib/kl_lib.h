@@ -63,6 +63,7 @@ Maybe, to calm Eclipse, it will be required to write extra quote in the end: "\"
 
 // Short type names
 typedef uint8_t u8;
+typedef uint8_t Byte;
 typedef int8_t  i8;
 typedef uint16_t u16;
 typedef int16_t i16;
@@ -169,6 +170,15 @@ static T FindMediana(T *Arr, int32_t N) {
         } while(i <= j);
     }
     return Arr[k];
+}
+
+/*
+ * Early initialization code.
+ * This initialization must be performed just after stack setup and before
+ * any other initialization.
+ */
+extern "C" {
+void __early_init(void);
 }
 
 namespace Convert { // ============== Conversion operations ====================
@@ -903,7 +913,7 @@ public:
 #endif // INDIVIDUAL_EXTI_IRQ_REQUIRED
     }
 
-    bool IsHi() { return PinIsHi(PGpio, PinN); }
+    bool IsHi() const { return PinIsHi(PGpio, PinN); }
 
     void SetTriggerType(ExtiTrigType_t ATriggerType) const {
         uint32_t IrqMsk = 1 << PinN;
@@ -938,6 +948,7 @@ public:
         } // switch
     }
 
+    // ttRising, ttFalling, ttRisingFalling
     void Init(ExtiTrigType_t ATriggerType) const {
         // Init pin as input
         PinSetupInput(PGpio, PinN, PullUpDown);
@@ -1153,35 +1164,39 @@ public:
 };
 #endif
 
-#if 1 // ====================== FLASH & EEPROM =================================
-#define FLASH_LIB_KL
-#define EEPROM_BASE_ADDR    ((uint32_t)0x08080000)
-// ==== Flash keys ====
-#define FLASH_PDKEY1    ((uint32_t)0x04152637) // Flash power down key1
-// Flash power down key2: used with FLASH_PDKEY1 to unlock the RUN_PD bit in FLASH_ACR
-#define FLASH_PDKEY2    ((uint32_t)0xFAFBFCFD)
-#define FLASH_PEKEY1    ((uint32_t)0x89ABCDEF) // Flash program erase key1
-// Flash program erase key: used with FLASH_PEKEY2 to unlock the write access
-// to the FLASH_PECR register and data EEPROM
-#define FLASH_PEKEY2    ((uint32_t)0x02030405)
-#define FLASH_PRGKEY1   ((uint32_t)0x8C9DAEBF) // Flash program memory key1
-// Flash program memory key2: used with FLASH_PRGKEY2 to unlock the program memory
-#define FLASH_PRGKEY2   ((uint32_t)0x13141516)
-#define FLASH_OPTKEY1   ((uint32_t)0xFBEAD9C8) // Flash option key1
-// Flash option key2: used with FLASH_OPTKEY1 to unlock the write access to the option byte block
-#define FLASH_OPTKEY2   ((uint32_t)0x24252627)
+#if 1 // ====================== Flash and Option bytes =========================
+//#define FLASH_KEY1              ((uint32_t)0x45670123)
+//#define FLASH_KEY2              ((uint32_t)0xCDEF89AB)
+#define FLASH_CR_LOCK_Set       ((uint32_t)0x00000080)
+#define FLASH_CR_PER_Set        ((uint32_t)0x00000002)
+#define FLASH_CR_PER_Reset      ((uint32_t)0x00001FFD)
+#define FLASH_CR_STRT_Set       ((uint32_t)0x00000040)
+#define FLASH_CR_PG_Set         ((uint32_t)0x00000001)
+#define FLASH_CR_PG_Reset       ((uint32_t)0x00001FFE)
+#define FLASH_EraseTimeout      ((uint32_t)0x000B0000)
+#define FLASH_ProgramTimeout    ((uint32_t)0x00002000)
 
-#define FLASH_WAIT_TIMEOUT  36000
 namespace Flash {
-    uint8_t GetStatus();
-    uint8_t WaitForLastOperation();
-    void UnlockEE();
-    void LockEE();
-}; // namespace
 
-class Eeprom_t {
-public:
-    uint32_t Read32(uint32_t Addr) { return *((uint32_t*)(Addr + EEPROM_BASE_ADDR)); }
+static inline void Unlock() {
+    FLASH->KEYR = FLASH_KEY1;
+    FLASH->KEYR = FLASH_KEY2;
+}
+static inline void Lock() { FLASH->CR |= FLASH_CR_LOCK_Set; }
+static inline void ClearFlag(uint32_t FlashFlag) { FLASH->SR = FlashFlag; }
+
+uint8_t WaitForLastOperation(uint32_t Timeout);
+
+bool FirmwareIsLocked();
+void LockFirmware();
+void UnlockFirmware();
+
+}; // Namespace
+#endif
+
+#if defined STM32L151xB // ====================== EEPROM =======================
+namespace EeIn {
+    uint32_t Read32(uint32_t Addr);
     uint8_t Write32(uint32_t Addr, uint32_t W);
     void ReadBuf(void *PDst, uint32_t Sz, uint32_t Addr);
     uint8_t WriteBuf(void *PSrc, uint32_t Sz, uint32_t Addr);
