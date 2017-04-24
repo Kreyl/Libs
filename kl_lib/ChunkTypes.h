@@ -87,7 +87,7 @@ protected:
                     break;
 
                 case csEnd:
-                    if(PThread != nullptr) chEvtSignalI(PThread, EvtEnd);
+//                    if(PThread != nullptr) chEvtSignalI(PThread, EvtEnd); // XXX
                     IPStartChunk = nullptr;
                     IPCurrentChunk = nullptr;
                     return;

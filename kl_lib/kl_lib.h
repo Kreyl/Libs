@@ -12,6 +12,7 @@
 #include "core_cmInstr.h"
 #include <cstdlib>
 #include <sys/cdefs.h>
+#include "EvtMsgIDs.h"
 
 /*
 Build time:
@@ -249,27 +250,11 @@ class TmrKL_t : private IrqHandler_t {
 private:
     virtual_timer_t Tmr;
     void StartI() { chVTSetI(&Tmr, Period, TmrKLCallback, this); }  // Will be reset before start
-    thread_t *PThread;
     systime_t Period;
-    eventmask_t EvtMsk;
+    EvtMsgId_t EvtId;
     TmrKLType_t TmrType;
-    void IIrqHandler() {    // Call it inside callback
-        chEvtSignalI(PThread, EvtMsk);
-        if(TmrType == tktPeriodic) StartI();
-    }
+    void IIrqHandler();
 public:
-    void InitAndStart(thread_t *APThread) {
-        PThread = APThread;
-        StartOrRestart();
-    }
-    void InitAndStart() {
-        PThread = chThdGetSelfX();
-        StartOrRestart();
-    }
-
-    void Init(thread_t *APThread) { PThread = APThread; }
-    void Init() { PThread = chThdGetSelfX(); }
-
     void StartOrRestart() {
         chSysLock();
         StartI();
@@ -291,11 +276,11 @@ public:
     void SetNewPeriod_ms(uint32_t NewPeriod) { Period = MS2ST(NewPeriod); }
     void SetNewPeriod_s(uint32_t NewPeriod) { Period = S2ST(NewPeriod); }
 
-    TmrKL_t(systime_t APeriod, eventmask_t AEvtMsk, TmrKLType_t AType) :
-        PThread(nullptr), Period(APeriod), EvtMsk(AEvtMsk), TmrType(AType) {}
+    TmrKL_t(systime_t APeriod, EvtMsgId_t AEvtId, TmrKLType_t AType) :
+        Period(APeriod), EvtId(AEvtId), TmrType(AType) {}
     // Dummy period is set
-    TmrKL_t(eventmask_t AEvtMsk, TmrKLType_t AType) :
-            PThread(nullptr), Period(S2ST(9)), EvtMsk(AEvtMsk), TmrType(AType) {}
+    TmrKL_t(EvtMsgId_t AEvtId, TmrKLType_t AType) :
+            Period(S2ST(9)), EvtId(AEvtId), TmrType(AType) {}
 };
 #endif
 
@@ -1066,7 +1051,10 @@ static inline void EnableWakeup1Pin()  { PWR->CR3 |=  PWR_CR3_EWUP1; }
 static inline void DisableWakeup1Pin() { PWR->CR3 &= ~PWR_CR3_EWUP1; }
 static inline void EnableWakeup2Pin()  { PWR->CR3 |=  PWR_CR3_EWUP2; }
 static inline void DisableWakeup2Pin() { PWR->CR3 &= ~PWR_CR3_EWUP2; }
-#elif defined STM32F2XX
+static inline bool WasInStandby()      { return (PWR->SR1 & PWR_SR1_SBF); }
+static inline void ClearStandbyFlag()  { PWR->SCR |= PWR_SCR_CSBF; }
+#else
+#if defined STM32F2XX
 static inline void EnableWakeupPin()  { PWR->CSR |=  PWR_CSR_EWUP; }
 static inline void DisableWakeupPin() { PWR->CSR &= ~PWR_CSR_EWUP; }
 #else
@@ -1077,6 +1065,7 @@ static inline void DisableWakeup2Pin() { PWR->CSR &= ~PWR_CSR_EWUP2; }
 #endif
 static inline bool WasInStandby() { return (PWR->CSR & PWR_CSR_SBF); }
 static inline void ClearStandbyFlag() { PWR->CR |= PWR_CR_CSBF; }
+#endif
 
 }; // namespace
 #endif
@@ -1165,8 +1154,12 @@ public:
 #endif
 
 #if 1 // ====================== Flash and Option bytes =========================
-//#define FLASH_KEY1              ((uint32_t)0x45670123)
-//#define FLASH_KEY2              ((uint32_t)0xCDEF89AB)
+#ifndef FLASH_KEY1
+#define FLASH_KEY1              ((uint32_t)0x45670123)
+#endif
+#ifndef FLASH_KEY2
+#define FLASH_KEY2              ((uint32_t)0xCDEF89AB)
+#endif
 #define FLASH_CR_LOCK_Set       ((uint32_t)0x00000080)
 #define FLASH_CR_PER_Set        ((uint32_t)0x00000002)
 #define FLASH_CR_PER_Reset      ((uint32_t)0x00001FFD)

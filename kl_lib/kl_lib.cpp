@@ -5,11 +5,10 @@
  *      Author: kreyl
  */
 
-#include "kl_lib.h"
+#include "shell.h"
 #include <stdarg.h>
 #include <string.h>
-#include "uart.h"
-#include "main.h"   // App is there
+#include "MsgQ.h"
 
 #if 1 // ============================ General ==================================
 // To replace standard error handler in case of virtual methods implementation
@@ -271,6 +270,11 @@ void TmrKLCallback(void *p) {
     ((IrqHandler_t*)p)->IIrqHandler();
     chSysUnlockFromISR();
 }
+
+void TmrKL_t::IIrqHandler() {    // Call it inside callback
+    MainEvtQ.SendNowOrExitI(EvtId);
+    if(TmrType == tktPeriodic) StartI();
+}
 #endif
 
 #if CH_DBG_ENABLED // ========================= DEBUG ==========================
@@ -288,8 +292,13 @@ namespace Flash {
 
 static uint8_t GetBankStatus(void) {
     if(FLASH->SR & FLASH_SR_BSY) return retvBusy;
+#ifdef STM32L4XX
+    else if(FLASH->SR & FLASH_SR_PROGERR) return retvFail;
+    else if(FLASH->SR & FLASH_SR_WRPERR) return retvFail;
+#else
     else if(FLASH->SR & FLASH_SR_PGERR) return retvFail;
     else if(FLASH->SR & FLASH_SR_WRPRTERR) return retvFail;
+#endif
     else return retvOk;
 }
 
@@ -305,23 +314,42 @@ uint8_t WaitForLastOperation(uint32_t Timeout) {
 }
 
 bool FirmwareIsLocked() {
+#ifdef STM32L4XX
+    return (FLASH->OPTR & 0xFF) != 0xAA;
+#else
     return (FLASH->OBR & 0b0110);
+#endif
 }
 
 void EnableOptionBytesWriting() {
+#ifdef STM32L4XX
+    FLASH->OPTKEYR = 0x08192A3B;
+    FLASH->OPTKEYR = 0x4C5D6E7F;
+#else
     FLASH->OPTKEYR = FLASH_OPTKEY1;
     FLASH->OPTKEYR = FLASH_OPTKEY2;
+#endif
 }
 void DisableOptionBytesWriting() {
+#ifdef STM32L4XX
+    FLASH->CR |= FLASH_CR_OPTLOCK;
+#else
     CLEAR_BIT(FLASH->CR, FLASH_CR_OPTWRE);
+#endif
 }
 
 void WriteOptionByteRDP(uint8_t Value) {
     chSysLock();
     Unlock();
-    ClearFlag(FLASH_SR_EOP | FLASH_SR_PGERR | FLASH_SR_WRPRTERR);   // Clear all pending flags
+    // Clear all pending flags
+#ifdef STM32L4XX
+    ClearFlag(FLASH_SR_EOP | FLASH_SR_PROGERR | FLASH_SR_WRPERR);
+#else
+    ClearFlag(FLASH_SR_EOP | FLASH_SR_PGERR | FLASH_SR_WRPRTERR);
+#endif
     EnableOptionBytesWriting();
     if(WaitForLastOperation(FLASH_ProgramTimeout) == retvOk) {
+#ifndef STM32L4XX   // Not implemented for STM32L4xx
         // Erase option bytes
         SET_BIT(FLASH->CR, FLASH_CR_OPTER);
         SET_BIT(FLASH->CR, FLASH_CR_STRT);
@@ -333,6 +361,7 @@ void WriteOptionByteRDP(uint8_t Value) {
             WaitForLastOperation(FLASH_ProgramTimeout);
             CLEAR_BIT(FLASH->CR, FLASH_CR_OPTPG); // Disable the Option Bytes Programming operation
         }
+#endif
     }
     DisableOptionBytesWriting();
     Lock();
@@ -479,7 +508,7 @@ void Vector58() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
     if(ExtiIrqHandler[0] != nullptr) ExtiIrqHandler[0]->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
     EXTI_PENDING_REG = 0x0001; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
@@ -490,7 +519,7 @@ void Vector5C() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
     if(ExtiIrqHandler[1] != nullptr) ExtiIrqHandler[1]->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
     EXTI_PENDING_REG = 0x0002; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
@@ -501,7 +530,7 @@ void Vector60() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
     if(ExtiIrqHandler[2] != nullptr) ExtiIrqHandler[2]->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
     EXTI_PENDING_REG = 0x0004; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
@@ -512,7 +541,7 @@ void Vector64() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
     if(ExtiIrqHandler[3] != nullptr) ExtiIrqHandler[3]->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
     EXTI_PENDING_REG = 0x0008; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
@@ -523,7 +552,7 @@ void Vector68() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
     if(ExtiIrqHandler[4] != nullptr) ExtiIrqHandler[4]->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
     EXTI_PENDING_REG = 0x0010; // Clean IRQ flags
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
@@ -539,7 +568,7 @@ void Vector9C() {
     }
 #else
     if(ExtiIrqHandler_9_5 != nullptr) ExtiIrqHandler_9_5->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
 #endif
     EXTI_PENDING_REG = 0x03E0; // Clean IRQ flags
     chSysUnlockFromISR();
@@ -556,7 +585,7 @@ void VectorE0() {
     }
 #else
     if(ExtiIrqHandler_15_10 != nullptr) ExtiIrqHandler_15_10->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
 #endif
     EXTI_PENDING_REG = 0xFC00; // Clean IRQ flags
     chSysUnlockFromISR();
@@ -1507,7 +1536,7 @@ void Clk_t::UpdateFreqValues() {
 }
 
 void Clk_t::PrintFreqs() {
-    Uart.Printf(
+    Printf(
             "AHBFreq=%uMHz; APB1Freq=%uMHz; APB2Freq=%uMHz\r",
             Clk.AHBFreqHz/1000000, Clk.APB1FreqHz/1000000, Clk.APB2FreqHz/1000000);
 }
@@ -1607,7 +1636,7 @@ uint8_t Clk_t::SetupPllSai1(uint32_t N, uint32_t R, uint32_t P) {
     uint32_t t = 45000;
     while(READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) != 0) {
         if(t-- == 0) {
-            Uart.Printf("Sai1Off Timeout %X\r", RCC->CR);
+            Printf("Sai1Off Timeout %X\r", RCC->CR);
             return retvFail;
         }
     }
@@ -1621,7 +1650,7 @@ uint8_t Clk_t::SetupPllSai1(uint32_t N, uint32_t R, uint32_t P) {
     t = 45000;
     while(READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) == 0) {
         if(t-- == 0) {
-            Uart.Printf("SaiOn Timeout %X\r", RCC->CR);
+            Printf("SaiOn Timeout %X\r", RCC->CR);
             return retvFail;
         }
     }

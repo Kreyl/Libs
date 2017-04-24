@@ -9,7 +9,7 @@
 
 #include "inttypes.h"
 #include <sys/cdefs.h>
-#include "uart.h"
+#include "shell.h"
 
 #define LUM_MAX     100
 
@@ -113,7 +113,7 @@ struct Color_t {
         Delay2 = (Lum == AClr.Lum)? 0 : ClrCalcDelay(Lum, SmoothValue);
         return (Delay2 > Delay)? Delay2 : Delay;
     }
-    void Print() { Uart.Printf("{%u, %u, %u; %u}\r", R, G, B, Lum); }
+    void Print() { Printf("{%u, %u, %u; %u}\r", R, G, B, Lum); }
     Color_t() : R(0), G(0), B(0), Lum(LUM_MAX) {}
     Color_t(uint8_t AR, uint8_t AG, uint8_t AB) : R(AR), G(AG), B(AB), Lum(LUM_MAX) {}
     Color_t(uint8_t AR, uint8_t AG, uint8_t AB, uint8_t ALum) : R(AR), G(AG), B(AB), Lum(ALum) {}

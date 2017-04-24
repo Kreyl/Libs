@@ -13,13 +13,28 @@ struct i2cParams_t {
     // DMA
     const stm32_dma_stream_t *PDmaTx;
     const stm32_dma_stream_t *PDmaRx;
-    uint32_t DmaModeTx, DmaModeRx;
 };
 
 /* Example:
  * i2c_t i2c (I2C_ACC, ACC_I2C_GPIO, ACC_I2C_SCL_PIN, ACC_I2C_SDA_PIN,
  * 400000, I2C_ACC_DMA_TX, I2C_ACC_DMA_RX );
  */
+
+#define I2C_DMATX_MODE  STM32_DMA_CR_CHSEL(DmaChnl) |   \
+                        DMA_PRIORITY_LOW | \
+                        STM32_DMA_CR_MSIZE_BYTE | \
+                        STM32_DMA_CR_PSIZE_BYTE | \
+                        STM32_DMA_CR_MINC |     /* Memory pointer increase */ \
+                        STM32_DMA_CR_DIR_M2P |  /* Direction is memory to peripheral */ \
+                        STM32_DMA_CR_TCIE       /* Enable Transmission Complete IRQ */
+
+#define I2C_DMARX_MODE  STM32_DMA_CR_CHSEL(DmaChnl) |   \
+                        DMA_PRIORITY_LOW | \
+                        STM32_DMA_CR_MSIZE_BYTE | \
+                        STM32_DMA_CR_PSIZE_BYTE | \
+                        STM32_DMA_CR_MINC |         /* Memory pointer increase */ \
+                        STM32_DMA_CR_DIR_P2M |      /* Direction is peripheral to memory */ \
+                        STM32_DMA_CR_TCIE           /* Enable Transmission Complete IRQ */
 
 class i2c_t {
 private:
