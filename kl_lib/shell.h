@@ -122,6 +122,7 @@ public:
 
 // Functions
 void Printf(const char *format, ...);
+void PrintfI(const char *format, ...);
 void PrintfEOL();
 //void PrintfNow(const char *format, ...);
 

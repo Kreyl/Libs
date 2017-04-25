@@ -13,6 +13,15 @@ extern CmdUart_t Uart;
 void Printf(const char *format, ...) {
     va_list args;
     va_start(args, format);
+    chSysLock();
+    Uart.IVsPrintf(format, args);
+    chSysUnlock();
+    va_end(args);
+}
+
+void PrintfI(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
     Uart.IVsPrintf(format, args);
     va_end(args);
 }

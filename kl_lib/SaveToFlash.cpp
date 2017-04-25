@@ -20,7 +20,7 @@ __attribute__ ((section("MyFlash2")))
 const uint32_t IData2[(FLASH_PAGE_SIZE/4)] = { 0xCA115EA1 };
 #endif
 
-
+#error "Replace With same from Libs"
 static uint8_t ErasePage(uint32_t PageAddress) {
     uint8_t status = Flash::WaitForLastOperation(FLASH_EraseTimeout);
     if(status == retvOk) {
@@ -53,6 +53,7 @@ static uint8_t ProgramWord(uint32_t Address, uint32_t Data) {
     return status;
 }
 
+// Switch to Flash::ProgBuf
 static uint8_t SaveCommon(uint32_t *ptr, uint32_t ByteSz, uint32_t Addr) {
 //    Uart.Printf("SaveCommon: Sz %u; Addr %08X\r", ByteSz, Addr);
     uint8_t status = retvOk;

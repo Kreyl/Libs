@@ -1,21 +1,25 @@
 #include "uart.h"
 #include "kl_i2c.h"
 
-#if defined STM32L1XX || defined STM32F2XX
-#define I2C_DMATX_MODE  DMA_PRIORITY_LOW | \
+#define I2C_DMATX_MODE(Chnl) \
+                        STM32_DMA_CR_CHSEL(Chnl) |   \
+                        DMA_PRIORITY_LOW | \
                         STM32_DMA_CR_MSIZE_BYTE | \
                         STM32_DMA_CR_PSIZE_BYTE | \
                         STM32_DMA_CR_MINC |     /* Memory pointer increase */ \
                         STM32_DMA_CR_DIR_M2P |  /* Direction is memory to peripheral */ \
                         STM32_DMA_CR_TCIE       /* Enable Transmission Complete IRQ */
 
-#define I2C_DMARX_MODE  DMA_PRIORITY_LOW | \
+#define I2C_DMARX_MODE(Chnl) \
+                        STM32_DMA_CR_CHSEL(Chnl) |   \
+                        DMA_PRIORITY_LOW | \
                         STM32_DMA_CR_MSIZE_BYTE | \
                         STM32_DMA_CR_PSIZE_BYTE | \
                         STM32_DMA_CR_MINC |         /* Memory pointer increase */ \
                         STM32_DMA_CR_DIR_P2M |      /* Direction is peripheral to memory */ \
                         STM32_DMA_CR_TCIE           /* Enable Transmission Complete IRQ */
 
+#if defined STM32L1XX || defined STM32F2XX
 #if defined STM32F2XX
 #define I2C1_DMA_CHNL   1
 #define I2C2_DMA_CHNL   7
@@ -25,12 +29,12 @@
 #if I2C1_ENABLED
 static const i2cParams_t I2C1Params = {
         I2C1,
-        I2C1_GPIO, I2C1_SCL, I2C1_SDA, I2C1_AF,
+        I2C1_GPIO, I2C1_SCL, I2C1_SDA,
         I2C1_BAUDRATE,
         I2C1_DMA_TX,
         I2C1_DMA_RX,
-        (I2C_DMATX_MODE | STM32_DMA_CR_CHSEL(I2C1_DMA_CHNL)),
-        (I2C_DMARX_MODE | STM32_DMA_CR_CHSEL(I2C1_DMA_CHNL))
+        I2C_DMATX_MODE(I2C1_DMA_CHNL),
+        I2C_DMARX_MODE(I2C1_DMA_CHNL)
 };
 i2c_t i2c1 {&I2C1Params};
 #endif
@@ -38,7 +42,7 @@ i2c_t i2c1 {&I2C1Params};
 #if I2C2_ENABLED
 static const i2cParams_t I2C2Params = {
         I2C2,
-        I2C2_GPIO, I2C2_SCL, I2C2_SDA, I2C2_AF,
+        I2C2_GPIO, I2C2_SCL, I2C2_SDA,
         I2C2_BAUDRATE,
         I2C2_DMA_TX,
         I2C2_DMA_RX,
@@ -86,8 +90,17 @@ void i2c_t::Standby() {
 void i2c_t::Resume() {
     Error = false;
     // ==== GPIOs ====
-    PinSetupAlterFunc(PParams->PGpio, PParams->SclPin, omOpenDrain, pudNone, PParams->PinAF);
-    PinSetupAlterFunc(PParams->PGpio, PParams->SdaPin, omOpenDrain, pudNone, PParams->PinAF);
+    AlterFunc_t PinAF;
+#if defined STM32L1XX
+    PinAF = AF4; // for all I2Cs everywhere
+//#elif defined STM32F0XX
+//    PinAF = AF4;
+#else
+#error "I2C AF not defined"
+#endif
+
+    PinSetupAlterFunc(PParams->PGpio, PParams->SclPin, omOpenDrain, pudNone, PinAF);
+    PinSetupAlterFunc(PParams->PGpio, PParams->SdaPin, omOpenDrain, pudNone, PinAF);
     // ==== Clock and reset ====
     if(PParams->pi2c == I2C1) { rccEnableI2C1(FALSE); rccResetI2C1(); }
 #ifdef I2C2
@@ -240,7 +253,7 @@ uint8_t i2c_t::CheckAddress(uint32_t Addr) {
     uint8_t Rslt = retvFail;
     if(IBusyWait() != retvOk) {
         Rslt = retvBusy;
-        Uart.Printf("i2cC Busy\r");
+        Printf("i2cC Busy\r");
         goto ChckEnd;
     }
     IReset(); // Reset I2C
@@ -301,17 +314,17 @@ uint8_t i2c_t::Write(uint8_t Addr, uint8_t *WPtr1, uint8_t WLength1) {
 }
 
 void i2c_t::ScanBus() {
-    Uart.Printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
+    Printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
     uint8_t AddrHi, Addr;
     for(AddrHi = 0; AddrHi < 0x80; AddrHi += 0x10) {
-        Uart.Printf("\r%02X: ", AddrHi);
+        Printf("\r%02X: ", AddrHi);
         for(uint8_t n=0; n<0x10; n++) {
             Addr = AddrHi + n;
-            if(Addr <= 0x01 or Addr > 0x77) Uart.Printf("   ");
+            if(Addr <= 0x01 or Addr > 0x77) Printf("   ");
             else {
                 // Try to get response from addr
                 if(IBusyWait() != retvOk) {
-                    Uart.Printf("i2cBusyWait\r");
+                    Printf("i2cBusyWait\r");
                     return;
                 }
                 // Clear flags
@@ -322,13 +335,13 @@ void i2c_t::ScanBus() {
                 SendStart();
                 if(WaitEv5() != retvOk) continue;
                 SendAddrWithWrite(Addr);
-                if(WaitEv6() == retvOk) Uart.Printf("%02X ", Addr);
-                else Uart.Printf("__ ");
+                if(WaitEv6() == retvOk) Printf("%02X ", Addr);
+                else Printf("__ ");
                 SendStop();
             }
         } // for n
     } // for AddrHi
-    Uart.Printf("\r");
+    PrintfEOL();
 }
 
 // ==== Flag operations ====

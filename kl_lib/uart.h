@@ -102,7 +102,7 @@ public:
     }
 };
 
-#define BYTE_UART_EN    TRUE
+#define BYTE_UART_EN    FALSE
 #if BYTE_UART_EN
 class ByteUart_t : public BaseUart_t, public ByteShell_t {
 //private:

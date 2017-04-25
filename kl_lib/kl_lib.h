@@ -508,12 +508,12 @@ enum AlterFunc_t {
 };
 
 // Set/clear
-#if defined STM32L1XX || defined STM32F4XX || defined STM32F042x6
+#if defined STM32F4XX || defined STM32F042x6
 __always_inline
 static inline void PinSetHi(GPIO_TypeDef *PGpio, uint16_t APin) { PGpio->BSRRL = (1 << APin); }
 __always_inline
 static inline void PinSetLo(GPIO_TypeDef *PGpio, uint16_t APin) { PGpio->BSRRH = (1 << APin); }
-#elif defined STM32F2XX
+#elif defined STM32F2XX || defined STM32L1XX
 __always_inline
 static inline void PinSetHi(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BSRR = 1 << APin; }
 __always_inline
@@ -1153,42 +1153,22 @@ public:
 };
 #endif
 
-#if 1 // ====================== Flash and Option bytes =========================
-#ifndef FLASH_KEY1
-#define FLASH_KEY1              ((uint32_t)0x45670123)
-#endif
-#ifndef FLASH_KEY2
-#define FLASH_KEY2              ((uint32_t)0xCDEF89AB)
-#endif
-#define FLASH_CR_LOCK_Set       ((uint32_t)0x00000080)
-#define FLASH_CR_PER_Set        ((uint32_t)0x00000002)
-#define FLASH_CR_PER_Reset      ((uint32_t)0x00001FFD)
-#define FLASH_CR_STRT_Set       ((uint32_t)0x00000040)
-#define FLASH_CR_PG_Set         ((uint32_t)0x00000001)
-#define FLASH_CR_PG_Reset       ((uint32_t)0x00001FFE)
-#define FLASH_EraseTimeout      ((uint32_t)0x000B0000)
-#define FLASH_ProgramTimeout    ((uint32_t)0x00002000)
-
+// =========================== Flash and Option bytes ==========================
 namespace Flash {
 
-static inline void Unlock() {
-    FLASH->KEYR = FLASH_KEY1;
-    FLASH->KEYR = FLASH_KEY2;
-}
-static inline void Lock() { FLASH->CR |= FLASH_CR_LOCK_Set; }
-static inline void ClearFlag(uint32_t FlashFlag) { FLASH->SR = FlashFlag; }
+uint8_t ErasePage(uint32_t PageAddress);
+uint8_t ProgramWord(uint32_t Address, uint32_t Data);
 
-uint8_t WaitForLastOperation(uint32_t Timeout);
+uint8_t ProgramBuf(void *PData, uint32_t ByteSz, uint32_t Addr);
 
 bool FirmwareIsLocked();
 void LockFirmware();
 void UnlockFirmware();
 
 }; // Namespace
-#endif
 
-#if defined STM32L151xB // ====================== EEPROM =======================
-namespace EeIn {
+#if defined STM32L1XX // =================== Internal EEPROM ===================
+namespace EE {
     uint32_t Read32(uint32_t Addr);
     uint8_t Write32(uint32_t Addr, uint32_t W);
     void ReadBuf(void *PDst, uint32_t Sz, uint32_t Addr);
@@ -1230,6 +1210,7 @@ enum PllMul_t {
     pllMul48= 0b1000,
 };
 
+enum PllSrc_t {pllSrcHSI16, pllSrcHSE};
 enum PllDiv_t {pllDiv2=0b01, pllDiv3=0b10, pllDiv4=0b11};
 
 enum AHBDiv_t {
@@ -1272,7 +1253,11 @@ public:
         RCC->ICSCR = tmp;
     }
     void SetupBusDividers(AHBDiv_t AHBDiv, APBDiv_t APB1Div, APBDiv_t APB2Div);
-    uint8_t SetupPLLMulDiv(PllMul_t PllMul, PllDiv_t PllDiv);
+    uint8_t SetupPLLDividers(PllMul_t PllMul, PllDiv_t PllDiv);
+    void SetupPLLSrc(PllSrc_t Src) {
+        if(Src == pllSrcHSI16) RCC->CFGR &= ~RCC_CFGR_PLLSRC;
+        else RCC->CFGR |= RCC_CFGR_PLLSRC;
+    }
     void UpdateFreqValues();
     //void UpdateSysTick() { SysTick->LOAD = AHBFreqHz / CH_FREQUENCY - 1; }
     void SetupFlashLatency(uint8_t AHBClk_MHz);
@@ -1293,6 +1278,11 @@ public:
         RCC->APB1ENR |= RCC_APB1ENR_PWREN;
         PWR->CR |= PWR_CR_DBP;
         RCC->CSR &= ~RCC_CSR_LSEON;
+    }
+
+    void EnablePrefetch() {
+        FLASH->ACR |= FLASH_ACR_ACC64;  // Enable 64-bit access
+        FLASH->ACR |= FLASH_ACR_PRFTEN; // May be written only when ACC64 is already set
     }
 
     void PrintFreqs();

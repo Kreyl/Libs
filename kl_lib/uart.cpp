@@ -33,8 +33,11 @@
 #if defined STM32L4XX
 #define UART_TX_REG     TDR
 #define UART_RX_REG     RDR
+#elif defined STM32L1XX
+#define UART_TX_REG     DR
+#define UART_RX_REG     DR
 #else
-#error "Not implemented"
+#error "Not defined"
 #endif
 
 // PutChar functions
@@ -109,9 +112,9 @@ void Uart_t::IStartTransmissionIfNotYet() { }
 
 uint8_t BaseUart_t::IPutByteNow(uint8_t b) {
 #if defined STM32L1XX || defined STM32F2XX || defined STM32F4XX || defined STM32F10X_LD_VL
-    while(!(UART->SR & USART_SR_TXE));
-    UART_TX_REG = c;
-    while(!(UART->SR & USART_SR_TXE));
+    while(!(Params->Uart->SR & USART_SR_TXE));
+    Params->Uart->UART_TX_REG = b;
+    while(!(Params->Uart->SR & USART_SR_TXE));
 #elif defined STM32F0XX || defined STM32L4XX
     while(!(Params->Uart->ISR & USART_ISR_TXE));
     Params->Uart->UART_TX_REG = b;
@@ -146,7 +149,7 @@ uint8_t BaseUart_t::GetByte(uint8_t *b) {
 void BaseUart_t::Init(uint32_t ABaudrate) {
     AlterFunc_t PinAF;
     // ==== Tx pin ====
-#if defined STM32L4XX
+#if defined STM32L4XX || defined STM32L1XX
     PinAF = AF7; // for all USARTs
 #else
 #error "UART AF not defined"
@@ -199,7 +202,7 @@ void BaseUart_t::Init(uint32_t ABaudrate) {
     Params->Uart->CR1 = USART_CR1_TE | USART_CR1_RE;        // TX & RX enable
     Params->Uart->CR3 = USART_CR3_DMAT | USART_CR3_DMAR;    // Enable DMA at TX & RX
     // ==== Rx pin ====
-#if defined STM32L4XX
+#if defined STM32L4XX || defined STM32L1XX
     PinAF = AF7; // for all USARTs
 #else
 #error "UART AF not defined"
@@ -281,7 +284,8 @@ void CmdUart_t::IRxTask() {
     uint8_t b;
     while(GetByte(&b) == retvOk) {
         if(Cmd.PutChar(b) == pdrNewCmd) {
-            CmdProcessInProgress = (MainEvtQ.SendNowOrExit({evtIdShellCmd, (Shell_t*)this}) == retvOk);
+            EvtMsg_t Msg(evtIdShellCmd, (Shell_t*)this);
+            CmdProcessInProgress = (MainEvtQ.SendNowOrExit(Msg) == retvOk);
         }
     }
 }
