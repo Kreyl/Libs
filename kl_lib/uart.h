@@ -71,7 +71,7 @@ protected:
     {}
 public:
     void Init(uint32_t ABaudrate);
-    void DeInit();
+    void Shutdown();
     void OnClkChange();
 #if UART_USE_DMA
     void FlushTx() { while(!IDmaIsIdle) chThdSleepMilliseconds(1); }  // wait DMA
@@ -102,7 +102,7 @@ public:
     }
 };
 
-#define BYTE_UART_EN    FALSE
+#define BYTE_UART_EN    TRUE
 #if BYTE_UART_EN
 class ByteUart_t : public BaseUart_t, public ByteShell_t {
 //private:

@@ -7,13 +7,10 @@
 
 #include "buttons.h"
 #include "ch.h"
-#include "evt_mask.h"
 #include "uart.h"
-#include "main.h" // App.Thread is here
+#include "MsgQ.h"
 
-#if SIMPLESENSORS_ENABLED
-
-CircBuf_t<BtnEvtInfo_t, BTNS_EVT_Q_LEN> EvtBuf;
+#if BUTTONS_ENABLED
 
 #if BTN_GETSTATE_REQUIRED
 static PinSnsState_t IBtnState[BUTTONS_CNT];
@@ -34,7 +31,7 @@ static systime_t RepeatTimer;
 #if BTN_COMBO
     bool IsCombo;
 #endif
-static void AddEvtToQueue(BtnEvtInfo_t Evt);
+static void AddEvtToQueue(BtnEvtInfo_t &Evt);
 static void AddEvtToQueue(BtnEvt_t AType, uint8_t KeyIndx);
 
 // ========================= Postprocessor for PinSns ==========================
@@ -142,29 +139,21 @@ void ProcessButtons(PinSnsState_t *BtnState, uint32_t Len) {
 }
 
 __unused
-void AddEvtToQueue(BtnEvtInfo_t Evt) {
-    chSysLock();
-    EvtBuf.Put(&Evt);
-    App.SignalEvtI(EVT_BUTTONS);
-    chSysUnlock();
+void AddEvtToQueue(BtnEvtInfo_t &Evt) {
+    EvtMsg_t Msg(evtIdButtons);
+    Msg.BtnEvtInfo = Evt;
+    EvtQMain.SendNowOrExit(Msg);
 }
 
 void AddEvtToQueue(BtnEvt_t AType, uint8_t KeyIndx) {
-    BtnEvtInfo_t IEvt;
-    IEvt.Type = AType;
+    EvtMsg_t Msg(evtIdButtons);
+    Msg.BtnEvtInfo.Type = AType;
 #if BTN_COMBO
-    IEvt.BtnCnt = 1;
-    IEvt.BtnID[0] = KeyIndx;
+    Msg.BtnEvtInfo.BtnCnt = 1;
+    Msg.BtnEvtInfo.BtnID[0] = KeyIndx;
 #elif BUTTONS_CNT != 1
-    IEvt.BtnID = KeyIndx;
+    Msg.BtnEvtInfo.BtnID = KeyIndx;
 #endif
-    chSysLock();
-    EvtBuf.Put(&IEvt);
-    App.SignalEvtI(EVT_BUTTONS);
-    chSysUnlock();
-}
-
-uint8_t BtnGetEvt(BtnEvtInfo_t *PEvt) {
-    return(EvtBuf.Get(PEvt));
+    EvtQMain.SendNowOrExit(Msg);
 }
 #endif

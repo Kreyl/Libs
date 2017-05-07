@@ -53,43 +53,50 @@ static inline void Lvl250ToLvl1000(uint16_t *PLvl) {
 
 #endif
 
+#define CC_TX_PWR   CC_PwrPlus5dBm
+
 #if 1 // =========================== Pkt_t =====================================
-union rPkt_t  {
+union rPktHost2Dev_t  {
+    uint32_t DWord[4];
     struct {
-        uint32_t DWord;
-        uint8_t b;
+        int16_t ID;
+        uint8_t CmdID;
+        uint16_t Values[3];
     } __packed;
-    // Real data
-    struct {
-        union {
-            // Host to Device
-            struct {
-                uint8_t ParamID;
-                uint8_t ParamValue;
-            } __packed;
-        } __packed;
-        // Common
-        uint8_t ID;
-    } __packed;
-    rPkt_t() : DWord(0) { }
-    rPkt_t(uint8_t AID, uint8_t AParamID, uint8_t AParamValue) :
-        ParamID(AParamID), ParamValue(AParamValue), ID(AID) { }
-    rPkt_t& operator = (const rPkt_t &Right) {
-        DWord = Right.DWord;
+    rPktHost2Dev_t& operator = (const rPktHost2Dev_t &Right) {
+        DWord[0] = Right.DWord[0];
+        DWord[1] = Right.DWord[1];
+        DWord[2] = Right.DWord[2];
+        DWord[3] = Right.DWord[3];
         return *this;
     }
 } __packed;
-#define RPKT_LEN    sizeof(rPkt_t)
+
+union rPktDev2Host_t  {
+    uint32_t DWord[4];
+    // Real data
+    struct {
+        int16_t a[3];
+        int16_t g[3];
+        uint8_t CmdID;
+        uint8_t Values[3];
+    } __packed;
+//    rPkt_t() : DWord[0](0) { }
+    rPktDev2Host_t& operator = (const rPktDev2Host_t &Right) {
+        DWord[0] = Right.DWord[0];
+        DWord[1] = Right.DWord[1];
+        DWord[2] = Right.DWord[2];
+        DWord[3] = Right.DWord[3];
+        return *this;
+    }
+} __packed;
+#define RPKT_LEN    16
 #endif
 
-#define THE_WORD        0xCA115EA1
-
 // ==== Sizes ====
-#define RXTABLE_SZ      54
-#define RXTABLE_MAX_CNT 3   // Do not receive if this count reached. Will not indicate more anyway.
 
 #if 1 // ======================= Channels & cycles =============================
-#define RCHNL_MIN       0
+#define RCHNL_SRV       0
 #define ID2RCHNL(ID)    (RCHNL_MIN + ID)
 #endif
 
@@ -104,13 +111,15 @@ union rPkt_t  {
 class rLevel1_t {
 private:
     void TryToSleep(uint32_t SleepDuration) {
-        if(SleepDuration >= MIN_SLEEP_DURATION_MS) CC.EnterPwrDown();
-        chThdSleepMilliseconds(SleepDuration);
+//        if(SleepDuration >= MIN_SLEEP_DURATION_MS) CC.EnterPwrDown();
+        chThdSleepMilliseconds(SleepDuration); // XXX
     }
 public:
     int8_t Rssi;
     uint8_t Init();
-    rPkt_t PktRx, PktTx;
+    rPktHost2Dev_t PktRx;
+    rPktDev2Host_t PktTx;
+    void SetChannel(uint8_t NewChannel);
     // Inner use
     void ITask();
 };

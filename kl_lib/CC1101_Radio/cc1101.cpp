@@ -48,30 +48,30 @@ uint8_t cc1101_t::Init() {
     // ==== Init CC ====
     if(Reset() != retvOk) {
         ISpi.Disable();
-        Uart.Printf("CC Rst Fail\r");
+        Printf("CC Rst Fail\r");
         return retvFail;
     }
     // Check if Write/Read ok
     if(WriteRegister(CC_PKTLEN, 7) != retvOk) {
-        Uart.Printf("CC W Fail\r");
+        Printf("CC W Fail\r");
         return retvFail;
     }
     uint8_t b = 0;
     if(ReadRegister(CC_PKTLEN, &b) == retvOk) {
         if(b != 7) {
-            Uart.Printf("CC R/W Fail; rpl=%u\r", b);
+            Printf("CC R/W Fail; rpl=%u\r", b);
             return retvFail;
         }
     }
     else {
-        Uart.Printf("CC R Fail\r");
+        Printf("CC R Fail\r");
         return retvFail;
     }
     // Proceed with init
     FlushRxFIFO();
     RfConfig();
     IGdo0.EnableIrq(IRQ_PRIO_HIGH);
-    Uart.Printf("CC init ok\r");
+    Printf("CC init ok\r");
     return retvOk;
 }
 
@@ -136,18 +136,18 @@ void cc1101_t::SetChannel(uint8_t AChannel) {
 void cc1101_t::Transmit(void *Ptr) {
 //     WaitUntilChannelIsBusy();   // If this is not done, time after time FIFO is destroyed
 //    while(IState != CC_STB_IDLE) EnterIdle();
-    Recalibrate();
+    //Recalibrate();
+    EnterTX();  // Start transmission of preamble while writing FIFO
     WriteTX((uint8_t*)Ptr, IPktSz);
     // Enter TX and wait IRQ
     chSysLock();
-    EnterTX();
     chThdSuspendS(&ThdRef); // Wait IRQ
     chSysUnlock();          // Will be here when IRQ fires
 }
 
 // Enter RX mode and wait reception for Timeout_ms.
 uint8_t cc1101_t::Receive(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi) {
-    Recalibrate();
+//    Recalibrate();
     FlushRxFIFO();
     chSysLock();
     EnterRX();

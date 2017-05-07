@@ -8,23 +8,52 @@
 #include "kl_adc.h"
 #include "main.h"
 #include "board.h"
-#include "evt_mask.h"
+#include "MsgQ.h"
 
 #if ADC_REQUIRED
 
 Adc_t Adc;
-static TmrKL_t TmrAdc {MS2ST(ADC_MEASURE_PERIOD_MS), EVT_SAMPLING, tktPeriodic};
-
 const uint8_t AdcChannels[ADC_CHANNEL_CNT] = ADC_CHANNELS;
+static thread_reference_t ThdRef;
+static bool FirstConversion;
+
+static THD_WORKING_AREA(waAdcThread, 128);
+__noreturn
+static void AdcThread(void *arg) {
+    chRegSetThreadName("Adc");
+    while(true) {
+        chThdSleepMilliseconds(ADC_MEAS_PERIOD_MS);
+        chSysLock();
+        Adc.StartMeasurement();
+        chThdSuspendS(&ThdRef);
+        chSysUnlock();
+        // Will be here after measurements done
+//        Printf("AdcDone\r");
+        if(FirstConversion) FirstConversion = false;
+        else {
+            uint32_t VRef_adc = Adc.GetResult(ADC_VREFINT_CHNL);
+//            Printf("VRef_adc=%u\r", VRef_adc);
+            // Iterate all channels
+            for(int i=0; i<ADC_CHANNEL_CNT; i++) {
+                if(AdcChannels[i] == ADC_VREFINT_CHNL) continue; // Ignore VrefInt channel
+                uint32_t Vadc = Adc.GetResult(AdcChannels[i]);
+                uint32_t Vmv = Adc.Adc2mV(Vadc, VRef_adc);   // Resistor divider
+//                Printf("N=%u; Vadc=%u; Vmv=%u\r", i, Vadc, Vmv);
+                EvtMsg_t Msg(evtIdAdcRslt, AdcChannels[i], Vmv);
+                EvtQMain.SendNowOrExit(Msg);
+            } // for
+        } // not first conv
+    } // while true
+}
 
 // Wrapper for IRQ
 extern "C" {
 void AdcTxIrq(void *p, uint32_t flags) {
     dmaStreamDisable(ADC_DMA);
     Adc.Disable();
-    // Signal event
+    // Wake thread
     chSysLockFromISR();
-    App.SignalEvtI(EVT_ADC_DONE);
+    chThdResumeI(&ThdRef, MSG_OK);
     chSysUnlockFromISR();
 }
 } // extern C
@@ -110,21 +139,23 @@ void Adc_t::Init() {
     SetSequenceLength(ADC_SEQ_LEN);
     uint8_t SeqIndx = 1;    // First sequence item is 1, not 0
     for(uint8_t i=0; i < ADC_CHANNEL_CNT; i++) {
-		SetChannelSampleTime(AdcChannels[i], ADC_SAMPLE_TIME);
+		SetChannelSampleTime(AdcChannels[i], ADC_SAMPLE_TIME_DEFAULT);
 		for(uint8_t j=0; j<ADC_SAMPLE_CNT; j++) SetSequenceItem(SeqIndx++, AdcChannels[i]);
 	}
+    EnableVRef();
     // ==== DMA ====
     dmaStreamAllocate     (ADC_DMA, IRQ_PRIO_LOW, AdcTxIrq, NULL);
     dmaStreamSetPeripheral(ADC_DMA, &ADC1->DR);
     dmaStreamSetMode      (ADC_DMA, ADC_DMA_MODE);
+    // ==== Thread ====
+    chThdCreateStatic(waAdcThread, sizeof(waAdcThread), NORMALPRIO, (tfunc_t)AdcThread, NULL);
 }
-
-void Adc_t::TmrInitAndStart() { TmrAdc.InitAndStart(); }
 
 void Adc_t::SetSequenceLength(uint32_t ALen) {
     ADC1->SQR1 &= ~ADC_SQR1_L;  // Clear count
     ADC1->SQR1 |= (ALen - 1) << 20;
 }
+
 void Adc_t::SetChannelSampleTime(uint32_t AChnl, AdcSampleTime_t ASampleTime) {
     uint32_t Offset;
 #if defined STM32F2XX || defined STM32F4XX
@@ -210,8 +241,8 @@ void Adc_t::StartMeasurement() {
     dmaStreamSetMode(ADC_DMA, ADC_DMA_MODE);
     dmaStreamEnable(ADC_DMA);
     // ADC
-    ADC1->CR1 = ADC_CR1_SCAN;
-    ADC1->CR2 = ADC_CR2_DMA | ADC_CR2_ADON;
+    ADC1->CR1 = ADC_CR1_SCAN;               // Mode = scan
+    ADC1->CR2 = ADC_CR2_DMA | ADC_CR2_ADON; // Enable DMA, enable ADC
     StartConversion();
 }
 

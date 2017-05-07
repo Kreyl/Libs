@@ -12,8 +12,6 @@
 
 #if ADC_REQUIRED
 
-#define ADC_MEASURE_PERIOD_MS   27
-
 #define ADC_MAX_VALUE           4095    // const: 2^12
 extern const uint8_t AdcChannels[ADC_CHANNEL_CNT];
 
@@ -85,6 +83,10 @@ public:
 #endif
 
 #if defined STM32L1XX
+/*
+ * Don't forget to enable HSI. It runs on HSI.
+ */
+
 #define ADC_MAX_SEQ_LEN     27  // 1...27; Const, see ref man p.301
 
 #if (ADC_SEQ_LEN > ADC_MAX_SEQ_LEN) || (ADC_SEQ_LEN == 0)
@@ -105,6 +107,8 @@ enum AdcSampleTime_t {
         ast384Cycles = 0b111
 };
 
+#define ADC_SAMPLE_TIME_DEFAULT     ast96Cycles
+
 enum ADCDiv_t {
     adcDiv1 = (uint32_t)(0b00 << 16),
     adcDiv2 = (uint32_t)(0b01 << 16),
@@ -122,7 +126,6 @@ private:
     void SetSequenceItem(uint8_t SeqIndx, uint32_t AChnl);
     void StartConversion() { ADC1->CR2 |= ADC_CR2_SWSTART; }
 public:
-    bool FirstConversion;
     void EnableVRef()  { ADC->CCR |= (uint32_t)ADC_CCR_TSVREFE; }
     void DisableVRef() { ADC->CCR &= (uint32_t)(~ADC_CCR_TSVREFE); }
     uint32_t GetVDAmV(uint32_t VrefADC) { return ((ADC_VREFINT_CAL * 3000UL) / VrefADC); }
@@ -134,7 +137,6 @@ public:
     uint32_t Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
         return ((3300UL * ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
     }
-    void TmrInitAndStart();
 };
 #endif // f4xx & L151
 

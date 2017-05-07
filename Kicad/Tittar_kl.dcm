@@ -4,14 +4,6 @@ $CMP BRIDGE
 D Diode bridge rectifier
 $ENDCMP
 #
-$CMP BUTTON
-D General button symbol
-$ENDCMP
-#
-$CMP BUTTON_H
-D Button with housing
-$ENDCMP
-#
 $CMP C
 D Capacitor
 $ENDCMP
@@ -96,14 +88,6 @@ $ENDCMP
 #
 $CMP RVarWSw
 D Variable resistor with internal switch
-$ENDCMP
-#
-$CMP SWITCH
-D Switch
-$ENDCMP
-#
-$CMP SWITCH_H
-D Switch with housing
 $ENDCMP
 #
 #End Doc Library

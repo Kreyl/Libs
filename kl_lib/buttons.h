@@ -13,7 +13,11 @@
 
 #include "SimpleSensors.h"
 
-#if SIMPLESENSORS_ENABLED
+#ifndef BUTTONS_ENABLED
+#define BUTTONS_ENABLED FALSE
+#endif
+
+#if BUTTONS_ENABLED
 
 /*
  * Example:
@@ -31,7 +35,7 @@
  */
 
 // ================================= Settings ==================================
-#define BUTTONS_CNT                 5
+#define BUTTONS_CNT                 3
 // Select required events etc.
 #define BTN_SHORTPRESS              TRUE   // beShortPress evt
 #define BTN_RELEASE                 FALSE
@@ -58,7 +62,8 @@ enum BtnName_t {btnUp=0, btnDown=1};
 // =============================================================================
 
 // Selected depending on Idle state
-#if BTN_IDLE_LOW
+#if BTN_IDLE_LOW // Change this
+// Do not change this
 #define BTN_IDLE_STATE              pssLo
 #define BTN_HOLDDOWN_STATE          pssHi
 #define BTN_PRESSING_STATE          pssRising
@@ -83,6 +88,5 @@ struct BtnEvtInfo_t {
 #endif
 } __packed;
 
-uint8_t BtnGetEvt(BtnEvtInfo_t *PEvt);
 PinSnsState_t GetBtnState(uint8_t BtnID);
 #endif

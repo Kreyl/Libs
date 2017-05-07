@@ -228,7 +228,7 @@ void BaseUart_t::Init(uint32_t ABaudrate) {
     Params->Uart->CR1 |= USART_CR1_UE;    // Enable USART
 }
 
-void BaseUart_t::DeInit() {
+void BaseUart_t::Shutdown() {
     Params->Uart->CR1 &= ~USART_CR1_UE; // UART Disable
     if     (Params->Uart == USART1) { rccDisableUSART1(FALSE); }
     else if(Params->Uart == USART2) { rccDisableUSART2(FALSE); }
@@ -285,7 +285,7 @@ void CmdUart_t::IRxTask() {
     while(GetByte(&b) == retvOk) {
         if(Cmd.PutChar(b) == pdrNewCmd) {
             EvtMsg_t Msg(evtIdShellCmd, (Shell_t*)this);
-            CmdProcessInProgress = (MainEvtQ.SendNowOrExit(Msg) == retvOk);
+            CmdProcessInProgress = (EvtQMain.SendNowOrExit(Msg) == retvOk);
         }
     }
 }
@@ -333,7 +333,8 @@ void ByteUart_t::IRxTask() {
     uint8_t b;
     while(GetByte(&b) == retvOk) {
         if(Cmd.PutChar(b) == pdrNewCmd) {
-            CmdProcessInProgress = (MainEvtQ.SendNowOrExit({evtIdByteCmd, (ByteShell_t*)this}) == retvOk);
+            EvtMsg_t Msg(evtIdByteCmd, (ByteShell_t*)this);
+            CmdProcessInProgress = (EvtQMain.SendNowOrExit(Msg) == retvOk);
         }
     }
 }
