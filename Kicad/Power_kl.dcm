@@ -57,6 +57,10 @@ $CMP L5973
 D Buck 2A 4-36V SO8
 $ENDCMP
 #
+$CMP L6203
+D H-Bridge 4A
+$ENDCMP
+#
 $CMP L6470
 D Motor Driver
 $ENDCMP
