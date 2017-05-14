@@ -29,7 +29,6 @@ struct UartParams_t {
 };
 
 #define UART_USE_DMA        TRUE
-#define UART_TXBUF_SZ       256
 
 // Set to true if RX needed
 #define UART_RX_ENABLED     TRUE
@@ -90,19 +89,19 @@ class CmdUart_t : public BaseUart_t, public PrintfHelper_t, public Shell_t {
 private:
     uint8_t IPutChar(char c) { return IPutByte(c);  }
     void IStartTransmissionIfNotYet() { BaseUart_t::IStartTransmissionIfNotYet(); }
-public:
-    CmdUart_t(const UartParams_t *APParams) : BaseUart_t(APParams) {}
-    void Init(uint32_t ABaudrate);
-    void IRxTask();
     void Printf(const char *format, ...) {
         va_list args;
         va_start(args, format);
         IVsPrintf(format, args);
         va_end(args);
     }
+public:
+    CmdUart_t(const UartParams_t *APParams) : BaseUart_t(APParams) {}
+    void Init(uint32_t ABaudrate);
+    void IRxTask();
 };
 
-#define BYTE_UART_EN    TRUE
+#define BYTE_UART_EN    FALSE
 #if BYTE_UART_EN
 class ByteUart_t : public BaseUart_t, public ByteShell_t {
 //private:

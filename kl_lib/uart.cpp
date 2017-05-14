@@ -52,7 +52,7 @@ static const UartParams_t UartParams = {
         UART_DMA_TX, UART_DMA_RX,
         UART_DMA_TX_MODE(UART_DMA_CHNL), UART_DMA_RX_MODE(UART_DMA_CHNL),
 #if defined STM32F072xB || defined STM32L4XX
-        true    // Use independed clock
+        UART_USE_INDEPENDENT_CLK
 #endif
 };
 
@@ -309,7 +309,7 @@ static const UartParams_t ByteUartParams = {
         FT_UART_DMA_TX, FT_UART_DMA_RX,
         UART_DMA_TX_MODE(FT_UART_DMA_CHNL), UART_DMA_RX_MODE(FT_UART_DMA_CHNL),
 #if defined STM32F072xB || defined STM32L4XX
-        true    // Use independed clock
+        false    // Use independed clock
 #endif
 };
 

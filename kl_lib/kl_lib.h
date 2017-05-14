@@ -1563,6 +1563,8 @@ public:
     void SetHiPerfMode();
     void SetLoPerfMode();
 
+    uint32_t GetSysClkHz();
+
     // Setup independent clock
     void SetI2CClkSrc(I2C_TypeDef *i2c, i2cClk_t ClkSrc) {
         uint32_t tmp = RCC->CCIPR;

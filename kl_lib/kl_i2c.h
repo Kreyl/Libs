@@ -71,20 +71,22 @@ extern i2c_t i2c2;
 
 #endif // MCU type
 
-#if defined STM32L476 || defined STM32F030
+#if defined STM32L4XX || defined STM32F030
 struct i2cParams_t {
     I2C_TypeDef *pi2c;
     GPIO_TypeDef *PGpio;
     uint16_t SclPin;
     uint16_t SdaPin;
     AlterFunc_t PinAF;
-    uint32_t Timing;    // Setting for TIMINGR register
     // DMA
     const stm32_dma_stream_t *PDmaTx;
     const stm32_dma_stream_t *PDmaRx;
     uint32_t DmaModeTx, DmaModeRx;
     // IRQ
     uint32_t IrqEvtNumber, IrqErrorNumber;
+#if defined STM32L4XX    // Clock
+    i2cClk_t ClkSrc;
+#endif
 };
 
 #define I2C_TIMEOUT_MS      999
