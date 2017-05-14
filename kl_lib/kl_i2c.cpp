@@ -518,14 +518,15 @@ void i2c_t::Init() {
     uint32_t SclLen = ((ClkHz / 2) / I2C_BAUDRATE_HZ) - 1;
     if(SclLen >= 4) SclLen -= 4;
     pi2c->TIMINGR = (Prescaler << 28) | 0x00100000 | (SclLen << 8) | SclLen;
+
     // Analog filter enabled, digital disabled, clk stretch enabled, DMA enabled
     pi2c->CR1 = I2C_CR1_TXDMAEN | I2C_CR1_RXDMAEN;
-    // DMA
+    // ==== DMA ====
     dmaStreamAllocate(PParams->PDmaTx, IRQ_PRIO_MEDIUM, nullptr, nullptr);
     dmaStreamAllocate(PParams->PDmaRx, IRQ_PRIO_MEDIUM, nullptr, nullptr);
     dmaStreamSetPeripheral(PParams->PDmaTx, &pi2c->TXDR);
     dmaStreamSetPeripheral(PParams->PDmaRx, &pi2c->RXDR);
-    // IRQ
+    // ==== IRQ ====
     nvicEnableVector(PParams->IrqEvtNumber, IRQ_PRIO_MEDIUM);
     nvicEnableVector(PParams->IrqErrorNumber, IRQ_PRIO_MEDIUM);
 }
@@ -663,11 +664,9 @@ uint8_t i2c_t::WriteRead(uint32_t Addr, uint8_t *WPtr, uint32_t WLength, uint8_t
     pi2c->CR1 |= (I2C_CR1_TCIE | I2C_CR1_ERRIE | I2C_CR1_NACKIE);
     pi2c->CR2 |= I2C_CR2_START;         // Start transmission
     // Wait completion
-    Printf("p\r");
     chSysLock();
     r = chThdSuspendTimeoutS(&PThd, MS2ST(I2C_TIMEOUT_MS));
     chSysUnlock();
-    Printf("q\r");
     // Disable IRQs
     pi2c->CR1 &= ~(I2C_CR1_TCIE | I2C_CR1_ERRIE | I2C_CR1_NACKIE);
     if(r == MSG_TIMEOUT) {
