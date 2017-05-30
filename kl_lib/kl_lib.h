@@ -101,6 +101,7 @@ enum RiseFall_t {rfRising, rfFalling, rfNone};
 enum Inverted_t {invNotInverted, invInverted};
 enum PinOutMode_t {omPushPull = 0, omOpenDrain = 1};
 enum BitNumber_t {bitn8, bitn16, bitn32};
+enum EnableDisable_t {Enable, Disable};
 
 typedef void (*ftVoidVoid)(void);
 typedef void (*ftVoidPVoid)(void*p);

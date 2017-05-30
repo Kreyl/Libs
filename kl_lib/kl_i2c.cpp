@@ -7,8 +7,7 @@
                         STM32_DMA_CR_MSIZE_BYTE | \
                         STM32_DMA_CR_PSIZE_BYTE | \
                         STM32_DMA_CR_MINC |     /* Memory pointer increase */ \
-                        STM32_DMA_CR_DIR_M2P |  /* Direction is memory to peripheral */ \
-                        STM32_DMA_CR_TCIE       /* Enable Transmission Complete IRQ */
+                        STM32_DMA_CR_DIR_M2P    /* Direction is memory to peripheral */ \
 
 #define I2C_DMARX_MODE(Chnl) \
                         STM32_DMA_CR_CHSEL(Chnl) |   \
@@ -16,8 +15,7 @@
                         STM32_DMA_CR_MSIZE_BYTE | \
                         STM32_DMA_CR_PSIZE_BYTE | \
                         STM32_DMA_CR_MINC |         /* Memory pointer increase */ \
-                        STM32_DMA_CR_DIR_P2M |      /* Direction is peripheral to memory */ \
-                        STM32_DMA_CR_TCIE           /* Enable Transmission Complete IRQ */
+                        STM32_DMA_CR_DIR_P2M        /* Direction is peripheral to memory */ \
 
 #if defined STM32L1XX || defined STM32F2XX
 #if defined STM32F2XX
