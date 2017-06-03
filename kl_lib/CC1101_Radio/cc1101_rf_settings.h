@@ -12,8 +12,8 @@
 // Bitrate
 //#define CC_BITRATE_10K
 //#define CC_BITRATE_38K4
-#define  CC_BITRATE_100K
-//#define CC_BITRATE_250K
+//#define  CC_BITRATE_100K
+#define CC_BITRATE_250K
 //#define CC_BITRATE_500K
 
 // ============================ Common use values ==============================
@@ -218,7 +218,3 @@
 #define CC_SYNC0_VALUE      0x91
 
 #define CC_CHANNR_VALUE     0x00        // Channel number.
-
-
-#endif	/* _CC_RF_SETTINGS_H */
-
