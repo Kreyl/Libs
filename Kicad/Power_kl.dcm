@@ -164,7 +164,7 @@ F D:/Datasheets/Power/Linear regulators/MC7800-D 30V 1A out5V.pdf
 $ENDCMP
 #
 $CMP MCP73832
-D 1Cell LiPo Charger up to 500mA SOT23-5
+D 1Cell LiPo Charger up to 1A SO8
 $ENDCMP
 #
 $CMP NCP140x
@@ -225,6 +225,10 @@ $ENDCMP
 #
 $CMP TL431_SOT23
 D Programmable precision reference
+$ENDCMP
+#
+$CMP TP4056
+D 1Cell LiPo Charger up to 500mA SOT23-5
 $ENDCMP
 #
 $CMP TPS20xxC

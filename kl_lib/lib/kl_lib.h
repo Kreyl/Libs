@@ -241,7 +241,7 @@ static inline uint32_t GetUniqID3() {
 #if 1 // ======================= Virtual Timer =================================
 /*
  * Example:
- * TmrKL_t TmrCheckBtn {MS2ST(54), EVT_BUTTONS, tktPeriodic};
+ * TmrKL_t TmrCheckBtn {MS2ST(54), evtIdPauseEnds, tktPeriodic};
  * TmrCheckBtn.InitAndStart(chThdGetSelfX());
  */
 

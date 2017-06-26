@@ -109,13 +109,13 @@ void Timer_t::Init() const {
     else if(ITmr == TIM14)  { rccEnableTIM14(FALSE); }
 #endif
 #ifdef TIM15
-    else if(ITmr == TIM15)  { rccDisableTIM15(FALSE); }
+    else if(ITmr == TIM15)  { rccEnableTIM15(FALSE); }
 #endif
 #ifdef TIM16
-    else if(ITmr == TIM16)  { rccDisableTIM16(FALSE); }
+    else if(ITmr == TIM16)  { rccEnableTIM16(FALSE); }
 #endif
 #ifdef TIM17
-    else if(ITmr == TIM17)  { rccDisableTIM17(FALSE); }
+    else if(ITmr == TIM17)  { rccEnableTIM17(FALSE); }
 #endif
 }
 
@@ -581,7 +581,7 @@ uint8_t WriteBuf(void *PSrc, uint32_t Sz, uint32_t Addr) {
 #if 1 // =========================== External IRQ ==============================
 // IRQ handlers
 extern "C" {
-extern void PrintfCNow(const char *format, ...);
+extern void PrintfC(const char *format, ...);
 
 #if INDIVIDUAL_EXTI_IRQ_REQUIRED
 IrqHandler_t* ExtiIrqHandler[16];
@@ -700,7 +700,7 @@ void Vector54() {
     if(ExtiIrqHandler[1] != nullptr) ExtiIrqHandler[1]->IIrqHandler();
 #else
     if(ExtiIrqHandler_0_1 != nullptr) ExtiIrqHandler_0_1->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
 #endif
     EXTI->PR = 0x0003;  // Clean IRQ flag
     chSysUnlockFromISR();
@@ -716,7 +716,7 @@ void Vector58() {
     if(ExtiIrqHandler[3] != nullptr) ExtiIrqHandler[3]->IIrqHandler();
 #else
     if(ExtiIrqHandler_2_3 != nullptr) ExtiIrqHandler_2_3->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
 #endif
     EXTI->PR = 0x000C;  // Clean IRQ flag
     chSysUnlockFromISR();
@@ -733,7 +733,7 @@ void Vector5C() {
     }
 #else
     if(ExtiIrqHandler_4_15 != nullptr) ExtiIrqHandler_4_15->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
 #endif
     EXTI->PR = 0xFFF0;  // Clean IRQ flag
     chSysUnlockFromISR();
@@ -1231,7 +1231,7 @@ void Clk_t::SetupFlashLatency(uint32_t FrequencyHz) {
 }
 
 void Clk_t::PrintFreqs() {
-    Uart.Printf(
+    Printf(
             "AHBFreq=%uMHz; APBFreq=%uMHz\r",
             Clk.AHBFreqHz/1000000, Clk.APBFreqHz/1000000);
 }
