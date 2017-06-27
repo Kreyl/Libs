@@ -7,7 +7,8 @@
                         STM32_DMA_CR_MSIZE_BYTE | \
                         STM32_DMA_CR_PSIZE_BYTE | \
                         STM32_DMA_CR_MINC |     /* Memory pointer increase */ \
-                        STM32_DMA_CR_DIR_M2P    /* Direction is memory to peripheral */ \
+                        STM32_DMA_CR_DIR_M2P |  /* Direction is memory to peripheral */ \
+                        STM32_DMA_CR_TCIE
 
 #define I2C_DMARX_MODE(Chnl) \
                         STM32_DMA_CR_CHSEL(Chnl) |   \
@@ -15,7 +16,8 @@
                         STM32_DMA_CR_MSIZE_BYTE | \
                         STM32_DMA_CR_PSIZE_BYTE | \
                         STM32_DMA_CR_MINC |         /* Memory pointer increase */ \
-                        STM32_DMA_CR_DIR_P2M        /* Direction is peripheral to memory */ \
+                        STM32_DMA_CR_DIR_P2M |      /* Direction is peripheral to memory */ \
+                        STM32_DMA_CR_TCIE
 
 #if defined STM32L1XX || defined STM32F2XX
 #if defined STM32F2XX
@@ -50,10 +52,10 @@ static const i2cParams_t I2C2Params = {
 i2c_t i2c2 {&I2C2Params};
 #endif
 
+extern "C"
 void i2cDmaIrqHandler(void *p, uint32_t flags) {
     chSysLockFromISR();
     i2c_t *pi2c = (i2c_t*)p;
-//    Uart.PrintfNow("\r===T===");
     chThdResumeI(&pi2c->ThdRef, (msg_t)0);
     chSysUnlockFromISR();
 }
