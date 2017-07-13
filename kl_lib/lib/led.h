@@ -161,6 +161,7 @@ public:
         B.SetFrequencyHz(PWMFreq);
         SetColor(clBlack);
     }
+    bool IsOff() { return (ICurrColor == clBlack) and IsIdle(); }
     virtual void SetColor(Color_t AColor) {}
 };
 #endif

@@ -33,6 +33,8 @@ class CS42L52_t {
 private:
     void EnableSAI() { AU_SAI_A->CR1 |= SAI_xCR1_SAIEN; AU_SAI_B->CR1 |= SAI_xCR1_SAIEN; }
     void DisableSAI() { AU_SAI_A->CR1 &= ~SAI_xCR1_SAIEN; AU_SAI_B->CR1 &= ~SAI_xCR1_SAIEN; }
+    int8_t IVolume = 0;
+    bool IsOn;
 public:
     void Init();
     void Standby();
@@ -60,6 +62,11 @@ public:
     u8 SetMasterVolume(i8 Volume_dB);
     u8 SetHeadphoneVolume(i8 Volume_dB);
     u8 SetSpeakerVolume(i8 Volume_dB);
+
+    void VolumeUp();
+    void VolumeDown();
+    void SetVolume(int8_t AVolume);
+    int8_t GetVolume() { return IVolume; }
 
     // Enable/Disable
     void EnableMicSystem();

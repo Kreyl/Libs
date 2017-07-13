@@ -21,17 +21,9 @@
 
 /*
  * Example:
-        if(Evt & EVT_BUTTONS) {
-            BtnEvtInfo_t EInfo;
-            while(BtnGetEvt(&EInfo) == retvOk) {
-                if(EInfo.Type == beShortPress) {
-
-                }
-                else if(EInfo.Type == beLongPress) {
-
-                }
-            }
-        }
+            case evtIdButtons:
+                Printf("Btn %u\r", Msg.BtnEvtInfo.BtnID);
+                if(Msg.BtnEvtInfo.BtnID == 1) {
  */
 
 // ================================= Settings ==================================
@@ -40,13 +32,13 @@
 #define BTN_SHORTPRESS              TRUE   // beShortPress evt
 #define BTN_RELEASE                 FALSE
 #define BTN_LONGPRESS               FALSE   // Send LongPress evt
-#define BTN_REPEAT                  FALSE   // Send Repeat evt
+#define BTN_REPEAT                  TRUE   // Send Repeat evt
 #define BTN_COMBO                   FALSE   // Allow combo
 #define BTN_GETSTATE_REQUIRED       FALSE
 
-#define BTN_REPEAT_PERIOD_MS        450
+#define BTN_REPEAT_PERIOD_MS        54
 #define BTN_LONGPRESS_DELAY_MS      999
-#define BTN_DELAY_BEFORE_REPEAT_MS  (BTN_REPEAT_PERIOD_MS + BTN_LONGPRESS_DELAY_MS)
+#define BTN_DELAY_BEFORE_REPEAT_MS  450
 
 #if BTN_COMBO
 #define BTNS_EVT_Q_LEN              7   // Length of events' query

@@ -27,6 +27,8 @@
 extern CS42L52_t Audio;
 extern AuPlayer_t Player;
 
+static char Filename[MAX_NAME_LEN];
+
 struct WavFileInfo_t {
     uint32_t SampleRate;
     uint32_t BytesPerSecond;
@@ -41,6 +43,12 @@ struct WavFileInfo_t {
     uint32_t ChunkSz;
 };
 static WavFileInfo_t Info;
+
+enum PlayerEffect_t {peNone, peFadeOut};
+static PlayerEffect_t Effect = peNone;
+
+static int8_t StartVolume, CurrentVolume;
+static systime_t ITime;
 
 // DMA Tx Completed IRQ
 static thread_reference_t ThdRef = nullptr;
@@ -85,10 +93,24 @@ void AuPlayer_t::ITask() {
                 Info.ChunkSz -= BufSz;
             }
             else BufSz = 0;
+
+            // Effects
+            if(Effect == peFadeOut) {
+                if(chVTTimeElapsedSinceX(ITime) >= MS2ST(63)) {
+                    if(CurrentVolume > -63) {
+                        CurrentVolume--;
+                        Audio.SetVolume(CurrentVolume);
+                    }
+                    else BufSz = 0; // End of fade
+                }
+            }
         } // if(BufSz != 0)
         else {  // End of file
             f_close(&IFile);
             Audio.Stop();
+            IsPlayingNow = false;
+            if(Effect == peFadeOut) Audio.SetVolume(StartVolume);
+            Effect = peNone;
             EvtMsg_t Msg(evtIdPlayEnd);
             EvtQMain.SendNowOrExit(Msg);
         }
@@ -130,19 +152,29 @@ uint8_t AuPlayer_t::Play(const char* AFileName) {
             Info.ChunkSz -= BufSz;
         }
     }
+    IsPlayingNow = true;
     return retvOk;
     end:
     f_close(&IFile);
+    IsPlayingNow = false;
     return retvFail;
 }
 
 void AuPlayer_t::Stop() {
-    ThdRef = nullptr;   // Do not wake thread by IRQ
-    Audio.Stop();
+    if(!IsPlayingNow) return;
     BufSz = 0;
+    Audio.Stop();
     f_close(&IFile);
     EvtMsg_t Msg(evtIdPlayEnd);
     EvtQMain.SendNowOrExit(Msg);
+}
+
+void AuPlayer_t::FadeOut() {
+    if(!IsPlayingNow) return;
+    StartVolume = Audio.GetVolume();
+    CurrentVolume = StartVolume;
+    ITime = chVTGetSystemTimeX();
+    Effect = peFadeOut;
 }
 
 uint8_t AuPlayer_t::OpenWav(const char* AFileName) {
@@ -256,7 +288,6 @@ void AuPlayer_t::PlayRandomFileFromDir(const char* DirName) {
     PreviousN = N;
     // Iterate files in dir until success
     uint32_t Counter = 0;
-    char Filename[MAX_NAME_LEN];
     Rslt = f_opendir(&Dir, DirName);
     if(Rslt != FR_OK) return;
     while(true) {

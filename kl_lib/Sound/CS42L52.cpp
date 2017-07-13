@@ -167,6 +167,7 @@ void CS42L52_t::Init() {
 #if 1 // === Setup registers ===
     // PwrCtrl 1: Power on codec only
     WriteReg(CS_R_PWR_CTRL1, 0b11111110);
+    IsOn = true;
     // PwrCtrl 2: Mic power down
     WriteReg(CS_R_PWR_CTRL2, CS_PWR_DOWN_MIC_A | CS_PWR_DOWN_MIC_B | CS_PWR_DOWN_BIAS);
     // PwrCtrl 3: Everything is off
@@ -256,11 +257,13 @@ void CS42L52_t::Init() {
 
 void CS42L52_t::Standby() {
     WriteReg(CS_R_PWR_CTRL1, 0xFF);
+    IsOn = false;
 }
 
 void CS42L52_t::Resume() {
     // PwrCtrl 1: Power on codec only
     WriteReg(CS_R_PWR_CTRL1, 0b11111110);
+    IsOn = true;
 }
 
 #if 1 // ==================== Low-level gains and volumes ======================
@@ -430,6 +433,23 @@ u8 CS42L52_t::SetSpeakerVolume(i8 Volume_dB) {
     Volume_dB *= 2; // 0.5dB step
     return WriteTwoTheSame(0x24, Volume_dB);
 }
+
+void CS42L52_t::VolumeUp() {
+    IVolume += 3;
+    if(IVolume > 0) IVolume = 0;
+    if(IsOn) SetHeadphoneVolume(IVolume);
+}
+
+void CS42L52_t::VolumeDown() {
+    IVolume -= 3;
+    if(IVolume < -45) IVolume = -45;
+    if(IsOn) SetHeadphoneVolume(IVolume);
+}
+
+void CS42L52_t::SetVolume(int8_t AVolume) {
+    if(IsOn) SetHeadphoneVolume(AVolume);
+}
+
 #endif
 
 #if 1 // ========================= Enable/Disable ==============================

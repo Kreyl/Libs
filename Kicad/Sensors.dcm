@@ -44,6 +44,10 @@ $CMP LIS331
 D Accelerometer 3axis, +-24g
 $ENDCMP
 #
+$CMP LSM6DS3
+D Acc + Gyro
+$ENDCMP
+#
 $CMP LSM9DS0
 D 9-Axis sensor I2C-SPI
 $ENDCMP
@@ -58,6 +62,10 @@ $ENDCMP
 #
 $CMP MPR121
 D 12-chnl touch sensor, i2c bus
+$ENDCMP
+#
+$CMP MPU-6050
+D Acc + Gyro
 $ENDCMP
 #
 $CMP QT100A

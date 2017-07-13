@@ -9,6 +9,7 @@
 
 #include "color.h"
 #include "ch.h"
+#include "MsgQ.h"
 //#include "uart.h"
 
 enum ChunkSort_t {csSetup, csWait, csGoto, csEnd};
@@ -55,8 +56,7 @@ class BaseSequencer_t : private IrqHandler_t {
 protected:
     virtual_timer_t ITmr;
     const TChunk *IPStartChunk, *IPCurrentChunk;
-    thread_t *PThread;
-    eventmask_t EvtEnd;
+    EvtMsg_t IEvtMsg;
     virtual void ISwitchOff() = 0;
     virtual SequencerLoopTask_t ISetup() = 0;
     void SetupDelay(uint32_t ms) { chVTSetI(&ITmr, MS2ST(ms), TmrKLCallback, this); }
@@ -87,7 +87,7 @@ protected:
                     break;
 
                 case csEnd:
-//                    if(PThread != nullptr) chEvtSignalI(PThread, EvtEnd); // XXX
+                    if(IEvtMsg.ID != evtIdNone) EvtQMain.SendNowOrExitI(IEvtMsg);
                     IPStartChunk = nullptr;
                     IPCurrentChunk = nullptr;
                     return;
@@ -96,10 +96,7 @@ protected:
         } // while
     } // IProcessSequenceI
 public:
-    void SetupSeqEndEvt(thread_t *APThread, eventmask_t AEvt = 0) {
-        PThread = APThread;
-        EvtEnd = AEvt;
-    }
+    void SetupSeqEndEvt(EvtMsg_t AEvtMsg) { IEvtMsg = AEvtMsg; }
 
     void StartOrRestart(const TChunk *PChunk) {
         chSysLock();
@@ -125,5 +122,6 @@ public:
         ISwitchOff();
     }
     const TChunk* GetCurrentSequence() { return IPStartChunk; }
+    bool IsIdle() { return (IPStartChunk == nullptr and IPCurrentChunk == nullptr); }
 };
 #endif
