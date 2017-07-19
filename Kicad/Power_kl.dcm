@@ -163,6 +163,11 @@ D Linear, up to +30in, +5Vout, 1A, D2PAK
 F D:/Datasheets/Power/Linear regulators/MC7800-D 30V 1A out5V.pdf
 $ENDCMP
 #
+$CMP MCP1700
+D Linear, up to +6Vin, 250mA, SOT23-3, 1.6uA
+F D:/Datasheets/Power/Linear regulators/MC7800-D 30V 1A out5V.pdf
+$ENDCMP
+#
 $CMP MCP73832
 D 1Cell LiPo Charger up to 1A SO8
 $ENDCMP

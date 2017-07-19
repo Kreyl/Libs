@@ -6,25 +6,22 @@
  */
 
 #include "ws2812b.h"
-#include "evt_mask.h"
-#include "main.h"
 
-#define LED_DMA_MODE    STM32_DMA_CR_CHSEL(LEDWS_DMA_CHNL) | \
-                        DMA_PRIORITY_HIGH | \
-                        STM32_DMA_CR_MSIZE_HWORD | \
-                        STM32_DMA_CR_PSIZE_HWORD | \
-                        STM32_DMA_CR_MINC |   /* Memory pointer increase */ \
-                        STM32_DMA_CR_DIR_M2P |/* Direction is memory to peripheral */ \
-                        STM32_DMA_CR_TCIE     /* Enable Transmission Complete IRQ */
+#define LED_DMA_MODE    DMA_PRIORITY_HIGH \
+                        | STM32_DMA_CR_MSIZE_HWORD \
+                        | STM32_DMA_CR_PSIZE_HWORD \
+                        | STM32_DMA_CR_MINC     /* Memory pointer increase */ \
+                        | STM32_DMA_CR_DIR_M2P  /* Direction is memory to peripheral */ \
+                        | STM32_DMA_CR_TCIE     /* Enable Transmission Complete IRQ */
 
 // Tx timings: bit cnt
-#define SEQ_1               0b11111000  // 0xF8
-#define SEQ_0               0b11000000  // 0xC0
+#define SEQ_1               0b1110  // 0xE
+#define SEQ_0               0b1000  // 0x8
 
-#define SEQ_00              0xC0C0
-#define SEQ_01              0xC0F8
-#define SEQ_10              0xF8C0
-#define SEQ_11              0xF8F8
+#define SEQ_00              0x88
+#define SEQ_01              0x8E
+#define SEQ_10              0xE8
+#define SEQ_11              0xEE
 
 
 LedWs_t LedWs;
@@ -43,10 +40,10 @@ void LedWs_t::Init() {
     ISpi.Enable();
     ISpi.EnableTxDma();
 
-//    Uart.Printf("Len=%u\r", TOTAL_W_CNT);
+    Printf("Len=%u\r", TOTAL_W_CNT);
 
     // Zero buffer
-    for(uint32_t i=TOTAL_W_CNT-RST_W_CNT-1; i<TOTAL_W_CNT; i++) IBuf[i] = 0;
+    for(int i=0; i<TOTAL_W_CNT; i++) IBuf[i] = 0;
 
     // ==== DMA ====
     dmaStreamAllocate     (LEDWS_DMA, IRQ_PRIO_LOW, LedTxcIrq, NULL);
@@ -55,40 +52,45 @@ void LedWs_t::Init() {
 }
 
 void LedWs_t::AppendBitsMadeOfByte(uint8_t Byte) {
-    uint8_t Bits;
+    uint8_t Bits, bMsb = 0, bLsb = 0;
     Bits = Byte & 0b11000000;
-    if     (Bits == 0b00000000) *PBuf++ = SEQ_00;
-    else if(Bits == 0b01000000) *PBuf++ = SEQ_01;
-    else if(Bits == 0b10000000) *PBuf++ = SEQ_10;
-    else if(Bits == 0b11000000) *PBuf++ = SEQ_11;
+    if     (Bits == 0b00000000) bMsb = SEQ_00;
+    else if(Bits == 0b01000000) bMsb = SEQ_01;
+    else if(Bits == 0b10000000) bMsb = SEQ_10;
+    else if(Bits == 0b11000000) bMsb = SEQ_11;
 
     Bits = Byte & 0b00110000;
-    if     (Bits == 0b00000000) *PBuf++ = SEQ_00;
-    else if(Bits == 0b00010000) *PBuf++ = SEQ_01;
-    else if(Bits == 0b00100000) *PBuf++ = SEQ_10;
-    else if(Bits == 0b00110000) *PBuf++ = SEQ_11;
+    if     (Bits == 0b00000000) bLsb = SEQ_00;
+    else if(Bits == 0b00010000) bLsb = SEQ_01;
+    else if(Bits == 0b00100000) bLsb = SEQ_10;
+    else if(Bits == 0b00110000) bLsb = SEQ_11;
+
+    *PBuf++ = (bMsb << 8) | bLsb;
 
     Bits = Byte & 0b00001100;
-    if     (Bits == 0b00000000) *PBuf++ = SEQ_00;
-    else if(Bits == 0b00000100) *PBuf++ = SEQ_01;
-    else if(Bits == 0b00001000) *PBuf++ = SEQ_10;
-    else if(Bits == 0b00001100) *PBuf++ = SEQ_11;
+    if     (Bits == 0b00000000) bMsb = SEQ_00;
+    else if(Bits == 0b00000100) bMsb = SEQ_01;
+    else if(Bits == 0b00001000) bMsb = SEQ_10;
+    else if(Bits == 0b00001100) bMsb = SEQ_11;
 
     Bits = Byte & 0b00000011;
-    if     (Bits == 0b00000000) *PBuf++ = SEQ_00;
-    else if(Bits == 0b00000001) *PBuf++ = SEQ_01;
-    else if(Bits == 0b00000010) *PBuf++ = SEQ_10;
-    else if(Bits == 0b00000011) *PBuf++ = SEQ_11;
+    if     (Bits == 0b00000000) bLsb = SEQ_00;
+    else if(Bits == 0b00000001) bLsb = SEQ_01;
+    else if(Bits == 0b00000010) bLsb = SEQ_10;
+    else if(Bits == 0b00000011) bLsb = SEQ_11;
+
+    *PBuf++ = (bMsb << 8) | bLsb;
 }
 
 void LedWs_t::ISetCurrentColors() {
+    PBuf = IBuf + (RST_W_CNT / 2);    // First words are zero to form reset
     // Fill bit buffer
-    PBuf = IBuf;
     for(uint32_t i=0; i<LED_CNT; i++) {
         AppendBitsMadeOfByte(ICurrentClr[i].G);
         AppendBitsMadeOfByte(ICurrentClr[i].R);
         AppendBitsMadeOfByte(ICurrentClr[i].B);
     }
+
     // Start transmission
     dmaStreamSetMemory0(LEDWS_DMA, IBuf);
     dmaStreamSetTransactionSize(LEDWS_DMA, TOTAL_W_CNT);
@@ -96,7 +98,7 @@ void LedWs_t::ISetCurrentColors() {
     dmaStreamEnable(LEDWS_DMA);
 }
 
-#if 0 // ============================ Effects ==================================
+#if 1 // ============================ Effects ==================================
 Effects_t Effects;
 
 #define CHUNK_CNT   9
@@ -134,7 +136,7 @@ void Effects_t::ITask() {
                 } // for
                 LedWs.ISetCurrentColors();
                 if(Delay == 0) {    // Setup completed
-                    App.SignalEvt(EVT_LED_DONE);
+//                    App.SignalEvt(EVT_LED_DONE);
                     IState = effIdle;
                 }
                 else chThdSleepMilliseconds(Delay);
@@ -147,6 +149,7 @@ void Effects_t::ITask() {
 
 void Effects_t::Init() {
     LedWs.Init();
+    AllTogetherNow(clBlack);
     // Thread
     PThd = chThdCreateStatic(waEffectsThread, sizeof(waEffectsThread), HIGHPRIO, (tfunc_t)EffectsThread, NULL);
 }
@@ -156,14 +159,14 @@ void Effects_t::AllTogetherNow(Color_t Color) {
     IState = effIdle;
     for(uint32_t i=0; i<LED_CNT; i++) LedWs.ICurrentClr[i] = Color;
     LedWs.ISetCurrentColors();
-    App.SignalEvt(EVT_LED_DONE);
+//    App.SignalEvt(EVT_LED_DONE);
 }
 void Effects_t::AllTogetherNow(ColorHSV_t Color) {
     IState = effIdle;
     Color_t rgb = Color.ToRGB();
     for(uint32_t i=0; i<LED_CNT; i++) LedWs.ICurrentClr[i] = rgb;
     LedWs.ISetCurrentColors();
-    App.SignalEvt(EVT_LED_DONE);
+//    App.SignalEvt(EVT_LED_DONE);
 }
 
 void Effects_t::AllTogetherSmoothly(Color_t Color, uint32_t ASmoothValue) {
@@ -180,6 +183,20 @@ void Effects_t::AllTogetherSmoothly(Color_t Color, uint32_t ASmoothValue) {
     }
 }
 
+//void Effects_t::AllTogetherSmoothly(ColorHSV_t Color, uint32_t ASmoothValue) {
+//    if(ASmoothValue == 0) AllTogetherNow(Color);
+//    else {
+//        chSysLock();
+//        for(uint32_t i=0; i<LED_CNT; i++) {
+//            DesiredClr[i] = Color;
+//            SmoothValue[i] = ASmoothValue;
+//        }
+//        IState = effAllSmoothly;
+//        chSchWakeupS(PThd, MSG_OK);
+//        chSysUnlock();
+//    }
+//}
+
 void Effects_t::ChunkRunningRandom(Color_t Color, uint32_t NLeds, uint32_t ASmoothValue) {
     chSysLock();
     for(uint32_t i=0; i<CHUNK_CNT; i++) {
@@ -194,6 +211,8 @@ void Effects_t::ChunkRunningRandom(Color_t Color, uint32_t NLeds, uint32_t ASmoo
     chSchWakeupS(PThd, MSG_OK);
     chSysUnlock();
 }
+
+uint32_t t=0;
 
 void Effects_t::IProcessChunkRandom() {
     uint32_t Delay = 0;
