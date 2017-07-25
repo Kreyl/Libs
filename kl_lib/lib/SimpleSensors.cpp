@@ -6,10 +6,10 @@
  */
 
 #include "SimpleSensors.h"
-#include "PinSnsSettings.h"
 #include "uart.h"
 
 #if SIMPLESENSORS_ENABLED
+#include "PinSnsSettings.h"
 
 static PinSnsState_t States[PIN_SNS_CNT];
 

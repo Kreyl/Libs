@@ -7,6 +7,7 @@
 
 #include <sk6812.h>
 
+#if 1 // =============================== LEDs ==================================
 #define LED_DMA_MODE    DMA_PRIORITY_HIGH \
                         | STM32_DMA_CR_MSIZE_HWORD \
                         | STM32_DMA_CR_PSIZE_HWORD \
@@ -31,16 +32,13 @@ t1l 450...750       2
 #define SEQ_10              0xE8
 #define SEQ_11              0xEE
 
-
 LedSk_t Leds;
 
-extern "C" {
 // Wrapper for Tx Completed IRQ
+extern "C"
 void LedTxcIrq(void *p, uint32_t flags) {
     dmaStreamDisable(LEDWS_DMA);
-//    Uart.PrintfI("Irq\r");
 }
-} // "C"
 
 void LedSk_t::Init() {
     PinSetupAlterFunc(LEDWS_PIN);
@@ -48,10 +46,10 @@ void LedSk_t::Init() {
     ISpi.Enable();
     ISpi.EnableTxDma();
 
-    Printf("Len=%u\r", TOTAL_W_CNT);
-
     // Zero buffer
     for(int i=0; i<TOTAL_W_CNT; i++) IBuf[i] = 0;
+    // Set colors to black
+    for(uint32_t i=0; i<LED_CNT; i++) ICurrentClr[i] = clRGBWBlack;
 
     // ==== DMA ====
     dmaStreamAllocate     (LEDWS_DMA, IRQ_PRIO_LOW, LedTxcIrq, NULL);
@@ -99,86 +97,145 @@ void LedSk_t::ISetCurrentColors() {
         AppendBitsMadeOfByte(ICurrentClr[i].B);
         AppendBitsMadeOfByte(ICurrentClr[i].W);
     }
-
     // Start transmission
     dmaStreamSetMemory0(LEDWS_DMA, IBuf);
     dmaStreamSetTransactionSize(LEDWS_DMA, TOTAL_W_CNT);
     dmaStreamSetMode(LEDWS_DMA, LED_DMA_MODE);
     dmaStreamEnable(LEDWS_DMA);
 }
+#endif
 
-#if 1 // ============================ Effects ==================================
-Effects_t Effects;
+#if 1 // ========================== Common Effects =============================
+EffAllTogetherNow_t EffAllTogetherNow;
+EffAllTogetherSmoothly_t EffAllTogetherSmoothly;
+EffFadeOneByOne_t EffFadeOneByOne(180, clRGBWGreen, clRGBWBlack);
 
-static THD_WORKING_AREA(waEffectsThread, 256);
+static EffBase_t *PCurrentEff = nullptr;
+static thread_reference_t PThd = nullptr;
+static Color_t DesiredClr[LED_CNT];
+
+static THD_WORKING_AREA(waEffectsThread, 64);
 __noreturn
 static void EffectsThread(void *arg) {
     chRegSetThreadName("Effects");
-    Effects.ITask();
-}
-
-__noreturn
-void Effects_t::ITask() {
     while(true) {
-        switch(IState) {
-            case effIdle: chThdSleep(TIME_INFINITE); break;
-
-            case effAllSmoothly: {
-                uint32_t Delay = 0;
-                for(uint8_t i=0; i<LED_CNT; i++) {
-                    uint32_t tmp = ICalcDelayN(i);  // }
-                    if(tmp > Delay) Delay = tmp;    // } Calculate Delay
-                    Leds.ICurrentClr[i].Adjust(DesiredClr[i]); // Adjust current color
-                } // for
-                Leds.ISetCurrentColors();
-                if(Delay == 0) {    // Setup completed
-//                    App.SignalEvt(EVT_LED_DONE);
-                    IState = effIdle;
-                }
-                else chThdSleepMilliseconds(Delay);
-            } break;
-        } // switch
-    } // while true
+        if(PCurrentEff == nullptr) {
+            chSysLock();
+            chThdSuspendS(&PThd);
+            chSysUnlock();
+        }
+        else {
+            if(PCurrentEff->Process() == effEnd) {
+                PCurrentEff = nullptr;
+            }
+        }
+    }
 }
 
-void Effects_t::Init() {
+uint32_t ICalcDelayN(uint32_t n, uint32_t SmoothValue) {
+    return Leds.ICurrentClr[n].DelayToNextAdj(DesiredClr[n], SmoothValue);
+}
+
+void LedEffectsInit() {
     Leds.Init();
-    AllTogetherNow(clBlack);
-    // Thread
-    PThd = chThdCreateStatic(waEffectsThread, sizeof(waEffectsThread), HIGHPRIO, (tfunc_t)EffectsThread, NULL);
+    chThdCreateStatic(waEffectsThread, sizeof(waEffectsThread), HIGHPRIO, (tfunc_t)EffectsThread, NULL);
 }
+#endif
 
-
-void Effects_t::AllTogetherNow(Color_t Color) {
-    IState = effIdle;
+#if 1 // ========================= Individual effects ==========================
+void EffAllTogetherNow_t::SetupAndStart(Color_t Color) {
+    PCurrentEff = nullptr;
     for(uint32_t i=0; i<LED_CNT; i++) Leds.ICurrentClr[i] = Color;
     Leds.ISetCurrentColors();
-//    App.SignalEvt(EVT_LED_DONE);
-}
-void Effects_t::AllTogetherNow(ColorHSV_t Color) {
-    IState = effIdle;
-    Color_t rgb = Color.ToRGB();
-    for(uint32_t i=0; i<LED_CNT; i++) Leds.ICurrentClr[i] = rgb;
-    Leds.ISetCurrentColors();
-//    App.SignalEvt(EVT_LED_DONE);
 }
 
-void Effects_t::AllTogetherSmoothly(Color_t Color, uint32_t ASmoothValue) {
-    if(ASmoothValue == 0) AllTogetherNow(Color);
+void EffAllTogetherSmoothly_t::SetupAndStart(Color_t Color, uint32_t ASmoothValue) {
+    if(ASmoothValue == 0) EffAllTogetherNow.SetupAndStart(Color);
     else {
         chSysLock();
-        for(uint32_t i=0; i<LED_CNT; i++) {
-            DesiredClr[i] = Color;
-            SmoothValue[i] = ASmoothValue;
-        }
-        IState = effAllSmoothly;
-        chSchWakeupS(PThd, MSG_OK);
+        ISmoothValue = ASmoothValue;
+        for(uint32_t i=0; i<LED_CNT; i++) DesiredClr[i] = Color;
+        PCurrentEff = this;
+        chThdResumeS(&PThd, MSG_OK);
         chSysUnlock();
     }
 }
 
-uint32_t Effects_t::ICalcDelayN(uint32_t n) {
-    return Leds.ICurrentClr[n].DelayToNextAdj(DesiredClr[n], SmoothValue[n]);
+EffState_t EffAllTogetherSmoothly_t::Process() {
+    uint32_t Delay = 0;
+    for(uint8_t i=0; i<LED_CNT; i++) {
+        uint32_t tmp = ICalcDelayN(i, ISmoothValue);  // }
+        if(tmp > Delay) Delay = tmp;                  // } Calculate Delay
+        Leds.ICurrentClr[i].Adjust(DesiredClr[i]);    // Adjust current color
+    } // for
+    Leds.ISetCurrentColors();
+    if (Delay == 0) return effEnd;  // Setup completed
+    else {
+        chThdSleepMilliseconds(Delay);
+        return effInProgress;
+    }
 }
+
+
+void EffFadeOneByOne_t::SetupIDs() {
+    for(int i=0; i<LED_CNT; i++) IDs[i] = i;
+}
+
+void EffFadeOneByOne_t::SetupAndStart(int32_t ThrLo, int32_t ThrHi) {
+    Printf("ThrLo: %d; ThrHi: %d\r", ThrLo, ThrHi);
+    // Setup ColorLo
+    for(int32_t i=0; i < ThrLo; i++) DesiredClr[i] = IClrLo;
+    // Setup ColorHi
+    for(int32_t i=ThrHi; i < LED_CNT; i++) DesiredClr[i] = IClrHi;
+    // Setup gradient
+    if(ThrHi > ThrLo) {
+        int32_t Len = ThrHi - ThrLo;
+        int32_t BrtStep = (255 * 1024) / Len;   // 255 is top brightness, 1024 is scaling coef
+        for(int32_t i=0; i<Len; i++) {
+            int32_t Indx = ThrLo + i;
+            if(Indx >=0 and Indx < LED_CNT) {
+                int32_t Brt = (i * BrtStep) / 1024;
+                Printf("%d Brt: %d\r", Indx, Brt);
+                DesiredClr[Indx].BeMixOf(IClrLo, IClrHi, Brt);
+            }
+        }
+    } // if(ThrHi > ThrLo)
+    // Start processing
+    chSysLock();
+    PCurrentEff = this;
+    chThdResumeS(&PThd, MSG_OK);
+    chSysUnlock();
+}
+
+#if 1 // ============================ All together =============================
+#endif
+
+#if 1 // ============================= One by one ==============================
+
+#endif
+
+#if 1 // ============================= Chunks ==================================
+#define CHUNK_CNT   4
+//static LedChunk_t Chunk[CHUNK_CNT] = {
+//        {0, 0},
+//        {1, 1},
+//        {2, 2},
+//        {3, 3},
+//};
+
+/*  0...(Thr-GRADIENT_LEN_ROWS): Color1;
+ *  (Thr-GRADIENT_LEN_ROWS)...Thr: gradient
+ *  Thr...LED_CNT: Color2
+ */
+//void Effects_t::SetChunksGradient(uint32_t Thr, uint32_t GradientLen) {
+    // Set Color1 for chunks 0...(Thr-GRADIENT_LEN_ROWS)
+//    for(int i=0; i<(Thr-GradientLen); i++) {
+//        if(i >= CHUNK_CNT) break;   // Do not go beyond
+//        Chunk[i].
+//    }
+//}
+#endif
+
+
 
 #endif

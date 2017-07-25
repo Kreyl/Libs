@@ -53,9 +53,7 @@ public:
 
 extern LedSk_t Leds;
 
-#if 1 // ============================== Effects ================================
-enum EffState_t {effIdle, effAllSmoothly};
-
+#if 1 // =============================== Chunk =================================
 class LedChunk_t {
 private:
     int Head, Tail;
@@ -75,26 +73,45 @@ public:
     uint32_t ProcessAndGetDelay();
     void StartOver();
 };
+#endif
 
-class Effects_t {
-private:
-    thread_t *PThd;
-    EffState_t IState;
-    uint32_t SmoothValue[LED_CNT];
-    void IProcessChunkRandom();
+#if 1 // ============================== Effects ================================
+enum EffState_t {effEnd, effInProgress};
+
+class EffBase_t {
 public:
-    void Init();
-    // Effects
-    void AllTogetherNow(Color_t Color);
-    void AllTogetherNow(ColorHSV_t Color);
-    void AllTogetherSmoothly(Color_t Color, uint32_t ASmoothValue);
-//    void AllTogetherSmoothly(ColorHSV_t Color, uint32_t ASmoothValue);
-    void ChunkRunningRandom(Color_t Color, uint32_t NLeds, uint32_t ASmoothValue);
-    // Inner use
-    uint32_t ICalcDelayN(uint32_t n);
-    Color_t DesiredClr[LED_CNT];
-    void ITask();
+    virtual EffState_t Process() = 0;
 };
 
-extern Effects_t Effects;
+class EffAllTogetherNow_t : public EffBase_t {
+public:
+    void SetupAndStart(Color_t Color);
+    EffState_t Process() { return effEnd; } // Dummy, never used
+};
+
+class EffAllTogetherSmoothly_t : public EffBase_t {
+protected:
+    uint32_t ISmoothValue;
+public:
+    void SetupAndStart(Color_t Color, uint32_t ASmoothValue);
+    EffState_t Process();
+};
+
+class EffFadeOneByOne_t : public EffAllTogetherSmoothly_t {
+private:
+    uint8_t IDs[LED_CNT];
+    Color_t IClrLo, IClrHi;
+public:
+    void SetupAndStart(int32_t ThrLo, int32_t ThrHi);
+    void SetupIDs();
+    EffFadeOneByOne_t(uint32_t ASmoothValue, Color_t AClrLo, Color_t AClrHi) :
+        IClrLo(AClrLo), IClrHi(AClrHi) { ISmoothValue = ASmoothValue; }
+};
+
+extern EffAllTogetherNow_t EffAllTogetherNow;
+extern EffAllTogetherSmoothly_t EffAllTogetherSmoothly;
+extern EffFadeOneByOne_t EffFadeOneByOne;
+
+void LedEffectsInit();
+
 #endif

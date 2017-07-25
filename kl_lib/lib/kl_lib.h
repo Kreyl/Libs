@@ -176,6 +176,10 @@ static T FindMediana(T *Arr, int32_t N) {
     return Arr[k];
 }
 
+// Amount of memory occupied by thread
+uint32_t GetThdFreeStack(void *wsp, uint32_t size);
+void PrintThdFreeStack(void *wsp, uint32_t size);
+
 /*
  * Early initialization code.
  * This initialization must be performed just after stack setup and before
@@ -1037,8 +1041,9 @@ static inline void EnterStandby() {
 #endif
 
 #if defined STM32L4XX
-    PWR->CR1 |= PWR_CR1_LPMS_SHUTDOWN;
-    PWR->SCR |= 0x011F; // Clear WUF
+    uint32_t tmp = PWR->CR1 & ~PWR_CR1_LPMS;
+    tmp |= PWR_CR1_LPMS_SHUTDOWN;
+    PWR->CR1 = tmp;
 #else
     PWR->CR = PWR_CR_PDDS;
     // Command to clear WUF (wakeup flag) and wait two sys clock cycles to allow it be cleared
@@ -1049,10 +1054,7 @@ static inline void EnterStandby() {
 }
 
 #if defined STM32L4XX
-static inline void EnableWakeup1Pin()  {
-    PWR->PDCRA |= 1;    // Enable pull-down at PA0
-    PWR->CR3 |= PWR_CR3_APC_Msk | PWR_CR3_EWUP1;    // Apply pull-up/down set above & en WKUP1
-}
+static inline void EnableWakeup1Pin()  { PWR->CR3 |=  PWR_CR3_EWUP1; }
 static inline void DisableWakeup1Pin() { PWR->CR3 &= ~PWR_CR3_EWUP1; }
 static inline void EnableWakeup2Pin()  { PWR->CR3 |=  PWR_CR3_EWUP2; }
 static inline void DisableWakeup2Pin() { PWR->CR3 &= ~PWR_CR3_EWUP2; }

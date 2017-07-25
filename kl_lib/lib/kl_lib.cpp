@@ -15,6 +15,35 @@
 //extern "C" void __cxa_pure_virtual() {
 //    Uart.PrintfNow("pure_virtual\r");
 //}
+
+// Amount of memory occupied by thread
+uint32_t GetThdFreeStack(void *wsp, uint32_t size) {
+    uint32_t n = 0;
+    uint32_t RequestedSize = size - (sizeof(thread_t) +
+            (size_t)PORT_GUARD_PAGE_SIZE +
+            sizeof (struct port_intctx) +
+            sizeof (struct port_extctx) +
+            (size_t)PORT_INT_REQUIRED_STACK);
+#if CH_DBG_FILL_THREADS
+    uint8_t *startp = (uint8_t *)wsp;
+    uint8_t *endp = (uint8_t *)wsp + RequestedSize;
+    while (startp < endp)
+        if(*startp++ == CH_DBG_STACK_FILL_VALUE) ++n;
+#endif
+    return n;
+}
+
+void PrintThdFreeStack(void *wsp, uint32_t size) {
+    uint32_t RequestedSize = size - (sizeof(thread_t) +
+            (size_t)PORT_GUARD_PAGE_SIZE +
+            sizeof (struct port_intctx) +
+            sizeof (struct port_extctx) +
+            (size_t)PORT_INT_REQUIRED_STACK);
+
+    Printf("Free stack memory: %u of %u bytes\r",
+            GetThdFreeStack(wsp, size), RequestedSize);
+}
+
 #endif
 
 #if 1 // ============================= Timer ===================================
@@ -1599,10 +1628,10 @@ uint32_t Clk_t::GetSysClkHz() {
     } // switch
 }
 
-    uint32_t tmp;
+
 void Clk_t::UpdateFreqValues() {
     // AHB freq
-    tmp = AHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> 4)];
+    uint32_t tmp = AHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> 4)];
     AHBFreqHz = GetSysClkHz() >> tmp;
     // APB freq
     uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
@@ -1669,13 +1698,11 @@ void Clk_t::SetHiPerfMode() {
     if(EnableHSE() == retvOk) {
         // Setup PLL (must be disabled first)
 //        if(SetupPllMulDiv(1, 24, 4, 6) == retvOk) { // 12MHz / 1 * 24 => 72 and 48MHz
-//        if(SetupPllMulDiv(2, 16, 2, 2) == retvOk) { // 12MHz / 2 * 16 / 2 => 48 and 48MHz
-        if(SetupPllMulDiv(2, 16, 4, 2) == retvOk) { // 12MHz / 2 * 16 / [2, 4] => 24 and 48MHz
+        if(SetupPllMulDiv(2, 16, 2, 2) == retvOk) { // 12MHz / 1 * 8 / 2 => 48 and 48MHz
             SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
             SetVoltageRange(mvrHiPerf);
 //            SetupFlashLatency(72, mvrHiPerf);
-//            SetupFlashLatency(48, mvrHiPerf);
-            SetupFlashLatency(24, mvrHiPerf);
+            SetupFlashLatency(48, mvrHiPerf);
             EnablePrefeth();
             // Switch clock
             if(EnablePLL() == retvOk) {

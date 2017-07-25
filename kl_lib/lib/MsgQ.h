@@ -73,6 +73,7 @@ union EvtMsg_t {
     EvtMsg_t() : Ptr(nullptr), ID(0) {}
     EvtMsg_t(uint8_t AID) : ID(AID) {}
     EvtMsg_t(uint8_t AID, void *APtr) : Ptr(APtr), ID(AID) {}
+    EvtMsg_t(uint8_t AID, int32_t AValue) : Value(AValue), ID(AID) {}
     EvtMsg_t(uint8_t AID, uint8_t AValueID, int32_t AValue) : Value(AValue), ValueID(AValueID), ID(AID) {}
 } __attribute__((__packed__));
 
