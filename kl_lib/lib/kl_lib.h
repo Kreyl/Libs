@@ -306,6 +306,10 @@ static inline bool TimeElapsed(systime_t *PSince, uint32_t Delay_ms) {
     chSysUnlock();
     return Rslt;
 }
+
+static inline void Loop(uint32_t N) {
+    for(volatile uint32_t i=0; i<N; i++);
+}
 #endif
 
 #if 1 // ========================== Simple delay ===============================
@@ -561,6 +565,8 @@ static void PinClockEnable(const GPIO_TypeDef *PGpioPort) {
     else if(PGpioPort == GPIOB) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
     else if(PGpioPort == GPIOC) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOCEN;
     else if(PGpioPort == GPIOD) RCC->AHB2ENR |= RCC_AHB2ENR_GPIODEN;
+    else if(PGpioPort == GPIOE) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOEEN;
+    else if(PGpioPort == GPIOF) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOFEN;
     else if(PGpioPort == GPIOH) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOHEN;
 #else
     if     (PGpioPort == GPIOA) RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
@@ -1134,6 +1140,7 @@ public:
     void WaitBsyHi2Lo()  const { while(PSpi->SR & SPI_SR_BSY); }
     void WaitTxEHi()     const { while(!(PSpi->SR & SPI_SR_TXE)); }
     void ClearRxBuf()    const { while(PSpi->SR & SPI_SR_RXNE) (void)PSpi->DR; }
+    void ClearOVR()      const { (void)PSpi->DR; (void)PSpi->SR; (void)PSpi->DR; }
     uint8_t ReadWriteByte(uint8_t AByte) const {
         *((volatile uint8_t*)&PSpi->DR) = AByte;
         while(!(PSpi->SR & SPI_SR_RXNE));  // Wait for SPI transmission to complete
@@ -1521,6 +1528,9 @@ enum MCUVoltRange_t {mvrHiPerf, mvrLoPerf};
 enum Src48MHz_t { src48None = 0b00, src48PllSai1Q = 0b01, src48PllQ = 0b10, src48Msi = 0b11 };
 enum PllSrc_t { pllsrcNone = 0b00, pllsrcMsi = 0b01, pllsrcHsi16 = 0b10, pllsrcHse = 0b11 };
 
+enum McoSrc_t {mcoNone=0b0000, mcoSYSCLK=0b0001, mcoMSI=0b0010, mcoHSI16=0b0011, mcoHSE=0b0100, mcoMainPLL=0b0101, mcoLSI=0b0110, mcoLSE=0b0111 };
+enum McoDiv_t {mcoDiv1=0b000, mcoDiv2=0b001, mcoDiv4=0b010, mcoDiv8=0b011, mcoDiv16 = 0b100};
+
 enum i2cClk_t { i2cclkPCLK1 = 0, i2cclkSYSCLK = 1, i2cclkHSI = 2 };
 enum uartClk_t {uartclkPCLK = 0, uartclkSYSCLK = 1, uartclkHSI = 2, uartclkLSE = 3 };
 
@@ -1644,6 +1654,17 @@ public:
     }
 
     uint32_t GetSaiClkHz();
+
+    // Clock output
+    void EnableMCO(McoSrc_t Src, McoDiv_t Div) {
+        PinSetupAlterFunc(GPIOA, 8, omPushPull, pudNone, AF0, psHigh);
+        RCC->CFGR &= ~(RCC_CFGR_MCOSEL | RCC_CFGR_MCOPRE);   // First, disable output and clear settings
+        RCC->CFGR |= (((uint32_t)Src) << 24) | ((uint32_t)Div << 28);
+    }
+    void DisableMCO() {
+        PinSetupAnalog(GPIOA, 8);
+        RCC->CFGR &= ~(RCC_CFGR_MCOSEL | RCC_CFGR_MCOPRE);
+    }
 
     void PrintFreqs();
 };
