@@ -1523,6 +1523,8 @@ enum AHBDiv_t {
     ahbDiv512=0b1111
 };
 
+enum CoreClk_t {cclk8MHz, cclk16MHz, cclk24MHz, cclk48MHz, cclk72MHz};
+
 enum APBDiv_t {apbDiv1=0b000, apbDiv2=0b100, apbDiv4=0b101, apbDiv8=0b110, apbDiv16=0b111};
 enum MCUVoltRange_t {mvrHiPerf, mvrLoPerf};
 enum Src48MHz_t { src48None = 0b00, src48PllSai1Q = 0b01, src48PllQ = 0b10, src48Msi = 0b11 };
@@ -1538,7 +1540,6 @@ class Clk_t {
 private:
     uint8_t EnableHSE();
     uint8_t EnablePLL();
-    bool HiPerfModeEnabled = false;
 public:
     // Frequency values
     uint32_t AHBFreqHz;     // HCLK: AHB Buses, Core, Memory, DMA
@@ -1575,8 +1576,7 @@ public:
     }
     void DisableLSI() { RCC->CSR &= RCC_CSR_LSION; }
 
-    void SetHiPerfMode();
-    void SetLoPerfMode();
+    void SetCoreClk(CoreClk_t CoreClk);
 
     uint32_t GetSysClkHz();
 

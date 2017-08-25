@@ -1691,34 +1691,47 @@ void Clk_t::SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange) {
 //    while(FLASH->ACR != tmp);
 }
 
-void Clk_t::SetHiPerfMode() {
-    if(HiPerfModeEnabled) return;
-    __unused uint8_t Rslt = retvFail;
-    // Try to enable HSE
-    if(EnableHSE() == retvOk) {
+void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
+    EnablePrefeth();
+    // Enable/disable HSE
+    if(CoreClk >= cclk16MHz) {
+        if(EnableHSE() != retvOk) return;   // Try to enable HSE
+        SetVoltageRange(mvrHiPerf);
+        DisablePLL();
+    }
+    // Setup dividers
+    switch(CoreClk) {
+        case cclk8MHz:
+            break;
         // Setup PLL (must be disabled first)
-//        if(SetupPllMulDiv(1, 24, 4, 6) == retvOk) { // 12MHz / 1 * 24 => 72 and 48MHz
-//        if(SetupPllMulDiv(1, 8, 2, 2) == retvOk) { // 12MHz / 1 * 8 / 2 => 48 and 48MHz
-//        if(SetupPllMulDiv(1, 8, 6, 2) == retvOk) { // 12MHz / 1 * 8 / (6 and 2) => 16 and 48MHz
-        if(SetupPllMulDiv(1, 8, 4, 2) == retvOk) { // 12MHz / 1 * 8 / (4 and 2) => 24 and 48MHz
-            SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
-            SetVoltageRange(mvrHiPerf);
-            SetupFlashLatency(24, mvrHiPerf);   // !!! Don't forget change this
-            EnablePrefeth();
-            // Switch clock
-            if(EnablePLL() == retvOk) {
-                if(SwitchToPLL() == retvOk) {
-                    Rslt = retvOk;
-                    HiPerfModeEnabled = true;
-                } // sw 2 PLL
-            } // en PLL
-        } // if setup pll div
-    } // if Enable HSE
+        case cclk16MHz:
+            // 12MHz / 1 * 8 / (6 and 2) => 16 and 48MHz
+            if(SetupPllMulDiv(1, 8, 6, 2) != retvOk) return;
+            SetupFlashLatency(16, mvrHiPerf);
+            break;
+        case cclk24MHz:
+            // 12MHz / 1 * 8 / (4 and 2) => 24 and 48MHz
+            if(SetupPllMulDiv(1, 8, 4, 2) != retvOk) return;
+            SetupFlashLatency(24, mvrHiPerf);
+            break;
+        case cclk48MHz:
+            // 12MHz / 1 * 8 / 2 => 48 and 48MHz
+            if(SetupPllMulDiv(1, 8, 2, 2) != retvOk) return;
+            SetupFlashLatency(48, mvrHiPerf);
+            break;
+        case cclk72MHz:
+            // 12MHz / 1 * 24 => 72 and 48MHz
+            if(SetupPllMulDiv(1, 24, 4, 6) != retvOk) return;
+            SetupFlashLatency(72, mvrHiPerf);
+            break;
+    } // switch
+
+    if(CoreClk >= cclk16MHz) {
+        SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
+        if(EnablePLL() == retvOk) SwitchToPLL();
+    }
 }
 
-void Clk_t::SetLoPerfMode() {
-
-}
 
 void Clk_t::SetVoltageRange(MCUVoltRange_t VoltRange) {
     uint32_t tmp = PWR->CR1;
