@@ -47,7 +47,7 @@ void LedSk_t::Init() {
     ISpi.EnableTxDma();
 
     // Zero buffer
-    for(int i=0; i<TOTAL_W_CNT; i++) IBuf[i] = 0;
+    for(uint32_t i=0; i<TOTAL_W_CNT; i++) IBuf[i] = 0;
     // Set colors to black
     for(uint32_t i=0; i<LED_CNT; i++) ICurrentClr[i] = clRGBWBlack;
 
@@ -108,7 +108,7 @@ void LedSk_t::ISetCurrentColors() {
 #if 1 // ========================== Common Effects =============================
 EffAllTogetherNow_t EffAllTogetherNow;
 EffAllTogetherSmoothly_t EffAllTogetherSmoothly;
-EffFadeOneByOne_t EffFadeOneByOne(180, clRGBWGreen, clRGBWBlack);
+EffFadeOneByOne_t EffFadeOneByOne(180, clRGBWStars, clRGBWBlack);
 
 static EffBase_t *PCurrentEff = nullptr;
 static thread_reference_t PThd = nullptr;
@@ -154,7 +154,7 @@ void EffAllTogetherSmoothly_t::SetupAndStart(Color_t Color, uint32_t ASmoothValu
     else {
         chSysLock();
         ISmoothValue = ASmoothValue;
-        for(uint32_t i=0; i<LED_CNT; i++) DesiredClr[i] = Color;
+        for(int32_t i=0; i<LED_CNT; i++) DesiredClr[i] = Color;
         PCurrentEff = this;
         chThdResumeS(&PThd, MSG_OK);
         chSysUnlock();
@@ -163,7 +163,7 @@ void EffAllTogetherSmoothly_t::SetupAndStart(Color_t Color, uint32_t ASmoothValu
 
 EffState_t EffAllTogetherSmoothly_t::Process() {
     uint32_t Delay = 0;
-    for(uint8_t i=0; i<LED_CNT; i++) {
+    for(int32_t i=0; i<LED_CNT; i++) {
         uint32_t tmp = ICalcDelayN(i, ISmoothValue);  // }
         if(tmp > Delay) Delay = tmp;                  // } Calculate Delay
         Leds.ICurrentClr[i].Adjust(DesiredClr[i]);    // Adjust current color
@@ -178,11 +178,11 @@ EffState_t EffAllTogetherSmoothly_t::Process() {
 
 
 void EffFadeOneByOne_t::SetupIDs() {
-    for(int i=0; i<LED_CNT; i++) IDs[i] = i;
+    for(uint32_t i=0; i<LED_CNT; i++) IDs[i] = i;
 }
 
 void EffFadeOneByOne_t::SetupAndStart(int32_t ThrLo, int32_t ThrHi) {
-    Printf("ThrLo: %d; ThrHi: %d\r", ThrLo, ThrHi);
+//    Printf("ThrLo: %d; ThrHi: %d\r", ThrLo, ThrHi);
     // Setup ColorLo
     for(int32_t i=0; i < ThrLo; i++) DesiredClr[i] = IClrLo;
     // Setup ColorHi
@@ -195,8 +195,8 @@ void EffFadeOneByOne_t::SetupAndStart(int32_t ThrLo, int32_t ThrHi) {
             int32_t Indx = ThrLo + i;
             if(Indx >=0 and Indx < LED_CNT) {
                 int32_t Brt = (i * BrtStep) / 1024;
-                Printf("%d Brt: %d\r", Indx, Brt);
-                DesiredClr[Indx].BeMixOf(IClrLo, IClrHi, Brt);
+//                Printf("%d Brt: %d\r", Indx, Brt);
+                DesiredClr[Indx].BeMixOf(IClrHi, IClrLo, Brt);
             }
         }
     } // if(ThrHi > ThrLo)
