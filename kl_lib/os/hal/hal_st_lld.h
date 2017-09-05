@@ -89,6 +89,12 @@
 #endif
 #define STM32_ST_TIM                              STM32_TIM5
 
+#elif STM32_ST_USE_TIMER == 14
+#if !STM32_HAS_TIM14
+#error "TIM14 not present"
+#endif
+#define STM32_ST_TIM                              STM32_TIM14
+
 #elif STM32_ST_USE_TIMER == 21
 #if !STM32_HAS_TIM21
 #error "TIM21 not present"
