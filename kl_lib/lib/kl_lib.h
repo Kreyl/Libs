@@ -114,8 +114,8 @@ public:
 };
 
 // ==== Math ====
-#define MIN(a, b)   ( ((a)<(b))? (a) : (b) )
-#define MAX(a, b)   ( ((a)>(b))? (a) : (b) )
+#define MIN_(a, b)   ( ((a)<(b))? (a) : (b) )
+#define MAX_(a, b)   ( ((a)>(b))? (a) : (b) )
 #define ABS(a)      ( ((a) < 0)? -(a) : (a) )
 #define TRIM_VALUE(v, Max)  { if((v) > (Max)) (v) = (Max); }
 #define IS_LIKE(v, precise, deviation)  (((precise - deviation) < v) and (v < (precise + deviation)))
@@ -1039,34 +1039,54 @@ public:
 
 #if 1 // ============================== Sleep ==================================
 namespace Sleep {
+#if defined STM32L4XX
+static inline void EnterStandby() {
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    uint32_t tmp = PWR->CR1 & ~PWR_CR1_LPMS;
+    tmp |= PWR_CR1_LPMS_STANDBY;
+    PWR->CR1 = tmp;
+    __WFI();
+}
+
+// It is impossible to distinct power-on and wake from shutdown
+static inline void EnterShutdown() {
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    uint32_t tmp = PWR->CR1 & ~PWR_CR1_LPMS;
+    tmp |= PWR_CR1_LPMS_SHUTDOWN;
+    PWR->CR1 = tmp;
+    __WFI();
+}
+
+static inline void EnableWakeup1Pin(RiseFall_t RiseFall)  {
+    if(RiseFall == rfFalling) PWR->CR4 |= PWR_CR4_WP1;    // Detection on low level (falling edge)
+    else PWR->CR4 &= ~PWR_CR4_WP1;  // Detection on high level (rising edge)
+    PWR->CR3 |=  PWR_CR3_EWUP1;
+}
+static inline void DisableWakeup1Pin() { PWR->CR3 &= ~PWR_CR3_EWUP1; }
+static inline void EnableWakeup2Pin(RiseFall_t RiseFall)  {
+    if(RiseFall == rfFalling) PWR->CR4 |= PWR_CR4_WP2;
+    else PWR->CR4 &= ~PWR_CR4_WP2;
+    PWR->CR3 |=  PWR_CR3_EWUP2;
+}
+static inline void DisableWakeup2Pin() { PWR->CR3 &= ~PWR_CR3_EWUP2; }
+static inline bool WasInStandby()      { return (PWR->SR1 & PWR_SR1_SBF); }
+static inline bool WkupOccured()       { return (PWR->SR1 & 0x1F); }
+static inline void ClearStandbyFlag()  { PWR->SCR |= PWR_SCR_CSBF; }
+static inline void ClearWUFFlags()     { PWR->SCR |= 0x1F; }
+#else
 static inline void EnterStandby() {
 #if defined STM32F0XX || defined STM32L4XX || defined STM32F2XX
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
 #else
     SCB->SCR |= SCB_SCR_SLEEPDEEP;
 #endif
-
-#if defined STM32L4XX
-    uint32_t tmp = PWR->CR1 & ~PWR_CR1_LPMS;
-    tmp |= PWR_CR1_LPMS_SHUTDOWN;
-    PWR->CR1 = tmp;
-#else
     PWR->CR = PWR_CR_PDDS;
     // Command to clear WUF (wakeup flag) and wait two sys clock cycles to allow it be cleared
     PWR->CR |= PWR_CR_CWUF;
     __NOP(); __NOP();
-#endif
     __WFI();
 }
 
-#if defined STM32L4XX
-static inline void EnableWakeup1Pin()  { PWR->CR3 |=  PWR_CR3_EWUP1; }
-static inline void DisableWakeup1Pin() { PWR->CR3 &= ~PWR_CR3_EWUP1; }
-static inline void EnableWakeup2Pin()  { PWR->CR3 |=  PWR_CR3_EWUP2; }
-static inline void DisableWakeup2Pin() { PWR->CR3 &= ~PWR_CR3_EWUP2; }
-static inline bool WasInStandby()      { return (PWR->SR1 & PWR_SR1_SBF); }
-static inline void ClearStandbyFlag()  { PWR->SCR |= PWR_SCR_CSBF; }
-#else
 #if defined STM32F2XX
 static inline void EnableWakeupPin()  { PWR->CSR |=  PWR_CSR_EWUP; }
 static inline void DisableWakeupPin() { PWR->CSR &= ~PWR_CSR_EWUP; }
@@ -1170,14 +1190,25 @@ public:
 // =========================== Flash and Option bytes ==========================
 namespace Flash {
 
-uint8_t ErasePage(uint32_t PageAddress);
-uint8_t ProgramWord(uint32_t Address, uint32_t Data);
+void UnlockFlash();
+void LockFlash();
 
+uint8_t ErasePage(uint32_t PageAddress);
+#if defined STM32L4XX
+uint8_t ProgramDWord(uint32_t Address, uint64_t Data);
+#else
+uint8_t ProgramWord(uint32_t Address, uint32_t Data);
 uint8_t ProgramBuf(void *PData, uint32_t ByteSz, uint32_t Addr);
+#endif
 
 bool FirmwareIsLocked();
 void LockFirmware();
 void UnlockFirmware();
+
+#if defined STM32L4XX
+bool DualbankIsEnabled();
+void DisableDualbank();
+#endif
 
 }; // Namespace
 
