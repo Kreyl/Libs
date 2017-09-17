@@ -82,7 +82,7 @@ void BaseUart_t::IRQDmaTxHandler() {
 
 void BaseUart_t::ISendViaDMA() {
     uint32_t PartSz = (TXBuf + UART_TXBUF_SZ) - PRead; // Cnt from PRead to end of buf
-    ITransSize = MIN(IFullSlotsCount, PartSz);
+    ITransSize = MIN_(IFullSlotsCount, PartSz);
     if(ITransSize != 0) {
         IDmaIsIdle = false;
         dmaStreamSetMemory0(Params->PDmaTx, PRead);

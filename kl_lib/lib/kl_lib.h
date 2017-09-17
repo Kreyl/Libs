@@ -1400,7 +1400,6 @@ enum APBDiv_t {apbDiv1=0b000, apbDiv2=0b100, apbDiv4=0b101, apbDiv8=0b110, apbDi
 class Clk_t {
 private:
     uint8_t EnableHSE();
-    uint8_t EnableHSI();
     uint8_t EnablePLL();
     // To Hsi48 and back again
     uint32_t ISavedAhbDividers;
@@ -1419,6 +1418,7 @@ public:
     void SwitchToHsi();
 #endif
     // Clk Enables
+    uint8_t EnableHSI();
     uint8_t EnableHSI48();
     void EnableCRS();
     void EnableCSS()    { RCC->CR  |=  RCC_CR_CSSON; }
