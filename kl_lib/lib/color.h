@@ -231,6 +231,7 @@ struct ColorHSV_t {
     }
 
     ColorHSV_t(uint16_t AH, uint8_t AS, uint8_t AV) : H(AH), S(AS), V(AV) {}
+    ColorHSV_t(const ColorHSV_t &AClr) : H(AClr.H), S(AClr.S), V(AClr.V) {}
 } __attribute__((packed));
 
 // Colors
