@@ -18,7 +18,6 @@ __noreturn
 static void SensorsThread(void *arg) {
     chRegSetThreadName("PinSensors");
     while(true) {
-        chThdSleepMilliseconds(SNS_POLL_PERIOD_MS);
         ftVoidPSnsStLen PostProcessor = PinSns[0].Postprocessor;
         uint32_t GroupLen = 0;
         PinSnsState_t *PStates = &States[0];
@@ -48,6 +47,7 @@ static void SensorsThread(void *arg) {
         } // while i
         // Execute postprocessor for last group
         if(PostProcessor != nullptr) PostProcessor(PStates, GroupLen);
+        chThdSleepMilliseconds(SNS_POLL_PERIOD_MS);
     } // while true
 }
 

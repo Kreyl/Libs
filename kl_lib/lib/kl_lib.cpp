@@ -1203,15 +1203,16 @@ uint8_t Clk_t::EnablePLL() {
 }
 
 #ifdef RCC_CR2_HSI48ON
+
 uint8_t Clk_t::EnableHSI48() {
     RCC->CR2 |= RCC_CR2_HSI48ON;
-    for(volatile uint32_t i=0; i<999; i++); // Let it to stabilize. Otherwise program counter flies to space with Ozzy Osbourne
-    uint32_t StartUpCounter=0;
-    do {
-        if(RCC->CR2 & RCC_CR2_HSI48RDY) return 0;   // Clock is ready
-        StartUpCounter++;
-    } while(StartUpCounter < CLK_STARTUP_TIMEOUT);
-    return 1; // Timeout
+    volatile int32_t StartUpCounter = CLK_STARTUP_TIMEOUT;
+    while(StartUpCounter-- > 0); // Let it to stabilize. Otherwise program counter flies to space with Ozzy Osbourne
+    StartUpCounter = CLK_STARTUP_TIMEOUT;
+    while(StartUpCounter-- > 0) {
+        if(RCC->CR2 & RCC_CR2_HSI48RDY) return retvOk;   // Clock is ready
+    }
+    return retvTimeout; // Timeout
 }
 #endif
 
@@ -1361,33 +1362,28 @@ void Clk_t::SetupFlashLatency(uint32_t FrequencyHz) {
 }
 
 void Clk_t::PrintFreqs() {
-    Printf(
-            "AHBFreq=%uMHz; APBFreq=%uMHz\r",
+    Printf("AHBFreq=%uMHz; APBFreq=%uMHz\r",
             Clk.AHBFreqHz/1000000, Clk.APBFreqHz/1000000);
 }
 
 #ifdef RCC_CFGR_SW_HSI48
 void Clk_t::EnableCRS() {
     RCC->APB1ENR |= RCC_APB1ENR_CRSEN;      // Enable CRS clocking
+    volatile uint32_t tmpreg = RCC->APB1ENR & RCC_APB1ENR_CRSEN;
+    (void)tmpreg;
     RCC->APB1RSTR |= RCC_APB1RSTR_CRSRST;   // }
     RCC->APB1RSTR &= ~RCC_APB1RSTR_CRSRST;  // } Reset CRS
     // Configure Synchronization input
-    // Clear SYNCDIV[2:0], SYNCSRC[1:0] & SYNCSPOL bits
-    CRS->CFGR &= ~(CRS_CFGR_SYNCDIV | CRS_CFGR_SYNCSRC | CRS_CFGR_SYNCPOL);
-    // Configure CRS prescaler, source & polarity
-    CRS->CFGR |= (CRS_PRESCALER | CRS_SOURCE | CRS_POLARITY);
-    // Configure Frequency Error Measurement
-    CRS->CFGR &= ~(CRS_CFGR_RELOAD | CRS_CFGR_FELIM);
-    CRS->CFGR |= (CRS_RELOAD_VAL | (CRS_ERROR_LIMIT << 16));
+    tmpreg = (CRS_PRESCALER | CRS_SOURCE | CRS_POLARITY);
+    tmpreg |= CRS_RELOAD_VAL;
+    tmpreg |= (CRS_ERROR_LIMIT << 16);
+    CRS->CFGR = tmpreg;
     // Adjust HSI48 oscillator smooth trimming
-    CRS->CR &= ~CRS_CR_TRIM;
-    CRS->CR |= (HSI48_CALIBRATN << 8);
+    tmpreg = CRS->CR & ~CRS_CR_TRIM;
+    tmpreg |= (HSI48_CALIBRATN << 8);
+    CRS->CR = tmpreg;
     // Enable auto trimming
-    CRS->CR |= CRS_CR_AUTOTRIMEN;
-    // Setup USB clock source = HSI48
-    RCC->CFGR3 &= ~RCC_CFGR3_USBSW;
-    // Enable Frequency error counter
-    CRS->CR |= CRS_CR_CEN;
+    CRS->CR |= CRS_CR_AUTOTRIMEN | CRS_CR_CEN;
 }
 
 void Clk_t::DisableCRS() {

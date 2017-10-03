@@ -119,12 +119,13 @@ public:
     void PrintEOL();
 };
 
-
 // Functions
 void Printf(const char *format, ...);
 void PrintfI(const char *format, ...);
 void PrintfEOL();
 //void PrintfNow(const char *format, ...);
+
+char* PrintfToBuf(char* PBuf, const char *format, ...);
 
 extern "C" {
 void PrintfC(const char *format, ...);

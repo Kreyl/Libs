@@ -13,6 +13,7 @@
 FILINFO FileInfo;
 DIR Dir;
 FIL IFile;
+char IStr[SD_STRING_SZ];
 
 uint8_t TryOpenFileRead(const char *Filename, FIL *PFile) {
     FRESULT rslt = f_open(PFile, Filename, FA_READ);
@@ -28,6 +29,15 @@ uint8_t TryOpenFileRead(const char *Filename, FIL *PFile) {
     else {
         if (rslt == FR_NO_FILE) Printf("%S: not found\r", Filename);
         else Printf("OpenFile error: %u\r", rslt);
+        return retvFail;
+    }
+}
+
+uint8_t TryOpenFileRewrite(const char *Filename, FIL *PFile) {
+    FRESULT rslt = f_open(PFile, Filename, FA_WRITE+FA_CREATE_ALWAYS);
+    if(rslt == FR_OK) return retvOk;
+    else {
+        Printf("%S open error: %u\r", Filename, rslt);
         return retvFail;
     }
 }
@@ -97,9 +107,42 @@ uint8_t CountFilesInDir(const char* DirName, const char* Extension, uint32_t *PC
     return retvOk;
 }
 
-#if 1 // ======================= ini file operations ===========================
-// ==== Inner use ====
-char IStr[SD_STRING_SZ];
+uint8_t CountDirsStartingWith(const char* Path, const char* DirNameStart, uint32_t *PCnt) {
+    FRESULT Rslt = f_opendir(&Dir, Path);
+    if(Rslt != FR_OK) return retvFail;
+    *PCnt = 0;
+    int Len = strlen(DirNameStart);
+    while(true) {
+        Rslt = f_readdir(&Dir, &FileInfo);
+        if(Rslt != FR_OK) return retvFail;
+        if((FileInfo.fname[0] == 0) and (FileInfo.lfname[0] == 0)) return retvOk;   // Nothing left
+        else { // Filename ok, check if dir
+            if(FileInfo.fattrib & AM_DIR) {
+                // Check if starts with DirNameStart
+                char *FName = (FileInfo.lfname[0] == 0)? FileInfo.fname : FileInfo.lfname;
+//                Printf("%S\r", FName);
+                if(strncasecmp(FName, DirNameStart, Len) == 0) (*PCnt)++;
+            } // if dir
+        } // Filename ok
+    }
+    return retvOk;
+}
+
+namespace ini { // =================== ini file operations =====================
+void WriteSection(FIL *PFile, const char *ASection) {
+    f_printf(PFile, "[%S]\r\n", ASection);
+}
+void WriteString(FIL *PFile, const char *AKey, char *AValue) {
+    f_printf(PFile, "%S=%S\r\n", AKey, AValue);
+}
+void WriteInt32(FIL *PFile, const char *AKey, const int32_t AValue) {
+    f_printf(PFile, "%S=%D\r\n", AKey, AValue);
+}
+void WriteNewline(FIL *PFile) {
+    f_putc('\r', PFile);
+    f_putc('\n', PFile);
+}
+
 
 static inline char* skipleading(char *S) {
     while (*S != '\0' && *S <= ' ') S++;
@@ -115,7 +158,7 @@ static inline char* striptrailing(char *S) {
     return S;
 }
 
-uint8_t iniReadString(const char *AFileName, const char *ASection, const char *AKey, char **PPOutput) {
+uint8_t ReadString(const char *AFileName, const char *ASection, const char *AKey, char **PPOutput) {
     FRESULT rslt;
 //    Printf("%S %S %S\r", __FUNCTION__, AFileName, ASection);
     // Open file
@@ -177,15 +220,69 @@ uint8_t iniReadString(const char *AFileName, const char *ASection, const char *A
     *PPOutput = StartP;
     return retvOk;
 }
+} // Namespace
 
-//template <typename T>
-//uint8_t iniRead(const char *AFileName, const char *ASection, const char *AKey, T *POutput) {
-//    char *S = nullptr;
-//    if(iniReadString(AFileName, ASection, AKey, &S) == retvOk) {
-//        int32_t tmp = strtol(S, NULL, 10);
-//        *POutput = (T)tmp;
-//        return retvOk;
-//    }
-//    else return retvFail;
-//}
-#endif
+namespace csv { // =================== csv file operations =====================
+#define CSV_DELIMITERS  " ,={}\r\n"
+static char *csvCurToken;
+
+uint8_t OpenFile(const char *AFileName) {
+    return TryOpenFileRead(AFileName, &IFile);
+}
+void RewindFile() {
+    f_lseek(&IFile, 0);
+}
+void CloseFile() {
+    f_close(&IFile);
+}
+
+uint8_t ReadNextLine() {
+    // Move through file until comments end
+    while(true) {
+        if(f_eof(&IFile) or f_gets(IStr, SD_STRING_SZ, &IFile) == nullptr) {
+//            Printf("csvNoMoreData\r");
+            return retvEndOfFile;
+        }
+        csvCurToken = strtok(IStr, CSV_DELIMITERS);
+        if(*csvCurToken == '#' or *csvCurToken == 0) continue; // Skip comments and empty lines
+        else return retvOk;
+    }
+}
+
+uint8_t GetNextToken(char** POutput) {
+    // First time, return csvCurToken, as it was set in ReadNextLine
+    if(csvCurToken != nullptr) {
+        *POutput = csvCurToken;
+        csvCurToken = nullptr;
+    }
+    else *POutput = strtok(NULL, CSV_DELIMITERS);
+    return (*POutput == '\0')? retvEmpty : retvOk;
+}
+
+void GetNextCellString(char* POutput) {
+    char *Token;
+    if(GetNextToken(&Token) == retvOk) {
+        // Skip leading quotes
+        char *StartP = Token;
+        while(*StartP == '"' and *StartP != '\0') StartP++;
+        char *EndP = Token + strlen(Token) - 1;
+        while(*EndP == '"' and EndP > Token) EndP--;
+        int32_t Len = EndP - StartP + 1;
+        if(Len > 0) strncpy(POutput, StartP, Len);
+        else *POutput = '\0';
+    }
+}
+
+uint8_t FindFirstCell(const char* Name) {
+    while(true) {
+        if(ReadNextLine() != retvOk) break;
+//        Printf("Token: %S\r", csvCurToken);
+        if(strcasecmp(csvCurToken, Name) == 0) {
+            csvCurToken = strtok(NULL, CSV_DELIMITERS);
+            return retvOk;
+        }
+    }
+    return retvNotFound;
+}
+
+} // namespace
