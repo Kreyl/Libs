@@ -16,6 +16,10 @@ $CMP DIPx6
 D DIP switch x4
 $ENDCMP
 #
+$CMP DIPx8
+D DIP switch x8
+$ENDCMP
+#
 $CMP SWITCH
 D Switch
 $ENDCMP
