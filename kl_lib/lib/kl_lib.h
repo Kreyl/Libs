@@ -303,33 +303,32 @@ public:
 #endif
 
 #if 1 // ========================== Random =====================================
-static inline int Random(int LowInclusive, int HighInclusive) {
-    return (rand() % (HighInclusive + 1 - LowInclusive)) + LowInclusive;
+namespace Random {
+//uint32_t last = 1;
+// Generate pseudo-random value
+static inline int Generate(int LowInclusive, int HighInclusive) {
+    uint32_t last = random();
+    return (last % (HighInclusive + 1 - LowInclusive)) + LowInclusive;
 }
-static inline void RandomSeed(unsigned int Seed) { srand(Seed); }
+// Seed pseudo-random generator with new seed
+static inline void Seed(unsigned int Seed) { srand(Seed); }
+
+// True random
+#if defined STM32L4XX
+static inline void TrueInit() {
+    rccEnableAHB2(RCC_AHB2ENR_RNGEN, FALSE);
+    RNG->CR = RNG_CR_RNGEN; // Enable random generator
+    while((RNG->SR & RNG_SR_DRDY) == 0);    // Wait for new random value
+}
+
+// Generate truly random value
+uint32_t TrueGenerate(uint32_t LowInclusive, uint32_t HighInclusive);
+#endif
+} // namespace
 #endif
 
-#if 1 // =========================== Time ======================================
-static inline bool TimeElapsed(systime_t *PSince, uint32_t Delay_ms) {
-    chSysLock();
-    bool Rslt = (chVTGetSystemTimeX() - *PSince) > MS2ST(Delay_ms);
-    if(Rslt) *PSince = chVTGetSystemTimeX();
-    chSysUnlock();
-    return Rslt;
-}
-
-static inline void Loop(uint32_t N) {
-    for(volatile uint32_t i=0; i<N; i++);
-}
-#endif
-
-#if 1 // ========================== Simple delay ===============================
+// ========================== Simple delay ===============================
 static inline void DelayLoop(volatile uint32_t ACounter) { while(ACounter--); }
-//static inline void Delay_ms(uint32_t Ams) {
-//    volatile uint32_t __ticks = (Clk.AHBFreqHz / 4000) * Ams;
-//    DelayLoop(__ticks);
-//}
-#endif
 
 #if 1 // ======================= Power and backup unit =========================
 // See Programming manual: http://www.st.com/content/ccc/resource/technical/document/programming_manual/6c/3a/cb/e7/e4/ea/44/9b/DM00046982.pdf/files/DM00046982.pdf/jcr:content/translations/en.DM00046982.pdf
