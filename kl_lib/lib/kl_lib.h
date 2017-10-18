@@ -239,6 +239,17 @@ static inline uint32_t GetUniqID2() {
 static inline uint32_t GetUniqID3() {
     return *((uint32_t*)(UNIQ_ID_BASE + 0x14));
 }
+#elif defined STM32L4XX
+#define UNIQ_ID_BASE    0x1FFF7590
+static inline uint32_t GetUniqID1() {
+    return *((uint32_t*)(UNIQ_ID_BASE + 0x00));
+}
+static inline uint32_t GetUniqID2() {
+    return *((uint32_t*)(UNIQ_ID_BASE + 0x04));
+}
+static inline uint32_t GetUniqID3() {
+    return *((uint32_t*)(UNIQ_ID_BASE + 0x08));
+}
 #endif
 #endif
 
@@ -1400,6 +1411,7 @@ enum APBDiv_t {apbDiv1=0b000, apbDiv2=0b100, apbDiv4=0b101, apbDiv8=0b110, apbDi
 class Clk_t {
 private:
     uint8_t EnableHSE();
+    uint8_t EnableHSI();
     uint8_t EnablePLL();
     // To Hsi48 and back again
     uint32_t ISavedAhbDividers;
@@ -1418,7 +1430,6 @@ public:
     void SwitchToHsi();
 #endif
     // Clk Enables
-    uint8_t EnableHSI();
     uint8_t EnableHSI48();
     void EnableCRS();
     void EnableCSS()    { RCC->CR  |=  RCC_CR_CSSON; }
