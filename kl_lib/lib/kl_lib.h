@@ -1080,6 +1080,13 @@ static inline void EnableWakeup2Pin(RiseFall_t RiseFall)  {
     PWR->CR3 |=  PWR_CR3_EWUP2;
 }
 static inline void DisableWakeup2Pin() { PWR->CR3 &= ~PWR_CR3_EWUP2; }
+static inline void EnableWakeup4Pin(RiseFall_t RiseFall)  {
+    if(RiseFall == rfFalling) PWR->CR4 |= PWR_CR4_WP4;
+    else PWR->CR4 &= ~PWR_CR4_WP4;
+    PWR->CR3 |=  PWR_CR3_EWUP4;
+}
+static inline void DisableWakeup4Pin() { PWR->CR3 &= ~PWR_CR3_EWUP4; }
+
 static inline bool WasInStandby()      { return (PWR->SR1 & PWR_SR1_SBF); }
 static inline bool WkupOccured()       { return (PWR->SR1 & 0x1F); }
 static inline void ClearStandbyFlag()  { PWR->SCR |= PWR_SCR_CSBF; }
