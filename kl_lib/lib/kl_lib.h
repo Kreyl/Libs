@@ -306,23 +306,22 @@ public:
 namespace Random {
 //uint32_t last = 1;
 // Generate pseudo-random value
-static inline int Generate(int LowInclusive, int HighInclusive) {
+static inline long int Generate(long int LowInclusive, long int HighInclusive) {
     uint32_t last = random();
     return (last % (HighInclusive + 1 - LowInclusive)) + LowInclusive;
 }
 // Seed pseudo-random generator with new seed
-static inline void Seed(unsigned int Seed) { srand(Seed); }
+static inline void Seed(unsigned int Seed) { srandom(Seed); }
 
 // True random
 #if defined STM32L4XX
-static inline void TrueInit() {
-    rccEnableAHB2(RCC_AHB2ENR_RNGEN, FALSE);
-    RNG->CR = RNG_CR_RNGEN; // Enable random generator
-    while((RNG->SR & RNG_SR_DRDY) == 0);    // Wait for new random value
-}
+void TrueInit();
+void TrueDeinit();
 
 // Generate truly random value
 uint32_t TrueGenerate(uint32_t LowInclusive, uint32_t HighInclusive);
+// Seed pseudo random with true random
+void SeedWithTrue();
 #endif
 } // namespace
 #endif

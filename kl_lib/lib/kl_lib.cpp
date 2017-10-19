@@ -48,6 +48,17 @@ void PrintThdFreeStack(void *wsp, uint32_t size) {
 
 #if defined STM32L4XX
 namespace Random {
+void TrueInit() {
+    rccEnableAHB2(RCC_AHB2ENR_RNGEN, FALSE);
+    RNG->CR = RNG_CR_RNGEN; // Enable random generator
+    while((RNG->SR & RNG_SR_DRDY) == 0);    // Wait for new random value
+}
+
+void TrueDeinit() {
+    RNG->CR = 0;
+    rccDisableAHB2(RCC_AHB2ENR_RNGEN, FALSE);
+}
+
 uint32_t TrueGenerate(uint32_t LowInclusive, uint32_t HighInclusive) {
     while((RNG->SR & RNG_SR_DRDY) == 0);    // Wait for new random value
     uint32_t dw = RNG->DR;
@@ -55,6 +66,13 @@ uint32_t TrueGenerate(uint32_t LowInclusive, uint32_t HighInclusive) {
 //    PrintfI("%u; l %u; h %u; r %u\r", dw, LowInclusive, HighInclusive, rslt);
     return rslt;
 }
+
+void SeedWithTrue() {
+    while((RNG->SR & RNG_SR_DRDY) == 0);    // Wait for new random value
+    uint32_t dw = RNG->DR;
+    srandom(dw);
+}
+
 } // namespace
 #endif
 
