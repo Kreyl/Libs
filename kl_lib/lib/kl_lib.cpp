@@ -657,6 +657,26 @@ void LockFirmware() {
     chSysUnlock();
 }
 
+bool IwdgIsFrozenInStandby() {
+    return !(FLASH->OPTR & FLASH_OPTR_IWDG_STDBY);
+}
+void IwdgFrozeInStandby() {
+    chSysLock();
+    UnlockFlash();
+    ClearPendingFlags();
+    UnlockOptionBytes();
+    if(WaitForLastOperation(FLASH_ProgramTimeout) == retvOk) {
+        uint32_t OptReg = FLASH->OPTR;
+        OptReg &= ~FLASH_OPTR_IWDG_STDBY;
+        FLASH->OPTR = OptReg;
+        FLASH->CR |= FLASH_CR_OPTSTRT;
+        WaitForLastOperation(FLASH_ProgramTimeout);
+        SET_BIT(FLASH->CR, FLASH_CR_OBL_LAUNCH); // cannot be written when option bytes are locked
+        LockFlash();
+    }
+    chSysUnlock();
+}
+
 // ==== Dualbank ====
 #if defined STM32L4XX
 bool DualbankIsEnabled() {
@@ -970,6 +990,52 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
     return (*p == '\0')? retvOk : retvNotANumber;
 }
 }; // namespace
+#endif
+
+#if 1 // ============================== IWDG ===================================
+namespace Iwdg {
+enum Pre_t {
+    iwdgPre4 = 0x00,
+    iwdgPre8 = 0x01,
+    iwdgPre16 = 0x02,
+    iwdgPre32 = 0x03,
+    iwdgPre64 = 0x04,
+    iwdgPre128 = 0x05,
+    iwdgPre256 = 0x06
+};
+
+static void Enable() { IWDG->KR = 0xCCCC; }
+static void EnableAccess() { IWDG->KR = 0x5555; }
+
+static void SetPrescaler(Pre_t Prescaler) { IWDG->PR = (uint32_t)Prescaler; }
+static void SetReload(uint16_t Reload) { IWDG->RLR = Reload; }
+
+void SetTimeout(uint32_t ms) {
+    EnableAccess();
+    SetPrescaler(iwdgPre256);
+    uint32_t Count = (ms * (LSI_FREQ_HZ/1000UL)) / 256UL;
+    TRIM_VALUE(Count, 0xFFF);
+    SetReload(Count);
+    Reload();   // Reload and lock access
+}
+
+void InitAndStart(uint32_t ms) {
+    Clk.EnableLSI();        // Start LSI
+    SetTimeout(ms); // Start IWDG
+    Enable();
+}
+
+
+void GoSleep(uint32_t Timeout_ms) {
+    chSysLock();
+    Clk.EnableLSI();        // Start LSI
+    SetTimeout(Timeout_ms); // Start IWDG
+    Enable();
+    // Enter standby mode
+    Sleep::EnterStandby();
+    chSysUnlock();
+}
+};
 #endif
 
 #if 1 // ============================== Clocking ===============================

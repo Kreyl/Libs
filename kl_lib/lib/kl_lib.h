@@ -995,54 +995,24 @@ public:
 };
 #endif // EXTI
 
-#if 0 // ============================== IWDG ===================================
-enum IwdgPre_t {
-    iwdgPre4 = 0x00,
-    iwdgPre8 = 0x01,
-    iwdgPre16 = 0x02,
-    iwdgPre32 = 0x03,
-    iwdgPre64 = 0x04,
-    iwdgPre128 = 0x05,
-    iwdgPre256 = 0x06
-};
+#if 1 // ============================== IWDG ===================================
+namespace Iwdg {
 
-class IWDG_t {
-private:
-    void EnableAccess() { IWDG->KR = 0x5555; }
-    void SetPrescaler(IwdgPre_t Prescaler) { IWDG->PR = (uint32_t)Prescaler; }
-    void SetReload(uint16_t Reload) { IWDG->RLR = Reload; }
-public:
-    void Reload() { IWDG->KR = 0xAAAA; }
-    void Enable() { IWDG->KR = 0xCCCC; }
-    void SetTimeout(uint32_t ms) {
-        EnableAccess();
-        SetPrescaler(iwdgPre256);
-        uint32_t Count = (ms * (LSI_FREQ_HZ/1000)) / 256;
-        TRIM_VALUE(Count, 0xFFF);
-        SetReload(Count);
-        Reload();
+// Up to 32000 ms
+void InitAndStart(uint32_t ms);
+
+static inline void Reload() { IWDG->KR = 0xAAAA; }
+
+static inline bool ResetOccured() {
+    if(RCC->CSR & RCC_CSR_IWDGRSTF) {
+        RCC->CSR |= RCC_CSR_RMVF;   // Clear flags
+        return true;
     }
-    bool ResetOccured() {
-        if(RCC->CSR & RCC_CSR_IWDGRSTF) {
-            RCC->CSR |= RCC_CSR_RMVF;   // Clear flags
-            return true;
-        }
-        else return false;
-    }
-    void GoSleep(uint32_t Timeout_ms) {
-        chSysLock();
-        // Start LSI
-        Clk.EnableLSI();
-        // Start IWDG
-        SetTimeout(Timeout_ms);
-        Enable();
-        // Enter standby mode
-        SCB->SCR |= SCB_SCR_SLEEPDEEP;
-        PWR->CR = PWR_CR_PDDS;
-        PWR->CR |= PWR_CR_CWUF;
-        __WFI();
-        chSysUnlock();
-    }
+    else return false;
+}
+
+void GoSleep(uint32_t Timeout_ms);
+
 };
 #endif
 
@@ -1220,6 +1190,9 @@ uint8_t ProgramBuf(void *PData, uint32_t ByteSz, uint32_t Addr);
 bool FirmwareIsLocked();
 void LockFirmware();
 void UnlockFirmware();
+
+bool IwdgIsFrozenInStandby();
+void IwdgFrozeInStandby();
 
 #if defined STM32L4XX
 bool DualbankIsEnabled();
@@ -1556,6 +1529,7 @@ public:
 // Values of the Internal oscillator in Hz
 #define MSI_FREQ_HZ     4000000UL
 #define HSI_FREQ_HZ     16000000UL
+#define LSI_FREQ_HZ     32000UL
 // Top frequency in all domains is 80 MHz
 
 enum AHBDiv_t {
