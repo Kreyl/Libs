@@ -1514,6 +1514,16 @@ void Clk_t::UpdateFreqValues() {
     tmp = APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE2) >> 13];
     APB2FreqHz = AHBFreqHz >> tmp;
 
+    // ==== Update prescaler in System Timer ====
+    uint32_t TimInputFreq = GetTimInputFreq((TIM_TypeDef *)STM32_ST_TIM);
+    uint32_t Psc = (TimInputFreq / OSAL_ST_FREQUENCY) - 1;
+    TMR_DISABLE(STM32_ST_TIM);          // Stop counter
+    uint32_t Cnt = STM32_ST_TIM->CNT;   // Save current time
+    STM32_ST_TIM->PSC = Psc;
+    TMR_GENERATE_UPD(STM32_ST_TIM);
+    STM32_ST_TIM->CNT = Cnt;            // Restore time
+    TMR_ENABLE(STM32_ST_TIM);
+
     // ==== USB and SDIO freq ====
 //    UsbSdioFreqHz = 0;      // Will be changed only in case of PLL enabled
 //    if(RCC->CR & RCC_CR_PLLON) {
