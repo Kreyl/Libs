@@ -38,6 +38,24 @@ static uint8_t mV2PercentAlkaline(uint16_t mV) {
 }
 #endif
 
+#if 1 // ========================= Alkaline 4.5V ===============================
+static const mVPercent_t mVPercentTableAlkaline[] = {
+        {4320, 100},
+        {4110, 80},
+        {3810, 60},
+        {3510, 40},
+        {3240, 20},
+        {2790, 10}
+};
+#define mVPercentTableAlkalineSz    countof(mVPercentTableAlkaline)
+
+static uint8_t mV2PercentAlkaline(uint16_t mV) {
+    for(uint8_t i=0; i<mVPercentTableAlkalineSz; i++)
+        if(mV >= mVPercentTableAlkaline[i].mV) return mVPercentTableAlkaline[i].Percent;
+    return 0;
+}
+#endif
+
 #if 0 // ============================ Li-Ion ===================================
 static const mVPercent_t mVPercentTableLiIon[] = {
         {4100, 100, 10},
@@ -60,7 +78,7 @@ static uint8_t mV2PercentLiIon(uint16_t mV) {
 }
 #endif
 
-#if 1 // ============================ EEMB =====================================
+#if 0 // ============================ EEMB =====================================
 #define BAT_TOP_mV          4140
 #define BAT_ZERO_mV         3340
 #define BAT_END_mV          3100    // Do not operate if Ubat <= BAT_END_V

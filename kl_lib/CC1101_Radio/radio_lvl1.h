@@ -11,6 +11,8 @@
 #include "ch.h"
 #include "cc1101.h"
 #include "kl_buf.h"
+#include "shell.h"
+#include "MsgQ.h"
 
 #if 0 // ========================= Signal levels ===============================
 // Python translation for db
@@ -56,44 +58,32 @@ static inline void Lvl250ToLvl1000(uint16_t *PLvl) {
 #define CC_TX_PWR   CC_PwrPlus5dBm
 
 #if 1 // =========================== Pkt_t =====================================
-union rPktHost2Dev_t  {
-    uint32_t DWord[4];
+union rPkt_t  {
+    uint32_t DWord[2];
     struct {
-        int16_t ID;
-        uint8_t CmdID;
-        uint16_t Values[3];
+        uint8_t Length;
+        int8_t Ch[4];
+        uint8_t R1, R2;
+        uint8_t Btns;
     } __packed;
-    rPktHost2Dev_t& operator = (const rPktHost2Dev_t &Right) {
+    rPkt_t& operator = (const rPkt_t &Right) {
         DWord[0] = Right.DWord[0];
         DWord[1] = Right.DWord[1];
-        DWord[2] = Right.DWord[2];
-        DWord[3] = Right.DWord[3];
         return *this;
     }
+    void Print() { Printf("%d %d %d %d %d %d; %X\r", Ch[0],Ch[1],Ch[2],Ch[3],R1, R2, Btns); }
 } __packed;
 
-union rPktDev2Host_t  {
-    uint32_t DWord[4];
-    // Real data
-    struct {
-        int16_t a[3];
-        int16_t g[3];
-        uint8_t CmdID;
-        uint8_t Values[3];
-    } __packed;
-//    rPkt_t() : DWord[0](0) { }
-    rPktDev2Host_t& operator = (const rPktDev2Host_t &Right) {
-        DWord[0] = Right.DWord[0];
-        DWord[1] = Right.DWord[1];
-        DWord[2] = Right.DWord[2];
-        DWord[3] = Right.DWord[3];
-        return *this;
-    }
+#define RPKT_LEN    7   // 7 bytes of payload
+
+struct rPktReply_t {
+    uint8_t Length;
+    uint8_t Reply;
 } __packed;
-#define RPKT_LEN    16
+
+#define REPLY_PKT_LEN   1
+
 #endif
-
-// ==== Sizes ====
 
 #if 1 // ======================= Channels & cycles =============================
 #define RCHNL_SRV       0
@@ -101,12 +91,40 @@ union rPktDev2Host_t  {
 #endif
 
 #if 1 // =========================== Timings ===================================
-#define RX_T_MS                 180      // pkt duration at 10k is around 12 ms
+#define RX_T_MS                 11
 #define RX_SLEEP_T_MS           810
 #define MIN_SLEEP_DURATION_MS   18
-#define RETRY_CNT               4
+#define RETRY_CNT               2
 
 #endif
+
+#define RMSG_Q_LEN      18
+#define RMSGID_PKT      1
+#define RMSGID_CHNL     2
+
+union RMsg_t {
+    uint32_t DWord[3];
+    rPkt_t Pkt;
+    struct {
+        uint32_t _Rsrvd;
+        uint32_t Value;
+        uint32_t ID;
+    };
+    RMsg_t& operator = (const RMsg_t &Right) {
+        DWord[0] = Right.DWord[0];
+        DWord[1] = Right.DWord[1];
+        DWord[2] = Right.DWord[2];
+        return *this;
+    }
+    RMsg_t() {
+        DWord[0] = 0;
+        DWord[1] = 0;
+        DWord[2] = 0;
+    }
+    RMsg_t(rPkt_t &APkt)  { ID = RMSGID_PKT;  Pkt = APkt; }
+    RMsg_t(uint8_t AChnl) { ID = RMSGID_CHNL; Value = AChnl; _Rsrvd = 0; }
+} __attribute__((__packed__));
+
 
 class rLevel1_t {
 private:
@@ -116,9 +134,9 @@ private:
     }
 public:
     int8_t Rssi;
+    EvtMsgQ_t<RMsg_t, RMSG_Q_LEN> RMsgQ;
+    rPktReply_t rPktReply;
     uint8_t Init();
-    rPktHost2Dev_t PktRx;
-    rPktDev2Host_t PktTx;
     void SetChannel(uint8_t NewChannel);
     // Inner use
     void ITask();

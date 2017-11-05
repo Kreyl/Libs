@@ -8,7 +8,6 @@
 #include "radio_lvl1.h"
 #include "cc1101.h"
 #include "MsgQ.h"
-#include "main.h"
 #include "led.h"
 #include "Sequences.h"
 
@@ -31,8 +30,7 @@ cc1101_t CC(CC_Setup0);
 #endif
 
 rLevel1_t Radio;
-extern LedSmooth_t Led1;
-uint8_t OnRadioRx();
+extern LedBlinker_t LedLink;
 
 #if 1 // ================================ Task =================================
 static THD_WORKING_AREA(warLvl1Thread, 256);
@@ -45,13 +43,39 @@ static void rLvl1Thread(void *arg) {
 __noreturn
 void rLevel1_t::ITask() {
     while(true) {
-        uint8_t RxRslt = CC.Receive(9, &PktRx, &Rssi);
-        if(RxRslt == retvOk) {
-            Led1.StartOrContinue(lsqSmoothBlink);
+        RMsg_t Msg = RMsgQ.Fetch(TIME_INFINITE);
+        switch(Msg.ID) {
+            case RMSGID_PKT:
+//                Msg.Pkt.Print();
+                for(int i=0; i<RETRY_CNT; i++) {
+                    // Transmit
+                    Msg.Pkt.Length = 7;
+                    CC.Recalibrate();
+                    CC.Transmit(&Msg.Pkt, Msg.Pkt.Length+1); // Length byte + payload
+                    // Receive
+                    uint8_t RxRslt = CC.Receive(RX_T_MS, &rPktReply, 2, &Rssi);
+                    if(RxRslt == retvOk) {
+                        LedLink.On();
+//                        EvtMsg_t OutMsg(evtIdRadioRx, Rssi);
+//                        EvtQMain.SendNowOrExit(OutMsg);
+                        break; // Get out of retries
+                    }
+                    else LedLink.Off();
+                }
+                break;
+
+            case RMSGID_CHNL:
+                CC.SetChannel(Msg.Value);
+                break;
+
+            default: break;
+        } // switch
+//
+//
 //            Printf("Par %u; Rssi=%d\r", PktRx.CmdID, Rssi);
             // Transmit reply, it formed inside OnRadioRx
-            if(OnRadioRx() == retvOk) CC.Transmit(&PktTx);
-        } // if RxRslt ok
+//            if(OnRadioRx() == retvOk) CC.Transmit(&PktTx);
+//        } // if RxRslt ok
     } // while
 }
 #endif // task
@@ -63,13 +87,15 @@ uint8_t rLevel1_t::Init() {
 //    PinSetupOut(DBG_GPIO2, DBG_PIN2, omPushPull);
 #endif    // Init radioIC
 
+    RMsgQ.Init();
+
     if(CC.Init() == retvOk) {
         CC.SetTxPower(CC_TX_PWR);
-        CC.SetPktSize(RPKT_LEN);
-        CC.SetChannel(Settings.RChnl);
+        CC.SetPktSize(RPKT_LEN+1);
+//        CC.SetChannel(Settings.RChnl);
         CC.Recalibrate();
         // Thread
-        chThdCreateStatic(warLvl1Thread, sizeof(warLvl1Thread), HIGHPRIO, (tfunc_t)rLvl1Thread, NULL);
+        chThdCreateStatic(warLvl1Thread, sizeof(warLvl1Thread), NORMALPRIO, (tfunc_t)rLvl1Thread, NULL);
         return retvOk;
     }
     else return retvFail;

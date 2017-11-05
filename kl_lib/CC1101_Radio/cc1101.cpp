@@ -133,12 +133,11 @@ void cc1101_t::SetChannel(uint8_t AChannel) {
 //    //Uart.Printf("\r");
 //}
 
-void cc1101_t::Transmit(void *Ptr) {
+void cc1101_t::Transmit(void *Ptr, uint8_t Len) {
 //     WaitUntilChannelIsBusy();   // If this is not done, time after time FIFO is destroyed
 //    while(IState != CC_STB_IDLE) EnterIdle();
-    //Recalibrate();
     EnterTX();  // Start transmission of preamble while writing FIFO
-    WriteTX((uint8_t*)Ptr, IPktSz);
+    WriteTX((uint8_t*)Ptr, Len);
     // Enter TX and wait IRQ
     chSysLock();
     chThdSuspendS(&ThdRef); // Wait IRQ
@@ -146,7 +145,7 @@ void cc1101_t::Transmit(void *Ptr) {
 }
 
 // Enter RX mode and wait reception for Timeout_ms.
-uint8_t cc1101_t::Receive(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi) {
+uint8_t cc1101_t::Receive(uint32_t Timeout_ms, void *Ptr, uint8_t Len, int8_t *PRssi) {
 //    Recalibrate();
     FlushRxFIFO();
     chSysLock();
@@ -158,7 +157,7 @@ uint8_t cc1101_t::Receive(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi) {
         EnterIdle();            // Get out of RX mode
         return retvTimeout;
     }
-    else return ReadFIFO(Ptr, PRssi);
+    else return ReadFIFO(Ptr, PRssi, Len);
     return retvOk;
 }
 
@@ -213,18 +212,18 @@ uint8_t cc1101_t::WriteTX(uint8_t* Ptr, uint8_t Length) {
         return retvFail;
     }
     ISpi.ReadWriteByte(CC_FIFO|CC_WRITE_FLAG|CC_BURST_FLAG);    // Address with write & burst flags
-    //Uart.Printf("TX: ");
+//    Printf("TX: ");
     for(uint8_t i=0; i<Length; i++) {
         uint8_t b = *Ptr++;
         ISpi.ReadWriteByte(b);  // Write bytes
-      //  Uart.Printf("%X ", b);
+//        Printf("%X ", b);
     }
     CsHi();    // End transmission
-    //Uart.Printf("\r");
+//    Printf("\r");
     return retvOk;
 }
 
-uint8_t cc1101_t::ReadFIFO(void *Ptr, int8_t *PRssi) {
+uint8_t cc1101_t::ReadFIFO(void *Ptr, int8_t *PRssi, uint8_t Len) {
     uint8_t b, *p = (uint8_t*)Ptr;
      // Check if received successfully
      if(ReadRegister(CC_PKTSTATUS, &b) != retvOk) return retvFail;
@@ -237,7 +236,7 @@ uint8_t cc1101_t::ReadFIFO(void *Ptr, int8_t *PRssi) {
              return retvFail;
          }
          ISpi.ReadWriteByte(CC_FIFO|CC_READ_FLAG|CC_BURST_FLAG); // Address with read & burst flags
-         for(uint8_t i=0; i<IPktSz; i++) { // Read bytes
+         for(uint8_t i=0; i<Len; i++) { // Read bytes
              b = ISpi.ReadWriteByte(0);
              *p++ = b;
              // Uart.Printf(" %X", b);

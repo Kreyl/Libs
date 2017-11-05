@@ -11,9 +11,9 @@
 
 // Bitrate
 //#define CC_BITRATE_10K
-//#define CC_BITRATE_38K4
+#define CC_BITRATE_38K4
 //#define  CC_BITRATE_100K
-#define CC_BITRATE_250K
+//#define CC_BITRATE_250K
 //#define CC_BITRATE_500K
 
 // ============================ Common use values ==============================
@@ -65,7 +65,8 @@
 
 //#define CC_PKTCTRL1_VALUE   0b00001110  // PQT=0, CRC autoflush=1, Append=1, Address check = 10 (check, 0 is broadcast)
 #define CC_PKTCTRL1_VALUE   0b00001100  // PQT=0, CRC autoflush=1, Append=1, Address check = 00 (no check)
-#define CC_PKTCTRL0_VALUE   0b01000100  // WhiteData=1, PKTFormat=normal, CRC enabled, Fixed Length
+//#define CC_PKTCTRL0_VALUE   0b01000100  // WhiteData=1, PKTFormat=normal, CRC enabled, Fixed Length
+#define CC_PKTCTRL0_VALUE   0b01000101  // WhiteData=1, PKTFrmt=norm, CRC en, Variable Length
 //#define CC_PKTCTRL0_VALUE   0b00000100  // WhiteData=0, PKTFormat=normal, CRC enabled, Fixed Length
 //#define CC_PKTCTRL0_VALUE   0b00000000  // WhiteData=0, PKTFormat=normal, CRC disabled, Fixed Length
 #define CC_ADDR_VALUE       0x01        // Device address.

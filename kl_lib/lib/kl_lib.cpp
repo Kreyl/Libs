@@ -16,6 +16,7 @@
 //    Uart.PrintfNow("pure_virtual\r");
 //}
 
+#ifndef STM32F072xB
 // Amount of memory occupied by thread
 uint32_t GetThdFreeStack(void *wsp, uint32_t size) {
     uint32_t n = 0;
@@ -43,37 +44,7 @@ void PrintThdFreeStack(void *wsp, uint32_t size) {
     Printf("Free stack memory: %u of %u bytes\r",
             GetThdFreeStack(wsp, size), RequestedSize);
 }
-
 #endif
-
-#if defined STM32L4XX
-namespace Random {
-void TrueInit() {
-    rccEnableAHB2(RCC_AHB2ENR_RNGEN, FALSE);
-    RNG->CR = RNG_CR_RNGEN; // Enable random generator
-    while((RNG->SR & RNG_SR_DRDY) == 0);    // Wait for new random value
-}
-
-void TrueDeinit() {
-    RNG->CR = 0;
-    rccDisableAHB2(RCC_AHB2ENR_RNGEN, FALSE);
-}
-
-uint32_t TrueGenerate(uint32_t LowInclusive, uint32_t HighInclusive) {
-    while((RNG->SR & RNG_SR_DRDY) == 0);    // Wait for new random value
-    uint32_t dw = RNG->DR;
-    uint32_t rslt = (dw % (HighInclusive + 1 - LowInclusive)) + LowInclusive;
-//    PrintfI("%u; l %u; h %u; r %u\r", dw, LowInclusive, HighInclusive, rslt);
-    return rslt;
-}
-
-void SeedWithTrue() {
-    while((RNG->SR & RNG_SR_DRDY) == 0);    // Wait for new random value
-    uint32_t dw = RNG->DR;
-    srandom(dw);
-}
-
-} // namespace
 #endif
 
 #if 1 // ============================= Timer ===================================
@@ -168,13 +139,13 @@ void Timer_t::Init() const {
     else if(ITmr == TIM14)  { rccEnableTIM14(FALSE); }
 #endif
 #ifdef TIM15
-    else if(ITmr == TIM15)  { rccDisableTIM15(FALSE); }
+    else if(ITmr == TIM15)  { rccEnableTIM15(FALSE); }
 #endif
 #ifdef TIM16
-    else if(ITmr == TIM16)  { rccDisableTIM16(FALSE); }
+    else if(ITmr == TIM16)  { rccEnableTIM16(FALSE); }
 #endif
 #ifdef TIM17
-    else if(ITmr == TIM17)  { rccDisableTIM17(FALSE); }
+    else if(ITmr == TIM17)  { rccEnableTIM17(FALSE); }
 #endif
 }
 
@@ -247,7 +218,10 @@ void PinOutputPWM_t::Init() const {
     PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF);
 #elif defined STM32F0XX
     if     (ITmr == TIM1)  PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF2);
-    else if(ITmr == TIM3)  PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF1);
+    else if(ITmr == TIM3)  {
+        if(ISetup.PGpio == GPIOB) PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF1);
+        else PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF0);
+    }
     else if(ITmr == TIM14) {
         if(ISetup.PGpio == GPIOA) PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF4);
         else PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF0);
@@ -390,16 +364,18 @@ static uint8_t WaitForLastOperation(systime_t Timeout_st) {
     return retvOk;
 }
 #else
-static uint8_t GetStatus(void) {
-    if(FLASH->SR & FLASH_SR_BSY) return retvBusy;
-#if defined STM32L1XX
-    else if(FLASH->SR & FLASH_SR_WRPERR) return retvWriteProtect;
-    else if(FLASH->SR & (uint32_t)0x1E00) return retvFail;
-#else
-    else if(FLASH->SR & FLASH_SR_PGERR) return retvFail;
-    else if(FLASH->SR & FLASH_SR_WRPRTERR) return retvFail;
-#endif
-    else return retvOk;
+// Wait for a Flash operation to complete or a TIMEOUT to occur
+static uint8_t WaitForLastOperation(systime_t Timeout_st) {
+    systime_t start = chVTGetSystemTimeX();
+    while(FLASH->SR & FLASH_SR_BSY) {
+        if(Timeout_st != TIME_INFINITE) {
+            if(chVTTimeElapsedSinceX(start) >= Timeout_st) return retvTimeout;
+        }
+    }
+    if((FLASH->SR & FLASH_SR_PGERR) or (FLASH->SR & FLASH_SR_WRPRTERR)) return retvFail;
+    // Clear EOP if set
+    if(FLASH->SR & FLASH_SR_EOP) FLASH->SR |= FLASH_SR_EOP;
+    return retvOk;
 }
 #endif
 
@@ -657,26 +633,6 @@ void LockFirmware() {
     chSysUnlock();
 }
 
-bool IwdgIsFrozenInStandby() {
-    return !(FLASH->OPTR & FLASH_OPTR_IWDG_STDBY);
-}
-void IwdgFrozeInStandby() {
-    chSysLock();
-    UnlockFlash();
-    ClearPendingFlags();
-    UnlockOptionBytes();
-    if(WaitForLastOperation(FLASH_ProgramTimeout) == retvOk) {
-        uint32_t OptReg = FLASH->OPTR;
-        OptReg &= ~FLASH_OPTR_IWDG_STDBY;
-        FLASH->OPTR = OptReg;
-        FLASH->CR |= FLASH_CR_OPTSTRT;
-        WaitForLastOperation(FLASH_ProgramTimeout);
-        SET_BIT(FLASH->CR, FLASH_CR_OBL_LAUNCH); // cannot be written when option bytes are locked
-        LockFlash();
-    }
-    chSysUnlock();
-}
-
 // ==== Dualbank ====
 #if defined STM32L4XX
 bool DualbankIsEnabled() {
@@ -877,7 +833,7 @@ void Vector54() {
     if(ExtiIrqHandler[1] != nullptr) ExtiIrqHandler[1]->IIrqHandler();
 #else
     if(ExtiIrqHandler_0_1 != nullptr) ExtiIrqHandler_0_1->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
 #endif
     EXTI->PR = 0x0003;  // Clean IRQ flag
     chSysUnlockFromISR();
@@ -893,7 +849,7 @@ void Vector58() {
     if(ExtiIrqHandler[3] != nullptr) ExtiIrqHandler[3]->IIrqHandler();
 #else
     if(ExtiIrqHandler_2_3 != nullptr) ExtiIrqHandler_2_3->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
 #endif
     EXTI->PR = 0x000C;  // Clean IRQ flag
     chSysUnlockFromISR();
@@ -910,7 +866,7 @@ void Vector5C() {
     }
 #else
     if(ExtiIrqHandler_4_15 != nullptr) ExtiIrqHandler_4_15->IIrqHandler();
-    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
+    else PrintfC("Unhandled %S\r", __FUNCTION__);
 #endif
     EXTI->PR = 0xFFF0;  // Clean IRQ flag
     chSysUnlockFromISR();
@@ -920,8 +876,8 @@ void Vector5C() {
 } // extern c
 #endif
 
-#if 1 // ============== Conversion operations ====================
-namespace Convert {
+#if 1
+namespace Convert { // ============== Conversion operations ====================
 void U16ToArrAsBE(uint8_t *PArr, uint16_t N) {
     uint8_t *p8 = (uint8_t*)&N;
     *PArr++ = *(p8 + 1);
@@ -990,52 +946,6 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
     return (*p == '\0')? retvOk : retvNotANumber;
 }
 }; // namespace
-#endif
-
-#if 1 // ============================== IWDG ===================================
-namespace Iwdg {
-enum Pre_t {
-    iwdgPre4 = 0x00,
-    iwdgPre8 = 0x01,
-    iwdgPre16 = 0x02,
-    iwdgPre32 = 0x03,
-    iwdgPre64 = 0x04,
-    iwdgPre128 = 0x05,
-    iwdgPre256 = 0x06
-};
-
-static void Enable() { IWDG->KR = 0xCCCC; }
-static void EnableAccess() { IWDG->KR = 0x5555; }
-
-static void SetPrescaler(Pre_t Prescaler) { IWDG->PR = (uint32_t)Prescaler; }
-static void SetReload(uint16_t Reload) { IWDG->RLR = Reload; }
-
-void SetTimeout(uint32_t ms) {
-    EnableAccess();
-    SetPrescaler(iwdgPre256);
-    uint32_t Count = (ms * (LSI_FREQ_HZ/1000UL)) / 256UL;
-    TRIM_VALUE(Count, 0xFFF);
-    SetReload(Count);
-    Reload();   // Reload and lock access
-}
-
-void InitAndStart(uint32_t ms) {
-    Clk.EnableLSI();        // Start LSI
-    SetTimeout(ms); // Start IWDG
-    Enable();
-}
-
-
-void GoSleep(uint32_t Timeout_ms) {
-    chSysLock();
-    Clk.EnableLSI();        // Start LSI
-    SetTimeout(Timeout_ms); // Start IWDG
-    Enable();
-    // Enter standby mode
-    Sleep::EnterStandby();
-    chSysUnlock();
-}
-};
 #endif
 
 #if 1 // ============================== Clocking ===============================
@@ -1296,15 +1206,16 @@ uint8_t Clk_t::EnablePLL() {
 }
 
 #ifdef RCC_CR2_HSI48ON
+
 uint8_t Clk_t::EnableHSI48() {
     RCC->CR2 |= RCC_CR2_HSI48ON;
-    for(volatile uint32_t i=0; i<999; i++); // Let it to stabilize. Otherwise program counter flies to space with Ozzy Osbourne
-    uint32_t StartUpCounter=0;
-    do {
-        if(RCC->CR2 & RCC_CR2_HSI48RDY) return 0;   // Clock is ready
-        StartUpCounter++;
-    } while(StartUpCounter < CLK_STARTUP_TIMEOUT);
-    return 1; // Timeout
+    volatile int32_t StartUpCounter = CLK_STARTUP_TIMEOUT;
+    while(StartUpCounter-- > 0); // Let it to stabilize. Otherwise program counter flies to space with Ozzy Osbourne
+    StartUpCounter = CLK_STARTUP_TIMEOUT;
+    while(StartUpCounter-- > 0) {
+        if(RCC->CR2 & RCC_CR2_HSI48RDY) return retvOk;   // Clock is ready
+    }
+    return retvTimeout; // Timeout
 }
 #endif
 
@@ -1411,7 +1322,7 @@ uint8_t Clk_t::SwitchTo(ClkSrc_t AClkSrc) {
 
 #ifdef RCC_CFGR_SW_HSI48
         case csHSI48:
-            if(EnableHSI48() != OK) return FAILURE;
+            if(EnableHSI48() != retvOk) return 5;
             RCC->CFGR = tmp | RCC_CFGR_SW_HSI48;
             return WaitSWS(RCC_CFGR_SWS_HSI48);
             break;
@@ -1440,7 +1351,7 @@ uint8_t Clk_t::SetupPLLDividers(uint8_t HsePreDiv, PllMul_t PllMul) {
 }
 
 void Clk_t::SetupPLLSrc(PllSrc_t Src) {
-    if(Src == pllSrcHSIdiv2) RCC->CFGR &= ~RCC_CFGR_PLLSRC;
+    if(Src == plsHSIdiv2) RCC->CFGR &= ~RCC_CFGR_PLLSRC;
     else RCC->CFGR |= RCC_CFGR_PLLSRC;
 }
 
@@ -1454,33 +1365,28 @@ void Clk_t::SetupFlashLatency(uint32_t FrequencyHz) {
 }
 
 void Clk_t::PrintFreqs() {
-    Uart.Printf(
-            "AHBFreq=%uMHz; APBFreq=%uMHz\r",
+    Printf("AHBFreq=%uMHz; APBFreq=%uMHz\r",
             Clk.AHBFreqHz/1000000, Clk.APBFreqHz/1000000);
 }
 
 #ifdef RCC_CFGR_SW_HSI48
 void Clk_t::EnableCRS() {
     RCC->APB1ENR |= RCC_APB1ENR_CRSEN;      // Enable CRS clocking
+    volatile uint32_t tmpreg = RCC->APB1ENR & RCC_APB1ENR_CRSEN;
+    (void)tmpreg;
     RCC->APB1RSTR |= RCC_APB1RSTR_CRSRST;   // }
     RCC->APB1RSTR &= ~RCC_APB1RSTR_CRSRST;  // } Reset CRS
     // Configure Synchronization input
-    // Clear SYNCDIV[2:0], SYNCSRC[1:0] & SYNCSPOL bits
-    CRS->CFGR &= ~(CRS_CFGR_SYNCDIV | CRS_CFGR_SYNCSRC | CRS_CFGR_SYNCPOL);
-    // Configure CRS prescaler, source & polarity
-    CRS->CFGR |= (CRS_PRESCALER | CRS_SOURCE | CRS_POLARITY);
-    // Configure Frequency Error Measurement
-    CRS->CFGR &= ~(CRS_CFGR_RELOAD | CRS_CFGR_FELIM);
-    CRS->CFGR |= (CRS_RELOAD_VAL | (CRS_ERROR_LIMIT << 16));
+    tmpreg = (CRS_PRESCALER | CRS_SOURCE | CRS_POLARITY);
+    tmpreg |= CRS_RELOAD_VAL;
+    tmpreg |= (CRS_ERROR_LIMIT << 16);
+    CRS->CFGR = tmpreg;
     // Adjust HSI48 oscillator smooth trimming
-    CRS->CR &= ~CRS_CR_TRIM;
-    CRS->CR |= (HSI48_CALIBRATN << 8);
+    tmpreg = CRS->CR & ~CRS_CR_TRIM;
+    tmpreg |= (HSI48_CALIBRATN << 8);
+    CRS->CR = tmpreg;
     // Enable auto trimming
-    CRS->CR |= CRS_CR_AUTOTRIMEN;
-    // Setup USB clock source = HSI48
-    RCC->CFGR3 &= ~RCC_CFGR3_USBSW;
-    // Enable Frequency error counter
-    CRS->CR |= CRS_CR_CEN;
+    CRS->CR |= CRS_CR_AUTOTRIMEN | CRS_CR_CEN;
 }
 
 void Clk_t::DisableCRS() {

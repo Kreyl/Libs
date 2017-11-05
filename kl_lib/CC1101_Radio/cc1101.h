@@ -21,7 +21,6 @@ private:
     const uint16_t Sck, Miso, Mosi, Cs;
     const PinIrq_t IGdo0;
     uint8_t IState; // Inner CC state, returned as first byte
-    uint8_t IPktSz;
     thread_reference_t ThdRef;
     // Pins
     uint8_t BusyWait() {
@@ -49,10 +48,10 @@ public:
     uint8_t Init();
     void SetChannel(uint8_t AChannel);
     void SetTxPower(uint8_t APwr)  { WriteRegister(CC_PATABLE, APwr); }
-    void SetPktSize(uint8_t ASize) { WriteRegister(CC_PKTLEN, ASize); IPktSz = ASize; }
+    void SetPktSize(uint8_t ASize) { WriteRegister(CC_PKTLEN, ASize); }
     // State change
-    void Transmit(void *Ptr);
-    uint8_t Receive(uint32_t Timeout_ms, void *Ptr, int8_t *PRssi=nullptr);
+    void Transmit(void *Ptr, uint8_t Len);
+    uint8_t Receive(uint32_t Timeout_ms, void *Ptr, uint8_t Len,  int8_t *PRssi=nullptr);
     uint8_t EnterIdle()    { return WriteStrobe(CC_SIDLE); }
     uint8_t EnterPwrDown() { return WriteStrobe(CC_SPWD);  }
     uint8_t Recalibrate() {
@@ -62,7 +61,7 @@ public:
         if(WriteStrobe(CC_SCAL) != retvOk) return retvFail;
         return BusyWait();
     }
-    uint8_t ReadFIFO(void *Ptr, int8_t *PRssi);
+    uint8_t ReadFIFO(void *Ptr, int8_t *PRssi, uint8_t Len);
 
     void IIrqHandler() { chThdResumeI(&ThdRef, MSG_OK); }   // NotNull check perfprmed inside chThdResumeI
     cc1101_t(
@@ -71,5 +70,5 @@ public:
         ISpi(ASpi), PGpio(APGpio),
         Sck(ASck), Miso(AMiso), Mosi(AMosi), Cs(ACs),
         IGdo0(APGpio, AGdo0, pudNone, this),
-        IState(0), IPktSz(0), ThdRef(nullptr) {}
+        IState(0), ThdRef(nullptr) {}
 };
