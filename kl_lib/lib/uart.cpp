@@ -33,7 +33,7 @@
 #if defined STM32L4XX || defined STM32F0XX
 #define UART_TX_REG     TDR
 #define UART_RX_REG     RDR
-#elif defined STM32L1XX
+#elif defined STM32L1XX || defined STM32F2XX
 #define UART_TX_REG     DR
 #define UART_RX_REG     DR
 #else
@@ -149,7 +149,7 @@ uint8_t BaseUart_t::GetByte(uint8_t *b) {
 void BaseUart_t::Init(uint32_t ABaudrate) {
     AlterFunc_t PinAF;
     // ==== Tx pin ====
-#if defined STM32L4XX || defined STM32L1XX
+#if defined STM32L4XX || defined STM32L1XX || defined STM32F2XX
     PinAF = AF7; // for all USARTs
 #elif defined STM32F0XX
     if(Params->PGpioTx == GPIOA) PinAF = AF1;
@@ -205,7 +205,7 @@ void BaseUart_t::Init(uint32_t ABaudrate) {
     Params->Uart->CR1 = USART_CR1_TE | USART_CR1_RE;        // TX & RX enable
     Params->Uart->CR3 = USART_CR3_DMAT | USART_CR3_DMAR;    // Enable DMA at TX & RX
     // ==== Rx pin ====
-#if defined STM32L4XX || defined STM32L1XX
+#if defined STM32L4XX || defined STM32L1XX || defined STM32F2XX
     PinAF = AF7; // for all USARTs
 #elif defined STM32F0XX
     if(Params->PGpioRx == GPIOA) PinAF = AF1;

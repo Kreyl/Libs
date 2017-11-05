@@ -321,7 +321,7 @@ void chDbgPanic(const char *msg1) {
 }
 #endif
 
-#if 1 // ================= FLASH & EEPROM ====================
+#if 0 // ================= FLASH & EEPROM ====================
 #define FLASH_EraseTimeout      MS2ST(7)
 #define FLASH_ProgramTimeout    MS2ST(7)
 namespace Flash {
@@ -1647,7 +1647,7 @@ void Clk_t::DisableMCO2() {
 }
 
 void Clk_t::PrintFreqs() {
-    Uart.Printf(
+    Printf(
             "AHBFreq=%uMHz; APB1Freq=%uMHz; APB2Freq=%uMHz\r",
             Clk.AHBFreqHz/1000000, Clk.APB1FreqHz/1000000, Clk.APB2FreqHz/1000000);
 }
@@ -1657,7 +1657,8 @@ void Clk_t::SetHiPerfMode() {
     // Try to enable HSE
     if(EnableHSE() == retvOk) {
         // Setup PLL (must be disabled first)
-        if(SetupPllMulDiv(16, 240, pllSysDiv4, 6) == retvOk) { // 16MHz / 16 * 240 / 4 => 60MHz
+//        if(SetupPllMulDiv(12, 240, pllSysDiv4, 6) == retvOk) { // 12MHz / 12 * 240 / 4 => 60MHz
+        if(SetupPllMulDiv(12, 96, pllSysDiv2, 1) == retvOk) { // 12MHz / 12 * 96 / 2 => 48MHz
             SetupBusDividers(ahbDiv1, apbDiv2, apbDiv1); // 60 MHz AHB, 30MHz APB1, 60 MHz APB2
             SetupFlashLatency(60);
             EnablePrefetch();

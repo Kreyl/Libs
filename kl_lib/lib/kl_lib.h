@@ -347,8 +347,10 @@ namespace BackupSpc {
 #define BKPREG_CHECK        RTC->BKP0R
 #endif
 
+#ifndef STM32F2XX
     static inline bool IsSetup()  { return (BKPREG_CHECK == 0xA5A5); }
     static inline void SetSetup() { BKPREG_CHECK = 0xA5A5; }
+#endif
 
 } // namespace
 #endif
@@ -405,7 +407,11 @@ static inline void ClearWakeupFlag() { RTC->ISR &= ~RTC_ISR_WUTF; }
 
 static inline void SetClkSrcLSE() {
     RCC->BDCR &= ~RCC_BDCR_RTCSEL;  // Clear bits
+#ifdef STM32F2XX
+    RCC->BDCR |= (uint32_t)0b01 << 8; // LSE oscillator clock used as the RTC clock
+#else
     RCC->BDCR |=  RCC_BDCR_RTCSEL_LSE;
+#endif
 }
 static inline void EnableClk() { RCC->BDCR |= RCC_BDCR_RTCEN; }
 
