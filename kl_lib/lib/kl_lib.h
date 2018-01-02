@@ -1385,11 +1385,11 @@ enum AHBDiv_t {
     ahbDiv512=0b1111
 };
 enum APBDiv_t {apbDiv1=0b000, apbDiv2=0b100, apbDiv4=0b101, apbDiv8=0b110, apbDiv16=0b111};
+enum i2cClk_t { i2cclkHSI = 0, i2cclkSYSCLK = 1 };
 
 class Clk_t {
 private:
     uint8_t EnableHSE();
-    uint8_t EnableHSI();
     uint8_t EnablePLL();
     // To Hsi48 and back again
     uint32_t ISavedAhbDividers;
@@ -1408,6 +1408,7 @@ public:
     void SwitchToHsi();
 #endif
     // Clk Enables
+    uint8_t EnableHSI();
     uint8_t EnableHSI48();
     void EnableCRS();
     void EnableCSS()    { RCC->CR  |=  RCC_CR_CSSON; }
@@ -1433,10 +1434,20 @@ public:
     void SetupBusDividers(uint32_t Dividers);
     uint8_t SetupPLLDividers(uint8_t HsePreDiv, PllMul_t PllMul);
     void SetupPLLSrc(PllSrc_t Src);
+    uint32_t GetSysClkHz();
     void UpdateFreqValues();
     void SetupFlashLatency(uint32_t FrequencyHz);
     void EnablePrefetch()  { FLASH->ACR |=  FLASH_ACR_PRFTBE; }
     void DisablePrefetch() { FLASH->ACR &= ~FLASH_ACR_PRFTBE; }
+
+    void SetI2CClkSrc(I2C_TypeDef *i2c, i2cClk_t ClkSrc) {
+        uint32_t tmp = RCC->CFGR3;
+        if(i2c == I2C1) {   // i2c1 only is configured
+            tmp &= ~RCC_CFGR3_I2C1SW;
+            tmp |= ((uint32_t)ClkSrc) << 12;
+            RCC->CFGR3 = tmp;
+        }
+    }
 
     void PrintFreqs();
 };

@@ -99,6 +99,10 @@ $CMP LM3410_LLP
 D LLP6 LED booster, no external FET needed
 $ENDCMP
 #
+$CMP LM3481
+D Booster, External FET
+$ENDCMP
+#
 $CMP LM4041
 D Programmable precision reference
 $ENDCMP

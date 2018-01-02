@@ -111,7 +111,7 @@ public:
 
     /* Posts a message into a mailbox.
      * The function returns a timeout condition if the queue is full */
-    uint8_t SendNowOrExitI(T &Msg) {
+    uint8_t SendNowOrExitI(const T &Msg) {
         if(chSemGetCounterI(&EmptySem) <= (cnt_t)0) return retvTimeout; // Q is full
         chSemFastWaitI(&EmptySem);
         *WritePtr++ = Msg;
@@ -120,7 +120,7 @@ public:
         return retvOk;
     }
 
-    uint8_t SendNowOrExit(T &Msg) {
+    uint8_t SendNowOrExit(const T &Msg) {
         chSysLock();
         uint8_t Rslt = SendNowOrExitI(Msg);
         chSysUnlock();
