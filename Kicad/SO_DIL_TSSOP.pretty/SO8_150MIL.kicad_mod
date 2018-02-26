@@ -1,10 +1,10 @@
-(module SO8_150MIL (layer F.Cu) (tedit 5980B0CF)
+(module SO8_150MIL (layer F.Cu) (tedit 5A8AA69E)
   (descr "SO8 150mil")
   (attr smd)
-  (fp_text reference SO8_150MIL (at 0 -0.889) (layer F.SilkS)
+  (fp_text reference Q5 (at 0 -0.889) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
-  (fp_text value VAL** (at 0 1.016) (layer F.SilkS)
+  (fp_text value IRF9358 (at 0 1.016) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
   (fp_line (start -2.667 1.778) (end -2.667 1.905) (layer F.SilkS) (width 0.127))
@@ -23,7 +23,7 @@
   (pad 2 smd oval (at -0.635 2.794) (size 0.508 1.50114) (layers F.Cu F.Paste F.Mask))
   (pad 3 smd oval (at 0.635 2.794) (size 0.508 1.50114) (layers F.Cu F.Paste F.Mask))
   (pad 4 smd oval (at 1.905 2.794) (size 0.508 1.50114) (layers F.Cu F.Paste F.Mask))
-  (model D:/Libs/Kicad/3d/IC's/so-8.wrl
+  (model ${KICAD_SYMBOL_DIR}/3d/IC's/so-8.wrl
     (at (xyz 0 0 0))
     (scale (xyz 1 1 1))
     (rotate (xyz 0 0 0))

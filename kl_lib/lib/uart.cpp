@@ -150,7 +150,17 @@ void BaseUart_t::Init(uint32_t ABaudrate) {
     AlterFunc_t PinAF;
     // ==== Tx pin ====
 #if defined STM32L4XX || defined STM32L1XX || defined STM32F2XX
-    PinAF = AF7; // for all USARTs
+    PinAF = AF7;
+#if defined UART4
+    if(Params->Uart == UART4) PinAF = AF8;
+#endif
+#if defined UART5
+    if(Params->Uart == UART5) PinAF = AF8;
+#endif
+#if defined USART6
+    if(Params->Uart == USART6) PinAF = AF8;
+#endif
+
 #elif defined STM32F0XX
     if(Params->PGpioTx == GPIOA) PinAF = AF1;
     else if(Params->PGpioTx == GPIOB) PinAF = AF0;
@@ -170,6 +180,9 @@ void BaseUart_t::Init(uint32_t ABaudrate) {
 #endif
 #if defined UART5
     else if(Params->Uart == UART5) { rccEnableUART5(FALSE); }
+#endif
+#if defined USART6
+    else if(Params->Uart == USART6) { rccEnableUSART6(FALSE); }
 #endif
     // Setup independent clock if possible and required
 #if defined STM32F072xB

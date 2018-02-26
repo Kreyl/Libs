@@ -1,12 +1,12 @@
-(module SLD_3_2D5 (layer F.Cu) (tedit 59A048A1)
+(module SLD_3_2D5 (layer F.Cu) (tedit 5A71C702)
   (descr "Single-line connector 3-pin")
-  (fp_text reference SLD_3_2D5 (at -1.5 -2.15) (layer F.SilkS)
+  (fp_text reference XL2 (at -1.5 -2.15) (layer F.SilkS) hide
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
-  (fp_text value Val** (at 2.5 -2.1) (layer F.SilkS) hide
+  (fp_text value CONN_3 (at 2.5 -2.1) (layer F.SilkS) hide
     (effects (font (size 0.635 0.635) (thickness 0.16002)))
   )
-  (fp_text user 1 (at -4.532 0) (layer F.SilkS)
+  (fp_text user 1 (at -4.532 0) (layer F.SilkS) hide
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (fp_text user 1 (at -4.532 0) (layer B.SilkS)
@@ -31,7 +31,7 @@
   (fp_line (start -3.8 -1.55) (end -3.8 1.55) (layer F.SilkS) (width 0.15))
   (fp_line (start -3.5 -1.55) (end -3.8 -1.55) (layer F.SilkS) (width 0.15))
   (fp_line (start -3.65 1.55) (end -3.65 -1.55) (layer F.SilkS) (width 0.15))
-  (pad 1 thru_hole rect (at -2.5 0) (size 1.6 2.7) (drill 1) (layers *.Cu *.Mask F.SilkS))
-  (pad 2 thru_hole oval (at 0 0) (size 1.6 2.7) (drill 1) (layers *.Cu *.Mask F.SilkS))
-  (pad 3 thru_hole oval (at 2.5 0) (size 1.6 2.7) (drill 1) (layers *.Cu *.Mask F.SilkS))
+  (pad 1 thru_hole rect (at -2.5 0) (size 1.6 2.7) (drill 1) (layers *.Cu *.Mask))
+  (pad 2 thru_hole oval (at 0 0) (size 1.6 2.7) (drill 1) (layers *.Cu *.Mask))
+  (pad 3 thru_hole oval (at 2.5 0) (size 1.6 2.7) (drill 1) (layers *.Cu *.Mask))
 )

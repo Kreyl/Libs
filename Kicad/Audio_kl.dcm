@@ -20,4 +20,8 @@ $CMP VS1011
 D MP3 decoder
 $ENDCMP
 #
+$CMP WM8960
+D Codec with HP amp i class D amp
+$ENDCMP
+#
 #End Doc Library

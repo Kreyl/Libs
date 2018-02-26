@@ -33,6 +33,10 @@ $CMP BQ24010
 D LiIon linear charger, up to 1A
 $ENDCMP
 #
+$CMP BQ24103
+D 1 or 2 Li cells charger, sync
+$ENDCMP
+#
 $CMP BQ2461x
 D PWM Bat Charger with AC ctrl
 $ENDCMP
@@ -176,8 +180,12 @@ $CMP MCP73832
 D 1Cell LiPo Charger up to 1A SO8
 $ENDCMP
 #
-$CMP NCP140x
+$CMP NCP1400
 D Step-up: Vin=0.2...5.5V, Vout=3.3V, Iout=100mA; SOT23-5
+$ENDCMP
+#
+$CMP NCP1403
+D Step-up: Vin=1.3...5.5V, Vout=up to15V, Iout=100mA; SOT23-5
 $ENDCMP
 #
 $CMP NCP1529

@@ -12,6 +12,10 @@ $CMP N_3PIN
 D N-channel 3 pin
 $ENDCMP
 #
+$CMP N_G1D2S3
+D N-channel 3 pin
+$ENDCMP
+#
 $CMP Nx2_SO8
 D N-channel x2 in SO8 case
 $ENDCMP
