@@ -1,4 +1,4 @@
-(module CAP_1206 (layer F.Cu) (tedit 58ED1BD4)
+(module CAP_1206 (layer F.Cu) (tedit 5A94892F)
   (attr smd)
   (fp_text reference CAP_1206 (at -0.127 -1.7145) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
@@ -13,7 +13,7 @@
   (fp_line (start -2.6 1.2) (end -2.6 -0.1) (layer F.SilkS) (width 0.15))
   (pad 1 smd rect (at -1.524 0) (size 1.524 1.778) (layers F.Cu F.Paste F.Mask))
   (pad 2 smd rect (at 1.524 0) (size 1.524 1.778) (layers F.Cu F.Paste F.Mask))
-  (model D:/Libs/Kicad/3d/c_1206.wrl
+  (model ${KICAD_SYMBOL_DIR}/3d/Capacitors/C_1206.step
     (at (xyz 0 0 0))
     (scale (xyz 1 1 1))
     (rotate (xyz 0 0 0))

@@ -1,4 +1,4 @@
-(module RES_0603 (layer F.Cu) (tedit 5980AEC2)
+(module RES_0603 (layer F.Cu) (tedit 5A948968)
   (attr smd)
   (fp_text reference RES_0603 (at 0 0) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
@@ -13,9 +13,9 @@
   (fp_line (start -1.5 0.8) (end -1.5 0) (layer F.SilkS) (width 0.15))
   (pad 1 smd rect (at -0.75 0) (size 0.9 1) (layers F.Cu F.Paste F.Mask))
   (pad 2 smd rect (at 0.75 0) (size 0.9 1) (layers F.Cu F.Paste F.Mask))
-  (model D:/Libs/Kicad/3d/r_0603.wrl
-    (at (xyz 0 0 0.02362204724409449))
+  (model ${KICAD_SYMBOL_DIR}/3d/Resistors/R_0603.step
+    (at (xyz 0 0 0))
     (scale (xyz 1 1 1))
-    (rotate (xyz 180 0 0))
+    (rotate (xyz 0 0 0))
   )
 )

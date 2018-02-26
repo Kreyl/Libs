@@ -1,4 +1,4 @@
-(module SOT23-6 (layer F.Cu) (tedit 5980B084)
+(module SOT23-6 (layer F.Cu) (tedit 5A948822)
   (fp_text reference SOT23-6 (at 0 -2.413) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
@@ -16,9 +16,9 @@
   (pad 4 smd oval (at 0.94996 -1.30048) (size 0.635 1.09982) (layers F.Cu F.Paste F.Mask))
   (pad 5 smd oval (at 0 -1.30048) (size 0.635 1.09982) (layers F.Cu F.Paste F.Mask))
   (pad 6 smd oval (at -0.94996 -1.30048) (size 0.635 1.09982) (layers F.Cu F.Paste F.Mask))
-  (model D:/Libs/Kicad/3d/sot23-6.wrl
+  (model ${KICAD_SYMBOL_DIR}/3d/SOT/SOT-23-6.step
     (at (xyz 0 0 0))
     (scale (xyz 1 1 1))
-    (rotate (xyz 0 0 0))
+    (rotate (xyz -90 0 -90))
   )
 )
