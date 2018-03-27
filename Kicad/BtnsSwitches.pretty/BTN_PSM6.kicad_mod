@@ -1,4 +1,4 @@
-(module BUTTON_PSM6 (layer F.Cu) (tedit 55A6C0E6)
+(module BTN_PSM6 (layer F.Cu) (tedit 55A6C0E6)
   (descr "Switch hole-mounted, pitch 2.0 mm, 6x6")
   (fp_text reference SW_HOLE_M (at 0 -0.6) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))

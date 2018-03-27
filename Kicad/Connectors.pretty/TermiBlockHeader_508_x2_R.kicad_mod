@@ -19,7 +19,7 @@
   (pad 1 thru_hole rect (at -2.54 0) (size 2.5 2.5) (drill 1.4) (layers *.Cu *.Mask F.SilkS))
   (pad 2 thru_hole circle (at 2.54 0) (size 2.5 2.5) (drill 1.4) (layers *.Cu *.Mask F.SilkS))
   (model c-282814-2-c-3d.wrl
-    (at (xyz -0.001 -0.395 0.149))
+    (offset (xyz -0.02539999961853028 -10.03299984931946 3.784599943161011))
     (scale (xyz 10 10 10))
     (rotate (xyz -90 0 0))
   )

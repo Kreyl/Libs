@@ -60,7 +60,7 @@
   (pad 27 smd oval (at -1 -2.4 90) (size 0.9 0.28) (layers F.Cu F.Paste F.Mask))
   (pad 28 smd oval (at -1.5 -2.4 90) (size 0.9 0.28) (layers F.Cu F.Paste F.Mask))
   (model qfn28.wrl
-    (at (xyz 0 0 -0.005))
+    (offset (xyz 0 0 -0.1269999980926514))
     (scale (xyz 0.77 0.77 0.77))
     (rotate (xyz 0 0 90))
   )

@@ -47,7 +47,7 @@
   (pad 23 smd oval (at -0.75 -2 90) (size 0.9 0.28) (layers F.Cu F.Paste F.Mask))
   (pad 24 smd oval (at -1.25 -2 90) (size 0.9 0.28) (layers F.Cu F.Paste F.Mask))
   (model D:/Libs/Kicad/packages3d/QFN24.wrl
-    (at (xyz 0 0 -0.005))
+    (offset (xyz 0 0 -0.1269999980926514))
     (scale (xyz 0.3937 0.3937 0.3937))
     (rotate (xyz 0 0 0))
   )

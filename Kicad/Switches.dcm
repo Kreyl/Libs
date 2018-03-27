@@ -1,6 +1,10 @@
 EESchema-DOCLIB  Version 2.0
 #
 $CMP BUTTON
+D Button with housing
+$ENDCMP
+#
+$CMP BUTTON_4PIN
 D General button symbol
 $ENDCMP
 #
