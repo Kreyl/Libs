@@ -513,9 +513,20 @@ void i2c_t::Init() {
     // ==== Setup timings ====
     // Get input clock
     uint32_t ClkHz;
-    if(PParams->ClkSrc == i2cclkHSI) ClkHz = HSI_FREQ_HZ;
-    else if(PParams->ClkSrc == i2cclkPCLK1) ClkHz = Clk.APB1FreqHz;
-    else ClkHz = Clk.GetSysClkHz();
+    if(PParams->ClkSrc == i2cclkHSI) {
+        Clk.SetI2CClkSrc(pi2c, i2cclkHSI);
+        ClkHz = HSI_FREQ_HZ;
+    }
+#if defined STM32L4XX
+    else if(PParams->ClkSrc == i2cclkPCLK1) {
+        Clk.SetI2CClkSrc(pi2c, i2cclkPCLK1);
+        ClkHz = Clk.APB1FreqHz;
+    }
+#endif
+    else {
+        Clk.SetI2CClkSrc(pi2c, i2cclkSYSCLK);
+        ClkHz = Clk.GetSysClkHz();
+    }
     // Calc prescaler
     uint32_t Prescaler = ClkHz / 16000000;
     if(Prescaler > 0) Prescaler--;

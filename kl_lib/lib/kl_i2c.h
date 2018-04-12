@@ -84,9 +84,8 @@ struct i2cParams_t {
     uint32_t DmaModeTx, DmaModeRx;
     // IRQ
     uint32_t IrqEvtNumber, IrqErrorNumber;
-#if defined STM32L4XX    // Clock
+    // Clock
     i2cClk_t ClkSrc;
-#endif
 };
 
 #define I2C_TIMEOUT_MS      999
