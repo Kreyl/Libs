@@ -1,4 +1,4 @@
-(module Through-Hole-5mm (layer F.Cu) (tedit 5539F948)
+(module LED_Through-Hole-5mm (layer F.Cu) (tedit 5539F948)
   (descr "LED 5mm - Lead pitch 100mil (2,54mm)")
   (tags "LED led 5mm 5MM 100mil 2,54mm")
   (attr virtual)

@@ -1,5 +1,5 @@
-(module PLS-3 (layer F.Cu) (tedit 5AA26C86)
-  (descr "Single-line connector 4-pin")
+(module PLS-3 (layer F.Cu) (tedit 5AD78F8C)
+  (descr "Single-line connector 3-pin")
   (fp_text reference XL2 (at 0.06096 -1.84912) (layer F.SilkS) hide
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )

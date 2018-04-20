@@ -118,6 +118,11 @@ void cc1101_t::RfConfig() {
 #endif
 
 #if 1 // ======================= TX, RX, freq and power ========================
+void cc1101_t::PowerOff() {
+    while(IState != CC_STB_IDLE) EnterIdle();
+    EnterPwrDown();
+}
+
 void cc1101_t::SetChannel(uint8_t AChannel) {
     while(IState != CC_STB_IDLE) EnterIdle();   // CC must be in IDLE mode
     WriteRegister(CC_CHANNR, AChannel);         // Now set channel

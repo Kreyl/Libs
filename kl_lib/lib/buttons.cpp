@@ -79,7 +79,13 @@ void ProcessButtons(PinSnsState_t *BtnState, uint32_t Len) {
 #endif // combo
 
 #if BTN_SHORTPRESS // Single key pressed, no combo
-            AddEvtToQueue(beShortPress, i);  // Add single keypress
+#if BTN_COMBO
+            if(!IsCombo)
+#endif // combo
+            {
+                AddEvtToQueue(beShortPress, i);  // Add single keypress
+            }
+
 #endif
 
 #if BTN_LONGPRESS
@@ -156,14 +162,24 @@ void ProcessButtons(PinSnsState_t *BtnState, uint32_t Len) {
 
 #if BTN_REPEAT // Check if repeat
             if(!IsRepeating[i]) {
-                if(TimeElapsed(&RepeatTimer, BTN_DELAY_BEFORE_REPEAT_MS)) {
+                if(chVTTimeElapsedSinceX(RepeatTimer) >= MS2ST(BTN_DELAY_BEFORE_REPEAT_MS)) {
                     IsRepeating[i] = true;
-                    AddEvtToQueue(beRepeat, i);
+#if BTN_COMBO
+                    if(!IsCombo)
+#endif
+                    {
+                        AddEvtToQueue(beRepeat, i);
+                    }
                 }
             }
             else {
-                if(TimeElapsed(&RepeatTimer, BTN_REPEAT_PERIOD_MS)) {
-                    AddEvtToQueue(beRepeat, i);
+                if(chVTTimeElapsedSinceX(RepeatTimer) >= MS2ST(BTN_REPEAT_PERIOD_MS)) {
+#if BTN_COMBO
+                    if(!IsCombo)
+#endif
+                    {
+                        AddEvtToQueue(beRepeat, i);
+                    }
                 }
             }
 #endif

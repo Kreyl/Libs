@@ -43,6 +43,8 @@ private:
     uint8_t Reset()       { return WriteStrobe(CC_SRES); }
     uint8_t EnterTX()     { return WriteStrobe(CC_STX);  }
     uint8_t EnterRX()     { return WriteStrobe(CC_SRX);  }
+    uint8_t EnterIdle()    { return WriteStrobe(CC_SIDLE); }
+    uint8_t EnterPwrDown() { return WriteStrobe(CC_SPWD);  }
     uint8_t FlushRxFIFO() { return WriteStrobe(CC_SFRX); }
 public:
     uint8_t Init();
@@ -52,8 +54,7 @@ public:
     // State change
     void Transmit(void *Ptr, uint8_t Len);
     uint8_t Receive(uint32_t Timeout_ms, void *Ptr, uint8_t Len,  int8_t *PRssi=nullptr);
-    uint8_t EnterIdle()    { return WriteStrobe(CC_SIDLE); }
-    uint8_t EnterPwrDown() { return WriteStrobe(CC_SPWD);  }
+    void PowerOff();
     uint8_t Recalibrate() {
         while(IState != CC_STB_IDLE) {
             if(EnterIdle() != retvOk) return retvFail;
