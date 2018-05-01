@@ -11,9 +11,9 @@
 
 // Bitrate
 //#define CC_BITRATE_10K
-#define CC_BITRATE_38K4
+//#define CC_BITRATE_38K4
 //#define  CC_BITRATE_100K
-//#define CC_BITRATE_250K
+#define CC_BITRATE_250K
 //#define CC_BITRATE_500K
 
 // ============================ Common use values ==============================
@@ -40,13 +40,13 @@
 
 // =================================== Common ==================================
 // ==== MDMCFG1 ==== 7 FEC_EN, 6:4 NUM_PREAMBLE, 3:2 not used, 1:0 CHANSPC_E
-#define CC_FEC_EN           0x80    // Fec enabled
-//#define CC_FEC_EN           0x00    // Fec disabled
+//#define CC_FEC_EN           0x80    // Fec enabled
+#define CC_FEC_EN           0x00    // Fec disabled
 #define CC_NUM_PREAMBLE     0x20    // 010 => 4 bytes of preamble
 #define CC_MDMCFG1_VALUE    (CC_FEC_EN | CC_NUM_PREAMBLE | CC_CHANSPC_E)
 
-#define CC_MCSM0_VALUE      0x18        // Calibrate at IDLE->RX,TX
-//#define CC_MCSM0_VALUE      0x08        // Never calibrate
+//#define CC_MCSM0_VALUE      0x18        // Calibrate at IDLE->RX,TX
+#define CC_MCSM0_VALUE      0x08        // Never calibrate
 
 // ==== MCSM1 ==== bits 7:6 not used, 5:4 ClearChannel mode, 3:2 RxOff mode, 1:0 TxOff mode
 #define CC_CCA_MODE         0b00000000  // Always clear
@@ -65,7 +65,7 @@
 
 //#define CC_PKTCTRL1_VALUE   0b00001110  // PQT=0, CRC autoflush=1, Append=1, Address check = 10 (check, 0 is broadcast)
 #define CC_PKTCTRL1_VALUE   0b00001100  // PQT=0, CRC autoflush=1, Append=1, Address check = 00 (no check)
-//#define CC_PKTCTRL0_VALUE   0b01000100  // WhiteData=1, PKTFrmt=norm, CRC en, Fixed Length
+#define CC_PKTCTRL0_VALUE   0b01000100  // WhiteData=1, PKTFrmt=norm, CRC en, Fixed Length
 //#define CC_PKTCTRL0_VALUE   0b00000100  // WhiteData=0, PKTFrmt=norm, CRC en, Fixed Length
 //#define CC_PKTCTRL0_VALUE   0b01000101  // WhiteData=1, PKTFrmt=norm, CRC en, Variable Length
 //#define CC_PKTCTRL0_VALUE   0b00000000  // WhiteData=0, PKTFrmt=norm, CRC dis, Fixed Length

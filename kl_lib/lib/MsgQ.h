@@ -130,7 +130,7 @@ public:
     /* Posts a message into a mailbox.
      * The invoking thread waits until a empty slot in the mailbox becomes available
      * or the specified time runs out. */
-    uint8_t SendWaitingAbility(T &Msg, systime_t timeout) {
+    uint8_t SendWaitingAbility(const T &Msg, systime_t timeout) {
         chSysLock();
         msg_t rdymsg = chSemWaitTimeoutS(&EmptySem, timeout);
         if(rdymsg == MSG_OK) {
