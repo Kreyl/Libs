@@ -46,8 +46,8 @@ static const i2cParams_t I2C2Params = {
         I2C2_BAUDRATE,
         I2C2_DMA_TX,
         I2C2_DMA_RX,
-        (I2C_DMATX_MODE | STM32_DMA_CR_CHSEL(I2C2_DMA_CHNL)),
-        (I2C_DMARX_MODE | STM32_DMA_CR_CHSEL(I2C2_DMA_CHNL))
+        (I2C_DMATX_MODE(I2C2_DMA_CHNL)),
+        (I2C_DMARX_MODE(I2C2_DMA_CHNL))
 };
 i2c_t i2c2 {&I2C2Params};
 #endif
@@ -91,7 +91,7 @@ void i2c_t::Resume() {
     Error = false;
     // ==== GPIOs ====
     AlterFunc_t PinAF;
-#if defined STM32L1XX
+#if defined STM32L1XX || defined STM32F2XX
     PinAF = AF4; // for all I2Cs everywhere
 //#elif defined STM32F0XX
 //    PinAF = AF4;

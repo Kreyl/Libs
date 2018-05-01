@@ -77,57 +77,6 @@ void SeedWithTrue() {
 #endif
 
 #if 1 // ============================= Timer ===================================
-static uint32_t GetTimInputFreq(TIM_TypeDef* ITmr) {
-    uint32_t InputFreq = 0;
-#if defined STM32L1XX
-    // APB2
-    if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) {
-        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
-        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
-        else InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
-    }
-    // APB1
-    else {
-        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
-        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
-        else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
-    }
-#elif defined STM32F0XX
-    uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE) >> 8;
-    if(APB1prs < 0b100) InputFreq = Clk.APBFreqHz;      // APB1CLK = HCLK / 1
-    else InputFreq = Clk.APBFreqHz * 2;                 // APB1CLK = HCLK / (not 1)
-#elif defined STM32L4XX
-    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM15, TIM16, TIM17)) {   // APB2
-        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
-        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
-        else InputFreq = Clk.APB2FreqHz * 2;            // APB2CLK = HCLK / (not 1)
-    }
-    else { // LPTIM1 & 2 included                                             // APB1
-        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
-        LPTIM_TypeDef* ILPTim = (LPTIM_TypeDef*)ITmr;
-        if(ILPTim == LPTIM1 or ILPTim == LPTIM2) InputFreq = Clk.APB1FreqHz;
-        else {
-            if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
-            else InputFreq = Clk.APB1FreqHz * 2;            // APB1CLK = HCLK / (not 1)
-        }
-    }
-#elif defined STM32F2XX
-    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM9, TIM10, TIM11)) {    // APB2
-        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 13;
-        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
-        else  InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
-    }
-    else {                                              // APB1
-        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 10;
-        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
-        else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
-    }
-#else
-#error "Timer Clk setup error"
-#endif
-    return InputFreq;
-}
-
 void Timer_t::Init() const {
 #ifdef TIM1
     if(ITmr == TIM1)  { rccEnableTIM1(FALSE); }
@@ -250,7 +199,7 @@ void Timer_t::Deinit() const {
 }
 
 void Timer_t::SetupPrescaler(uint32_t PrescaledFreqHz) const {
-    ITmr->PSC = (GetTimInputFreq(ITmr) / PrescaledFreqHz) - 1;
+    ITmr->PSC = (Clk.GetTimInputFreq(ITmr) / PrescaledFreqHz) - 1;
 }
 
 void PinOutputPWM_t::Init() const {
@@ -341,7 +290,7 @@ void PinOutputPWM_t::Init() const {
 
 void Timer_t::SetUpdateFrequencyChangingPrescaler(uint32_t FreqHz) const {
     // Figure out input timer freq
-    uint32_t UpdFreqMax = GetTimInputFreq(ITmr) / (ITmr->ARR + 1);
+    uint32_t UpdFreqMax = Clk.GetTimInputFreq(ITmr) / (ITmr->ARR + 1);
     uint32_t div = UpdFreqMax / FreqHz;
     if(div != 0) div--;
 //    Uart.Printf("InputFreq=%u; UpdFreqMax=%u; div=%u; ARR=%u\r", InputFreq, UpdFreqMax, div, ITmr->ARR);
@@ -350,7 +299,7 @@ void Timer_t::SetUpdateFrequencyChangingPrescaler(uint32_t FreqHz) const {
 }
 
 void Timer_t::SetUpdateFrequencyChangingTopValue(uint32_t FreqHz) const {
-    uint32_t TopVal  = (GetTimInputFreq(ITmr) / FreqHz) - 1;
+    uint32_t TopVal  = (Clk.GetTimInputFreq(ITmr) / FreqHz) - 1;
 //    Uart.Printf("Topval = %u\r", TopVal);
     SetTopValue(TopVal);
 }
@@ -1206,6 +1155,23 @@ void Clk_t::UpdateFreqValues() {
     APB2FreqHz = AHBFreqHz >> tmp;
 }
 
+uint32_t Clk_t::GetTimInputFreq(TIM_TypeDef* ITmr) {
+    uint32_t InputFreq = 0;
+    // APB2
+    if(ANY_OF_3(ITmr, TIM9, TIM10, TIM11)) {
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
+        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
+        else InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
+    }
+    // APB1
+    else {
+        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
+        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
+        else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
+    }
+    return InputFreq;
+}
+
 // ==== Common use ====
 // AHB, APB
 void Clk_t::SetupBusDividers(AHBDiv_t AHBDiv, APBDiv_t APB1Div, APBDiv_t APB2Div) {
@@ -1428,6 +1394,14 @@ void Clk_t::UpdateFreqValues() {
     TMR_GENERATE_UPD(STM32_ST_TIM);
     STM32_ST_TIM->CNT = Cnt;            // Restore time
     TMR_ENABLE(STM32_ST_TIM);
+}
+
+uint32_t Clk_t::GetTimInputFreq(TIM_TypeDef* ITmr) {
+    uint32_t InputFreq = 0;
+    uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE) >> 8;
+    if(APB1prs < 0b100) InputFreq = Clk.APBFreqHz;      // APB1CLK = HCLK / 1
+    else InputFreq = Clk.APBFreqHz * 2;                 // APB1CLK = HCLK / (not 1)
+    return InputFreq;
 }
 
 // ==== Common use ====
@@ -1689,13 +1663,29 @@ void Clk_t::UpdateFreqValues() {
 //    }
 
     // ==== Update prescaler in System Timer ====
+    TMR_DISABLE(STM32_ST_TIM);          // Stop system counter
     uint32_t Psc = (SYS_TIM_CLK / OSAL_ST_FREQUENCY) - 1;
-    TMR_DISABLE(STM32_ST_TIM);          // Stop counter
     uint32_t Cnt = STM32_ST_TIM->CNT;   // Save current time
     STM32_ST_TIM->PSC = Psc;
     TMR_GENERATE_UPD(STM32_ST_TIM);
+    __NOP(); __NOP(); __NOP(); __NOP(); // Let it to update in peace
     STM32_ST_TIM->CNT = Cnt;            // Restore time
     TMR_ENABLE(STM32_ST_TIM);
+}
+
+uint32_t Clk_t::GetTimInputFreq(TIM_TypeDef* ITmr) {
+    uint32_t InputFreq = 0;
+    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM9, TIM10, TIM11)) {    // APB2
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 13;
+        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
+        else  InputFreq = Clk.APB2FreqHz * 2;           // APB2CLK = HCLK / (not 1)
+    }
+    else {                                              // APB1
+        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 10;
+        if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
+        else  InputFreq = Clk.APB1FreqHz * 2;           // APB1CLK = HCLK / (not 1)
+    }
+    return InputFreq;
 }
 
 // ==== Common use ====
@@ -1822,19 +1812,51 @@ void Clk_t::PrintFreqs() {
             Clk.AHBFreqHz/1000000, Clk.APB1FreqHz/1000000, Clk.APB2FreqHz/1000000);
 }
 
-void Clk_t::SetHiPerfMode() {
-//    if(HiPerfModeEnabled) return;
-    // Try to enable HSE
-    if(EnableHSE() == retvOk) {
+void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
+    EnablePrefetch();
+    // Enable HSE
+    if(CoreClk >= cclk16MHz) {
+        if(EnableHSE() != retvOk) return;   // Try to enable HSE
+        DisablePLL();
+    }
+    // Setup dividers
+    switch(CoreClk) {
+        case cclk8MHz:
+            break;
         // Setup PLL (must be disabled first)
-        if(SetupPllMulDiv(6, 192, pllSysDiv8, 8) == retvOk) { // 12MHz / 6 * 192 / 8 => 48MHz
-            SetupBusDividers(ahbDiv2, apbDiv1, apbDiv1); // 12 MHz AHB, 12 MHz APB1, 12 MHz APB2
+        case cclk16MHz:
+            // 12MHz / 6 * 192 / (6 and 8) => 64 and 48MHz
+            if(SetupPllMulDiv(6, 192, pllSysDiv6, 8) != retvOk) return;
+            SetupBusDividers(ahbDiv4, apbDiv1, apbDiv1); // 16 MHz AHB, 16 MHz APB1, 16 MHz APB2
+            SetupFlashLatency(16);
+            break;
+        case cclk24MHz:
+            // 12MHz / 6 * 192 / (8 and 8) => 48 and 48MHz
+            if(SetupPllMulDiv(6, 192, pllSysDiv8, 8) != retvOk) return;
+            SetupBusDividers(ahbDiv2, apbDiv1, apbDiv1); // 24 MHz AHB, 24 MHz APB1, 24 MHz APB2
             SetupFlashLatency(24);
-            EnablePrefetch();
-            SwitchToPLL();  // Switch clock
-        } // if setup pll div
-    } // if Enable HSE
+            break;
+        case cclk48MHz:
+            // 12MHz / 6 * 192 / (8 and 8) => 48 and 48MHz
+            if(SetupPllMulDiv(6, 192, pllSysDiv8, 8) != retvOk) return;
+            SetupBusDividers(ahbDiv1, apbDiv2, apbDiv2); // 48 MHz AHB, 24 MHz APB1, 24 MHz APB2
+            SetupFlashLatency(48);
+            break;
+        case cclk72MHz:
+            // 12MHz / 12 * 288 / (4 and 6) => 72 and 48MHz
+            if(SetupPllMulDiv(12, 288, pllSysDiv4, 6) != retvOk) return;
+            SetupBusDividers(ahbDiv1, apbDiv4, apbDiv2); // 72 MHz AHB, 18 MHz APB1, 36 MHz APB2
+            SetupFlashLatency(48);
+            break;
+    } // switch
+
+    if(CoreClk >= cclk16MHz) {
+        if(EnablePLL() == retvOk) SwitchToPLL();
+    }
 }
+
+
+
 
 /*
  * Early initialization code.
@@ -1925,6 +1947,25 @@ void Clk_t::PrintFreqs() {
     Printf(
             "AHBFreq=%uMHz; APB1Freq=%uMHz; APB2Freq=%uMHz\r",
             Clk.AHBFreqHz/1000000, Clk.APB1FreqHz/1000000, Clk.APB2FreqHz/1000000);
+}
+
+uint32_t Clk_t::GetTimInputFreq(TIM_TypeDef* ITmr) {
+    uint32_t InputFreq = 0;
+    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM15, TIM16, TIM17)) {   // APB2
+        uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
+        if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
+        else InputFreq = Clk.APB2FreqHz * 2;            // APB2CLK = HCLK / (not 1)
+    }
+    else { // LPTIM1 & 2 included                                             // APB1
+        uint32_t APB1prs = (RCC->CFGR & RCC_CFGR_PPRE1) >> 8;
+        LPTIM_TypeDef* ILPTim = (LPTIM_TypeDef*)ITmr;
+        if(ILPTim == LPTIM1 or ILPTim == LPTIM2) InputFreq = Clk.APB1FreqHz;
+        else {
+            if(APB1prs < 0b100) InputFreq = Clk.APB1FreqHz; // APB1CLK = HCLK / 1
+            else InputFreq = Clk.APB1FreqHz * 2;            // APB1CLK = HCLK / (not 1)
+        }
+    }
+    return InputFreq;
 }
 
 // AHB, APB1, APB2

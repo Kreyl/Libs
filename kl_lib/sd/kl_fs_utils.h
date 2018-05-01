@@ -11,17 +11,23 @@
 #include "kl_lib.h"
 #include "shell.h"
 
+// Constants
+#define MAX_NAME_LEN        128UL
+
 // Variables
 extern FILINFO FileInfo;
 extern DIR Dir;
+extern FIL CommonFile;
+//extern
 
 uint8_t TryOpenFileRead(const char *Filename, FIL *PFile);
 uint8_t TryOpenFileRewrite(const char *Filename, FIL *PFile);
+void CloseFile(FIL *PFile);
 uint8_t CheckFileNotEmpty(FIL *PFile);
 uint8_t TryRead(FIL *PFile, void *Ptr, uint32_t Sz);
-
-//template <typename T>
-//uint8_t TryRead(FIL *PFile, T *Ptr);
+static inline bool FileIsOpen(FIL *PFile) {
+    return (PFile->obj.fs != 0);
+}
 
 template <typename T>
 uint8_t TryRead(FIL *PFile, T *Ptr) {
@@ -30,13 +36,108 @@ uint8_t TryRead(FIL *PFile, T *Ptr) {
     return (r == FR_OK and ReadSz == sizeof(T))? retvOk : retvFail;
 }
 
-//bool CurrentDirIsRoot();
-//void ResetCurrDir
-
 uint8_t ReadLine(FIL *PFile, char* S, uint32_t MaxLen);
 
+bool DirExists(const char* DirName);
+bool DirExistsAndContains(const char* DirName, const char* Extension);
 uint8_t CountFilesInDir(const char* DirName, const char* Extension, uint32_t *PCnt);
 uint8_t CountDirsStartingWith(const char* Path, const char* DirNameStart, uint32_t *PCnt);
+
+#if 1 // ========================= GetRandom from dir ==========================
+struct DirRandData_t {
+    char Name[MAX_NAME_LEN];
+    uint32_t LastN;
+    uint32_t FileCnt = 0;
+};
+
+#define DIR_CNT   9
+
+class DirList_t {
+private:
+    DirRandData_t Dirs[DIR_CNT];
+    int32_t DirCnt = 0;
+    int32_t CurrIndx = 0;
+    uint8_t FindDirInList(char* DirName) {
+        CurrIndx = 0;
+        for(int32_t i=0; i<DirCnt; i++) {
+            if(strcmp(DirName, Dirs[i].Name) == 0) {
+                CurrIndx = i;
+                return retvOk;
+            }
+        }
+        return retvNotFound;
+    }
+    void AddDir(char* DirName) {
+        if(DirCnt >= DIR_CNT) DirCnt = 0;
+        CurrIndx = DirCnt;
+        DirCnt++;
+        strcpy(Dirs[CurrIndx].Name, DirName);
+    }
+    void CountFiles(const char* Ext) {
+        CountFilesInDir(Dirs[CurrIndx].Name, Ext, &Dirs[CurrIndx].FileCnt);
+    }
+public:
+    void Reset() {
+        DirCnt = 0;
+        CurrIndx = 0;
+        Dirs[0].FileCnt = 0;
+        Dirs[0].LastN = 0;
+    }
+
+    uint8_t GetRandomFnameFromDir(char* DirName, char* AFname) {
+        // Check if dir in list
+        if(FindDirInList(DirName) != retvOk) { // No such dir
+    //        Printf("No Dir %S in list\r" , DirName);
+            AddDir(DirName);
+            CountFiles("wav");  // Count files in dir
+        }
+        uint32_t Cnt = Dirs[CurrIndx].FileCnt;
+        if(Cnt == 0) return retvFail; // Get out if nothing to play
+        // Select number of file
+        uint32_t N = 0;
+        uint32_t LastN = Dirs[CurrIndx].LastN;
+        if(Cnt > 1) { // Get random number if count > 1
+            do {
+                N = Random::Generate(0, Cnt-1); // [0; Cnt-1]
+            } while(N == LastN);   // skip same as previous
+        }
+        Dirs[CurrIndx].LastN = N;
+    //    Printf("Dir %S: N=%u\r", DirName, N);
+        // Iterate files in dir until success
+        Cnt = 0;
+        uint8_t Rslt = f_opendir(&Dir, DirName);
+        if(Rslt != FR_OK) return retvFail;
+        while(true) {
+            Rslt = f_readdir(&Dir, &FileInfo);
+            if(Rslt != FR_OK) return retvFail;
+            if((FileInfo.fname[0] == 0) and (FileInfo.altname[0] == 0)) return retvFail;  // somehow no files left
+            else { // Filename ok, check if not dir
+                if(!(FileInfo.fattrib & AM_DIR)) {
+                    // Check if wav or mp3
+                    char *FName = (FileInfo.fname[0] == 0)? FileInfo.altname : FileInfo.fname;
+                    uint32_t Len = strlen(FName);
+                    if(Len > 4) {
+                        if(strcasecmp(&FName[Len-3], "wav") == 0) {
+                            if(N == Cnt) {
+                                // Build full filename with path
+                                // Check if root dir. Empty string allowed, too
+                                int Len = strlen(DirName);
+                                if((Len > 1) or (Len == 1 and *DirName != '/' and *DirName != '\\')) {
+                                    strcpy(AFname, DirName);
+                                    AFname[Len] = '/';
+                                }
+                                strcpy(&AFname[Len+1], FName);
+                                return retvOk;
+                            }
+                            else Cnt++;
+                        }
+                    } // if Len>4
+                } // if not dir
+            } // Filename ok
+        } // while true
+    }
+};
+#endif
 
 #define SD_STRING_SZ    256 // for operations with strings
 namespace ini { // =================== ini file operations =====================
@@ -86,7 +187,7 @@ namespace csv { // =================== csv file operations =====================
  *
  * # this is comment
  * 14, 0x38, "DirName1"
- * 15, 0, "DirName2"
+ * Name = "Mr. First"
  * ...
  */
 
@@ -94,7 +195,7 @@ uint8_t OpenFile(const char *AFileName);
 void CloseFile();
 void RewindFile();
 uint8_t ReadNextLine();
-void GetNextCellString(char* POutput);
+uint8_t GetNextCellString(char* POutput);
 uint8_t GetNextToken(char** POutput);
 
 // Finds first cell with given name and puts pointer to next cell
@@ -104,12 +205,26 @@ template <typename T>
 static uint8_t GetNextCell(T *POutput) {
     char *Token;
     if(GetNextToken(&Token) == retvOk) {
+//        Printf("Token: %S\r", Token);
         char *p;
         *POutput = (T)strtoul(Token, &p, 0);
         if(*p == '\0') return retvOk;
         else return retvNotANumber;
     }
     else return retvEmpty;
+}
+
+uint8_t GetNextCell(float *POutput);
+
+template <typename T>
+static void TryLoadParam(char* Token, const char* Name, T *Ptr) {
+    if(strcasecmp(Token, Name) == 0) {
+        if(csv::GetNextCell<T>(Ptr) == retvOk) {
+//            if(*Ptr > MaxValue) *Ptr = MaxValue;
+//            Printf("  %S: %u\r", Name, *Ptr);
+        }
+        else Printf("%S load fail\r", Name);
+    }
 }
 
 } // namespace
