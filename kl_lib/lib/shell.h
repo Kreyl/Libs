@@ -99,8 +99,7 @@ public:
 class Shell_t {
 public:
 	Cmd_t Cmd;
-	bool CmdProcessInProgress;
-	void SignalCmdProcessed() { CmdProcessInProgress = false; }
+	virtual void SignalCmdProcessed() = 0;
 	virtual void Printf(const char *format, ...) = 0;
 	void Reply(const char* CmdCode, int32_t Data) { Printf("%S,%d\r\n", CmdCode, Data); }
 	void Ack(int32_t Result) { Printf("Ack %d\r\n", Result); }

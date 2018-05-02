@@ -64,6 +64,127 @@ CmdUart_t Uart {&UartParams};
 
 #if 1 // ========================= Base UART ===================================
 #if 1 // ==== TX ====
+
+#if UART_USE_TXE_IRQ // ============ TxC IRQ =============
+static ftVoidVoid ITxC1IrqCallback = nullptr;
+static ftVoidVoid ITxC2IrqCallback = nullptr;
+static ftVoidVoid ITxC3IrqCallback = nullptr;
+static ftVoidVoid ITxC4IrqCallback = nullptr;
+static ftVoidVoid ITxC5IrqCallback = nullptr;
+static ftVoidVoid ITxC6IrqCallback = nullptr;
+
+void BaseUart_t::EnableTCIrq(const uint32_t Priority, ftVoidVoid ACallback) {
+    ITxC1IrqCallback = ACallback;
+    if(Params->Uart == USART1) {
+        ITxC1IrqCallback = ACallback;
+        nvicEnableVector(USART1_IRQn, Priority);
+    }
+    else if(Params->Uart == USART2) {
+        ITxC2IrqCallback = ACallback;
+        nvicEnableVector(USART2_IRQn, Priority);
+    }
+    else if(Params->Uart == USART3) {
+        ITxC3IrqCallback = ACallback;
+        nvicEnableVector(USART3_IRQn, Priority);
+    }
+    else if(Params->Uart == UART4) {
+        ITxC4IrqCallback = ACallback;
+        nvicEnableVector(UART4_IRQn, Priority);
+    }
+    else if(Params->Uart == UART5) {
+        ITxC5IrqCallback = ACallback;
+        nvicEnableVector(UART5_IRQn, Priority);
+    }
+    else if(Params->Uart == USART6) {
+        ITxC6IrqCallback = ACallback;
+        nvicEnableVector(USART6_IRQn, Priority);
+    }
+    Params->Uart->CR1 |= USART_CR1_TCIE;
+}
+
+extern "C" {
+void VectorD4() {   // USART1
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    uint32_t SR = USART1->SR;
+    if(SR & USART_SR_TC) {
+        if(ITxC1IrqCallback != nullptr) ITxC1IrqCallback();
+        else PrintfC("Unhandled %S\r", __FUNCTION__);
+        USART1->SR &= ~USART_SR_TC;
+    }
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+void VectorD8() {   // USART2
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    uint32_t SR = USART2->SR;
+    if(SR & USART_SR_TC) {
+        if(ITxC1IrqCallback != nullptr) ITxC2IrqCallback();
+        else PrintfC("Unhandled %S\r", __FUNCTION__);
+        USART2->SR &= ~USART_SR_TC;
+    }
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+void VectorDC() {   // USART3
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    uint32_t SR = USART3->SR;
+    if(SR & USART_SR_TC) {
+        if(ITxC1IrqCallback != nullptr) ITxC3IrqCallback();
+        else PrintfC("Unhandled %S\r", __FUNCTION__);
+        USART3->SR &= ~USART_SR_TC;
+    }
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+void Vector110() {   // UART4
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    uint32_t SR = UART4->SR;
+    if(SR & USART_SR_TC) {
+        if(ITxC1IrqCallback != nullptr) ITxC4IrqCallback();
+        else PrintfC("Unhandled %S\r", __FUNCTION__);
+        UART4->SR &= ~USART_SR_TC;
+    }
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+void Vector114() {   // UART5
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    uint32_t SR = UART5->SR;
+    if(SR & USART_SR_TC) {
+        if(ITxC1IrqCallback != nullptr) ITxC5IrqCallback();
+        else PrintfC("Unhandled %S\r", __FUNCTION__);
+        UART5->SR &= ~USART_SR_TC;
+    }
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+void Vector15C() {   // USART6
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    uint32_t SR = USART6->SR;
+    if(SR & USART_SR_TC) {
+        if(ITxC1IrqCallback != nullptr) ITxC6IrqCallback();
+        else PrintfC("Unhandled %S\r", __FUNCTION__);
+        USART6->SR &= ~USART_SR_TC;
+    }
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+} // extern C
+
+
+#endif
+
 #if UART_USE_DMA
 // Wrapper for TX IRQ
 extern "C"
@@ -76,7 +197,10 @@ void BaseUart_t::IRQDmaTxHandler() {
     PRead += ITransSize;
     if(PRead >= (TXBuf + UART_TXBUF_SZ)) PRead = TXBuf; // Circulate pointer
 
-    if(IFullSlotsCount == 0) IDmaIsIdle = true; // Nothing left to send
+    if(IFullSlotsCount == 0) {  // Nothing left to send
+        IDmaIsIdle = true;
+        IOnTxEnd();
+    }
     else ISendViaDMA();
 }
 
@@ -219,7 +343,16 @@ void BaseUart_t::Init(uint32_t ABaudrate) {
     Params->Uart->CR3 = USART_CR3_DMAT | USART_CR3_DMAR;    // Enable DMA at TX & RX
     // ==== Rx pin ====
 #if defined STM32L4XX || defined STM32L1XX || defined STM32F2XX
-    PinAF = AF7; // for all USARTs
+    PinAF = AF7; // for all USARTs save 4/5/6
+#if defined UART4
+    if(Params->Uart == UART4) PinAF = AF8;
+#endif
+#if defined UART5
+    if(Params->Uart == UART5) PinAF = AF8;
+#endif
+#if defined USART6
+    if(Params->Uart == USART6) PinAF = AF8;
+#endif
 #elif defined STM32F0XX
     if(Params->PGpioRx == GPIOA) PinAF = AF1;
     else if(Params->PGpioRx == GPIOB) PinAF = AF0;
@@ -298,15 +431,24 @@ static void UartRxThread(void *arg) {
 }
 
 void CmdUart_t::IRxTask() {
-    if(CmdProcessInProgress) return;    // Busy processing cmd
     // Iterate received bytes
     uint8_t b;
     while(GetByte(&b) == retvOk) {
         if(Cmd.PutChar(b) == pdrNewCmd) {
+            chSysLock();
             EvtMsg_t Msg(evtIdShellCmd, (Shell_t*)this);
-            CmdProcessInProgress = (EvtQMain.SendNowOrExit(Msg) == retvOk);
-        }
-    }
+            if(EvtQMain.SendNowOrExitI(Msg) == retvOk) {
+                chSchGoSleepS(CH_STATE_SUSPENDED); // Wait until cmd processed
+            }
+            chSysUnlock();  // Will be here when application signals that cmd processed
+        } // if new cmd
+    } // whilw get byte
+}
+
+void CmdUart_t::SignalCmdProcessed() {
+    chSysLock();
+    if(IRxThd->state == CH_STATE_SUSPENDED) chSchReadyI(IRxThd);
+    chSysUnlock();
 }
 #endif
 
