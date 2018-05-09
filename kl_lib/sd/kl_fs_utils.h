@@ -57,7 +57,7 @@ private:
     DirRandData_t Dirs[DIR_CNT];
     int32_t DirCnt = 0;
     int32_t CurrIndx = 0;
-    uint8_t FindDirInList(char* DirName) {
+    uint8_t FindDirInList(const char* DirName) {
         CurrIndx = 0;
         for(int32_t i=0; i<DirCnt; i++) {
             if(strcmp(DirName, Dirs[i].Name) == 0) {
@@ -67,7 +67,7 @@ private:
         }
         return retvNotFound;
     }
-    void AddDir(char* DirName) {
+    void AddDir(const char* DirName) {
         if(DirCnt >= DIR_CNT) DirCnt = 0;
         CurrIndx = DirCnt;
         DirCnt++;
@@ -84,7 +84,7 @@ public:
         Dirs[0].LastN = 0;
     }
 
-    uint8_t GetRandomFnameFromDir(char* DirName, char* AFname) {
+    uint8_t GetRandomFnameFromDir(const char* DirName, char* AFname) {
         // Check if dir in list
         if(FindDirInList(DirName) != retvOk) { // No such dir
     //        Printf("No Dir %S in list\r" , DirName);

@@ -42,8 +42,9 @@ public:
         else if(Cnt < (CMD_BUF_SZ-1)) IString[Cnt++] = c;  // Add char if buffer not full
         return pdrProceed;
     }
-    uint8_t GetNextString() {
+    uint8_t GetNextString(char **PStr = nullptr) {
         Token = strtok(NULL, DELIMITERS);
+        if(PStr != nullptr) *PStr = Token;
         return (*Token == '\0')? retvEmpty : retvOk;
     }
 

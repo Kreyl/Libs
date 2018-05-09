@@ -57,7 +57,7 @@ static uint8_t mV2PercentAlkaline(uint16_t mV) {
 }
 #endif
 
-#if 0 // ============================ Li-Ion ===================================
+#if 1 // ============================ Li-Ion ===================================
 static const mVPercent_t mVPercentTableLiIon[] = {
         {4100, 100, 10},
         {4000, 90,  10},
@@ -72,6 +72,7 @@ static const mVPercent_t mVPercentTableLiIon[] = {
 };
 #define mVPercentTableLiIonSz    countof(mVPercentTableLiIon)
 
+__unused
 static uint8_t mV2PercentLiIon(uint16_t mV) {
     for(uint8_t i=0; i<mVPercentTableLiIonSz; i++)
         if(mV >= mVPercentTableLiIon[i].mV) return mVPercentTableLiIon[i].Percent;
