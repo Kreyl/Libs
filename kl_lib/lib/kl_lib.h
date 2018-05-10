@@ -347,6 +347,17 @@ namespace BackupSpc {
         RCC->BDCR |=  RCC_BDCR_BDRST;
         RCC->BDCR &= ~RCC_BDCR_BDRST;
     }
+
+    // RegN = 0...19
+    static inline uint32_t ReadRegister(uint32_t RegN) {
+        volatile uint32_t tmp = RTC_BASE + 0x50 + (RegN * 4);
+        return (*(volatile uint32_t *)tmp);
+    }
+
+    static inline void WriteRegister(uint32_t RegN, uint32_t Data) {
+        volatile uint32_t tmp = RTC_BASE + 0x50 + (RegN * 4);
+        *(volatile uint32_t *)tmp = Data;
+    }
 } // namespace
 #endif // STM32F2xx/F4xx
 #endif
@@ -910,7 +921,7 @@ public:
     PinIrq_t(GPIO_TypeDef *APGpio, uint16_t APinN, PinPullUpDown_t APullUpDown, IrqHandler_t *PIrqHandler) :
         PGpio(APGpio), PinN(APinN), PullUpDown(APullUpDown) {
 #if INDIVIDUAL_EXTI_IRQ_REQUIRED
-        PIrqHandler[APinN] = PIrqHandler;
+        ExtiIrqHandler[APinN] = PIrqHandler;
 #else
     #if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX
         if(APinN >= 0 and APinN <= 4) ExtiIrqHandler[APinN] = PIrqHandler;
@@ -1444,6 +1455,7 @@ public:
     uint32_t GetSysClkHz();
     void UpdateFreqValues();
     void SetupFlashLatency(uint32_t FrequencyHz);
+    uint32_t GetTimInputFreq(TIM_TypeDef* ITmr);
     void EnablePrefetch()  { FLASH->ACR |=  FLASH_ACR_PRFTBE; }
     void DisablePrefetch() { FLASH->ACR &= ~FLASH_ACR_PRFTBE; }
 

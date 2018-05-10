@@ -156,10 +156,16 @@ public:
     }
 
     uint8_t Get(T *p) {
-        if(this->IFullSlotsCount == 0) return retvFail;
+        if(this->IFullSlotsCount == 0) return retvEmpty;
         *p = *this->PRead;
         if(++this->PRead > (this->IBuf + Sz - 1)) this->PRead = this->IBuf;     // Circulate buffer
         this->IFullSlotsCount--;
+        return retvOk;
+    }
+
+    uint8_t GetAndDoNotRemove(T *p) {
+        if(this->IFullSlotsCount == 0) return retvEmpty;
+        *p = *this->PRead;
         return retvOk;
     }
 

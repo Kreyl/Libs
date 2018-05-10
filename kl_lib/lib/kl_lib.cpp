@@ -887,13 +887,21 @@ void Vector54() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
 #if INDIVIDUAL_EXTI_IRQ_REQUIRED
-    if(ExtiIrqHandler[0] != nullptr) ExtiIrqHandler[0]->IIrqHandler();
-    if(ExtiIrqHandler[1] != nullptr) ExtiIrqHandler[1]->IIrqHandler();
+    uint32_t ClearMask = 0;
+    if(EXTI->PR & (1<<0)) {
+        ClearMask = 1<<0;
+        if(ExtiIrqHandler[0] != nullptr) ExtiIrqHandler[0]->IIrqHandler();
+    }
+    if(EXTI->PR & (1<<1)) {
+        ClearMask += 1<<1;
+        if(ExtiIrqHandler[1] != nullptr) ExtiIrqHandler[1]->IIrqHandler();
+    }
+    EXTI->PR = ClearMask;
 #else
     if(ExtiIrqHandler_0_1 != nullptr) ExtiIrqHandler_0_1->IIrqHandler();
 //    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
-#endif
     EXTI->PR = 0x0003;  // Clean IRQ flag
+#endif
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -903,13 +911,21 @@ void Vector58() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
 #if INDIVIDUAL_EXTI_IRQ_REQUIRED
-    if(ExtiIrqHandler[2] != nullptr) ExtiIrqHandler[2]->IIrqHandler();
-    if(ExtiIrqHandler[3] != nullptr) ExtiIrqHandler[3]->IIrqHandler();
+    uint32_t ClearMask = 0;
+        if(EXTI->PR & (1<<2)) {
+            ClearMask = 1<<2;
+            if(ExtiIrqHandler[2] != nullptr) ExtiIrqHandler[2]->IIrqHandler();
+        }
+        if(EXTI->PR & (1<<3)) {
+            ClearMask += 1<<3;
+            if(ExtiIrqHandler[3] != nullptr) ExtiIrqHandler[3]->IIrqHandler();
+        }
+        EXTI->PR = ClearMask;
 #else
     if(ExtiIrqHandler_2_3 != nullptr) ExtiIrqHandler_2_3->IIrqHandler();
 //    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
-#endif
     EXTI->PR = 0x000C;  // Clean IRQ flag
+#endif
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -919,14 +935,20 @@ void Vector5C() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
 #if INDIVIDUAL_EXTI_IRQ_REQUIRED
+    uint32_t ClearMask = 0;
     for(int i=4; i<=15; i++) {
-        if(ExtiIrqHandler[i] != nullptr) ExtiIrqHandler[i]->IIrqHandler();
+        uint32_t Mask = 1<<i;
+        if(EXTI->PR & Mask) {
+            ClearMask += Mask;
+            if(ExtiIrqHandler[i] != nullptr) ExtiIrqHandler[i]->IIrqHandler();
+        }
     }
+    EXTI->PR = ClearMask;
 #else
     if(ExtiIrqHandler_4_15 != nullptr) ExtiIrqHandler_4_15->IIrqHandler();
 //    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
-#endif
     EXTI->PR = 0xFFF0;  // Clean IRQ flag
+#endif
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -1034,15 +1056,15 @@ void SetTimeout(uint32_t ms) {
 }
 
 void InitAndStart(uint32_t ms) {
-    Clk.EnableLSI();        // Start LSI
-    SetTimeout(ms); // Start IWDG
+    Clk.EnableLsi();    // Start LSI
+    SetTimeout(ms);     // Start IWDG
     Enable();
 }
 
 
 void GoSleep(uint32_t Timeout_ms) {
     chSysLock();
-    Clk.EnableLSI();        // Start LSI
+    Clk.EnableLsi();        // Start LSI
     SetTimeout(Timeout_ms); // Start IWDG
     Enable();
     // Enter standby mode
@@ -1454,7 +1476,7 @@ uint8_t Clk_t::SwitchTo(ClkSrc_t AClkSrc) {
 
 #ifdef RCC_CFGR_SW_HSI48
         case csHSI48:
-            if(EnableHSI48() != OK) return FAILURE;
+            if(EnableHSI48() != retvOk) return retvFail;
             RCC->CFGR = tmp | RCC_CFGR_SW_HSI48;
             return WaitSWS(RCC_CFGR_SWS_HSI48);
             break;
@@ -1483,7 +1505,7 @@ uint8_t Clk_t::SetupPLLDividers(uint8_t HsePreDiv, PllMul_t PllMul) {
 }
 
 void Clk_t::SetupPLLSrc(PllSrc_t Src) {
-    if(Src == pllSrcHSIdiv2) RCC->CFGR &= ~RCC_CFGR_PLLSRC;
+    if(Src == plsHSIdiv2) RCC->CFGR &= ~RCC_CFGR_PLLSRC;
     else RCC->CFGR |= RCC_CFGR_PLLSRC;
 }
 
