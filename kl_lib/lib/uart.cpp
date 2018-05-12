@@ -69,9 +69,15 @@ CmdUart_t Uart {&UartParams};
 static ftVoidVoid ITxC1IrqCallback = nullptr;
 static ftVoidVoid ITxC2IrqCallback = nullptr;
 static ftVoidVoid ITxC3IrqCallback = nullptr;
+#if defined UART4
 static ftVoidVoid ITxC4IrqCallback = nullptr;
+#endif
+#if defined UART5
 static ftVoidVoid ITxC5IrqCallback = nullptr;
+#endif
+#if defined USART6
 static ftVoidVoid ITxC6IrqCallback = nullptr;
+#endif
 
 void BaseUart_t::EnableTCIrq(const uint32_t Priority, ftVoidVoid ACallback) {
     ITxC1IrqCallback = ACallback;
@@ -85,20 +91,30 @@ void BaseUart_t::EnableTCIrq(const uint32_t Priority, ftVoidVoid ACallback) {
     }
     else if(Params->Uart == USART3) {
         ITxC3IrqCallback = ACallback;
+#if defined STM32L4XX
         nvicEnableVector(USART3_IRQn, Priority);
+#elif defined STM32F0XX
+        nvicEnableVector(USART3_4_IRQn, Priority);
+#endif
     }
+#if defined UART4
     else if(Params->Uart == UART4) {
         ITxC4IrqCallback = ACallback;
         nvicEnableVector(UART4_IRQn, Priority);
     }
+#endif
+#if defined UART5
     else if(Params->Uart == UART5) {
         ITxC5IrqCallback = ACallback;
         nvicEnableVector(UART5_IRQn, Priority);
     }
+#endif
+#if defined USART6
     else if(Params->Uart == USART6) {
         ITxC6IrqCallback = ACallback;
         nvicEnableVector(USART6_IRQn, Priority);
     }
+#endif
     Params->Uart->CR1 |= USART_CR1_TCIE;
 }
 
@@ -271,7 +287,7 @@ uint8_t BaseUart_t::GetByte(uint8_t *b) {
 
 #if 1 // ==== Init ====
 void BaseUart_t::Init(uint32_t ABaudrate) {
-    AlterFunc_t PinAF;
+    AlterFunc_t PinAF = AF1;
     // ==== Tx pin ====
 #if defined STM32L4XX || defined STM32L1XX || defined STM32F2XX
     PinAF = AF7;
@@ -310,10 +326,11 @@ void BaseUart_t::Init(uint32_t ABaudrate) {
 #endif
     // Setup independent clock if possible and required
 #if defined STM32F072xB
-#error "Independed clock not implemented"
-    // Setup HSI as UART's clk src
-    if(UART == USART1) RCC->CFGR3 |= RCC_CFGR3_USART1SW_HSI;
-    else if(UART == USART2) RCC->CFGR3 |= RCC_CFGR3_USART2SW_HSI;
+    if(Params->UseIndependedClock) {
+        Clk.EnableHSI();    // HSI used as independent clock
+        if     (Params->Uart == USART1) RCC->CFGR3 |= RCC_CFGR3_USART1SW_HSI;
+        else if(Params->Uart == USART2) RCC->CFGR3 |= RCC_CFGR3_USART2SW_HSI;
+    }
 #elif defined STM32L4XX
     if(Params->UseIndependedClock) {
         Clk.EnableHSI();    // HSI used as independent clock

@@ -29,7 +29,7 @@ struct UartParams_t {
 };
 
 #define UART_USE_DMA        TRUE
-#define UART_USE_TXE_IRQ    TRUE
+#define UART_USE_TXE_IRQ    FALSE
 
 // Set to true if RX needed
 #define UART_RX_ENABLED     TRUE
