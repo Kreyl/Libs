@@ -1,0 +1,10 @@
+(module Pad_2x4_Oval (layer F.Cu) (tedit 5B071935)
+  (descr "Single pad")
+  (fp_text reference XL1 (at -0.25 -2.15) (layer F.SilkS) hide
+    (effects (font (size 0.6 0.6) (thickness 0.15)))
+  )
+  (fp_text value CONN_1 (at 0.15 2.35) (layer F.SilkS) hide
+    (effects (font (size 0.635 0.635) (thickness 0.15875)))
+  )
+  (pad 1 smd oval (at 0 0) (size 2 4) (layers F.Cu F.Mask))
+)

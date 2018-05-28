@@ -5,8 +5,7 @@
  *      Author: kreyl
  */
 
-#ifndef KL_BUF_H_
-#define KL_BUF_H_
+#pragma once
 
 #include "ch.h"
 #include "string.h" // for memcpy
@@ -238,69 +237,34 @@ public:
 };
 #endif
 
-// =============================== Chunk buf ===================================
-// Allows to add data chunk by chunk, and to get it all. And vice versa.
-/*template <typename T, uint32_t PktCnt, uint32_t PktDataSz>
-class BufChunkPut_t {
-private:
-    CircBuf_t<T, PktCnt> IHdrs;
-    CircBufNumber_t<uint8_t, (PktCnt * PktDataSz)> IData; // Data buffer
-    T IHdr;
+#if 1 // ============================ LIFO =====================================
+template <typename T, uint32_t Sz>
+class LifoNumber_t {
+protected:
+    uint32_t Cnt=0;
+    T IBuf[Sz];
 public:
-    // ==== Put ====
-    uint8_t PutStart(T *PHeader) {
-        if(InProgress) PutCancel();     // Cancel unfinished pkt
-        // Check if empty slots available
-        if(IHdrs.GetEmptyCount() == 0) return FAILURE;  // No room for header
-            IPHdr = (T*)ICircBuf.PWrite;  // Save pointer to write length in there later
-            InProgress = true;
-            PHeader->Length = 0;
-            PHeader->State = NEW;
-            Rslt = ICircBuf.Put((uint8_t*)PHeader, sizeof(T));
-        }
-        return Rslt;
+    uint8_t Put(T Value) {
+        if(Cnt == Sz) return retvOverflow;
+        IBuf[Cnt] = Value;
+        Cnt++;
+        return retvOk;
     }
-    uint8_t PutChunk(uint8_t *p, uint32_t Length) {
-        if(!InProgress or (ICircBuf.GetEmptyCount() < Length)) return FAILURE;
-        ICircBuf.Put(p, Length);
-        IPHdr->Length += Length;
-        return OK;
-    }
-    void PutComplete() {
-        InProgress = false;
 
-//        IPtrs.Put(&IPkt);
+    uint8_t Get(T *p) {
+        if(Cnt == 0) return retvEmpty;
+        Cnt--;
+        *p = IBuf[Cnt];
+        return retvOk;
     }
-    void PutCancel() {
-//        PutInProgress = false;
-//        // Restore data buf
-//        IData.PWrite = IPkt.Ptr;
-//        IData.IFullSlotsCount -= IPkt.Length;
-    }
-    // ==== Get ====
-    void GetComplete() {}
-    void GetCancel() {}
 
-    uint8_t GetWholePkt(uint8_t *Ptr, uint32_t ALength) { return FAILURE; }
+    uint8_t GetAndDoNotRemove(T *p) {
+        if(Cnt == 0) return retvEmpty;
+        *p = IBuf[Cnt-1];
+        return retvOk;
+    }
 
-    // ==== Common ====
-    uint8_t GetWholePkt(uint8_t *p) {
-//        DataPktPtr_t TmpPkt;
-//        uint8_t Rslt = IPtrs.Get(&TmpPkt);
-//        if(Rslt == OK) {
-//            p->Length = TmpPkt.Length;
-//            IData.Get(p->Ptr, &p->Length);
-//        }
-//        return Rslt;
-        return FAILURE;
-    }
-    // Common
-    bool InProgress;
-    void Init() {
-        InProgress = false;
-        ICircBuf.Init();
-        IPHdr = (T*)ICircBuf.PWrite;
-    }
+    inline uint32_t GetFullCount()  { return Cnt; }
 };
-*/
-#endif /* KL_BUF_H_ */
+
+#endif

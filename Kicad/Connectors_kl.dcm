@@ -16,6 +16,10 @@ $CMP BARREL_SOCKET
 D Power connector socket
 $ENDCMP
 #
+$CMP BNC
+D SMA RF inlet, 90dg to PCB
+$ENDCMP
+#
 $CMP CONN_1
 D Symbole general de connecteur
 K CONN

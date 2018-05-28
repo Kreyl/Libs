@@ -464,7 +464,7 @@ void CmdUart_t::IRxTask() {
 
 void CmdUart_t::SignalCmdProcessed() {
     chSysLock();
-    if(IRxThd->p_state == CH_STATE_SUSPENDED) chSchReadyI(IRxThd);
+    if(IRxThd->state == CH_STATE_SUSPENDED) chSchReadyI(IRxThd);
     chSysUnlock();
 }
 #endif
