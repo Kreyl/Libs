@@ -22,6 +22,15 @@ static inline uint32_t ClrCalcDelay(uint16_t AValue, uint32_t Smooth) {
 }
 
 struct Color_t {
+private:
+    uint8_t SetSingleBrt(uint32_t v, uint32_t Brt) {
+        if(v > 0) {
+            v = (v * Brt) / 100UL;
+            if(v == 0) v = 1;
+        }
+        return v;
+    }
+public:
     union {
         uint32_t DWord32;
         struct {
@@ -115,6 +124,13 @@ struct Color_t {
         if(Delay2 > Delay) Delay = Delay2;
         Delay2 = (Lum == AClr.Lum)? 0 : ClrCalcDelay(Lum, SmoothValue);
         return (Delay2 > Delay)? Delay2 : Delay;
+    }
+    // Brt = [0; 100]
+    void SetRGBWBrightness(Color_t &AClr, uint32_t Brt) {
+        R = SetSingleBrt(AClr.R, Brt);
+        G = SetSingleBrt(AClr.G, Brt);
+        B = SetSingleBrt(AClr.B, Brt);
+        W = SetSingleBrt(AClr.W, Brt);
     }
     void Print() { Printf("{%u, %u, %u; %u}\r", R, G, B, Lum); }
     Color_t() : R(0), G(0), B(0), Lum(LUM_MAX) {}

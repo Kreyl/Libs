@@ -13,6 +13,7 @@
 #include "board.h"
 
 struct UartParams_t {
+    uint32_t Baudrate;
     USART_TypeDef* Uart;
     GPIO_TypeDef *PGpioTx;
     uint16_t PinTx;
@@ -26,25 +27,32 @@ struct UartParams_t {
 #if defined STM32F072xB || defined STM32L4XX
     bool UseIndependedClock;
 #endif
+    UartParams_t(uint32_t ABaudrate, USART_TypeDef* AUart, GPIO_TypeDef *APGpioTx,
+            uint16_t APinTx, GPIO_TypeDef *APGpioRx, uint16_t APinRx,
+            const stm32_dma_stream_t *APDmaTx, const stm32_dma_stream_t *APDmaRx,
+            uint32_t ADmaModeTx, uint32_t ADmaModeRx
+#if defined STM32F072xB || defined STM32L4XX
+    bool AUseIndependedClock;
+#endif
+    ) :         Baudrate(ABaudrate), Uart(AUart), PGpioTx(APGpioTx), PinTx(APinTx),
+                PGpioRx(APGpioRx), PinRx(APinRx), PDmaTx(APDmaTx), PDmaRx(APDmaRx),
+                DmaModeTx(ADmaModeTx), DmaModeRx(ADmaModeRx)
+#if defined STM32F072xB || defined STM32L4XX
+                , UseIndependedClock(AUseIndependedClock)
+#endif
+    {}
 };
 
 #define UART_USE_DMA        TRUE
 #define UART_USE_TXE_IRQ    FALSE
 
-// Set to true if RX needed
-#define UART_RX_ENABLED     TRUE
-
-#if UART_RX_ENABLED // ==== RX ====
-#define UART_RXBUF_SZ       99 // unprocessed bytes
 #define UART_CMD_BUF_SZ     54 // payload bytes
 #define UART_RX_POLLING_MS  99
-#endif
 
 // ==== Base class ====
 class BaseUart_t {
 private:
     const UartParams_t *Params;
-    uint32_t IBaudrate;
 #if UART_USE_DMA
     char TXBuf[UART_TXBUF_SZ];
     char *PRead, *PWrite;
@@ -52,26 +60,26 @@ private:
     uint32_t IFullSlotsCount, ITransSize;
     void ISendViaDMA();
 #endif
-#if UART_RX_ENABLED
     int32_t OldWIndx, RIndx;
     uint8_t IRxBuf[UART_RXBUF_SZ];
-#endif
 protected:
+    bool RxProcessed = true;
+    virtual_timer_t TmrRx;
+    void SignalRxProcessed();
     uint8_t IPutByte(uint8_t b);
     uint8_t IPutByteNow(uint8_t b);
     void IStartTransmissionIfNotYet();
     virtual void IOnTxEnd() = 0;
     // ==== Constructor ====
-    BaseUart_t(const UartParams_t *APParams) : Params(APParams), IBaudrate(115200)
+    BaseUart_t(const UartParams_t *APParams) : Params(APParams)
 #if UART_USE_DMA
     , PRead(TXBuf), PWrite(TXBuf), IDmaIsIdle(true), IFullSlotsCount(0), ITransSize(0)
 #endif
-#if UART_RX_ENABLED
     , OldWIndx(0), RIndx(0)
-#endif
     {}
 public:
-    void Init(uint32_t ABaudrate);
+    void Init();
+    void StartRx();
     void Shutdown();
     void OnClkChange();
     // Enable/Disable
@@ -87,10 +95,9 @@ public:
 #if UART_USE_DMA
     void IRQDmaTxHandler();
 #endif
-#if UART_RX_ENABLED
     uint32_t GetRcvdBytesCnt();
     uint8_t GetByte(uint8_t *b);
-#endif
+    virtual void IIrqHandler() = 0;
 };
 
 class CmdUart_t : public BaseUart_t, public PrintfHelper_t, public Shell_t {
@@ -106,9 +113,8 @@ private:
     }
 public:
     CmdUart_t(const UartParams_t *APParams) : BaseUart_t(APParams) {}
-    void Init(uint32_t ABaudrate);
-    void IRxTask();
-    void SignalCmdProcessed();
+    void IIrqHandler();
+    void SignalCmdProcessed() { BaseUart_t::SignalRxProcessed(); }
 };
 
 #define BYTE_UART_EN    FALSE

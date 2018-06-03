@@ -19,6 +19,15 @@ void Printf(const char *format, ...) {
     va_end(args);
 }
 
+void Printf(CmdUart_t &AUart, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    chSysLock();
+    AUart.IVsPrintf(format, args);
+    chSysUnlock();
+    va_end(args);
+}
+
 void PrintfI(const char *format, ...) {
     va_list args;
     va_start(args, format);
