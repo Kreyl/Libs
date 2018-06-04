@@ -1391,9 +1391,9 @@ void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
             if(SetupPllMulDiv(pllMul6, preDiv1) != retvOk) return;
             break;
         case cclk48MHz:
-            // 12MHz / 1 * 8 / 2 => 48 and 48MHz
-//            if(SetupPllMulDiv(1, 8, 2, 2) != retvOk) return;
-//            SetupFlashLatency(48, mvrHiPerf);
+            SetupFlashLatency(48);
+            // 4MHz * 12 => 48MHz
+            if(SetupPllMulDiv(pllMul12, preDiv1) != retvOk) return;
             break;
         case cclk72MHz:
             // 12MHz / 1 * 24 => 72 and 48MHz

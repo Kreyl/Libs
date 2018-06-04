@@ -17,7 +17,7 @@ char IStr[SD_STRING_SZ];
 
 #if 1 // ============================== Common =================================
 uint8_t TryOpenFileRead(const char *Filename, FIL *PFile) {
-//    Printf("%S: %S\r", __FUNCTION__, Filename);
+//    Printf("%S: %S; %X\r", __FUNCTION__, Filename, PFile);
     FRESULT rslt = f_open(PFile, Filename, FA_READ);
     if(rslt == FR_OK) {
         // Check if zero file
@@ -251,6 +251,56 @@ uint8_t ReadString(const char *AFileName, const char *ASection, const char *AKey
     *PPOutput = StartP;
     return retvOk;
 }
+
+uint8_t ReadStringTo(const char *AFileName, const char *ASection, const char *AKey, char *POutput, uint32_t MaxLen) {
+    char *S;
+    if(ReadString(AFileName, ASection, AKey, &S) == retvOk) {
+        // Copy what was read
+        if(strlen(S) > (MaxLen-1)) {
+            strncpy(POutput, S, (MaxLen-1));
+            POutput[MaxLen-1] = 0;  // terminate string
+        }
+        else strcpy(POutput, S);
+        return retvOk;
+    }
+    else return retvFail;
+}
+
+uint8_t HexToUint(char *S, uint8_t AMaxLength, uint32_t *AOutput) {
+    *AOutput = 0;
+    char c;
+    uint8_t b=0;
+    for(uint8_t i=0; i<AMaxLength; i++) {
+        c = *S++;
+        if (c == 0) return retvOk;    // end of string
+        // Shift result
+        *AOutput <<= 4;
+        // Get next digit
+        if     ((c >= '0') && (c <= '9')) b = c-'0';
+        else if((c >= 'A') && (c <= 'F')) b = c-'A'+10;
+        else if((c >= 'a') && (c <= 'f')) b = c-'a'+10;
+        else return retvFail;  // not a hex digit
+        *AOutput += b;
+    }
+    return retvOk;
+}
+
+uint8_t ReadColor (const char *AFileName, const char *ASection, const char *AKey, Color_t *AOutput) {
+    char *S;
+    if(ReadString(AFileName, ASection, AKey, &S) == retvOk) {
+        if(strlen(S) != 6) return retvBadValue;
+        uint32_t N=0;
+        if(HexToUint(&S[0], 2, &N) != retvOk) return retvFail;
+        AOutput->R = N;
+        if(HexToUint(&S[2], 2, &N) != retvOk) return retvFail;
+        AOutput->G = N;
+        if(HexToUint(&S[4], 2, &N) != retvOk) return retvFail;
+        AOutput->B = N;
+        return retvOk;
+    }
+    else return retvFail;
+}
+
 } // Namespace
 
 namespace csv { // =================== csv file operations =====================

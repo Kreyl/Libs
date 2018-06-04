@@ -10,6 +10,7 @@
 #include "ff.h"
 #include "kl_lib.h"
 #include "shell.h"
+#include "color.h"
 
 // Constants
 #define MAX_NAME_LEN        128UL
@@ -159,9 +160,10 @@ namespace ini { // =================== ini file operations =====================
 
 uint8_t ReadString(const char *AFileName, const char *ASection, const char *AKey, char **PPOutput);
 
+uint8_t ReadStringTo(const char *AFileName, const char *ASection, const char *AKey, char *POutput, uint32_t MaxLen);
+
 //template <typename T>
 //uint8_t iniRead(const char *AFileName, const char *ASection, const char *AKey, T *POutput);
-
 
 template <typename T>
 static uint8_t Read(const char *AFileName, const char *ASection, const char *AKey, T *POutput) {
@@ -173,6 +175,8 @@ static uint8_t Read(const char *AFileName, const char *ASection, const char *AKe
     }
     else return retvFail;
 }
+
+uint8_t ReadColor (const char *AFileName, const char *ASection, const char *AKey, Color_t *AOutput);
 
 void WriteSection(FIL *PFile, const char *ASection);
 void WriteString(FIL *PFile, const char *AKey, char *AValue);
