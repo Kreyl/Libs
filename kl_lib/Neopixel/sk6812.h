@@ -21,7 +21,7 @@
 #include "color.h"
 #include "uart.h"
 
-#define LED_CNT             359L   // Number of LEDs
+#define LED_CNT             150L   // Number of LEDs
 
 #define SEQ_LEN             4L   // SPI bits per single bit of LED data
 #define RST_W_CNT           8L   // zero words before and after data to produce reset
@@ -31,13 +31,38 @@
 #define DATA_W_CNT          ((DATA_BIT_CNT + 15) / 16)  // Data len in 16-bit words
 #define TOTAL_W_CNT         (DATA_W_CNT + RST_W_CNT)
 
-class LedSk_t {
+#define NPX_DMA_MODE(Chnl) \
+                        (STM32_DMA_CR_CHSEL(Chnl) \
+                        | DMA_PRIORITY_HIGH \
+                        | STM32_DMA_CR_MSIZE_HWORD \
+                        | STM32_DMA_CR_PSIZE_HWORD \
+                        | STM32_DMA_CR_MINC     /* Memory pointer increase */ \
+                        | STM32_DMA_CR_DIR_M2P)  /* Direction is memory to peripheral */
+
+struct NeopixelParams_t {
+    Spi_t ISpi;
+    GPIO_TypeDef *PGpio;
+    uint16_t Pin;
+    AlterFunc_t Af;
+    // DMA
+    const stm32_dma_stream_t *PDma;
+    uint32_t DmaMode;
+    NeopixelParams_t(SPI_TypeDef *ASpi,
+            GPIO_TypeDef *APGpio, uint16_t APin, AlterFunc_t AAf,
+            const stm32_dma_stream_t *APDma, uint32_t ADmaMode) :
+                ISpi(ASpi), PGpio(APGpio), Pin(APin), Af(AAf),
+                PDma(APDma), DmaMode(ADmaMode) {}
+};
+
+
+class Neopixels_t {
 private:
-    Spi_t ISpi {LEDWS_SPI};
+    const NeopixelParams_t *Params;
     uint16_t IBuf[TOTAL_W_CNT];
     uint16_t *PBuf;
     void AppendBitsMadeOfByte(uint8_t Byte);
 public:
+    Neopixels_t(const NeopixelParams_t *APParams) : Params(APParams), PBuf(IBuf) {}
     void Init();
     bool AreOff() {
         for(uint8_t i=0; i<LED_CNT; i++) {
@@ -48,70 +73,4 @@ public:
     // Inner use
     Color_t ICurrentClr[LED_CNT];
     void ISetCurrentColors();
-    void ITmrHandlerI();
 };
-
-extern LedSk_t Leds;
-
-#if 1 // =============================== Chunk =================================
-class LedChunk_t {
-private:
-    int Head, Tail;
-    uint8_t GetNext(int *PCurrent);
-    int GetPrevN(int Current, int N);
-public:
-    int Start, End, NLeds;
-    Color_t Color;
-    LedChunk_t(int AStart, int AEnd) {
-        Start = AStart;
-        End = AEnd;
-        NLeds = 1;
-        Head = AStart;
-        Tail = AEnd;
-        Color = clBlack;
-    }
-    uint32_t ProcessAndGetDelay();
-    void StartOver();
-};
-#endif
-
-#if 1 // ============================== Effects ================================
-enum EffState_t {effEnd, effInProgress};
-
-class EffBase_t {
-public:
-    virtual EffState_t Process() = 0;
-};
-
-class EffAllTogetherNow_t : public EffBase_t {
-public:
-    void SetupAndStart(Color_t Color);
-    EffState_t Process() { return effEnd; } // Dummy, never used
-};
-
-class EffAllTogetherSmoothly_t : public EffBase_t {
-protected:
-    uint32_t ISmoothValue;
-public:
-    void SetupAndStart(Color_t Color, uint32_t ASmoothValue);
-    EffState_t Process();
-};
-
-class EffFadeOneByOne_t : public EffAllTogetherSmoothly_t {
-private:
-    uint8_t IDs[LED_CNT];
-    Color_t IClrLo, IClrHi;
-public:
-    void SetupAndStart(int32_t ThrLo, int32_t ThrHi);
-    void SetupIDs();
-    EffFadeOneByOne_t(uint32_t ASmoothValue, Color_t AClrLo, Color_t AClrHi) :
-        IClrLo(AClrLo), IClrHi(AClrHi) { ISmoothValue = ASmoothValue; }
-};
-
-extern EffAllTogetherNow_t EffAllTogetherNow;
-extern EffAllTogetherSmoothly_t EffAllTogetherSmoothly;
-extern EffFadeOneByOne_t EffFadeOneByOne;
-
-void LedEffectsInit();
-
-#endif
