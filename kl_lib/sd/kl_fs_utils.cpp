@@ -90,14 +90,25 @@ bool DirExists(const char* DirName) {
 bool DirExistsAndContains(const char* DirName, const char* Extension) {
     if(f_opendir(&Dir, DirName) == FR_OK) {
         while(true) {
-            *FileInfo.fname = 0;    // }
-            *FileInfo.altname = 0;  // } Empty names before reading
+            // Empty names before reading
+            *FileInfo.fname = 0;
+#if _USE_LFN
+            *FileInfo.altname = 0;
+#endif
             if(f_readdir(&Dir, &FileInfo) != FR_OK) return false;
-            if((FileInfo.fname[0] == 0) and (FileInfo.altname[0] == 0)) return false;   // No files left
+            if((FileInfo.fname[0] == 0)
+#if _USE_LFN
+                    and (FileInfo.altname[0] == 0)
+#endif
+            ) return false;   // No files left
             else { // Filename ok, check if not dir
                 if(!(FileInfo.fattrib & AM_DIR)) {
                     // Check the ext
+#if _USE_LFN
                     char *FName = (FileInfo.fname[0] == 0)? FileInfo.altname : FileInfo.fname;
+#else
+                    char *FName = FileInfo.fname;
+#endif
                     uint32_t Len = strlen(FName);
                     if(Len > 4) {
                         if(strncasecmp(&FName[Len-3], Extension, 3) == 0) return true;
@@ -115,15 +126,27 @@ uint8_t CountFilesInDir(const char* DirName, const char* Extension, uint32_t *PC
 //    Printf("f_opendir %S: %u\r", DirName, Rslt);
     if(Rslt != FR_OK) return retvFail;
     while(true) {
-        *FileInfo.fname = 0;    // }
-        *FileInfo.altname = 0;  // } Empty names before reading
+        // Empty names before reading
+        *FileInfo.fname = 0;
+#if _USE_LFN
+        *FileInfo.altname = 0;
+#endif
+
         Rslt = f_readdir(&Dir, &FileInfo);
         if(Rslt != FR_OK) return retvFail;
-        if((FileInfo.fname[0] == 0) and (FileInfo.altname[0] == 0)) return retvOk;   // No files left
+        if((FileInfo.fname[0] == 0)
+#if _USE_LFN
+                    and (FileInfo.altname[0] == 0)
+#endif
+        ) return retvOk;   // No files left
         else { // Filename ok, check if not dir
             if(!(FileInfo.fattrib & AM_DIR)) {
                 // Check Ext
+#if _USE_LFN
                 char *FName = (FileInfo.fname[0] == 0)? FileInfo.altname : FileInfo.fname;
+#else
+                char *FName = FileInfo.fname;
+#endif
 //                Printf("%S\r", FName);
                 uint32_t Len = strlen(FName);
                 if(Len > 4) {
@@ -141,15 +164,26 @@ uint8_t CountDirsStartingWith(const char* Path, const char* DirNameStart, uint32
     *PCnt = 0;
     int Len = strlen(DirNameStart);
     while(true) {
-        *FileInfo.fname = 0;    // }
-        *FileInfo.altname = 0;  // } Empty names before reading
+        // Empty names before reading
+        *FileInfo.fname = 0;
+#if _USE_LFN
+        *FileInfo.altname = 0;
+#endif
         Rslt = f_readdir(&Dir, &FileInfo);
         if(Rslt != FR_OK) return retvFail;
-        if((FileInfo.fname[0] == 0) and (FileInfo.altname[0] == 0)) return retvOk;   // Nothing left
+        if((FileInfo.fname[0] == 0)
+#if _USE_LFN
+                    and (FileInfo.altname[0] == 0)
+#endif
+        ) return retvOk;   // Nothing left
         else { // Filename ok, check if dir
             if(FileInfo.fattrib & AM_DIR) {
                 // Check if starts with DirNameStart
+#if _USE_LFN
                 char *FName = (FileInfo.fname[0] == 0)? FileInfo.altname : FileInfo.fname;
+#else
+                char *FName = FileInfo.fname;
+#endif
 //                Printf("%S\r", FName);
                 if(strncasecmp(FName, DirNameStart, Len) == 0) (*PCnt)++;
             } // if dir

@@ -111,11 +111,19 @@ public:
         while(true) {
             Rslt = f_readdir(&Dir, &FileInfo);
             if(Rslt != FR_OK) return retvFail;
-            if((FileInfo.fname[0] == 0) and (FileInfo.altname[0] == 0)) return retvFail;  // somehow no files left
+            if((FileInfo.fname[0] == 0)
+#if _USE_LFN
+                    and (FileInfo.altname[0] == 0)
+#endif
+            ) return retvFail;  // somehow no files left
             else { // Filename ok, check if not dir
                 if(!(FileInfo.fattrib & AM_DIR)) {
                     // Check if wav or mp3
+#if _USE_LFN
                     char *FName = (FileInfo.fname[0] == 0)? FileInfo.altname : FileInfo.fname;
+#else
+                    char *FName = FileInfo.fname;
+#endif
                     uint32_t Len = strlen(FName);
                     if(Len > 4) {
                         if(strcasecmp(&FName[Len-3], "wav") == 0) {
@@ -221,14 +229,45 @@ static uint8_t GetNextCell(T *POutput) {
 uint8_t GetNextCell(float *POutput);
 
 template <typename T>
-static void TryLoadParam(char* Token, const char* Name, T *Ptr) {
+static uint8_t TryLoadParam(char* Token, const char* Name, T *Ptr) {
     if(strcasecmp(Token, Name) == 0) {
         if(csv::GetNextCell<T>(Ptr) == retvOk) {
 //            if(*Ptr > MaxValue) *Ptr = MaxValue;
 //            Printf("  %S: %u\r", Name, *Ptr);
+            return retvOk;
         }
         else Printf("%S load fail\r", Name);
     }
+    return retvFail;
+}
+__unused
+static uint8_t TryLoadParam(char* Token, const char* Name, float *Ptr) {
+    if(strcasecmp(Token, Name) == 0) {
+        if(csv::GetNextCell(Ptr) == retvOk){
+//            Printf("  %S: %f\r", Name, *Ptr);
+            return retvOk;
+        }
+        else Printf("%S load fail\r", Name);
+    }
+    return retvFail;
+}
+
+__unused
+static uint8_t TryLoadString(char* Token, const char* Name, char *Dst, uint32_t MaxLen) {
+    if(strcasecmp(Token, Name) == 0) {
+        *Dst = 0;   // Empty Dst
+        char *Cell;
+        if(GetNextToken(&Cell) == retvOk) {
+            uint32_t Len = strlen(Cell);
+            if(Len < MaxLen) strcpy(Dst, Cell);
+            else {
+                strncpy(Dst, Cell, MaxLen-1);
+                Dst[MaxLen-1] = 0;
+            }
+        }
+        return retvOk;
+    }
+    return retvFail;
 }
 
 } // namespace

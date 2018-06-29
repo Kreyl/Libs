@@ -32,13 +32,38 @@
 #define DATA_W_CNT          ((DATA_BIT_CNT + 15) / 16)
 #define TOTAL_W_CNT         (DATA_W_CNT + RST_W_CNT)
 
-class IntelLeds_t {
+#define NPX_DMA_MODE(Chnl) \
+                        (STM32_DMA_CR_CHSEL(Chnl) \
+                        | DMA_PRIORITY_HIGH \
+                        | STM32_DMA_CR_MSIZE_HWORD \
+                        | STM32_DMA_CR_PSIZE_HWORD \
+                        | STM32_DMA_CR_MINC     /* Memory pointer increase */ \
+                        | STM32_DMA_CR_DIR_M2P)  /* Direction is memory to peripheral */
+
+struct NeopixelParams_t {
+    Spi_t ISpi;
+    GPIO_TypeDef *PGpio;
+    uint16_t Pin;
+    AlterFunc_t Af;
+    // DMA
+    const stm32_dma_stream_t *PDma;
+    uint32_t DmaMode;
+    NeopixelParams_t(SPI_TypeDef *ASpi,
+            GPIO_TypeDef *APGpio, uint16_t APin, AlterFunc_t AAf,
+            const stm32_dma_stream_t *APDma, uint32_t ADmaMode) :
+                ISpi(ASpi), PGpio(APGpio), Pin(APin), Af(AAf),
+                PDma(APDma), DmaMode(ADmaMode) {}
+};
+
+
+class Neopixels_t {
 private:
-    Spi_t ISpi {LEDWS_SPI};
+    const NeopixelParams_t *Params;
     uint16_t IBuf[TOTAL_W_CNT];
     uint16_t *PBuf;
     void AppendBitsMadeOfByte(uint8_t Byte);
 public:
+    Neopixels_t(const NeopixelParams_t *APParams) : Params(APParams), PBuf(IBuf) {}
     void Init();
     bool AreOff() {
         for(uint8_t i=0; i<LED_CNT; i++) {
@@ -49,5 +74,4 @@ public:
     // Inner use
     Color_t ICurrentClr[LED_CNT];
     void ISetCurrentColors();
-    void ITmrHandlerI();
 };

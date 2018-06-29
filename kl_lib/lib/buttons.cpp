@@ -164,6 +164,7 @@ void ProcessButtons(PinSnsState_t *BtnState, uint32_t Len) {
             if(!IsRepeating[i]) {
                 if(chVTTimeElapsedSinceX(RepeatTimer) >= MS2ST(BTN_DELAY_BEFORE_REPEAT_MS)) {
                     IsRepeating[i] = true;
+                    RepeatTimer = chVTGetSystemTimeX();
 #if BTN_COMBO
                     if(!IsCombo)
 #endif
@@ -174,6 +175,7 @@ void ProcessButtons(PinSnsState_t *BtnState, uint32_t Len) {
             }
             else {
                 if(chVTTimeElapsedSinceX(RepeatTimer) >= MS2ST(BTN_REPEAT_PERIOD_MS)) {
+                    RepeatTimer = chVTGetSystemTimeX();
 #if BTN_COMBO
                     if(!IsCombo)
 #endif

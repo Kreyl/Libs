@@ -115,6 +115,7 @@
 #define CMD_UART        USART1
 #define UART_USE_INDEPENDENT_CLK    TRUE
 #define UART_TXBUF_SZ   1024
+#define UART_RXBUF_SZ   99
 #endif
 
 #if 1 // =========================== I2C =======================================

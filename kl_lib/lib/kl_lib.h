@@ -638,12 +638,38 @@ static void PinClockEnable(const GPIO_TypeDef *PGpioPort) {
 }
 
 // ==== Fast setup ====
-#ifndef STM32F1XX
+#if defined STM32F1XX
+static inline void PinSetupModeOut(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber, const PinOutMode_t PinOutMode) {
+    uint32_t CnfMode = ((uint32_t)PinOutMode << 2) | (uint32_t)PIN_SPEED_DEFAULT;
+    if(APinNumber < 8) {
+        uint8_t Offset = APinNumber*4;
+        PGpioPort->CRL &= ~((uint32_t)(0b1111 << Offset));  // Clear both mode and cnf
+        PGpioPort->CRL |= CnfMode << Offset;
+    }
+    else {
+        uint8_t Offset = (APinNumber - 8) * 4;
+        PGpioPort->CRH &= ~((uint32_t)(0b1111 << Offset));  // Clear both mode and cnf
+        PGpioPort->CRH |= CnfMode << Offset;
+    }
+}
+
+static inline void PinSetupModeAnalog(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber) {
+    if(APinNumber < 8) {
+        uint8_t Offset = APinNumber*4;
+        PGpioPort->CRL &= ~((uint32_t)(0b1111 << Offset));  // Clear both mode and cnf
+    }
+    else {
+        uint8_t Offset = (APinNumber - 8) * 4;
+        PGpioPort->CRH &= ~((uint32_t)(0b1111 << Offset));  // Clear both mode and cnf
+    }
+}
+#else
 static inline void PinSetupModeOut(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber) {
     uint8_t Offset = APinNumber*2;
     PGpioPort->MODER &= ~(0b11 << Offset);  // clear previous bits
     PGpioPort->MODER |=   0b01 << Offset;   // Set new bits
 }
+
 static inline void PinSetupModeAnalog(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber) {
     PGpioPort->MODER |= 0b11 << (APinNumber*2);
 }
@@ -940,7 +966,7 @@ extern "C" {
 #if INDIVIDUAL_EXTI_IRQ_REQUIRED
 extern IrqHandler_t *ExtiIrqHandler[16];
 #else
-#if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX
+#if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX || defined STM32F1XX
 extern IrqHandler_t *ExtiIrqHandler[5], *ExtiIrqHandler_9_5, *ExtiIrqHandler_15_10;
 #elif defined STM32F030 || defined STM32F0
 extern IrqHandler_t *ExtiIrqHandler_0_1, *ExtiIrqHandler_2_3, *ExtiIrqHandler_4_15;
@@ -958,7 +984,7 @@ public:
 #if INDIVIDUAL_EXTI_IRQ_REQUIRED
         ExtiIrqHandler[APinN] = PIrqHandler;
 #else
-    #if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX
+    #if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX || defined STM32F1XX
         if(APinN >= 0 and APinN <= 4) ExtiIrqHandler[APinN] = PIrqHandler;
         else if(APinN <= 9) ExtiIrqHandler_9_5 = PIrqHandler;
         else ExtiIrqHandler_15_10 = PIrqHandler;
@@ -1268,7 +1294,7 @@ namespace EE {
 
 #if 1 // =========================== Clocking ==================================
 // Common
-enum CoreClk_t {cclk8MHz, cclk16MHz, cclk24MHz, cclk48MHz, cclk72MHz};
+enum CoreClk_t {cclk8MHz, cclk12MHz, cclk16MHz, cclk24MHz, cclk48MHz, cclk72MHz};
 
 #if defined STM32L1XX
 #include "stm32l1xx.h"

@@ -777,16 +777,16 @@ extern void PrintfCNow(const char *format, ...);
 #if INDIVIDUAL_EXTI_IRQ_REQUIRED
 IrqHandler_t* ExtiIrqHandler[16];
 #else
-#if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX
+#if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX || defined STM32F1XX
 IrqHandler_t *ExtiIrqHandler[5], *ExtiIrqHandler_9_5, *ExtiIrqHandler_15_10;
 #elif defined STM32F030 || defined STM32F0
 IrqHandler_t *ExtiIrqHandler_0_1, *ExtiIrqHandler_2_3, *ExtiIrqHandler_4_15;
 #endif
 #endif // INDIVIDUAL_EXTI_IRQ_REQUIRED
 
-#if defined STM32L1XX || defined STM32F2XX || defined STM32L4XX
+#if defined STM32L1XX || defined STM32F2XX || defined STM32L4XX || defined STM32F1XX
 // EXTI pending register
-#if defined STM32L1XX || defined STM32F2XX
+#if defined STM32L1XX || defined STM32F2XX || defined STM32F1XX
 #define EXTI_PENDING_REG    EXTI->PR
 #elif defined STM32L4XX
 #define EXTI_PENDING_REG    EXTI->PR1
@@ -1380,20 +1380,29 @@ void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
         case cclk8MHz:
             break;
         // Setup PLL (must be disabled first)
+        case cclk12MHz:
+            SetupFlashLatency(12);
+            // 4MHz * 3 => 12MHz
+            if(SetupPllMulDiv(pllMul3, preDiv1) != retvOk) return;
+            if(EnablePLL() == retvOk) SwitchToPLL();
+            break;
         case cclk16MHz:
-            // 12MHz / 1 * 8 / (6 and 2) => 16 and 48MHz
-//            if(SetupPllMulDiv(1, 8, 6, 2) != retvOk) return;
-//            SetupFlashLatency(16, mvrHiPerf);
+            SetupFlashLatency(16);
+            // 4MHz * 4 => 16MHz
+            if(SetupPllMulDiv(pllMul4, preDiv1) != retvOk) return;
+            if(EnablePLL() == retvOk) SwitchToPLL();
             break;
         case cclk24MHz:
             SetupFlashLatency(24);
             // 4MHz * 6 => 24MHz
             if(SetupPllMulDiv(pllMul6, preDiv1) != retvOk) return;
+            if(EnablePLL() == retvOk) SwitchToPLL();
             break;
         case cclk48MHz:
             SetupFlashLatency(48);
             // 4MHz * 12 => 48MHz
             if(SetupPllMulDiv(pllMul12, preDiv1) != retvOk) return;
+            if(EnablePLL() == retvOk) SwitchToPLL();
             break;
         case cclk72MHz:
             // 12MHz / 1 * 24 => 72 and 48MHz
@@ -1401,11 +1410,6 @@ void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
 //            SetupFlashLatency(72, mvrHiPerf);
             break;
     } // switch
-
-    if(CoreClk >= cclk16MHz) {
-        SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
-        if(EnablePLL() == retvOk) SwitchToPLL();
-    }
 }
 
 void Clk_t::SetupFlashLatency(uint8_t AHBClk_MHz) {
