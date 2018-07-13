@@ -286,5 +286,9 @@ public:
     void SetColor(ColorHSV_t ColorHsv) {
         SetColor(ColorHsv.ToRGB());
     }
+    void SetColorAndMakeCurrent(ColorHSV_t ColorHsv) {
+        SetColor(ColorHsv.ToRGB());
+        ICurrColor = ColorHsv;
+    }
 };
 #endif

@@ -228,19 +228,12 @@ struct ColorHSV_t {
         };
     };
     void Adjust(const ColorHSV_t &Target) {
-        // Black target is special case: do not adjust other components
-//        if(Target.V == 0) {
-//            if(V != 0) V--;
-//        }
-//        // Target is not black
-//        else {
-            if     (H < Target.H) H++;
-            else if(H > Target.H) H--;
-            if     (S < Target.S) S++;
-            else if(S > Target.S) S--;
-            if     (V < Target.V) V++;
-            else if(V > Target.V) V--;
-//        }
+        if     (H < Target.H) H++;
+        else if(H > Target.H) H--;
+        if     (S < Target.S) S++;
+        else if(S > Target.S) S--;
+        if     (V < Target.V) V++;
+        else if(V > Target.V) V--;
     }
 
     uint32_t DelayToNextAdj(const ColorHSV_t &Target, uint32_t SmoothValue) {
@@ -273,6 +266,10 @@ struct ColorHSV_t {
         Color_t rgb;
         ToRGB(&rgb.R, &rgb.G, &rgb.B);
         return rgb;
+    }
+
+    void FromHSV(uint16_t AH, uint8_t AS, uint8_t AV) {
+        H = AH; S = AS; V = AV;
     }
 
     ColorHSV_t& operator = (const ColorHSV_t &Right) { DWord32 = Right.DWord32; return *this; }
