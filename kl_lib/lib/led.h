@@ -227,3 +227,64 @@ public:
     }
 };
 #endif
+
+#if 1 // ============================ LedHSV ===================================
+class LedHSV_t : public BaseSequencer_t<LedHSVChunk_t> {
+protected:
+    const PinOutputPWM_t  R, G, B;
+    const uint32_t PWMFreq;
+    ColorHSV_t ICurrColor;
+    void ISwitchOff() {
+        SetColor(clBlack);
+        ICurrColor.V = 0;
+    }
+    SequencerLoopTask_t ISetup() {
+        if(ICurrColor != IPCurrentChunk->Color) {
+            if(IPCurrentChunk->Value == 0) {     // If smooth time is zero,
+                SetColor(IPCurrentChunk->Color); // set color now,
+                ICurrColor = IPCurrentChunk->Color;
+                IPCurrentChunk++;                // and goto next chunk
+            }
+            else {
+                ICurrColor.Adjust(IPCurrentChunk->Color);
+                SetColor(ICurrColor);
+                // Check if completed now
+                if(ICurrColor == IPCurrentChunk->Color) IPCurrentChunk++;
+                else { // Not completed
+                    // Calculate time to next adjustment
+                    uint32_t Delay = ICurrColor.DelayToNextAdj(IPCurrentChunk->Color, IPCurrentChunk->Value);
+                    SetupDelay(Delay);
+                    return sltBreak;
+                } // Not completed
+            } // if time > 256
+        } // if color is different
+        else IPCurrentChunk++; // Color is the same, goto next chunk
+        return sltProceed;
+    }
+public:
+    LedHSV_t(
+            const PwmSetup_t ARed,
+            const PwmSetup_t AGreen,
+            const PwmSetup_t ABlue,
+            const uint32_t APWMFreq = 0xFFFFFFFF) :
+        BaseSequencer_t(), R(ARed), G(AGreen), B(ABlue), PWMFreq(APWMFreq) {}
+    void Init() {
+        R.Init();
+        R.SetFrequencyHz(PWMFreq);
+        G.Init();
+        G.SetFrequencyHz(PWMFreq);
+        B.Init();
+        B.SetFrequencyHz(PWMFreq);
+        SetColor(clBlack);
+    }
+    bool IsOff() { return (ICurrColor == hsvBlack) and IsIdle(); }
+    void SetColor(Color_t ColorRgb) {
+        R.Set(ColorRgb.R);
+        G.Set(ColorRgb.G);
+        B.Set(ColorRgb.B);
+    }
+    void SetColor(ColorHSV_t ColorHsv) {
+        SetColor(ColorHsv.ToRGB());
+    }
+};
+#endif

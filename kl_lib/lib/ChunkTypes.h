@@ -35,6 +35,12 @@ struct LedRGBChunk_t {
     Color_t Color;
 } __attribute__((packed));
 
+// HSV LED chunk
+struct LedHSVChunk_t {
+    BaseChunk_Vars;
+    ColorHSV_t Color;
+} __attribute__((packed));
+
 // LED Smooth
 struct LedSmoothChunk_t {
     BaseChunk_Vars;

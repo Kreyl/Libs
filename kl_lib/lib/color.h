@@ -227,6 +227,31 @@ struct ColorHSV_t {
             uint8_t S, V;   // 0...100
         };
     };
+    void Adjust(const ColorHSV_t &Target) {
+        // Black target is special case: do not adjust other components
+//        if(Target.V == 0) {
+//            if(V != 0) V--;
+//        }
+//        // Target is not black
+//        else {
+            if     (H < Target.H) H++;
+            else if(H > Target.H) H--;
+            if     (S < Target.S) S++;
+            else if(S > Target.S) S--;
+            if     (V < Target.V) V++;
+            else if(V > Target.V) V--;
+//        }
+    }
+
+    uint32_t DelayToNextAdj(const ColorHSV_t &Target, uint32_t SmoothValue) {
+        uint32_t Delay, Delay2;
+        Delay = (H == Target.H)? 0 : ClrCalcDelay(H, SmoothValue);
+        Delay2 = (S == Target.S)? 0 : ClrCalcDelay(S, SmoothValue);
+        if(Delay2 > Delay) Delay = Delay2;
+        Delay2 = (V == Target.V)? 0 : ClrCalcDelay(V, SmoothValue);
+        return (Delay2 > Delay)? Delay2 : Delay;
+    }
+
     void ToRGB(uint8_t *PR, uint8_t *PG, uint8_t *PB) const {
         // Calc chroma: 0...255
         int32_t C = ((int32_t)V * (int32_t)S * 255) / 10000;
@@ -250,6 +275,11 @@ struct ColorHSV_t {
         return rgb;
     }
 
+    ColorHSV_t& operator = (const ColorHSV_t &Right) { DWord32 = Right.DWord32; return *this; }
+    bool operator == (const ColorHSV_t &AColor) const { return (DWord32 == AColor.DWord32); }
+    bool operator != (const ColorHSV_t &AColor) const { return (DWord32 != AColor.DWord32); }
+
+    ColorHSV_t() : H(0), S(0), V(0) {}
     ColorHSV_t(uint16_t AH, uint8_t AS, uint8_t AV) : H(AH), S(AS), V(AV) {}
     ColorHSV_t(const ColorHSV_t &AClr) : H(AClr.H), S(AClr.S), V(AClr.V) {}
 } __attribute__((packed));
@@ -262,6 +292,7 @@ struct ColorHSV_t {
 #define hsvBlue      ((ColorHSV_t){240, 100, 100})
 #define hsvMagenta   ((ColorHSV_t){300, 100, 100})
 #define hsvWhite     ((ColorHSV_t){0,   0,   100})
+#define hsvBlack     ((ColorHSV_t){0,   0,   0  })
 #endif
 
 #if 1 // ============================= Colors ==================================
@@ -273,6 +304,7 @@ struct ColorHSV_t {
 #define clMagenta   ((Color_t){255, 0, 255})
 #define clCyan      ((Color_t){0, 255, 255})
 #define clWhite     ((Color_t){255, 255, 255})
+#define clOrange    ((Color_t){255, 180, 0})
 
 #define clGrey      ((Color_t){126, 126, 126})
 #define clLightGrey ((Color_t){180, 180, 180})
