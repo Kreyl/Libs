@@ -41,6 +41,7 @@ void Effects_t::Process() {
     switch(State) {
         case effNone: break;
         case effAllTogetherSmoothly: ProcessAllTogetherSmoothly(); break;
+        case effOneByOne: ProcessOneByOne(); break;
     }
 }
 
@@ -82,31 +83,38 @@ void Effects_t::ProcessAllTogetherSmoothly() {
     else chVTSet(&Tmr, MS2ST(Delay), TmrEffCallback, this); // Arm timer
 }
 
-/*
-void EffOneByOne_t::SetupAndStart(Color_t ATargetClr, uint32_t ASmoothValue) {
-    if(ASmoothValue == 0) EffAllTogetherNow.SetupAndStart(ATargetClr);
+void Effects_t::OneByOne(Color_t Color, uint32_t ASmoothValue) {
+    if(ASmoothValue == 0) AllTogetherNow(Color);
     else {
-        chSysLock();
         ISmoothValue = ASmoothValue;
         CurrentIndx = 0;
-        for(int32_t i=0; i<LED_CNT; i++) DesiredClr[i] = ATargetClr;
-        PCurrentEff = this;
-        chThdResumeS(&PThd, MSG_OK);
-        chSysUnlock();
+        for(int32_t i=0; i<LED_CNT; i++) DesiredClr[i] = Color;
+        State = effOneByOne;
+        chVTSet(&Tmr, MS2ST(11), TmrEffCallback, this); // Arm timer for some time
     }
-}
-EffState_t EffOneByOne_t::Process() {
-    uint32_t Delay = ICalcDelayN(CurrentIndx, ISmoothValue);
-    Leds.ICurrentClr[CurrentIndx].Adjust(DesiredClr[CurrentIndx]);
-    Leds.ISetCurrentColors();
-    if(Delay == 0) {
-        CurrentIndx++;
-        if(CurrentIndx >= LED_CNT) return effEnd;  // Setup completed
-    }
-    else chThdSleepMilliseconds(Delay);
-    return effInProgress;
 }
 
+void Effects_t::ProcessOneByOne() {
+    while(true) {
+        uint32_t Delay = ICalcDelayN(CurrentIndx, ISmoothValue);
+        Leds->ICurrentClr[CurrentIndx].Adjust(DesiredClr[CurrentIndx]);
+        Leds->ISetCurrentColors();
+        if(Delay == 0) {
+            CurrentIndx++;
+            if(CurrentIndx >= LED_CNT) {
+                State = effNone;  // Setup completed
+                return;
+            }
+            else continue;
+        }
+        else {
+            chVTSet(&Tmr, MS2ST(Delay), TmrEffCallback, this); // Arm timer
+            break;
+        }
+    }
+}
+
+/*
 // ======================== EffAllTogetherSequence_t ===========================
 void EffAllTogetherSequence_t::SetupColors() {
     for(int32_t i=0; i<LED_CNT; i++) Leds.ICurrentClr[i] = ICurrColor;

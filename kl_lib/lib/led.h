@@ -290,5 +290,9 @@ public:
         SetColor(ColorHsv.ToRGB());
         ICurrColor = ColorHsv;
     }
+    void SetCurrentH(uint16_t NewH) {
+        ICurrColor.H = NewH;
+        SetColor(ICurrColor);
+    }
 };
 #endif
