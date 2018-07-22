@@ -21,7 +21,9 @@
 #include "color.h"
 #include "uart.h"
 
-#define LED_CNT             24   // Number of WS2812 LEDs
+#define LED_CNT             3   // Number of WS2812 LEDs
+
+#define NPX_POWER_PIN_EN    TRUE
 
 // Do not touch
 #define SEQ_LEN             4
@@ -38,7 +40,8 @@
                         | STM32_DMA_CR_MSIZE_HWORD \
                         | STM32_DMA_CR_PSIZE_HWORD \
                         | STM32_DMA_CR_MINC     /* Memory pointer increase */ \
-                        | STM32_DMA_CR_DIR_M2P)  /* Direction is memory to peripheral */
+                        | STM32_DMA_CR_DIR_M2P)  /* Direction is memory to peripheral */ \
+                        | STM32_DMA_CR_TCIE
 
 struct NeopixelParams_t {
     Spi_t ISpi;
@@ -48,11 +51,24 @@ struct NeopixelParams_t {
     // DMA
     const stm32_dma_stream_t *PDma;
     uint32_t DmaMode;
+#if NPX_POWER_PIN_EN
+    GPIO_TypeDef *IPwrPGPIO;
+    uint16_t IPwrPin;
+    PinOutMode_t IPwrOutputType;
+#endif
     NeopixelParams_t(SPI_TypeDef *ASpi,
             GPIO_TypeDef *APGpio, uint16_t APin, AlterFunc_t AAf,
-            const stm32_dma_stream_t *APDma, uint32_t ADmaMode) :
+            const stm32_dma_stream_t *APDma, uint32_t ADmaMode
+#if NPX_POWER_PIN_EN
+    , GPIO_TypeDef *APwrPGPIO, uint16_t APwrPin, PinOutMode_t APwrOutputType
+#endif
+    ) :
                 ISpi(ASpi), PGpio(APGpio), Pin(APin), Af(AAf),
-                PDma(APDma), DmaMode(ADmaMode) {}
+                PDma(APDma), DmaMode(ADmaMode)
+#if NPX_POWER_PIN_EN
+                , IPwrPGPIO(APwrPGPIO), IPwrPin(APwrPin), IPwrOutputType(APwrOutputType)
+#endif
+    {}
 };
 
 
@@ -62,8 +78,17 @@ private:
     uint16_t IBuf[TOTAL_W_CNT];
     uint16_t *PBuf;
     void AppendBitsMadeOfByte(uint8_t Byte);
+#if NPX_POWER_PIN_EN
+    PinOutput_t PwrPin;
+    bool IsAllBlack = true;
+#endif
 public:
-    Neopixels_t(const NeopixelParams_t *APParams) : Params(APParams), PBuf(IBuf) {}
+    Neopixels_t(const NeopixelParams_t *APParams) : Params(APParams), PBuf(IBuf)
+#if NPX_POWER_PIN_EN
+        , PwrPin(Params->IPwrPGPIO, Params->IPwrPin, Params->IPwrOutputType)
+#endif
+    {}
+
     void Init();
     bool AreOff() {
         for(uint8_t i=0; i<LED_CNT; i++) {
@@ -74,4 +99,5 @@ public:
     // Inner use
     Color_t ICurrentClr[LED_CNT];
     void ISetCurrentColors();
+    void OnDmaDone();
 };

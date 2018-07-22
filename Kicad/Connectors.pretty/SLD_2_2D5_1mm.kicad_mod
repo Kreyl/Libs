@@ -1,4 +1,4 @@
-(module SLD_2_2D5 (layer F.Cu) (tedit 5B52D9A9)
+(module SLD_2_2D5_1mm (layer F.Cu) (tedit 5B52D9C0)
   (descr "Single-line connector 4-pin")
   (fp_text reference XL8 (at -0.25 -2.15) (layer F.SilkS) hide
     (effects (font (size 0.6 0.6) (thickness 0.15)))
@@ -31,6 +31,6 @@
   (fp_text user 1 (at -3.282 0) (layer F.SilkS) hide
     (effects (font (size 1 1) (thickness 0.15)))
   )
-  (pad 2 thru_hole oval (at 1.25 0) (size 1.7 2.7) (drill 1.2) (layers *.Cu *.Mask))
-  (pad 1 thru_hole rect (at -1.25 0) (size 1.7 2.7) (drill 1.2) (layers *.Cu *.Mask))
+  (pad 2 thru_hole oval (at 1.25 0) (size 1.7 2.7) (drill 1) (layers *.Cu *.Mask))
+  (pad 1 thru_hole rect (at -1.25 0) (size 1.7 2.7) (drill 1) (layers *.Cu *.Mask))
 )
