@@ -454,8 +454,18 @@ enum ExtTrigPsc_t {etpOff=0x0000, etpDiv2=0x1000, etpDiv4=0x2000, etpDiv8=0x3000
 
 class Timer_t {
 protected:
+#if defined LPTIM1 || defined LPTIM2
+    union {
+        TIM_TypeDef* ITmr;
+        LPTIM_TypeDef* ILPTim;
+    };
+#else
     TIM_TypeDef* ITmr;
+#endif
 public:
+#if defined LPTIM1 || defined LPTIM2
+    Timer_t(LPTIM_TypeDef *APTimer) : ILPTim(APTimer) {}
+#endif
     Timer_t(TIM_TypeDef *APTimer) : ITmr(APTimer) {}
     void Init() const;
     void Deinit() const;
@@ -588,6 +598,15 @@ enum PinSpeed_t {
     psVeryHigh = 0b11
 };
 #define PIN_SPEED_DEFAULT   psMedium
+
+struct LPTimPwmSetup_t {
+    GPIO_TypeDef *PGpio;
+    uint16_t Pin;
+    LPTIM_TypeDef *PTimer;
+    Inverted_t Inverted;
+    PinOutMode_t OutputType;
+    uint32_t TopValue;
+};
 #endif
 
 enum AlterFunc_t {
@@ -954,7 +973,14 @@ public:
 */
 class PinOutputPWM_t : private Timer_t {
 private:
+#if defined LPTIM1 || defined LPTIM2
+    union {
+        const PwmSetup_t ISetup;
+        const LPTimPwmSetup_t ILpmSetup;
+    };
+#else
     const PwmSetup_t ISetup;
+#endif
 public:
     void Set(const uint16_t AValue) const { *TMR_PCCR(ITmr, ISetup.TimerChnl) = AValue; }    // CCR[N] = AValue
     uint32_t Get() const { return *TMR_PCCR(ITmr, ISetup.TimerChnl); }
@@ -1884,6 +1910,8 @@ public:
                 break;
         }
     }
+
+    uint32_t GetTimInputFreq(TIM_TypeDef* ITmr);
 
     uint32_t GetSaiClkHz();
 

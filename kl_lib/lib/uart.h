@@ -32,7 +32,7 @@ struct UartParams_t {
             const stm32_dma_stream_t *APDmaTx, const stm32_dma_stream_t *APDmaRx,
             uint32_t ADmaModeTx, uint32_t ADmaModeRx
 #if defined STM32F072xB || defined STM32L4XX
-    bool AUseIndependedClock;
+    , bool AUseIndependedClock
 #endif
     ) :         Baudrate(ABaudrate), Uart(AUart), PGpioTx(APGpioTx), PinTx(APinTx),
                 PGpioRx(APGpioRx), PinRx(APinRx), PDmaTx(APDmaTx), PDmaRx(APDmaRx),

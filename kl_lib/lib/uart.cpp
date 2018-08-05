@@ -394,10 +394,10 @@ void BaseUart_t::OnClkChange() {
     if(Params->Uart == USART1 or Params->Uart == USART6) Params->Uart->BRR = Clk.APB2FreqHz / IBaudrate;
     else Params->Uart->BRR = Clk.APB1FreqHz / IBaudrate;
 #elif defined STM32L4XX
-    if(Params->UseIndependedClock) Params->Uart->BRR = HSI_FREQ_HZ / IBaudrate;
+    if(Params->UseIndependedClock) Params->Uart->BRR = HSI_FREQ_HZ / Params->Baudrate;
     else {
-        if(Params->Uart == USART1) Params->Uart->BRR = Clk.APB2FreqHz / IBaudrate;
-        else Params->Uart->BRR = Clk.APB1FreqHz / IBaudrate; // All others at APB1
+        if(Params->Uart == USART1) Params->Uart->BRR = Clk.APB2FreqHz / Params->Baudrate;
+        else Params->Uart->BRR = Clk.APB1FreqHz / Params->Baudrate; // All others at APB1
     }
 #endif
 }
