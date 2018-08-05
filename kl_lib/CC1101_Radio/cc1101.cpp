@@ -123,6 +123,15 @@ void cc1101_t::SetChannel(uint8_t AChannel) {
     WriteRegister(CC_CHANNR, AChannel);         // Now set channel
 }
 
+uint8_t cc1101_t::FlushRxFIFO() {
+//    while(IState != CC_STB_IDLE) EnterIdle();
+    return WriteStrobe(CC_SFRX);
+}
+uint8_t cc1101_t::FlushTxFIFO() {
+//    while(!(IState == CC_STB_IDLE or IState == CC_STB_TX_UNDF)) EnterIdle();
+    return WriteStrobe(CC_SFTX);
+}
+
 //void cc1101_t::WaitUntilChannelIsBusy() {
 //    uint8_t b;
 //    for(uint32_t i=0; i<207; i++) {
@@ -136,12 +145,11 @@ void cc1101_t::SetChannel(uint8_t AChannel) {
 void cc1101_t::Transmit(void *Ptr, uint8_t Len) {
     ICallback = nullptr;
 //     WaitUntilChannelIsBusy();   // If this is not done, time after time FIFO is destroyed
-//    while(IState != CC_STB_IDLE) EnterIdle();
-    EnterTX();  // Start transmission of preamble while writing FIFO
+
     if(Len < 64) {
-        WriteTX((uint8_t*)Ptr, Len);
-        // Enter TX and wait IRQ
         chSysLock();
+        WriteTX((uint8_t*)Ptr, Len);
+        EnterTX();
         chThdSuspendS(&ThdRef); // Wait IRQ
         chSysUnlock();          // Will be here when IRQ fires
     }
@@ -155,6 +163,7 @@ void cc1101_t::Transmit(void *Ptr, uint8_t Len) {
             Len -= BytesToWrite;
             if(Len == 0) break;
             if(FirstTime) { // Change IO purpose once
+                EnterTX();
                 WriteRegister(CC_IOCFG0, 0x02); // Asserts when the TX FIFO is filled at or above the TX FIFO threshold. De-asserts when the TX FIFO is below the same threshold.
                 FirstTime = false;
             }
@@ -172,6 +181,24 @@ void cc1101_t::Transmit(void *Ptr, uint8_t Len) {
         chThdSuspendS(&ThdRef); // Wait IRQ
         chSysUnlock();          // Will be here when IRQ fires
 //        Printf("end\r");
+    }
+}
+
+uint8_t cc1101_t::TransmitWithCCA(void *Ptr, uint8_t Len, int16_t RssiThreshold) {
+    EnterRX();
+    chThdSleep(5); // Allow it to enter RX
+    // Read RSSI
+    uint8_t rawrssi;
+    ReadRegister(CC_RSSI, &rawrssi);
+    int16_t rssi = RSSI_dBm(rawrssi);
+    if(rssi < RssiThreshold) {
+        Transmit(Ptr, Len);
+        return retvOk;
+    }
+    else {
+//        Printf("raw: %03u; r: %03d\r", rawrssi, rssi);
+        EnterIdle();
+        return retvBusy;
     }
 }
 
@@ -274,7 +301,7 @@ uint8_t cc1101_t::ReceiveLong(uint32_t Timeout_ms, void *Ptr, uint8_t *PLen, int
 }
 
 // Return RSSI in dBm
-int8_t cc1101_t::RSSI_dBm(uint8_t ARawRSSI) {
+int16_t cc1101_t::RSSI_dBm(uint8_t ARawRSSI) {
     int16_t RSSI = ARawRSSI;
     if (RSSI >= 128) RSSI -= 256;
     RSSI = (RSSI / 2) - 74;    // now it is in dBm
@@ -362,11 +389,13 @@ uint8_t cc1101_t::ReadFIFO(void *Ptr, int8_t *PRssi, uint8_t Len) {
          for(uint8_t i=0; i<Len; i++) { // Read bytes
              b = ISpi.ReadWriteByte(0);
              *p++ = b;
+//             Printf("%X ", b);
          }
          // Receive two additional info bytes
          b = ISpi.ReadWriteByte(0); // RSSI
          ISpi.ReadWriteByte(0);     // LQI
          CsHi();                    // End transmission
+//         PrintfEOL();
          if(PRssi != nullptr) *PRssi = RSSI_dBm(b);
          return retvOk;
      }

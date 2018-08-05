@@ -34,7 +34,7 @@ private:
     void CsLo() { PinSetLo((GPIO_TypeDef*)PGpio, Cs); }
     // General
     void RfConfig();
-    int8_t RSSI_dBm(uint8_t ARawRSSI);
+    int16_t RSSI_dBm(uint8_t ARawRSSI);
     // Registers and buffers
     uint8_t WriteRegister(const uint8_t Addr, const uint8_t AData);
     uint8_t ReadRegister(const uint8_t Addr, uint8_t *PData);
@@ -44,7 +44,8 @@ private:
     uint8_t Reset()       { return WriteStrobe(CC_SRES); }
     uint8_t EnterTX()     { return WriteStrobe(CC_STX);  }
     uint8_t EnterRX()     { return WriteStrobe(CC_SRX);  }
-    uint8_t FlushRxFIFO() { return WriteStrobe(CC_SFRX); }
+    uint8_t FlushRxFIFO();
+    uint8_t FlushTxFIFO();
 public:
     uint8_t Init();
     void SetChannel(uint8_t AChannel);
@@ -52,6 +53,8 @@ public:
     void SetPktSize(uint8_t ASize) { WriteRegister(CC_PKTLEN, ASize); }
     // State change
     void Transmit(void *Ptr, uint8_t Len);
+    uint8_t TransmitWithCCA(void *Ptr, uint8_t Len, int16_t RssiThreshold);
+
     uint8_t Receive(uint32_t Timeout_ms, void *Ptr, uint8_t Len,  int8_t *PRssi=nullptr);
     uint8_t ReceiveLong(uint32_t Timeout_ms, void *Ptr, uint8_t *PLen,  int8_t *PRssi=nullptr);
     uint8_t EnterIdle()    { return WriteStrobe(CC_SIDLE); }

@@ -123,6 +123,7 @@ public:
     uint8_t SendNowOrExit(const T &Msg) {
         chSysLock();
         uint8_t Rslt = SendNowOrExitI(Msg);
+        chSchRescheduleS();
         chSysUnlock();
         return Rslt;
     }

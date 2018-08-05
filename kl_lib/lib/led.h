@@ -46,7 +46,7 @@ class LedSmooth_t : public BaseSequencer_t<LedSmoothChunk_t> {
 private:
     const PinOutputPWM_t IChnl;
     uint8_t ICurrentBrightness;
-//    void SetupDelay(uint32_t ms) { chVTSetI(&ITmr, MS2ST(ms), LedSmoothTmrCallback, this); }
+    const uint32_t PWMFreq;
     void ISwitchOff() { SetBrightness(0); }
     SequencerLoopTask_t ISetup() {
         if(ICurrentBrightness != IPCurrentChunk->Brightness) {
@@ -73,10 +73,11 @@ private:
         return sltProceed;
     }
 public:
-    LedSmooth_t(const PwmSetup_t APinSetup) :
-        BaseSequencer_t(), IChnl(APinSetup), ICurrentBrightness(0) {}
+    LedSmooth_t(const PwmSetup_t APinSetup, const uint32_t AFreq = 0xFFFFFFFF) :
+        BaseSequencer_t(), IChnl(APinSetup), ICurrentBrightness(0), PWMFreq(AFreq) {}
     void Init() {
         IChnl.Init();
+        IChnl.SetFrequencyHz(PWMFreq);
         SetBrightness(0);
     }
     void SetBrightness(uint8_t ABrightness) { IChnl.Set(ABrightness); }
