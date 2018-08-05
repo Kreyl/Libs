@@ -1344,7 +1344,7 @@ namespace EE {
 
 #if 1 // =========================== Clocking ==================================
 // Common
-enum CoreClk_t {cclk8MHz, cclk12MHz, cclk16MHz, cclk24MHz, cclk48MHz, cclk72MHz};
+enum CoreClk_t {cclk8MHz, cclk12MHz, cclk16MHz, cclk24MHz, cclk48MHz, cclk64MHz, cclk72MHz};
 
 #if defined STM32L1XX
 #include "stm32l1xx.h"
@@ -1818,8 +1818,9 @@ public:
     // PLL and PLLSAI
     void SetupPllSrc(PllSrc_t Src) { MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, ((uint32_t)Src)); }
     uint8_t SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q);
-    uint8_t SetupPllSai1(uint32_t N, uint32_t R, uint32_t P);
+    uint8_t SetupPllSai1(uint32_t N, uint32_t R, uint32_t Q, uint32_t P);
     void EnableSai1ROut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1REN); }
+    void EnableSai1QOut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1QEN); }
     void EnableSai1POut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1PEN); }
 
     void UpdateFreqValues();

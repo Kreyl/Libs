@@ -2197,6 +2197,11 @@ void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
             if(SetupPllMulDiv(1, 8, 2, 2) != retvOk) return;
             SetupFlashLatency(48, mvrHiPerf);
             break;
+        case cclk64MHz:
+            SetupFlashLatency(64, mvrHiPerf);
+            // 12MHz / 3 = 4; * 32 / 2 => 64; * 24 / 2 = 48MHz
+            if(SetupPllMulDiv(3, 32, 2, 2) != retvOk) return;
+            break;
         case cclk72MHz:
             // 12MHz / 1 * 24 => 72 and 48MHz
             if(SetupPllMulDiv(1, 24, 4, 6) != retvOk) return;
@@ -2238,7 +2243,7 @@ uint8_t Clk_t::SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q) {
     return 0;
 }
 
-uint8_t Clk_t::SetupPllSai1(uint32_t N, uint32_t R, uint32_t P) {
+uint8_t Clk_t::SetupPllSai1(uint32_t N, uint32_t R, uint32_t Q, uint32_t P) {
     // Disable PLLSAI1
     CLEAR_BIT(RCC->CR, RCC_CR_PLLSAI1ON);
     // Wait till PLLSAI1 is ready to be updated
@@ -2252,6 +2257,7 @@ uint8_t Clk_t::SetupPllSai1(uint32_t N, uint32_t R, uint32_t P) {
     // Setup dividers
     MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N, N << 8);
     MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R, ((R >> 1U) - 1U) << 25);
+    MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1Q, ((Q >> 1U) - 1U) << 21);
     if(P == 7) CLEAR_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1P);
     else SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1P);
     SET_BIT(RCC->CR, RCC_CR_PLLSAI1ON); // Enable SAI
