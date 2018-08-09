@@ -558,6 +558,12 @@ struct PwmSetup_t {
     Inverted_t Inverted;
     PinOutMode_t OutputType;
     uint32_t TopValue;
+    PwmSetup_t(GPIO_TypeDef *APGpio, uint16_t APin,
+            TIM_TypeDef *APTimer, uint32_t ATimerChnl,
+            Inverted_t AInverted, PinOutMode_t AOutputType,
+            uint32_t ATopValue) : PGpio(APGpio), Pin(APin), PTimer(APTimer),
+                    TimerChnl(ATimerChnl), Inverted(AInverted), OutputType(AOutputType),
+                    TopValue(ATopValue) {}
 };
 
 #if defined STM32F2XX || defined STM32F4XX
@@ -988,6 +994,11 @@ public:
     void Deinit() const { Timer_t::Deinit(); PinSetupAnalog(ISetup.PGpio, ISetup.Pin); }
     void SetFrequencyHz(uint32_t FreqHz) const { Timer_t::SetUpdateFrequencyChangingPrescaler(FreqHz); }
     PinOutputPWM_t(const PwmSetup_t &ASetup) : Timer_t(ASetup.PTimer), ISetup(ASetup) {}
+    PinOutputPWM_t(GPIO_TypeDef *PGpio, uint16_t Pin,
+            TIM_TypeDef *PTimer, uint32_t TimerChnl,
+            Inverted_t Inverted, PinOutMode_t OutputType,
+            uint32_t TopValue) : Timer_t(PTimer),
+                    ISetup(PGpio, Pin, PTimer, TimerChnl, Inverted, OutputType, TopValue) {}
 };
 #endif
 
