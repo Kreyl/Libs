@@ -254,7 +254,13 @@ public:
     JsonObj_t *Neighbor;
     JsonObj_t *Child;
     JsonObj_t *Parent;
-    void Reset() { memset(this, 0, sizeof(JsonObj_t)); }
+    void Reset() {
+        Name = nullptr;
+        Value = nullptr;
+        Neighbor = nullptr;
+        Child = nullptr;
+        Parent = nullptr;
+    }
     void Print() const {
         if(Name) Printf("N: %S; ", Name);
         else Printf("EmptyNode\r");
