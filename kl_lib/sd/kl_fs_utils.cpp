@@ -339,7 +339,7 @@ uint8_t ReadColor (const char *AFileName, const char *ASection, const char *AKey
 
 namespace csv { // =================== csv file operations =====================
 #define CSV_DELIMITERS  " ,;={}\t\r\n"
-static char *csvCurToken;
+__unused static char *csvCurToken;
 
 uint8_t OpenFile(const char *AFileName) {
     return TryOpenFileRead(AFileName, &CommonFile);
@@ -414,6 +414,358 @@ uint8_t GetNextCell(float *POutput) {
         else return retvNotANumber;
     }
     else return retvEmpty;
+}
+
+uint8_t TryLoadParam(char* Token, const char* Name, float *Ptr) {
+    if(strcasecmp(Token, Name) == 0) {
+        if(csv::GetNextCell(Ptr) == retvOk){
+//            Printf("  %S: %f\r", Name, *Ptr);
+            return retvOk;
+        }
+        else Printf("%S load fail\r", Name);
+    }
+    return retvFail;
+}
+
+uint8_t TryLoadString(char* Token, const char* Name, char *Dst, uint32_t MaxLen) {
+    if(strcasecmp(Token, Name) == 0) {
+        *Dst = 0;   // Empty Dst
+        char *Cell;
+        if(GetNextToken(&Cell) == retvOk) {
+            uint32_t Len = strlen(Cell);
+            if(Len < MaxLen) strcpy(Dst, Cell);
+            else {
+                strncpy(Dst, Cell, MaxLen-1);
+                Dst[MaxLen-1] = 0;
+            }
+        }
+        return retvOk;
+    }
+    return retvFail;
+}
+
+} // namespace
+
+namespace json { // ================== json file parsing =======================
+static const JsonObj_t EmptyNode;
+
+uint8_t OpenFile(const char *AFileName) {
+    return TryOpenFileRead(AFileName, &CommonFile);
+}
+void CloseFile() {
+    f_close(&CommonFile);
+}
+
+static JsonObj_t* CreateNewObj() {
+    JsonObj_t* ptr = (JsonObj_t*)chHeapAlloc(NULL, sizeof(JsonObj_t));
+    if(ptr != nullptr) ptr->Reset();
+    return ptr;
+}
+static void FreeObj(JsonObj_t* Obj) {
+    if(Obj->Name  != nullptr) chHeapFree(Obj->Name);
+    if(Obj->Value != nullptr) chHeapFree(Obj->Value);
+    chHeapFree(Obj);
+}
+
+static uint8_t GetNextChar(char *c) {
+    char S[2];
+    if(f_eof(&CommonFile)) return retvEndOfFile;
+    uint32_t L;
+    f_read(&CommonFile, S, 1, &L);
+    if(L != 1) return retvFail;
+    *c = S[0];
+    return retvOk;
+}
+
+static uint8_t FinalizeStr(char *PStr, char **PValue) {
+    *PStr = 0;          // End of string
+    uint32_t StrLen = PStr - IStr;
+    if(StrLen > 0) {    // Copy value
+        char *p = (char*)chHeapAlloc(NULL, StrLen+1);
+        if(p == nullptr) return retvFail;
+        *PValue = p;
+        strcpy(p, IStr);
+    }
+    return retvOk;
+}
+
+enum ExitCondition_t {excFailure, excContainerStart, excContainerEnd, excNoObjContainerEnd, excObjEnd};
+
+static ExitCondition_t ReadNextObj(JsonObj_t* Obj) {
+    bool IsInsideSingleComent = false, IsInsideLongComment = false, WasStar = false, WasSlash = false;
+    char c;
+    bool IsReadingName = true, IsInArray = false;
+    char* PStr = IStr;
+
+    while(true) {
+        if(GetNextChar(&c) != retvOk) {
+            // Cannot read char, finalize object
+            if(IsReadingName) {
+                if(FinalizeStr(PStr, &Obj->Name) == retvOk) return excObjEnd;
+                else return excFailure;
+            }
+            else {
+                if(FinalizeStr(PStr, &Obj->Value) == retvOk) return excObjEnd;
+                else return excFailure;
+            }
+        }
+
+#if 1 // ==== Process whitespaces and comments ====
+        if(IsInsideSingleComent) { // Ends with line
+            // Check if EOL
+            if(c == '\r' or c == '\n') IsInsideSingleComent = false;
+            continue;
+        }
+        else if(IsInsideLongComment) { // ends with star and slash
+            if(WasStar and c == '/') IsInsideLongComment = false;
+            else WasStar = (c == '*');
+            continue;
+        }
+
+        // Find comments start
+        if(c == '/') {
+            if(WasSlash) {
+                IsInsideSingleComent = true;
+                WasSlash = false;
+            }
+            else WasSlash = true;
+            continue;
+        }
+        else if(c == '*' and WasSlash) {
+            IsInsideLongComment = true;
+            continue;
+        }
+#endif
+
+        if(IsReadingName) {
+            // EOL, reset string
+            if(c == '\r' or c == '\n' or c == ',') PStr = IStr;
+            // Skip spaces, tabs etc. before name
+            else if(c <= ' ' and PStr == IStr) continue;
+            // Check if end of name: ':'
+            else if(c == ':') { // spaces etc.
+                if(FinalizeStr(PStr, &Obj->Name) != retvOk) return excFailure;
+                PStr = IStr;
+                IsReadingName = false;
+            }
+            // Container with missed colon or without name
+            else if(c == '{') {
+                if(FinalizeStr(PStr, &Obj->Name) == retvOk) return excContainerStart;
+                else return excFailure;
+            }
+            // End of container ",}" condition, no object here
+            else if(c == '}') return excNoObjContainerEnd;
+            // Just char, add it to name
+            else {
+                if(PStr < (IStr + SD_STRING_SZ-1)) *PStr++ = c;
+                else return excFailure; // too long name
+            } // just char
+        } // IsReadingName
+        else { // Reading value
+            if(c == '{') { // Container start
+                Obj->Value = nullptr;
+                return excContainerStart;
+            }
+            // End of container
+            else if(c == '}') {
+                if(FinalizeStr(PStr, &Obj->Value) == retvOk) return excContainerEnd;
+                else return excFailure;
+            }
+            else if(c == '\r' or c == '\n') continue; // Simply skip line feed
+            // Array
+            else if(c == '[') {
+                IsInArray = true;
+                continue;
+            }
+            else if(c == ']') {
+                IsInArray = false;
+                continue;
+            }
+            // End of object
+            else if(c == ',' and !IsInArray) {
+                if(FinalizeStr(PStr, &Obj->Value) == retvOk) return excObjEnd;
+                else return excFailure;
+            }
+            // Skip spaces, tabs etc. before value
+            else if(c <= ' ' and PStr == IStr and !IsInArray) continue;
+            // Just char, add it to name
+            else {
+                if(PStr < (IStr + SD_STRING_SZ-1)) *PStr++ = c;
+                else return excFailure; // too long name
+            } // just char
+        }
+    } // while(true)
+}
+
+JsonObj_t& Read() {
+    JsonObj_t* Root = CreateNewObj();
+    if(Root == nullptr) return *((JsonObj_t*)&EmptyNode); // No more memory
+    ExitCondition_t Rslt = ReadNextObj(Root);
+    if(Rslt == excFailure) {
+        FreeObj(Root);
+        return *((JsonObj_t*)&EmptyNode);
+    }
+
+    // Proceed with reading
+    if(Rslt == excContainerStart) { // Container, read child structs
+        JsonObj_t* Parent = Root;
+        JsonObj_t* Node, *Container = Root;
+        bool CreateNewNode = true;
+        int32_t DepthLvl = 1;
+
+        while(true) {
+            if(CreateNewNode) {
+                Node = CreateNewObj();
+                if(Node == nullptr) { // No more memory
+                    Free(*Root);
+                    return *((JsonObj_t*)&EmptyNode);
+                }
+            }
+            else CreateNewNode = true; // Create next time (if will not cancel again)
+
+            // Read Node
+            Rslt = ReadNextObj(Node);
+//            Node->Print();
+            switch(Rslt) {
+                case excFailure:
+                    Free(*Root);
+                    return *((JsonObj_t*)&EmptyNode);
+                    break;
+                case excContainerStart:
+                    if(Parent->Value == nullptr and !Parent->Child) Parent->Child = Node;
+                    else Parent->Neighbor = Node;
+                    Node->Parent = Parent;
+                    Parent = Node;
+                    Container = Node;
+                    DepthLvl++;
+                    break;
+                case excContainerEnd:
+                    if(Parent->Value == nullptr and !Parent->Child) Parent->Child = Node;
+                    else Parent->Neighbor = Node;
+                    Node->Parent = Parent;
+                    Parent = Container;
+                    DepthLvl--;
+                    if(DepthLvl <= 0) goto EndOfRead;
+                    break;
+                case excObjEnd:
+                    if(Parent->Value == nullptr and !Parent->Child) Parent->Child = Node;
+                    else Parent->Neighbor = Node;
+                    Node->Parent = Parent;
+                    Parent = Node;
+                    break;
+                case excNoObjContainerEnd:
+                    CreateNewNode = false;
+                    Parent = Container;
+                    DepthLvl--;
+                    if(DepthLvl <= 0) {
+                        FreeObj(Node);
+                        goto EndOfRead;
+                    }
+                    break;
+            } // switch
+        } // while true
+        EndOfRead:
+        Printf("Done\r");
+    }
+    else { // not container start, check if not empty
+        if(Root->Name == nullptr and Root->Value == nullptr) {
+            // Empty root
+            FreeObj(Root);
+            return *((JsonObj_t*)&EmptyNode);
+        }
+    }
+    return *Root;
+}
+
+void Free(JsonObj_t& Root) {
+    if(&Root == &EmptyNode) return;
+    JsonObj_t *CurrNode = &Root;
+    uint32_t Cnt = 0;
+    while(CurrNode != nullptr) {
+        if(CurrNode->Child != nullptr) CurrNode = CurrNode->Child;
+        else if(CurrNode->Neighbor != nullptr) CurrNode = CurrNode->Neighbor;
+        else { // both child and neighbor are absent
+//            CurrNode->Print();
+            JsonObj_t *Parent = CurrNode->Parent;
+            if(Parent != nullptr) {
+                // Remove links to curr node from parent
+                if(CurrNode == Parent->Child) Parent->Child = nullptr;
+                else Parent->Neighbor = nullptr;
+            }
+            FreeObj(CurrNode);
+            Cnt++;
+            CurrNode = Parent;
+        }
+    }
+    Printf("Freed %u\r", Cnt);
+}
+
+void JsonObj_t::PrintAll() const {
+    Print();
+    chThdSleepMilliseconds(7);
+    if(Child) Child->PrintAll();
+    if(Neighbor) Neighbor->PrintAll();
+}
+
+JsonObj_t& JsonObj_t::operator[](const char* AName) const {
+    JsonObj_t *Node = Child;
+    while(Node != nullptr) {
+        if(strcasecmp(AName, Node->Name) == 0) return *Node;
+        Node = Node->Neighbor;
+    }
+    return *((JsonObj_t*)&EmptyNode);
+}
+
+#if 1 // ==== Values ====
+//uint8_t JsonObj_t::ToString(char *S) const {
+
+uint8_t JsonObj_t::ToInt(int32_t *POut) const {
+    if(Value == nullptr) return retvEmpty;
+    char *p;
+    *POut = strtol(Value, &p, 0);
+    if(*p == '\0') return retvOk;
+    else return retvNotANumber;
+}
+
+uint8_t JsonObj_t::ToBool(bool *POut) const {
+    int32_t w;
+    uint8_t r = ToInt(&w);
+    if(r == retvOk) {
+        *POut = (bool)w;
+        return retvOk;
+    }
+    else return r;
+}
+
+uint8_t JsonObj_t::ToFloat(float *POut) const {
+    if(Value == nullptr) return retvEmpty;
+    char *p;
+    *POut = strtof(Value, &p);
+    if(*p == '\0') return retvOk;
+    else return retvNotANumber;
+}
+
+uint8_t JsonObj_t::ToColor(Color_t *PClr) const {
+    char *SavePtr = Value;
+    if(GetNextArrayByte(&PClr->R, &SavePtr) != retvOk) return retvFail;
+    if(GetNextArrayByte(&PClr->G, &SavePtr) != retvOk) return retvFail;
+    if(GetNextArrayByte(&PClr->B, &SavePtr) != retvOk) return retvFail;
+    return retvOk;
+}
+
+#endif
+
+char* JsonObj_t::GetNextArrayStr(char **SavePtr) const {
+    return strtok_r(nullptr, "[, ]", SavePtr);
+}
+
+uint8_t JsonObj_t::GetNextArrayByte(uint8_t *POut, char **SavePtr) const {
+    char *S, *p;
+    S =  GetNextArrayStr(SavePtr);
+    if(S == nullptr or *S == 0) return retvFail; // Empty string
+    *POut = (uint8_t)strtoul(S, &p, 0);
+    if(*p == '\0') return retvOk;
+    else return retvNotANumber;
 }
 
 } // namespace

@@ -170,9 +170,6 @@ uint8_t ReadString(const char *AFileName, const char *ASection, const char *AKey
 
 uint8_t ReadStringTo(const char *AFileName, const char *ASection, const char *AKey, char *POutput, uint32_t MaxLen);
 
-//template <typename T>
-//uint8_t iniRead(const char *AFileName, const char *ASection, const char *AKey, T *POutput);
-
 template <typename T>
 static uint8_t Read(const char *AFileName, const char *ASection, const char *AKey, T *POutput) {
     char *S = nullptr;
@@ -231,43 +228,56 @@ uint8_t GetNextCell(float *POutput);
 template <typename T>
 static uint8_t TryLoadParam(char* Token, const char* Name, T *Ptr) {
     if(strcasecmp(Token, Name) == 0) {
-        if(csv::GetNextCell<T>(Ptr) == retvOk) {
-//            if(*Ptr > MaxValue) *Ptr = MaxValue;
-//            Printf("  %S: %u\r", Name, *Ptr);
-            return retvOk;
-        }
-        else Printf("%S load fail\r", Name);
-    }
-    return retvFail;
-}
-__unused
-static uint8_t TryLoadParam(char* Token, const char* Name, float *Ptr) {
-    if(strcasecmp(Token, Name) == 0) {
-        if(csv::GetNextCell(Ptr) == retvOk){
-//            Printf("  %S: %f\r", Name, *Ptr);
-            return retvOk;
-        }
+        if(csv::GetNextCell<T>(Ptr) == retvOk) return retvOk;
         else Printf("%S load fail\r", Name);
     }
     return retvFail;
 }
 
-__unused
-static uint8_t TryLoadString(char* Token, const char* Name, char *Dst, uint32_t MaxLen) {
-    if(strcasecmp(Token, Name) == 0) {
-        *Dst = 0;   // Empty Dst
-        char *Cell;
-        if(GetNextToken(&Cell) == retvOk) {
-            uint32_t Len = strlen(Cell);
-            if(Len < MaxLen) strcpy(Dst, Cell);
-            else {
-                strncpy(Dst, Cell, MaxLen-1);
-                Dst[MaxLen-1] = 0;
-            }
-        }
-        return retvOk;
+uint8_t TryLoadParam(char* Token, const char* Name, float *Ptr);
+
+uint8_t TryLoadString(char* Token, const char* Name, char *Dst, uint32_t MaxLen);
+
+} // namespace
+
+namespace json { // ================== json file parsing =======================
+uint8_t OpenFile(const char *AFileName);
+void CloseFile();
+
+class JsonObj_t {
+private:
+    char* GetNextArrayStr(char **SavePtr) const;
+    uint8_t GetNextArrayByte(uint8_t *POut, char **SavePtr) const;
+public:
+    char* Name;
+    char* Value;
+    JsonObj_t *Neighbor;
+    JsonObj_t *Child;
+    JsonObj_t *Parent;
+    void Reset() { memset(this, 0, sizeof(JsonObj_t)); }
+    void Print() const {
+        if(Name) Printf("N: %S; ", Name);
+        else Printf("EmptyNode\r");
+        if(Value) Printf("V: %S; ", Value);
+        if(Parent)   if(Parent->Name)   Printf(" P: %S;", Parent->Name);
+        if(Child)    if(Child->Name)    Printf(" C: %S;", Child->Name);
+        if(Neighbor) if(Neighbor->Name) Printf(" N: %S",  Neighbor->Name);
+        PrintfEOL();
     }
-    return retvFail;
-}
+    void PrintAll() const;
+    JsonObj_t() : Name(nullptr), Value(nullptr), Neighbor(nullptr), Child(nullptr), Parent(nullptr) {}
+
+    bool IsEmpty() const { return (!Name and !Value and !Child and !Neighbor); }
+    JsonObj_t& operator[](const char* AName) const;
+    // Values
+    uint8_t ToInt(int32_t *POut) const;
+    uint8_t ToColor(Color_t *PClr) const;
+    uint8_t ToBool(bool *POut) const;
+    uint8_t ToFloat(float *POut) const;
+};
+
+JsonObj_t& Read();
+
+void Free(JsonObj_t& Root);
 
 } // namespace
