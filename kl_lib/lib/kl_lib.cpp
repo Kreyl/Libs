@@ -70,7 +70,7 @@ uint32_t TrueGenerate(uint32_t LowInclusive, uint32_t HighInclusive) {
 void SeedWithTrue() {
     while((RNG->SR & RNG_SR_DRDY) == 0);    // Wait for new random value
     uint32_t dw = RNG->DR;
-    srandom(dw);
+//    srandom(dw); XXX
 }
 
 } // namespace
@@ -645,15 +645,20 @@ void LockFirmware() {
     ClearPendingFlags();
     UnlockOptionBytes();
     if(WaitForLastOperation(FLASH_ProgramTimeout) == retvOk) {
-        // Deactivate the data cache to avoid data misbehavior
-        FLASH->ACR &= ~FLASH_ACR_DCEN;
-        // Any value except 0xAA or 0xCC
-        MODIFY_REG(FLASH->OPTR, FLASH_OPTR_RDP_Msk, 0x00);
-        SET_BIT(FLASH->CR, FLASH_CR_OPTSTRT);
+        uint32_t reg = FLASH->OPTR;
+        reg &= 0xFFFFFF00; // Any value except 0xAA or 0xCC
+        FLASH->OPTR = reg;
+        FLASH->CR |= FLASH_CR_OPTSTRT;
         WaitForLastOperation(FLASH_ProgramTimeout);
-        CLEAR_BIT(FLASH->CR, FLASH_CR_OPTSTRT);
-        FLASH->CR |= FLASH_CR_OBL_LAUNCH;   // cannot be written when option bytes are locked
+
+        reg = FLASH->PCROP1ER;
+        reg |= 0x80000000;
+        FLASH->PCROP1ER = reg;
+        FLASH->CR |= FLASH_CR_OPTSTRT;
+        WaitForLastOperation(FLASH_ProgramTimeout);
+        FLASH->CR |= FLASH_CR_OBL_LAUNCH; // Option byte loading requested
         LockFlash();    // Will lock option bytes too
+        WaitForLastOperation(FLASH_ProgramTimeout);
     }
 #else
     WriteOptionByteRDP(0x1D); // Any value except 0xAA or 0xCC
@@ -704,6 +709,27 @@ void DisableDualbank() {
     if(WaitForLastOperation(FLASH_ProgramTimeout) == retvOk) {
         uint32_t OptReg = FLASH->OPTR;
         OptReg &= ~(FLASH_OPTR_DUALBANK | FLASH_OPTR_BFB2);
+        FLASH->OPTR = OptReg;
+        FLASH->CR |= FLASH_CR_OPTSTRT;
+        WaitForLastOperation(FLASH_ProgramTimeout);
+        SET_BIT(FLASH->CR, FLASH_CR_OBL_LAUNCH); // cannot be written when option bytes are locked
+        LockFlash();
+    }
+    chSysUnlock();
+}
+
+bool SleepInResetIsEnabled() {
+    return (!(FLASH->OPTR & FLASH_OPTR_nRST_SHDW) or !(FLASH->OPTR & FLASH_OPTR_nRST_STDBY) or !(FLASH->OPTR & FLASH_OPTR_nRST_STOP));
+}
+
+void DisableSleepInReset() {
+    chSysLock();
+    UnlockFlash();
+    ClearPendingFlags();
+    UnlockOptionBytes();
+    if(WaitForLastOperation(FLASH_ProgramTimeout) == retvOk) {
+        uint32_t OptReg = FLASH->OPTR;
+        OptReg |= FLASH_OPTR_nRST_SHDW | FLASH_OPTR_nRST_STDBY | FLASH_OPTR_nRST_STOP;
         FLASH->OPTR = OptReg;
         FLASH->CR |= FLASH_CR_OPTSTRT;
         WaitForLastOperation(FLASH_ProgramTimeout);

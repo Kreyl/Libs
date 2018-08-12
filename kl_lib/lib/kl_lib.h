@@ -331,11 +331,11 @@ void SeedWithTrue();
 // ========================== Simple delay ===============================
 static inline void DelayLoop(volatile uint32_t ACounter) { while(ACounter--); }
 
-#if 0 // ======================= Power and backup unit =========================
 // See Programming manual: http://www.st.com/content/ccc/resource/technical/document/programming_manual/6c/3a/cb/e7/e4/ea/44/9b/DM00046982.pdf/files/DM00046982.pdf/jcr:content/translations/en.DM00046982.pdf
 // On writes, write 0x5FA to VECTKEY, otherwise the write is ignored. 4 is SYSRESETREQ: System reset request
 #define REBOOT()                SCB->AIRCR = 0x05FA0004
 
+#if 0 // ======================= Power and backup unit =========================
 namespace BackupSpc {
     static inline void EnableAccess() {
         rccEnablePWRInterface(FALSE);
@@ -1160,6 +1160,15 @@ void GoSleep(uint32_t Timeout_ms);
 #if 1 // ============================== Sleep ==================================
 namespace Sleep {
 #if defined STM32L4XX
+static inline void EnterStop() {
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    uint32_t tmp = PWR->CR1 & ~PWR_CR1_LPMS;
+    tmp |= PWR_CR1_LPMS_STOP0;
+    PWR->CR1 = tmp;
+    __WFI();
+}
+
+
 static inline void EnterStandby() {
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
     uint32_t tmp = PWR->CR1 & ~PWR_CR1_LPMS;
@@ -1340,6 +1349,9 @@ void IwdgFrozeInStandby();
 #if defined STM32L4XX
 bool DualbankIsEnabled();
 void DisableDualbank();
+
+bool SleepInResetIsEnabled();
+void DisableSleepInReset();
 #endif
 
 }; // Namespace
