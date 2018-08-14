@@ -39,14 +39,13 @@ void PrintfEOL() {
     Uart.PrintEOL();
 }
 
-extern "C" {
+extern "C"
 void PrintfC(const char *format, ...) {
     va_list args;
     va_start(args, format);
     Uart.IVsPrintf(format, args);
     va_end(args);
 }
-} // exern C
 
 
 class PrintToBuf_t : public PrintfHelper_t {

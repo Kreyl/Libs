@@ -22,12 +22,8 @@
 #error "Not defined"
 #endif
 
-// Universal VirtualTimer callback
-void UartCallback(void *p) {
-    chSysLockFromISR();
-    ((BaseUart_t*)p)->IIrqHandler();
-    chSysUnlockFromISR();
-}
+// Array of utilized UARTs to organize RX
+static BaseUart_t* PUarts[UARTS_CNT];
 #endif // Common and eternal
 
 #if 1 // ========================= Base UART ===================================
@@ -165,8 +161,6 @@ void Vector15C() {   // USART6
 }
 
 } // extern C
-
-
 #endif
 
 #if UART_USE_DMA
@@ -233,24 +227,34 @@ uint8_t BaseUart_t::IPutByteNow(uint8_t b) {
 #endif // TX
 
 #if 1 // ==== RX ====
-uint32_t BaseUart_t::GetRcvdBytesCnt() {
+static thread_reference_t RXThread = nullptr;
+static THD_WORKING_AREA(waUartRxThread, 128);
+
+__noreturn
+static void UartRxThread(void *arg) {
+    chRegSetThreadName("UartRx");
+    while(true) {
+        chThdSleepMilliseconds(UART_RX_POLLING_MS);
+        // Iterate UARTs
+        for(BaseUart_t* ptr : PUarts) {
+            if(ptr != nullptr) ptr->ProcessByteIfReceived();
+        } // for
+    } // while true
+}
+
+uint8_t BaseUart_t::GetByte(uint8_t *b) {
 #if defined STM32F2XX || defined STM32F4XX
     int32_t WIndx = UART_RXBUF_SZ - Params->PDmaRx->stream->NDTR;
 #else
     int32_t WIndx = UART_RXBUF_SZ - Params->PDmaRx->channel->CNDTR;
 #endif
-    int32_t Rslt = WIndx - RIndx;
-    if(Rslt < 0) Rslt += UART_RXBUF_SZ;
-    return Rslt;
-}
-
-uint8_t BaseUart_t::GetByte(uint8_t *b) {
-    if(GetRcvdBytesCnt() == 0) return retvEmpty;
+    int32_t BytesCnt = WIndx - RIndx;
+    if(BytesCnt < 0) BytesCnt += UART_RXBUF_SZ;
+    if(BytesCnt == 0) return retvEmpty;
     *b = IRxBuf[RIndx++];
     if(RIndx >= UART_RXBUF_SZ) RIndx = 0;
     return retvOk;
 }
-
 #endif // RX
 
 #if 1 // ==== Init ====
@@ -364,6 +368,17 @@ void BaseUart_t::Init() {
     dmaStreamSetMode      (Params->PDmaRx, Params->DmaModeRx);
     dmaStreamEnable       (Params->PDmaRx);
     Params->Uart->CR1 |= USART_CR1_UE;    // Enable USART
+
+    // Prepare and start RX
+    for(int i=0; i<UARTS_CNT; i++) {
+        if(PUarts[i] == nullptr) {
+            PUarts[i] = this;
+            break;
+        }
+    }
+    if(RXThread == nullptr) {
+        RXThread = chThdCreateStatic(waUartRxThread, sizeof(waUartRxThread), NORMALPRIO, (tfunc_t)UartRxThread, NULL);
+    }
 }
 
 void BaseUart_t::Shutdown() {
@@ -403,10 +418,6 @@ void BaseUart_t::OnClkChange() {
 }
 #endif // Init
 
-void BaseUart_t::StartRx() {
-    chVTSet(&TmrRx, UART_RX_POLLING_MS, UartCallback, this);
-}
-
 void BaseUart_t::SignalRxProcessed() {
     chSysLock();
     RxProcessed = true;
@@ -416,15 +427,13 @@ void BaseUart_t::SignalRxProcessed() {
 #endif // Base UART
 
 #if 1 // ========================= Cmd UART ====================================
-void CmdUart_t::IIrqHandler() {
-    chVTSetI(&TmrRx, UART_RX_POLLING_MS, UartCallback, this);
+void CmdUart_t::ProcessByteIfReceived() {
     if(!RxProcessed) return;
     uint8_t b;
     while(GetByte(&b) == retvOk) {
         if(Cmd.PutChar(b) == pdrNewCmd) {
             RxProcessed = false;
-            EvtMsg_t Msg(evtIdShellCmd, (Shell_t*)this);
-            EvtQMain.SendNowOrExitI(Msg);
+            EvtQMain.SendNowOrExit(EvtMsg_t(evtIdShellCmd, (Shell_t*)this));
         } // if new cmd
     } // while get byte
 //    PrintfI("e\r");

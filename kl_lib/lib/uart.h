@@ -64,7 +64,6 @@ private:
     uint8_t IRxBuf[UART_RXBUF_SZ];
 protected:
     bool RxProcessed = true;
-    virtual_timer_t TmrRx;
     void SignalRxProcessed();
     uint8_t IPutByte(uint8_t b);
     uint8_t IPutByteNow(uint8_t b);
@@ -79,7 +78,6 @@ protected:
     {}
 public:
     void Init();
-    void StartRx();
     void Shutdown();
     void OnClkChange();
     // Enable/Disable
@@ -92,12 +90,11 @@ public:
 #endif
     void EnableTCIrq(const uint32_t Priority, ftVoidVoid ACallback);
     // Inner use
+    virtual void ProcessByteIfReceived() = 0;
 #if UART_USE_DMA
     void IRQDmaTxHandler();
 #endif
-    uint32_t GetRcvdBytesCnt();
     uint8_t GetByte(uint8_t *b);
-    virtual void IIrqHandler() = 0;
 };
 
 class CmdUart_t : public BaseUart_t, public PrintfHelper_t, public Shell_t {
@@ -113,7 +110,7 @@ private:
     }
 public:
     CmdUart_t(const UartParams_t *APParams) : BaseUart_t(APParams) {}
-    void IIrqHandler();
+    void ProcessByteIfReceived();
     void SignalCmdProcessed() { BaseUart_t::SignalRxProcessed(); }
 };
 
