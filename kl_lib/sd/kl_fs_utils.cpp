@@ -613,7 +613,7 @@ JsonObj_t& Read() {
         bool CreateNewNode = true;
         int32_t DepthLvl = 1;
 
-        while(true) {
+        while(DepthLvl > 0) {
             if(CreateNewNode) {
                 Node = CreateNewObj();
                 if(Node == nullptr) { // No more memory
@@ -644,8 +644,8 @@ JsonObj_t& Read() {
                     else Parent->Neighbor = Node;
                     Node->Parent = Parent;
                     Parent = Container;
+                    Container = Container->Parent;
                     DepthLvl--;
-                    if(DepthLvl <= 0) goto EndOfRead;
                     break;
                 case excObjEnd:
                     if(Parent->Value == nullptr and !Parent->Child) Parent->Child = Node;
@@ -656,16 +656,12 @@ JsonObj_t& Read() {
                 case excNoObjContainerEnd:
                     CreateNewNode = false;
                     Parent = Container;
+                    Container = Container->Parent;
                     DepthLvl--;
-                    if(DepthLvl <= 0) {
-                        FreeObj(Node);
-                        goto EndOfRead;
-                    }
+                    if(DepthLvl <= 0) FreeObj(Node); // Was created, not required
                     break;
             } // switch
         } // while true
-        EndOfRead:
-        Printf("Done\r");
     }
     else { // not container start, check if not empty
         if(Root->Name == nullptr and Root->Value == nullptr) {
@@ -697,7 +693,6 @@ void Free(JsonObj_t& Root) {
             CurrNode = Parent;
         }
     }
-    Printf("Freed %u\r", Cnt);
 }
 
 void JsonObj_t::PrintAll() const {
