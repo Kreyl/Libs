@@ -448,13 +448,30 @@ uint8_t TryLoadString(char* Token, const char* Name, char *Dst, uint32_t MaxLen)
 
 namespace json { // ================== json file parsing =======================
 static const JsonObj_t EmptyNode;
+static char *IBuf, *PChar;
+static uint32_t BytesLeft;
+#define JBUFSZ      4096
 
-uint8_t OpenFile(const char *AFileName) {
-    return TryOpenFileRead(AFileName, &CommonFile);
-}
 void CloseFile() {
     f_close(&CommonFile);
+    if(IBuf) {
+        chHeapFree(IBuf);
+        IBuf = nullptr;
+    }
 }
+
+uint8_t OpenFile(const char *AFileName) {
+    if(TryOpenFileRead(AFileName, &CommonFile) == retvOk) {
+        IBuf = (char*)chHeapAlloc(NULL, JBUFSZ);
+        PChar = IBuf;
+        if(IBuf) {
+            if(f_read(&CommonFile, IBuf, JBUFSZ, &BytesLeft) == FR_OK) return retvOk;
+        }
+        CloseFile();
+    }
+    return retvFail;
+}
+
 
 static JsonObj_t* CreateNewObj() {
     JsonObj_t* ptr = (JsonObj_t*)chHeapAlloc(NULL, sizeof(JsonObj_t));
@@ -467,21 +484,26 @@ static void FreeObj(JsonObj_t* Obj) {
     chHeapFree(Obj);
 }
 
-static uint8_t GetNextChar(char *c) {
-    char S[2];
-    if(f_eof(&CommonFile)) return retvEndOfFile;
-    uint32_t L;
-    f_read(&CommonFile, S, 1, &L);
-    if(L != 1) return retvFail;
-    *c = S[0];
+__always_inline
+static inline uint8_t GetNextChar(char *c) {
+    if(BytesLeft == 0) { // Buf is empty
+        if(f_read(&CommonFile, IBuf, JBUFSZ, &BytesLeft) != FR_OK) return retvFail;
+        if(BytesLeft == 0) return retvFail; // File end
+        PChar = IBuf;
+    }
+    *c = *PChar++;
+    BytesLeft--;
     return retvOk;
 }
 
 static uint8_t FinalizeStr(char *PStr, char **PValue) {
-    *PStr = 0;          // End of string
+    // Remove whitespaces at end
+    while(PStr > IStr and *(PStr-1) <= ' ') PStr--;
     uint32_t StrLen = PStr - IStr;
-    if(StrLen > 0) {    // Copy value
-        char *p = (char*)chHeapAlloc(NULL, StrLen+1);
+    if(StrLen > 0) {
+        *PStr = 0; // End string
+        // Copy value
+        char *p = (char*)chHeapAlloc(NULL, StrLen+1); // Reserve extra char for '/0'
         if(p == nullptr) return retvFail;
         *PValue = p;
         strcpy(p, IStr);
