@@ -23,7 +23,8 @@ static inline uint32_t ClrCalcDelay(uint16_t AValue, uint32_t Smooth) {
 
 struct Color_t {
 private:
-    uint8_t SetSingleBrt(uint32_t v, uint32_t Brt) {
+    __always_inline
+    inline uint8_t SetSingleBrt(uint32_t v, uint32_t Brt) {
         if(v > 0) {
             v = (v * Brt) / 100UL;
             if(v == 0) v = 1;
@@ -36,7 +37,7 @@ public:
         struct {
             uint8_t R, G, B;
             union {
-                uint8_t Lum, W;
+                uint8_t Brt, W;
             };
         } __attribute__((packed));
     };
@@ -50,8 +51,8 @@ public:
         else if(G > PColor.G) G--;
         if     (B < PColor.B) B++;
         else if(B > PColor.B) B--;
-        if     (Lum < PColor.Lum) Lum++;
-        else if(Lum > PColor.Lum) Lum--;
+        if     (Brt < PColor.Brt) Brt++;
+        else if(Brt > PColor.Brt) Brt--;
     }
     void Adjust(const Color_t &PColor, uint32_t Step) {
         uint32_t ThrsR = 255 - Step;
@@ -82,13 +83,13 @@ public:
             else B = 0;
         }
 
-        if(Lum < PColor.Lum) {
-            Lum += Step;
-            if(Lum > LUM_MAX) Lum = LUM_MAX;
+        if(Brt < PColor.Brt) {
+            Brt += Step;
+            if(Brt > LUM_MAX) Brt = LUM_MAX;
         }
-        else if(Lum > PColor.Lum) {
-            if(Lum >= Step) Lum -= Step;
-            else Lum = 0;
+        else if(Brt > PColor.Brt) {
+            if(Brt >= Step) Brt -= Step;
+            else Brt = 0;
         }
     }
     void FromRGB(uint8_t Red, uint8_t Green, uint8_t Blue) { R = Red; G = Green; B = Blue; }
@@ -122,7 +123,7 @@ public:
         if(Delay2 > Delay) Delay = Delay2;
         Delay2 = (B == AClr.B)? 0 : ClrCalcDelay(B, SmoothValue);
         if(Delay2 > Delay) Delay = Delay2;
-        Delay2 = (Lum == AClr.Lum)? 0 : ClrCalcDelay(Lum, SmoothValue);
+        Delay2 = (Brt == AClr.Brt)? 0 : ClrCalcDelay(Brt, SmoothValue);
         return (Delay2 > Delay)? Delay2 : Delay;
     }
     // Brt = [0; 100]
@@ -132,10 +133,21 @@ public:
         B = SetSingleBrt(AClr.B, Brt);
         W = SetSingleBrt(AClr.W, Brt);
     }
-    void Print() { Printf("{%u, %u, %u; %u}\r", R, G, B, Lum); }
-    Color_t() : R(0), G(0), B(0), Lum(LUM_MAX) {}
-    Color_t(uint8_t AR, uint8_t AG, uint8_t AB) : R(AR), G(AG), B(AB), Lum(LUM_MAX) {}
-    Color_t(uint8_t AR, uint8_t AG, uint8_t AB, uint8_t ALum) : R(AR), G(AG), B(AB), Lum(ALum) {}
+    void SetRGBBrightness(Color_t &AClr, uint32_t Brt) {
+        R = SetSingleBrt(AClr.R, Brt);
+        G = SetSingleBrt(AClr.G, Brt);
+        B = SetSingleBrt(AClr.B, Brt);
+    }
+    void SetBrightness(uint32_t Brt) {
+        R = SetSingleBrt(R, Brt);
+        G = SetSingleBrt(G, Brt);
+        B = SetSingleBrt(B, Brt);
+    }
+
+    void Print() { Printf("{%u, %u, %u; %u}\r", R, G, B, Brt); }
+    Color_t() : R(0), G(0), B(0), Brt(LUM_MAX) {}
+    Color_t(uint8_t AR, uint8_t AG, uint8_t AB) : R(AR), G(AG), B(AB), Brt(LUM_MAX) {}
+    Color_t(uint8_t AR, uint8_t AG, uint8_t AB, uint8_t ALum) : R(AR), G(AG), B(AB), Brt(ALum) {}
 } __attribute__((packed));
 
 

@@ -47,15 +47,15 @@
 
 /* ==== Function in RAM ====
  * Add to LD script, inside .data section, the following line:
-     *(.fastrun)         // RAM-Functions
+     *(.kl_ramfunc)         // RAM-Functions
      Example:
         . = ALIGN(4);
-        *(.fastrun)     // RAM-Functions
+        *(.kl_ramfunc)     // RAM-Functions
         PROVIDE(_edata = .);
         _data_end = .;
     } > DATA_RAM AT > flash
  */
-#define __ramfunc __attribute__ ((long_call, section (".fastrun")))
+#define __ramfunc __attribute__ ((long_call, section (".kl_ramfunc")))
 
 #ifndef TRUE
 #define TRUE    1
@@ -1847,7 +1847,7 @@ public:
     void EnableSai1POut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1PEN); }
 
     void UpdateFreqValues();
-    void EnablePrefeth() { FLASH->ACR |= FLASH_ACR_PRFTEN; }
+    void EnablePrefeth() { FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_DCEN | FLASH_ACR_ICEN; }
     void SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange);
     void SetVoltageRange(MCUVoltRange_t VoltRange);
     void Select48MhzSrc(Src48MHz_t Src);

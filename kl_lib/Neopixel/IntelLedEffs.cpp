@@ -42,6 +42,7 @@ void Effects_t::Process() {
         case effNone: break;
         case effAllTogetherSmoothly: ProcessAllTogetherSmoothly(); break;
         case effOneByOne: ProcessOneByOne(); break;
+        case effSequence: ProcessSequence(); break;
     }
 }
 
@@ -51,9 +52,14 @@ void TmrEffCallback(void *p) {
     EvtQEffects.SendNowOrExitI(EffMsg_t((Effects_t*)p));
     chSysUnlockFromISR();
 }
+
+
+void Effects_t::SetupDelay(uint32_t ms) {
+    chVTSet(&Tmr, MS2ST(ms), TmrEffCallback, this);
+}
 #endif
 
-#if 1 // ========================= Individual effects ==========================
+#if 1 // =========================== Simple effects ============================
 void Effects_t::AllTogetherNow(Color_t Color) {
     State = effNone;
     chVTReset(&Tmr);
@@ -67,7 +73,7 @@ void Effects_t::AllTogetherSmoothly(Color_t Color, uint32_t ASmoothValue) {
         ISmoothValue = ASmoothValue;
         for(int32_t i=0; i<LED_CNT; i++) DesiredClr[i] = Color;
         State = effAllTogetherSmoothly;
-        chVTSet(&Tmr, MS2ST(11), TmrEffCallback, this); // Arm timer for some time
+        SetupDelay(11); // Arm timer for some time
     }
 }
 
@@ -80,7 +86,7 @@ void Effects_t::ProcessAllTogetherSmoothly() {
     } // for
     Leds->ISetCurrentColors();
     if (Delay == 0) State = effNone;  // Setup completed
-    else chVTSet(&Tmr, MS2ST(Delay), TmrEffCallback, this); // Arm timer
+    else SetupDelay(Delay); // Arm timer
 }
 
 void Effects_t::OneByOne(Color_t Color, uint32_t ASmoothValue) {
@@ -90,7 +96,7 @@ void Effects_t::OneByOne(Color_t Color, uint32_t ASmoothValue) {
         CurrentIndx = 0;
         for(int32_t i=0; i<LED_CNT; i++) DesiredClr[i] = Color;
         State = effOneByOne;
-        chVTSet(&Tmr, MS2ST(11), TmrEffCallback, this); // Arm timer for some time
+        SetupDelay(11); // Arm timer for some time
     }
 }
 
@@ -108,47 +114,104 @@ void Effects_t::ProcessOneByOne() {
             else continue;
         }
         else {
-            chVTSet(&Tmr, MS2ST(Delay), TmrEffCallback, this); // Arm timer
+            SetupDelay(Delay); // Arm timer
             break;
         }
     }
 }
+#endif
 
-/*
-// ======================== EffAllTogetherSequence_t ===========================
-void EffAllTogetherSequence_t::SetupColors() {
-    for(int32_t i=0; i<LED_CNT; i++) Leds.ICurrentClr[i] = ICurrColor;
-    Leds.ISetCurrentColors();
+#if 1 // ========================= Sequences ===================================
+void Effects_t::SeqAllTogetherStartOrContinue(const LedRGBChunk_t *PChunk) {
+    if(PChunk == IPStartChunk) return; // Same sequence
+    else SeqAllTogetherStartOrRestart(PChunk);
 }
 
-void EffFadeOneByOne_t::SetupIDs() {
-    for(uint32_t i=0; i<LED_CNT; i++) IDs[i] = i;
-}
-
-void EffFadeOneByOne_t::SetupAndStart(int32_t ThrLo, int32_t ThrHi) {
-//    Printf("ThrLo: %d; ThrHi: %d\r", ThrLo, ThrHi);
-    // Setup ColorLo
-    for(int32_t i=0; i < ThrLo; i++) DesiredClr[i] = IClrLo;
-    // Setup ColorHi
-    for(int32_t i=ThrHi; i < LED_CNT; i++) DesiredClr[i] = IClrHi;
-    // Setup gradient
-    if(ThrHi > ThrLo) {
-        int32_t Len = ThrHi - ThrLo;
-        int32_t BrtStep = (255 * 1024) / Len;   // 255 is top brightness, 1024 is scaling coef
-        for(int32_t i=0; i<Len; i++) {
-            int32_t Indx = ThrLo + i;
-            if(Indx >=0 and Indx < LED_CNT) {
-                int32_t Brt = (i * BrtStep) / 1024;
-//                Printf("%d Brt: %d\r", Indx, Brt);
-                DesiredClr[Indx].BeMixOf(IClrHi, IClrLo, Brt);
-            }
-        }
-    } // if(ThrHi > ThrLo)
-    // Start processing
+void Effects_t::SeqAllTogetherStartOrRestart(const LedRGBChunk_t *PChunk) {
     chSysLock();
-    PCurrentEff = this;
-    chThdResumeS(&PThd, MSG_OK);
+    RepeatCounter = -1;
+    IPStartChunk = PChunk;   // Save first chunk
+    IPCurrentChunk = PChunk;
+    State = effSequence;
     chSysUnlock();
+    EvtQEffects.SendNowOrExit(EffMsg_t(this));
 }
-*/
+
+void Effects_t::ProcessSequence() {
+    while(true) {   // Process the sequence
+        switch(IPCurrentChunk->ChunkSort) {
+            case csSetup: // setup now and exit if required
+                if(ISetup() == sltBreak) return;
+                break;
+
+            case csWait: { // Start timer, pointing to next chunk
+                    uint32_t Delay = IPCurrentChunk->Time_ms;
+                    IPCurrentChunk++;
+                    if(Delay != 0) {
+                        SetupDelay(Delay);
+                        return;
+                    }
+                }
+                break;
+
+            case csGoto:
+                IPCurrentChunk = IPStartChunk + IPCurrentChunk->ChunkToJumpTo;
+                SetupDelay(1);
+                return;
+                break;
+
+            case csEnd:
+                IPStartChunk = nullptr;
+                IPCurrentChunk = nullptr;
+                State = effNone;
+                return;
+                break;
+
+            case csRepeat:
+                if(RepeatCounter == -1) RepeatCounter = IPCurrentChunk->RepeatCnt;
+                if(RepeatCounter == 0) {    // All was repeated, goto next
+                    RepeatCounter = -1;     // reset counter
+                    IPCurrentChunk++;
+                }
+                else {  // repeating in progress
+                    IPCurrentChunk = IPStartChunk;  // Always from beginning
+                    RepeatCounter--;
+                }
+                break;
+        } // switch
+    } // while
+
+}
+
+SequencerLoopTask_t Effects_t::ISetup() {
+    SequencerLoopTask_t Rslt;
+    // Iterate LEDs
+    uint32_t Delay = 0;
+    for(int32_t i=0; i<LED_CNT; i++) {
+        Color_t &Clr = Leds->ICurrentClr[i];
+        if(Clr != IPCurrentChunk->Color) {
+            // If smooth time is zero, set color now
+            if(IPCurrentChunk->Value == 0) Clr = IPCurrentChunk->Color;
+            else {
+                Clr.Adjust(IPCurrentChunk->Color);
+                uint32_t tmp = Clr.DelayToNextAdj(DesiredClr[i], IPCurrentChunk->Value);
+                if(tmp > Delay) Delay = tmp;
+            }
+        } // if color is different
+    } // for
+
+    // Check if completed now
+    if(Delay == 0) {
+        IPCurrentChunk++; // Color is the same, goto next chunk
+        Rslt = sltProceed;
+    }
+    else { // Not completed
+        // Calculate time to next adjustment and start timer
+        SetupDelay(Delay);
+        Rslt = sltBreak;
+    } // Not completed
+    Leds->ISetCurrentColors();
+    return Rslt;
+}
+
 #endif

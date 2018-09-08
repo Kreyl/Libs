@@ -1,9 +1,9 @@
-(module LED_0603 (layer F.Cu) (tedit 5A91F922)
+(module LED_0603 (layer F.Cu) (tedit 5B7D6011)
   (attr smd)
-  (fp_text reference D4 (at 0.127 -1.3335) (layer F.SilkS)
+  (fp_text reference LED6 (at 0.1 0) (layer F.Fab)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
-  (fp_text value KPT-1608ZGC (at 0.2 1.4) (layer F.SilkS)
+  (fp_text value LED (at 0.2 1.4) (layer F.SilkS) hide
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
   (fp_line (start -1.5 0.8) (end -1.5 -0.1) (layer F.SilkS) (width 0.15))

@@ -89,10 +89,12 @@ void Neopixels_t::ISetCurrentColors() {
         if(ICurrentClr[i].R != 0 or ICurrentClr[i].G != 0 or ICurrentClr[i].B != 0) IsAllBlack = false;
 #endif
     }
+#if NPX_POWER_PIN_EN
     if(!IsAllBlack) {
         PwrPin.SetHi(); // Power on
         chThdSleepMilliseconds(1);
     }
+#endif
     // Start transmission
     dmaStreamDisable(Params->PDma);
     dmaStreamSetMemory0(Params->PDma, IBuf);
