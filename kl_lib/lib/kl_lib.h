@@ -1833,6 +1833,7 @@ public:
     uint8_t SwitchToMSI();
     void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
     uint8_t EnableHSI();
+    uint8_t EnableMSI();
     void DisableHSI() { RCC->CR &= ~RCC_CR_HSION; }
     void DisablePLL() { RCC->CR &= ~RCC_CR_PLLON; }
     void DisableMSI() { RCC->CR &= ~RCC_CR_MSION; }

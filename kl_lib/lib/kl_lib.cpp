@@ -2197,6 +2197,11 @@ void Clk_t::SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange) {
 
 void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
     EnablePrefeth();
+    // First, switch to MSI if clock src is not MSI
+    if((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_MSI) {
+        if(SwitchToMSI() != retvOk) return;
+    }
+
     // Enable/disable HSE
     if(CoreClk >= cclk16MHz) {
         if(EnableHSE() != retvOk) return;   // Try to enable HSE
@@ -2337,20 +2342,46 @@ uint8_t Clk_t::EnablePLL() {
     return retvTimeout;
 }
 
+uint8_t Clk_t::EnableMSI() {
+    RCC->CR |= RCC_CR_MSION;
+    // Wait until ready
+    uint32_t StartUpCounter=0;
+    do {
+        if(RCC->CR & RCC_CR_MSIRDY) return retvOk;
+        StartUpCounter++;
+    } while(StartUpCounter < CLK_STARTUP_TIMEOUT);
+    return retvTimeout;
+}
+
 // ==== Switch ====
 // Enables HSE, switches to HSE
 uint8_t Clk_t::SwitchToHSE() {
     if(EnableHSE() != 0) return 1;
-    RCC->CFGR &= ~RCC_CFGR_SW;      // }
-    RCC->CFGR |=  RCC_CFGR_SW_HSE;  // } Select HSE as system clock src
+    uint32_t tmp = RCC->CFGR;
+    tmp &= ~RCC_CFGR_SW;
+    tmp |= RCC_CFGR_SW_HSE;
+    RCC->CFGR = tmp;
     while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSE); // Wait till ready
     return 0;
 }
 
 // Enables HSE, enables PLL, switches to PLL
 uint8_t Clk_t::SwitchToPLL() {
-    RCC->CFGR |= RCC_CFGR_SW_PLL;   // Select PLL as system clock src
+    uint32_t tmp = RCC->CFGR;
+    tmp &= ~RCC_CFGR_SW;
+    tmp |= RCC_CFGR_SW_PLL;
+    RCC->CFGR = tmp;
     while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL); // Wait until ready
+    return retvOk;
+}
+
+uint8_t Clk_t::SwitchToMSI() {
+    if(EnableMSI() != retvOk) return retvFail;
+    uint32_t tmp = RCC->CFGR;
+    tmp &= ~RCC_CFGR_SW;
+    tmp |= RCC_CFGR_SW_MSI;
+    RCC->CFGR = tmp;
+    while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_MSI); // Wait until ready
     return retvOk;
 }
 

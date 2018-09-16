@@ -1,4 +1,4 @@
-(module "WB-08(MW-8M)" (layer F.Cu) (tedit 5A91EE79)
+(module "WB-08(MW-8M)" (layer F.Cu) (tedit 5B9B8345)
   (fp_text reference XL2 (at 0.5 2.5) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )

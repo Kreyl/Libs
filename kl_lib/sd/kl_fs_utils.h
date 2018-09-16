@@ -14,12 +14,12 @@
 
 // Constants
 #define MAX_NAME_LEN        128UL
+#define COMMON_STR_LEN      256UL   // Length of common use string
 
 // Variables
 extern FILINFO FileInfo;
 extern DIR Dir;
 extern FIL CommonFile;
-//extern
 
 uint8_t TryOpenFileRead(const char *Filename, FIL *PFile);
 uint8_t TryOpenFileRewrite(const char *Filename, FIL *PFile);
@@ -41,14 +41,14 @@ uint8_t ReadLine(FIL *PFile, char* S, uint32_t MaxLen);
 
 bool DirExists(const char* DirName);
 bool DirExistsAndContains(const char* DirName, const char* Extension);
-uint8_t CountFilesInDir(const char* DirName, const char* Extension, uint32_t *PCnt);
+uint8_t CountFilesInDir(const char* DirName, const char* Extension, int32_t *PCnt);
 uint8_t CountDirsStartingWith(const char* Path, const char* DirNameStart, uint32_t *PCnt);
 
 #if 1 // ========================= GetRandom from dir ==========================
 struct DirRandData_t {
     char Name[MAX_NAME_LEN];
-    uint32_t LastN;
-    uint32_t FileCnt = 0;
+    int32_t LastN;
+    int32_t FileCnt = 0;
 };
 
 #define DIR_CNT   9
@@ -148,142 +148,3 @@ public:
 };
 #endif
 
-#define SD_STRING_SZ    256 // for operations with strings
-namespace ini { // =================== ini file operations =====================
-/*
- * ini file has the following structure:
- *
- * # This is Comment: comment uses either '#' or ';' symbol
- * ; This is Comment too
- *
- * [Section]    ; This is name of section
- * Count=6      ; This is key with value of int32
- * Volume=-1    ; int32
- * SoundFileName=phrase01.wav   ; string
- *
- * [Section2]
- * Key1=1
- * ...
- */
-
-uint8_t ReadString(const char *AFileName, const char *ASection, const char *AKey, char **PPOutput);
-
-uint8_t ReadStringTo(const char *AFileName, const char *ASection, const char *AKey, char *POutput, uint32_t MaxLen);
-
-template <typename T>
-static uint8_t Read(const char *AFileName, const char *ASection, const char *AKey, T *POutput) {
-    char *S = nullptr;
-    if(ReadString(AFileName, ASection, AKey, &S) == retvOk) {
-        int32_t tmp = strtol(S, NULL, 10);
-        *POutput = (T)tmp;
-        return retvOk;
-    }
-    else return retvFail;
-}
-
-uint8_t ReadColor (const char *AFileName, const char *ASection, const char *AKey, Color_t *AOutput);
-
-void WriteSection(FIL *PFile, const char *ASection);
-void WriteString(FIL *PFile, const char *AKey, char *AValue);
-void WriteInt32(FIL *PFile, const char *AKey, const int32_t AValue);
-void WriteNewline(FIL *PFile);
-
-} // namespace
-
-namespace csv { // =================== csv file operations =====================
-/*
- * csv file has the following structure:
- *
- * # this is comment
- * 14, 0x38, "DirName1"
- * Name = "Mr. First"
- * ...
- */
-
-uint8_t OpenFile(const char *AFileName);
-void CloseFile();
-void RewindFile();
-uint8_t ReadNextLine();
-uint8_t GetNextCellString(char* POutput);
-uint8_t GetNextToken(char** POutput);
-
-// Finds first cell with given name and puts pointer to next cell
-uint8_t FindFirstCell(const char* Name);
-
-template <typename T>
-static uint8_t GetNextCell(T *POutput) {
-    char *Token;
-    if(GetNextToken(&Token) == retvOk) {
-//        Printf("Token: %S\r", Token);
-        char *p;
-        *POutput = (T)strtoul(Token, &p, 0);
-        if(*p == '\0') return retvOk;
-        else return retvNotANumber;
-    }
-    else return retvEmpty;
-}
-
-uint8_t GetNextCell(float *POutput);
-
-template <typename T>
-static uint8_t TryLoadParam(char* Token, const char* Name, T *Ptr) {
-    if(strcasecmp(Token, Name) == 0) {
-        if(csv::GetNextCell<T>(Ptr) == retvOk) return retvOk;
-        else Printf("%S load fail\r", Name);
-    }
-    return retvFail;
-}
-
-uint8_t TryLoadParam(char* Token, const char* Name, float *Ptr);
-
-uint8_t TryLoadString(char* Token, const char* Name, char *Dst, uint32_t MaxLen);
-
-} // namespace
-
-namespace json { // ================== json file parsing =======================
-uint8_t OpenFile(const char *AFileName);
-void CloseFile();
-
-class JsonObj_t {
-private:
-    char* GetNextArrayStr(char **SavePtr) const;
-    uint8_t GetNextArrayByte(uint8_t *POut, char **SavePtr) const;
-public:
-    char* Name;
-    char* Value;
-    JsonObj_t *Neighbor;
-    JsonObj_t *Child;
-    JsonObj_t *Parent;
-    void Reset() {
-        Name = nullptr;
-        Value = nullptr;
-        Neighbor = nullptr;
-        Child = nullptr;
-        Parent = nullptr;
-    }
-    void Print() const {
-        if(Name) Printf("N: %S; ", Name);
-        else Printf("EmptyNode\r");
-        if(Value) Printf("V: %S; ", Value);
-        if(Parent)   if(Parent->Name)   Printf(" P: %S;", Parent->Name);
-        if(Child)    if(Child->Name)    Printf(" C: %S;", Child->Name);
-        if(Neighbor) if(Neighbor->Name) Printf(" N: %S",  Neighbor->Name);
-        PrintfEOL();
-    }
-    void PrintAll() const;
-    JsonObj_t() : Name(nullptr), Value(nullptr), Neighbor(nullptr), Child(nullptr), Parent(nullptr) {}
-
-    bool IsEmpty() const { return (!Name and !Value and !Child and !Neighbor); }
-    JsonObj_t& operator[](const char* AName) const;
-    // Values
-    uint8_t ToInt(int32_t *POut) const;
-    uint8_t ToColor(Color_t *PClr) const;
-    uint8_t ToBool(bool *POut) const;
-    uint8_t ToFloat(float *POut) const;
-};
-
-JsonObj_t& Read();
-
-void Free(JsonObj_t& Root);
-
-} // namespace
