@@ -1,4 +1,4 @@
-(module DIP_SMD_X8 (layer F.Cu) (tedit 59D895A7)
+(module DIP_SMD_X8 (layer F.Cu) (tedit 5BA723FE)
   (descr "DIP switch 2.54x8 SMD ")
   (fp_text reference REF** (at 0 1.27) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
@@ -26,4 +26,9 @@
   (pad 6 smd oval (at 3.81 4.318) (size 1.1 2.6) (layers F.Cu F.Paste F.Mask))
   (pad 7 smd oval (at 6.35 4.318) (size 1.1 2.6) (layers F.Cu F.Paste F.Mask))
   (pad 8 smd oval (at 8.89 4.318) (size 1.1 2.6) (layers F.Cu F.Paste F.Mask))
+  (model "${KICAD_SYMBOL_DIR}/3d/BtnsSwitches/DIP Switch 8 positions SMD.stp"
+    (at (xyz 0 0 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 0))
+  )
 )
