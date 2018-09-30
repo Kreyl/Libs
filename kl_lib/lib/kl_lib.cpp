@@ -804,7 +804,7 @@ extern void PrintfCNow(const char *format, ...);
 IrqHandler_t* ExtiIrqHandler[16];
 #else
 #if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX || defined STM32F1XX
-IrqHandler_t *ExtiIrqHandler[5], *ExtiIrqHandler_9_5, *ExtiIrqHandler_15_10;
+ftVoidVoid ExtiIrqHandler[5], ExtiIrqHandler_9_5, ExtiIrqHandler_15_10;
 #elif defined STM32F030 || defined STM32F0
 IrqHandler_t *ExtiIrqHandler_0_1, *ExtiIrqHandler_2_3, *ExtiIrqHandler_4_15;
 #endif
@@ -822,7 +822,8 @@ IrqHandler_t *ExtiIrqHandler_0_1, *ExtiIrqHandler_2_3, *ExtiIrqHandler_4_15;
 void Vector58() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
-    if(ExtiIrqHandler[0] != nullptr) ExtiIrqHandler[0]->IIrqHandler();
+    ftVoidVoid handler = ExtiIrqHandler[0];
+    if(handler != nullptr) handler();
     else PrintfC("Unhandled %S\r", __FUNCTION__);
     EXTI_PENDING_REG = 0x0001; // Clean IRQ flags
     chSysUnlockFromISR();
@@ -833,7 +834,8 @@ void Vector58() {
 void Vector5C() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
-    if(ExtiIrqHandler[1] != nullptr) ExtiIrqHandler[1]->IIrqHandler();
+    ftVoidVoid handler = ExtiIrqHandler[1];
+    if(handler != nullptr) handler();
     else PrintfC("Unhandled %S\r", __FUNCTION__);
     EXTI_PENDING_REG = 0x0002; // Clean IRQ flags
     chSysUnlockFromISR();
@@ -844,7 +846,8 @@ void Vector5C() {
 void Vector60() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
-    if(ExtiIrqHandler[2] != nullptr) ExtiIrqHandler[2]->IIrqHandler();
+    ftVoidVoid handler = ExtiIrqHandler[2];
+    if(handler != nullptr) handler();
     else PrintfC("Unhandled %S\r", __FUNCTION__);
     EXTI_PENDING_REG = 0x0004; // Clean IRQ flags
     chSysUnlockFromISR();
@@ -855,7 +858,8 @@ void Vector60() {
 void Vector64() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
-    if(ExtiIrqHandler[3] != nullptr) ExtiIrqHandler[3]->IIrqHandler();
+    ftVoidVoid handler = ExtiIrqHandler[3];
+    if(handler != nullptr) handler();
     else PrintfC("Unhandled %S\r", __FUNCTION__);
     EXTI_PENDING_REG = 0x0008; // Clean IRQ flags
     chSysUnlockFromISR();
@@ -866,7 +870,8 @@ void Vector64() {
 void Vector68() {
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
-    if(ExtiIrqHandler[4] != nullptr) ExtiIrqHandler[4]->IIrqHandler();
+    ftVoidVoid handler = ExtiIrqHandler[4];
+    if(handler != nullptr) handler();
     else PrintfC("Unhandled %S\r", __FUNCTION__);
     EXTI_PENDING_REG = 0x0010; // Clean IRQ flags
     chSysUnlockFromISR();
@@ -882,7 +887,7 @@ void Vector9C() {
         if(ExtiIrqHandler[i] != nullptr) ExtiIrqHandler[i]->IIrqHandler();
     }
 #else
-    if(ExtiIrqHandler_9_5 != nullptr) ExtiIrqHandler_9_5->IIrqHandler();
+    if(ExtiIrqHandler_9_5 != nullptr) ExtiIrqHandler_9_5();
     else PrintfC("Unhandled %S\r", __FUNCTION__);
 #endif
     EXTI_PENDING_REG = 0x03E0; // Clean IRQ flags
@@ -899,7 +904,7 @@ void VectorE0() {
         if(ExtiIrqHandler[i] != nullptr) ExtiIrqHandler[i]->IIrqHandler();
     }
 #else
-    if(ExtiIrqHandler_15_10 != nullptr) ExtiIrqHandler_15_10->IIrqHandler();
+    if(ExtiIrqHandler_15_10 != nullptr) ExtiIrqHandler_15_10();
     else PrintfC("Unhandled %S\r", __FUNCTION__);
 #endif
     EXTI_PENDING_REG = 0xFC00; // Clean IRQ flags
@@ -2418,3 +2423,99 @@ uint32_t Clk_t::GetSaiClkHz() {
 #endif
 
 #endif // Clocking
+
+#if 1 // ================================= SPI =================================
+void Spi_t::Setup(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
+        int32_t Bitrate_Hz, BitNumber_t BitNumber) const {
+    // Clocking
+    if      (PSpi == SPI1) { rccEnableSPI1(FALSE); }
+#ifdef SPI2
+    else if (PSpi == SPI2) { rccEnableSPI2(FALSE); }
+#endif
+#ifdef SPI3
+    else if (PSpi == SPI3) { rccEnableSPI3(FALSE); }
+#endif
+    // Mode: Master, NSS software controlled and is 1, 8bit, NoCRC, FullDuplex
+    PSpi->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_MSTR;
+    if(BitOrder == boLSB) PSpi->CR1 |= SPI_CR1_LSBFIRST;    // MSB/LSB
+    if(CPOL == cpolIdleHigh) PSpi->CR1 |= SPI_CR1_CPOL;     // CPOL
+    if(CPHA == cphaSecondEdge) PSpi->CR1 |= SPI_CR1_CPHA;   // CPHA
+    // Baudrate
+    int32_t div;
+#if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX
+    if(PSpi == SPI1) div = Clk.APB2FreqHz / Bitrate_Hz;
+    else div = Clk.APB1FreqHz / Bitrate_Hz;
+#elif defined STM32F030 || defined STM32F0
+    div = Clk.APBFreqHz / Bitrate_Hz;
+#endif
+    SpiClkDivider_t ClkDiv = sclkDiv2;
+    if     (div > 128) ClkDiv = sclkDiv256;
+    else if(div > 64) ClkDiv = sclkDiv128;
+    else if(div > 32) ClkDiv = sclkDiv64;
+    else if(div > 16) ClkDiv = sclkDiv32;
+    else if(div > 8)  ClkDiv = sclkDiv16;
+    else if(div > 4)  ClkDiv = sclkDiv8;
+    else if(div > 2)  ClkDiv = sclkDiv4;
+    PSpi->CR1 |= ((uint16_t)ClkDiv) << 3;
+    // Bit number
+#if defined STM32L1XX || defined STM32F10X_LD_VL || defined STM32F2XX || defined STM32F4XX
+    if(BitNumber == bitn16) PSpi->CR1 |= SPI_CR1_DFF;
+    PSpi->CR2 = 0;
+#elif defined STM32F030 || defined STM32F072xB || defined STM32L4XX
+    if(BitNumber == bitn16) PSpi->CR2 = (uint16_t)0b1111 << 8;  // 16 bit, RXNE generated when 16 bit is received
+    else PSpi->CR2 = ((uint16_t)0b0111 << 8) | SPI_CR2_FRXTH;   // 8 bit, RXNE generated when 8 bit is received
+#endif
+}
+
+// IRQs
+static ftVoidVoid Spi1RxIrqHandler = nullptr;
+#ifdef SPI2
+static ftVoidVoid Spi2RxIrqHandler = nullptr;
+#endif
+#ifdef SPI3
+static ftVoidVoid Spi3RxIrqHandler = nullptr;
+#endif
+
+void Spi_t::SetupRxIrqCallback(ftVoidVoid AIrqHandler) const {
+    if(PSpi == SPI1) Spi1RxIrqHandler = AIrqHandler;
+#ifdef SPI2
+    else if(PSpi == SPI2) Spi2RxIrqHandler = AIrqHandler;
+#endif
+#ifdef SPI3
+    else if(PSpi == SPI3) Spi3RxIrqHandler = AIrqHandler;
+#endif
+}
+
+extern "C" {
+void VectorCC() {   // SPI1
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    uint32_t SR = SPI1->SR;
+    if(SR & SPI_SR_RXNE and Spi1RxIrqHandler) Spi1RxIrqHandler();
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+
+#ifdef SPI2
+void VectorD0() {   // SPI2
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    uint32_t SR = SPI2->SR;
+    if(SR & SPI_SR_RXNE and Spi2RxIrqHandler) Spi2RxIrqHandler();
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+#endif
+#ifdef SPI3
+void Vector10C() {   // SPI3
+    CH_IRQ_PROLOGUE();
+    chSysLockFromISR();
+    uint32_t SR = SPI3->SR;
+    if(SR & SPI_SR_RXNE and Spi3RxIrqHandler) Spi3RxIrqHandler();
+    chSysUnlockFromISR();
+    CH_IRQ_EPILOGUE();
+}
+#endif
+} // extern C
+
+#endif

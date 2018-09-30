@@ -92,6 +92,8 @@ typedef int64_t s64;
 #define retvWriteProtect    13
 #define retvEndOfFile       14
 #define retvNotFound        15
+#define retvBadState        16
+#define retvDisconnected    17
 
 // Binary semaphores
 #define NOT_TAKEN       false
@@ -106,6 +108,7 @@ enum BitNumber_t {bitn8, bitn16, bitn32};
 enum EnableDisable_t {Enable, Disable};
 
 typedef void (*ftVoidVoid)(void);
+typedef void (*ftVoidUint32)(uint32_t);
 typedef void (*ftVoidPVoid)(void*p);
 typedef void (*ftVoidPVoidLen)(void*p, uint32_t Len);
 
@@ -1028,7 +1031,7 @@ extern "C" {
 extern IrqHandler_t *ExtiIrqHandler[16];
 #else
 #if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX || defined STM32F1XX
-extern IrqHandler_t *ExtiIrqHandler[5], *ExtiIrqHandler_9_5, *ExtiIrqHandler_15_10;
+extern ftVoidVoid ExtiIrqHandler[5], ExtiIrqHandler_9_5, ExtiIrqHandler_15_10;
 #elif defined STM32F030 || defined STM32F0
 extern IrqHandler_t *ExtiIrqHandler_0_1, *ExtiIrqHandler_2_3, *ExtiIrqHandler_4_15;
 #endif
@@ -1040,7 +1043,7 @@ public:
     GPIO_TypeDef *PGpio;
     uint16_t PinN;
     PinPullUpDown_t PullUpDown;
-    PinIrq_t(GPIO_TypeDef *APGpio, uint16_t APinN, PinPullUpDown_t APullUpDown, IrqHandler_t *PIrqHandler) :
+    PinIrq_t(GPIO_TypeDef *APGpio, uint16_t APinN, PinPullUpDown_t APullUpDown, ftVoidVoid PIrqHandler) :
         PGpio(APGpio), PinN(APinN), PullUpDown(APullUpDown) {
 #if INDIVIDUAL_EXTI_IRQ_REQUIRED
         ExtiIrqHandler[APinN] = PIrqHandler;
@@ -1192,18 +1195,27 @@ static inline void EnableWakeup1Pin(RiseFall_t RiseFall)  {
     PWR->CR3 |=  PWR_CR3_EWUP1;
 }
 static inline void DisableWakeup1Pin() { PWR->CR3 &= ~PWR_CR3_EWUP1; }
+
 static inline void EnableWakeup2Pin(RiseFall_t RiseFall)  {
     if(RiseFall == rfFalling) PWR->CR4 |= PWR_CR4_WP2;
     else PWR->CR4 &= ~PWR_CR4_WP2;
     PWR->CR3 |=  PWR_CR3_EWUP2;
 }
 static inline void DisableWakeup2Pin() { PWR->CR3 &= ~PWR_CR3_EWUP2; }
+
 static inline void EnableWakeup4Pin(RiseFall_t RiseFall)  {
     if(RiseFall == rfFalling) PWR->CR4 |= PWR_CR4_WP4;
     else PWR->CR4 &= ~PWR_CR4_WP4;
     PWR->CR3 |=  PWR_CR3_EWUP4;
 }
 static inline void DisableWakeup4Pin() { PWR->CR3 &= ~PWR_CR3_EWUP4; }
+
+static inline void EnableWakeup5Pin(RiseFall_t RiseFall)  {
+    if(RiseFall == rfFalling) PWR->CR4 |= PWR_CR4_WP5;
+    else PWR->CR4 &= ~PWR_CR4_WP5;
+    PWR->CR3 |=  PWR_CR3_EWUP5;
+}
+static inline void DisableWakeup5Pin() { PWR->CR3 &= ~PWR_CR3_EWUP5; }
 
 static inline bool WasInStandby()      { return (PWR->SR1 & PWR_SR1_SBF); }
 static inline bool WkupOccured()       { return (PWR->SR1 & 0x1F); }
@@ -1261,37 +1273,42 @@ public:
     Spi_t(SPI_TypeDef *ASpi) : PSpi(ASpi) {}
     // Example: boMSB, cpolIdleLow, cphaFirstEdge, sbFdiv2, bitn8
     void Setup(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
-            SpiClkDivider_t Divider, BitNumber_t BitNumber = bitn8) const {
-        // Clocking
-        if      (PSpi == SPI1) { rccEnableSPI1(FALSE); }
-#ifdef SPI2
-        else if (PSpi == SPI2) { rccEnableSPI2(FALSE); }
-#endif
-#ifdef SPI3
-        else if (PSpi == SPI3) { rccEnableSPI3(FALSE); }
-#endif
-        // Mode: Master, NSS software controlled and is 1, 8bit, NoCRC, FullDuplex
-        PSpi->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_MSTR;
-        if(BitOrder == boLSB) PSpi->CR1 |= SPI_CR1_LSBFIRST;    // MSB/LSB
-        if(CPOL == cpolIdleHigh) PSpi->CR1 |= SPI_CR1_CPOL;     // CPOL
-        if(CPHA == cphaSecondEdge) PSpi->CR1 |= SPI_CR1_CPHA;   // CPHA
-        PSpi->CR1 |= ((uint16_t)Divider) << 3;                  // Clock divider
-#if defined STM32L1XX || defined STM32F10X_LD_VL || defined STM32F2XX || defined STM32F4XX
-        if(BitNumber == bitn16) PSpi->CR1 |= SPI_CR1_DFF;
-        PSpi->CR2 = 0;
-#elif defined STM32F030 || defined STM32F072xB || defined STM32L4XX
-        if(BitNumber == bitn16) PSpi->CR2 = (uint16_t)0b1111 << 8;  // 16 bit, RXNE generated when 16 bit is received
-        else PSpi->CR2 = ((uint16_t)0b0111 << 8) | SPI_CR2_FRXTH;   // 8 bit, RXNE generated when 8 bit is received
-#endif
-    }
+            int32_t Bitrate_Hz, BitNumber_t BitNumber = bitn8) const;
     void Enable ()       const { PSpi->CR1 |=  SPI_CR1_SPE; }
     void Disable()       const { PSpi->CR1 &= ~SPI_CR1_SPE; }
+    // DMA
     void EnableTxDma()   const { PSpi->CR2 |=  SPI_CR2_TXDMAEN; }
     void DisableTxDma()  const { PSpi->CR2 &= ~SPI_CR2_TXDMAEN; }
     void EnableRxDma()   const { PSpi->CR2 |=  SPI_CR2_RXDMAEN; }
     void DisableRxDma()  const { PSpi->CR2 &= ~SPI_CR2_RXDMAEN; }
+
+    // IRQ
+    void EnableRxIrq()  const { PSpi->CR2 |=  SPI_CR2_RXNEIE; }
+    void DisableRxIrq() const { PSpi->CR2 &= ~SPI_CR2_RXNEIE; }
+    void EnableIrq(const uint32_t Priority) const {
+        if(PSpi == SPI1) nvicEnableVector(SPI1_IRQn, Priority);
+#ifdef SPI2
+        else if(PSpi == SPI2) nvicEnableVector(SPI2_IRQn, Priority);
+#endif
+#ifdef SPI3
+        else if(PSpi == SPI3) nvicEnableVector(SPI3_IRQn, Priority);
+#endif
+    }
+    void DisableIrq() const {
+        if(PSpi == SPI1) nvicDisableVector(SPI1_IRQn);
+#ifdef SPI2
+        else if(PSpi == SPI2) nvicDisableVector(SPI2_IRQn);
+#endif
+#if defined SPI3
+        else if(PSpi == SPI3) nvicDisableVector(SPI3_IRQn);
+#endif
+    }
+    void SetupRxIrqCallback(ftVoidVoid AIrqHandler) const;
+
+    // Rx/Tx
     void SetRxOnly()     const { PSpi->CR1 |=  SPI_CR1_RXONLY; }
     void SetFullDuplex() const { PSpi->CR1 &= ~SPI_CR1_RXONLY; }
+    // Flags
 #if defined STM32F072xB
     void WaitFTLVLZero() const { while(PSpi->SR & SPI_SR_FTLVL); }
 #endif
@@ -1299,6 +1316,11 @@ public:
     void WaitTxEHi()     const { while(!(PSpi->SR & SPI_SR_TXE)); }
     void ClearRxBuf()    const { while(PSpi->SR & SPI_SR_RXNE) (void)PSpi->DR; }
     void ClearOVR()      const { (void)PSpi->DR; (void)PSpi->SR; (void)PSpi->DR; }
+
+    // Read/Write
+    uint8_t ReadByte() const { return PSpi->DR; }
+    void WriteByte(uint8_t AByte) const { *((volatile uint8_t*)&PSpi->DR) = AByte; }
+
     uint8_t ReadWriteByte(uint8_t AByte) const {
         *((volatile uint8_t*)&PSpi->DR) = AByte;
         while(!(PSpi->SR & SPI_SR_RXNE));  // Wait for SPI transmission to complete
