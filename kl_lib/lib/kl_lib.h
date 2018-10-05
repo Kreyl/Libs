@@ -1332,6 +1332,14 @@ public:
         return PSpi->DR;
     }
 #if defined STM32L4XX
+//    void WriteRead2Bytes(uint8_t b1, uint8_t b2) const {
+//        *((volatile uint8_t*)&PSpi->DR) = b1;
+//        *((volatile uint8_t*)&PSpi->DR) = b2;
+//        while(!(PSpi->SR & SPI_SR_RXNE));
+//        b1 = *((volatile uint8_t*)&PSpi->DR);
+//        while(!(PSpi->SR & SPI_SR_RXNE));
+//        b2 = *((volatile uint8_t*)&PSpi->DR);
+//    }
     void WriteRead3Bytes(uint8_t *ptr) const {
         *((volatile uint8_t*)&PSpi->DR) = ptr[0];
         *((volatile uint8_t*)&PSpi->DR) = ptr[1];

@@ -330,3 +330,70 @@ public:
     void Flush() { Indx = -1; }
 };
 #endif
+
+#if 1 // ================= Static Storage with validity ========================
+template <typename T, uint32_t Sz>
+class StorageWValidity_t {
+private:
+    T IBuf[Sz];
+    bool IsValid[Sz];
+    uint32_t Cnt = 0;
+
+    uint32_t GetValidByIndx(uint32_t Indx) {
+        uint32_t FIndx = 0;
+        for(uint32_t i=0; i<Sz; i++) {
+            if(IsValid[i]) {
+                if(FIndx == Indx) return i;
+                else FIndx++;
+            }
+        }
+        return 0;
+    }
+public:
+    T* Add() {
+        if(Cnt >= Sz) return nullptr;
+        else {
+            // Find empty slot: iterate all valid ones
+            uint32_t FIndx = 0;
+            while(IsValid[FIndx]) FIndx++;
+            IsValid[FIndx] = true; // Validate
+            Cnt++;
+            return &IBuf[FIndx];
+        }
+    }
+
+    T* operator[](const uint32_t Indx) {
+        if(Indx >= Cnt) return nullptr;
+        else return &IBuf[GetValidByIndx(Indx)];
+    }
+
+    void Remove(const uint32_t Indx) {
+        if(Indx < Cnt) {
+            int32_t FIndx = GetValidByIndx(Indx);
+            if(IsValid[FIndx]) {
+                IsValid[FIndx] = false;
+                Cnt--;
+            }
+        }
+    }
+
+    void Remove(T* ptr) {
+        for(uint32_t i=0; i<Sz; i++) {
+            if(ptr == &IBuf[i]) {
+                if(IsValid[i]) {
+                    IsValid[i] = false;
+                    Cnt--;
+                }
+                return;
+            }
+        } // for
+    }
+
+    void RemoveAll() {
+        for(uint32_t i=0; i<Sz; i++) IsValid[i] = false;
+        Cnt = 0;
+    }
+
+    int32_t GetCnt() { return Cnt; }
+};
+#endif
