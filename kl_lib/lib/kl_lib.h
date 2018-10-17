@@ -94,6 +94,9 @@ typedef int64_t s64;
 #define retvNotFound        15
 #define retvBadState        16
 #define retvDisconnected    17
+#define retvCollision       18
+#define retvCRCError        19
+#define retvNACK            20
 
 // Binary semaphores
 #define NOT_TAKEN       false
@@ -194,6 +197,8 @@ extern "C" {
 void __early_init(void);
 }
 
+void PrintMemoryInfo();
+
 namespace Convert { // ============== Conversion operations ====================
 union DWordBytes_t {
     uint32_t DWord;
@@ -226,6 +231,16 @@ uint16_t BuildUint16(uint8_t Lo, uint8_t Hi);
 uint32_t BuildUint32(uint8_t Lo, uint8_t MidLo, uint8_t MidHi, uint8_t Hi);
 uint8_t TryStrToFloat(char* S, float *POutput);
 }; // namespace
+#endif
+
+#ifdef DMA_MEM2MEM
+namespace Mem2MemDma { // ========== MEM2MEM DMA ===========
+
+void Init();
+
+void MemCpy(void *Dst, void *Src, uint32_t Sz);
+
+} // namespace
 #endif
 
 #if 1 // ========================== Uniq ID ====================================
@@ -1108,8 +1123,16 @@ public:
 #ifndef STM32F1XX
         SYSCFG->EXTICR[Indx] &= ~((uint32_t)0b1111 << Offset);  // Clear port-related bits
         // GPIOA requires all zeroes => nothing to do in this case
-        if     (PGpio == GPIOB) SYSCFG->EXTICR[Indx] |= (uint32_t)0b0001 << Offset;
-        else if(PGpio == GPIOC) SYSCFG->EXTICR[Indx] |= (uint32_t)0b0010 << Offset;
+        if     (PGpio == GPIOB) SYSCFG->EXTICR[Indx] |= 1UL << Offset;
+        else if(PGpio == GPIOC) SYSCFG->EXTICR[Indx] |= 2UL << Offset;
+        else if(PGpio == GPIOD) SYSCFG->EXTICR[Indx] |= 3UL << Offset;
+        else if(PGpio == GPIOE) SYSCFG->EXTICR[Indx] |= 4UL << Offset;
+        else if(PGpio == GPIOF) SYSCFG->EXTICR[Indx] |= 5UL << Offset;
+        else if(PGpio == GPIOG) SYSCFG->EXTICR[Indx] |= 6UL << Offset;
+        else if(PGpio == GPIOH) SYSCFG->EXTICR[Indx] |= 7UL << Offset;
+#ifdef GPIOI
+        else if(PGpio == GPIOI) SYSCFG->EXTICR[Indx] |= 8UL << Offset;
+#endif
 #endif
         // Configure EXTI line
         uint32_t IrqMsk = 1 << PinN;
@@ -1397,7 +1420,11 @@ namespace EE {
 
 #if 1 // =========================== Clocking ==================================
 // Common
-enum CoreClk_t {cclk8MHz, cclk12MHz, cclk16MHz, cclk24MHz, cclk48MHz, cclk64MHz, cclk72MHz};
+enum CoreClk_t {
+    cclk8MHz = 8, cclk12MHz = 12, cclk16MHz = 16,
+    cclk24MHz = 24, cclk48MHz = 48, cclk64MHz = 64,
+    cclk72MHz = 72, cclk80MHz = 80
+};
 
 #if defined STM32L1XX
 #include "stm32l1xx.h"

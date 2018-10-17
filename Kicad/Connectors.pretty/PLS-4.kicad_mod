@@ -1,4 +1,4 @@
-(module PLS-4 (layer F.Cu) (tedit 5AA0F864)
+(module PLS-4-Long (layer F.Cu) (tedit 5AA0F864)
   (descr "Single-line connector 4-pin")
   (fp_text reference XL12 (at 0.06096 -1.84912) (layer F.SilkS) hide
     (effects (font (size 0.6 0.6) (thickness 0.15)))

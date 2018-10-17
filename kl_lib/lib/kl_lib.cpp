@@ -9,6 +9,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "MsgQ.h"
+#include <malloc.h>
 
 #if 0 // ============================ General ==================================
 // To replace standard error handler in case of virtual methods implementation
@@ -44,6 +45,77 @@ void PrintThdFreeStack(void *wsp, uint32_t size) {
             GetThdFreeStack(wsp, size), RequestedSize);
 }
 
+#endif
+
+/********************************************
+arena;     total space allocated from system
+ordblks;   number of non-inuse chunks
+hblks;     number of mmapped regions
+hblkhd;    total space in mmapped regions
+uordblks;  total allocated space
+fordblks;  total non-inuse space
+keepcost;  top-most, releasable (via malloc_trim) space
+**********************************************/
+void PrintMemoryInfo() {
+    struct mallinfo info = mallinfo();
+    Printf("4arena: %u; ordblks: %u; hblks: %u; hblkhd: %u; uordblks: %u; fordblks: %u; keepcost: %u\r",
+            info.arena, info.ordblks, info.hblks, info.hblkhd,
+            info.uordblks, info.fordblks, info.keepcost);
+}
+
+#ifdef DMA_MEM2MEM
+static thread_reference_t MemThdRef;
+static void DmaMem2MemIrq(void *p, uint32_t flags) {
+    chSysLockFromISR();
+    chThdResumeI(&MemThdRef, MSG_OK);
+    chSysUnlockFromISR();
+}
+
+namespace Mem2MemDma { // ========== MEM2MEM DMA ===========
+
+void Init() {
+    dmaStreamAllocate(DMA_MEM2MEM, IRQ_PRIO_HIGH, DmaMem2MemIrq, nullptr);
+}
+
+#define MEM2MEM_DMA_MODE_BYTE(Chnl) \
+    (STM32_DMA_CR_CHSEL(Chnl) | \
+    DMA_PRIORITY_VERYHIGH | STM32_DMA_CR_MSIZE_BYTE | STM32_DMA_CR_PSIZE_BYTE | \
+    STM32_DMA_CR_MINC | STM32_DMA_CR_PINC | STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_TCIE)
+
+#define MEM2MEM_DMA_MODE_W16(Chnl) \
+    (STM32_DMA_CR_CHSEL(Chnl) | \
+    DMA_PRIORITY_VERYHIGH | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_PSIZE_HWORD | \
+    STM32_DMA_CR_MINC | STM32_DMA_CR_PINC | STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_TCIE)
+
+#define MEM2MEM_DMA_MODE_W32(Chnl) \
+    (STM32_DMA_CR_CHSEL(Chnl) | \
+    DMA_PRIORITY_VERYHIGH | STM32_DMA_CR_MSIZE_WORD | STM32_DMA_CR_PSIZE_WORD | \
+    STM32_DMA_CR_MINC | STM32_DMA_CR_PINC | STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_TCIE)
+
+void MemCpy(void *Dst, void *Src, uint32_t Sz) {
+    dmaStreamSetPeripheral(DMA_MEM2MEM, Src);
+    dmaStreamSetMemory0(DMA_MEM2MEM, Dst);
+    if(Sz & 0b001) { // byte after byte
+        dmaStreamSetTransactionSize(DMA_MEM2MEM, Sz);
+        dmaStreamSetMode(DMA_MEM2MEM, MEM2MEM_DMA_MODE_BYTE(1));
+    }
+    else if(Sz & 0b010) { // w16
+        dmaStreamSetTransactionSize(DMA_MEM2MEM, Sz / 2);
+        dmaStreamSetMode(DMA_MEM2MEM, MEM2MEM_DMA_MODE_W16(1));
+    }
+    else {
+        dmaStreamSetTransactionSize(DMA_MEM2MEM, Sz / 4);
+        dmaStreamSetMode(DMA_MEM2MEM, MEM2MEM_DMA_MODE_W32(1));
+    }
+
+    chSysLock();
+    dmaStreamEnable(DMA_MEM2MEM);
+    chThdSuspendS(&MemThdRef);
+    dmaStreamDisable(DMA_MEM2MEM);
+    chSysUnlock();
+}
+
+} // namespace
 #endif
 
 #if defined STM32L4XX
@@ -320,14 +392,34 @@ void TmrKL_t::IIrqHandler() {    // Call it inside callback
 }
 #endif
 
-#if CH_DBG_ENABLED // ========================= DEBUG ==========================
+#if 1 // ============================= DEBUG ===================================
+extern "C" {
+
 void chDbgPanic(const char *msg1) {
 #if CH_USE_REGISTRY
     Uart.PrintfNow("\r%S @ %S\r", msg1, chThdSelf()->p_name);
 #else
-    Uart.PrintfNow("\r%S\r", msg1);
+    Printf("\r%S\r", msg1);
 #endif
 }
+
+void PrintErrMsg(const char* S) {
+    USART1->CR3 &= ~USART_CR3_DMAT;
+    while(*S != 0) {
+//        ITM_SendChar(*S++);
+        while(!(USART1->ISR & USART_ISR_TXE));
+        USART1->TDR = *S;
+        S++;
+    }
+}
+
+void HardFault_Handler(void) {
+    PrintErrMsg("\rHardFault\r");
+    __ASM volatile("BKPT #01");
+    while(true);
+}
+
+} // extern C
 #endif
 
 #if 1 // ================= FLASH & EEPROM ====================
@@ -2219,29 +2311,46 @@ void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
             break;
         // Setup PLL (must be disabled first)
         case cclk16MHz:
-            // 12MHz / 1 * 8 / (6 and 2) => 16 and 48MHz
+            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(16, mvrHiPerf);
+            // 12MHz / 1 = 12; 12 * 8 / 6 = 16
             if(SetupPllMulDiv(1, 8, 6, 2) != retvOk) return;
             SetupFlashLatency(16, mvrHiPerf);
+            Clk.SetupPllSai1(8, 2, 2, 7); // 12 * 8 / 2 = 48
             break;
         case cclk24MHz:
-            // 12MHz / 1 * 8 / (4 and 2) => 24 and 48MHz
+            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(24, mvrHiPerf);
+            // 12MHz / 1 = 12; 12 * 8 / 4 = 24
             if(SetupPllMulDiv(1, 8, 4, 2) != retvOk) return;
             SetupFlashLatency(24, mvrHiPerf);
+            Clk.SetupPllSai1(8, 2, 2, 7); // 12 * 8 / 2 = 48
             break;
         case cclk48MHz:
-            // 12MHz / 1 * 8 / 2 => 48 and 48MHz
+            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(48, mvrHiPerf);
+            // 12MHz / 1 = 12; 12 * 8 / 2 => 48
             if(SetupPllMulDiv(1, 8, 2, 2) != retvOk) return;
             SetupFlashLatency(48, mvrHiPerf);
+            Clk.SetupPllSai1(8, 2, 2, 7); // 12 * 8 / 2 = 48
             break;
         case cclk64MHz:
-            SetupFlashLatency(64, mvrHiPerf);
-            // 12MHz / 3 = 4; * 32 / 2 => 64; * 24 / 2 = 48MHz
+            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(64, mvrHiPerf);
+            // 12MHz / 3 = 4; 4 * 32 / 2 => 64
             if(SetupPllMulDiv(3, 32, 2, 2) != retvOk) return;
+            SetupFlashLatency(64, mvrHiPerf);
+            Clk.SetupPllSai1(24, 2, 2, 7); // 4 * 24 / 2 = 48MHz
             break;
         case cclk72MHz:
-            // 12MHz / 1 * 24 => 72 and 48MHz
+            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(72, mvrHiPerf);
+            // 12MHz / 1 = 12; 12 * 12 / 2 = 72
             if(SetupPllMulDiv(1, 24, 4, 6) != retvOk) return;
             SetupFlashLatency(72, mvrHiPerf);
+            Clk.SetupPllSai1(8, 2, 2, 7); // 12 * 8 / 2 = 48
+            break;
+        case cclk80MHz:
+            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(80, mvrHiPerf);
+            // 12MHz / 3 = 4; 4 * 40 / 2 = 80; * 24 / 2 = 48
+            if(SetupPllMulDiv(3, 40, 2, 2) != retvOk) return;
+            SetupFlashLatency(80, mvrHiPerf);
+            Clk.SetupPllSai1(24, 2, 2, 7); // 4 * 24 / 2 = 48
             break;
         default: break;
     } // switch
