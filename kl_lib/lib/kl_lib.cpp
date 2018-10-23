@@ -95,19 +95,21 @@ void Init() {
 void MemCpy(void *Dst, void *Src, uint32_t Sz) {
     dmaStreamSetPeripheral(DMA_MEM2MEM, Src);
     dmaStreamSetMemory0(DMA_MEM2MEM, Dst);
-    if(Sz & 0b001) { // byte after byte
-        dmaStreamSetTransactionSize(DMA_MEM2MEM, Sz);
-        dmaStreamSetMode(DMA_MEM2MEM, MEM2MEM_DMA_MODE_BYTE(1));
-    }
-    else if(Sz & 0b010) { // w16
-        dmaStreamSetTransactionSize(DMA_MEM2MEM, Sz / 2);
-        dmaStreamSetMode(DMA_MEM2MEM, MEM2MEM_DMA_MODE_W16(1));
-    }
-    else {
+    // Check if W32 copy is possible
+    if(!(Sz & 0b11UL) and !((uint32_t)Dst & 0b11UL) and !((uint32_t)Src & 0b11UL)) {
         dmaStreamSetTransactionSize(DMA_MEM2MEM, Sz / 4);
         dmaStreamSetMode(DMA_MEM2MEM, MEM2MEM_DMA_MODE_W32(1));
     }
-
+    // Check if W16 is possible
+    else if(!(Sz & 0b1UL) and !((uint32_t)Dst & 0b1UL) and !((uint32_t)Src & 0b1UL)) {
+        dmaStreamSetTransactionSize(DMA_MEM2MEM, Sz / 2);
+        dmaStreamSetMode(DMA_MEM2MEM, MEM2MEM_DMA_MODE_W16(1));
+    }
+    // Otherwise, copy byte by byte
+    else {
+        dmaStreamSetTransactionSize(DMA_MEM2MEM, Sz);
+        dmaStreamSetMode(DMA_MEM2MEM, MEM2MEM_DMA_MODE_BYTE(1));
+    }
     chSysLock();
     dmaStreamEnable(DMA_MEM2MEM);
     chThdSuspendS(&MemThdRef);
@@ -2299,12 +2301,14 @@ void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
         if(SwitchToMSI() != retvOk) return;
     }
 
-    // Enable/disable HSE
+    // Disable PLL and SAI1, enable HSE
+    DisablePLL();
+    DisableSai1();
     if(CoreClk >= cclk16MHz) {
-        if(EnableHSE() != retvOk) return;   // Try to enable HSE
+        if(EnableHSE() != retvOk) return;
         SetVoltageRange(mvrHiPerf);
-        DisablePLL();
     }
+
     // Setup dividers
     switch(CoreClk) {
         case cclk8MHz:
@@ -2315,49 +2319,46 @@ void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
             // 12MHz / 1 = 12; 12 * 8 / 6 = 16
             if(SetupPllMulDiv(1, 8, 6, 2) != retvOk) return;
             SetupFlashLatency(16, mvrHiPerf);
-            Clk.SetupPllSai1(8, 2, 2, 7); // 12 * 8 / 2 = 48
             break;
         case cclk24MHz:
             if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(24, mvrHiPerf);
             // 12MHz / 1 = 12; 12 * 8 / 4 = 24
             if(SetupPllMulDiv(1, 8, 4, 2) != retvOk) return;
             SetupFlashLatency(24, mvrHiPerf);
-            Clk.SetupPllSai1(8, 2, 2, 7); // 12 * 8 / 2 = 48
             break;
         case cclk48MHz:
             if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(48, mvrHiPerf);
             // 12MHz / 1 = 12; 12 * 8 / 2 => 48
             if(SetupPllMulDiv(1, 8, 2, 2) != retvOk) return;
             SetupFlashLatency(48, mvrHiPerf);
-            Clk.SetupPllSai1(8, 2, 2, 7); // 12 * 8 / 2 = 48
             break;
         case cclk64MHz:
             if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(64, mvrHiPerf);
             // 12MHz / 3 = 4; 4 * 32 / 2 => 64
             if(SetupPllMulDiv(3, 32, 2, 2) != retvOk) return;
             SetupFlashLatency(64, mvrHiPerf);
-            Clk.SetupPllSai1(24, 2, 2, 7); // 4 * 24 / 2 = 48MHz
             break;
         case cclk72MHz:
             if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(72, mvrHiPerf);
             // 12MHz / 1 = 12; 12 * 12 / 2 = 72
             if(SetupPllMulDiv(1, 24, 4, 6) != retvOk) return;
             SetupFlashLatency(72, mvrHiPerf);
-            Clk.SetupPllSai1(8, 2, 2, 7); // 12 * 8 / 2 = 48
             break;
         case cclk80MHz:
             if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(80, mvrHiPerf);
             // 12MHz / 3 = 4; 4 * 40 / 2 = 80; * 24 / 2 = 48
             if(SetupPllMulDiv(3, 40, 2, 2) != retvOk) return;
             SetupFlashLatency(80, mvrHiPerf);
-            Clk.SetupPllSai1(24, 2, 2, 7); // 4 * 24 / 2 = 48
             break;
         default: break;
     } // switch
 
     if(CoreClk >= cclk16MHz) {
         SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
-        if(EnablePLL() == retvOk) SwitchToPLL();
+        if(EnablePLL() == retvOk) {
+            EnablePLLROut();
+            SwitchToPLL();
+        }
     }
 }
 
@@ -2382,46 +2383,62 @@ uint8_t Clk_t::SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q) {
     tmp |= RCC_PLLCFGR_PLLSRC_HSE | // Use only HSE as src
             ((M - 1) << 4) |
             (N << 8) |
-            (R << 25) | RCC_PLLCFGR_PLLREN |    // PLLCLK output enable
-            (Q << 21) | RCC_PLLCFGR_PLLQEN;     // PLL48M1CLK output enable
+            (R << 25) |
+            (Q << 21);
     RCC->PLLCFGR = tmp;
-    return 0;
+    return retvOk;
 }
 
-uint8_t Clk_t::SetupPllSai1(uint32_t N, uint32_t R, uint32_t Q, uint32_t P) {
-    // Disable PLLSAI1
-    CLEAR_BIT(RCC->CR, RCC_CR_PLLSAI1ON);
-    // Wait till PLLSAI1 is ready to be updated
-    uint32_t t = 45000;
-    while(READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) != 0) {
-        if(t-- == 0) {
-            Printf("Sai1Off Timeout %X\r", RCC->CR);
-            return retvFail;
-        }
-    }
-    // Setup dividers
+void Clk_t::SetupPllSai1(uint32_t N, uint32_t R, uint32_t Q, uint32_t P) {
     MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N, N << 8);
     MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R, ((R >> 1U) - 1U) << 25);
     MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1Q, ((Q >> 1U) - 1U) << 21);
     if(P == 7) CLEAR_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1P);
     else SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1P);
-    SET_BIT(RCC->CR, RCC_CR_PLLSAI1ON); // Enable SAI
-    // Wait till PLLSAI1 is ready. May fail if PLL source disabled or not selected.
-    t = 45000;
-    while(READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) == 0) {
-        if(t-- == 0) {
-            Printf("SaiOn Timeout %X\r", RCC->CR);
-            return retvFail;
-        }
-    }
-    return retvOk;
 }
 
-void Clk_t::Select48MhzSrc(Src48MHz_t Src) {
-    uint32_t tmp = RCC->CCIPR;
-    tmp &= ~RCC_CCIPR_CLK48SEL;
-    tmp |= ((uint32_t)Src) << 26;
-    RCC->CCIPR = tmp;
+void Clk_t::SetupSai1Qas48MhzSrc() {
+    // Get SAI input freq
+    uint32_t InputFreq, tmp;
+    uint32_t PllM = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLM) >> 4) + 1;
+    uint32_t PllSrc = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC);
+    PllM = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLM) >> 4) + 1 ;
+    switch(PllSrc) {
+        case 0x02:  // HSI used as PLL clock source
+            InputFreq = (HSI_FREQ_HZ / PllM);
+            break;
+        case 0x03:  // HSE used as PLL clock source
+            InputFreq = (CRYSTAL_FREQ_HZ / PllM);
+            break;
+        default: {   // MSI used as PLL clock source
+            uint32_t MSIRange;
+            // Get MSI Range frequency
+            if((RCC->CR & RCC_CR_MSIRGSEL) == 0) tmp = (RCC->CSR & RCC_CSR_MSISRANGE) >> 8;  // MSISRANGE from RCC_CSR applies
+            else tmp = (RCC->CR & RCC_CR_MSIRANGE) >> 4;    // MSIRANGE from RCC_CR applies
+            MSIRange = MSIRangeTable[tmp];                  // MSI frequency range in Hz
+            // Calc freq
+            InputFreq = (MSIRange / PllM);
+        } break;
+    } // switch(PllSrc)
+
+    // Setup Sai
+    DisableSai1();
+    switch(InputFreq) {
+        case 2000000:  SetupPllSai1(48, 2, 2, 7); break; // 2 * 48 / 2 = 48
+        case 3000000:  SetupPllSai1(32, 2, 2, 7); break; // 3 * 32 / 2 = 48
+        case 4000000:  SetupPllSai1(24, 2, 2, 7); break; // 4 * 24 / 2 = 48
+        case 12000000: SetupPllSai1( 8, 2, 2, 7); break; // 12 * 8 / 2 = 48
+        default: return;
+    }
+
+    if(EnableSai1() == retvOk) {
+        // Setup Sai1Q as 48MHz source
+        EnableSai1QOut(); // Enable 48MHz output
+        tmp = RCC->CCIPR;
+        tmp &= ~RCC_CCIPR_CLK48SEL;
+        tmp |= ((uint32_t)src48PllSai1Q) << 26;
+        RCC->CCIPR = tmp;
+    }
 }
 
 // ==== Enable/Disable ====
@@ -2454,6 +2471,29 @@ uint8_t Clk_t::EnablePLL() {
         StartUpCounter++;
     } while(StartUpCounter < CLK_STARTUP_TIMEOUT);
     return retvTimeout;
+}
+
+void Clk_t::DisablePLL() {
+    RCC->CR &= ~RCC_CR_PLLON;
+    while(RCC->CR & RCC_CR_PLLRDY); // Wait until ready
+}
+
+uint8_t Clk_t::EnableSai1() {
+    SET_BIT(RCC->CR, RCC_CR_PLLSAI1ON); // Enable SAI
+    // Wait till PLLSAI1 is ready. May fail if PLL source disabled or not selected.
+    uint32_t t = 45000;
+    while(READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) == 0) {
+        if(t-- == 0) {
+            Printf("SaiOn Timeout %X\r", RCC->CR);
+            return retvFail;
+        }
+    }
+    return retvOk;
+}
+
+void Clk_t::DisableSai1() {
+    RCC->CR &= ~RCC_CR_PLLSAI1ON;
+    while(RCC->CR & RCC_CR_PLLSAI1RDY); // Wait until ready
 }
 
 uint8_t Clk_t::EnableMSI() {

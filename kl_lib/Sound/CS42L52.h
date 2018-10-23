@@ -9,8 +9,11 @@
 
 #include "kl_lib.h"
 
+#define MIC_EN              FALSE
+
 #define CS42_I2C_ADDR       0x4A
 #define AU_BATMON_ENABLE    TRUE
+#define AU_VA_mv            2500    // Required for battery voltage calculation
 
 enum AuBeepFreq_t {abfC4=0b0000, abfC5=0b0001, abfD5=0b0010, abfE5=0b0011, abfF5=0b0100, abfG5=0b0101, abfA5=0b0110,
     abfB5=0b0111, abfC6=0b1000, abfD6=0b1001, abfE6=0b1010, abfF6=0b1011, abfG6=0b1100, abfA6=0b1101, abfB6=0b1110, abfC7=0b1111
@@ -27,12 +30,22 @@ union SampleStereo_t {
 
 typedef int16_t SampleMono_t;
 
-enum MonoStereo_t { Stereo = 0, Mono = (1 << 12) };
+enum MonoStereo_t { Stereo, Mono };
 
 class CS42L52_t {
 private:
-    void EnableSAI() { AU_SAI_A->CR1 |= SAI_xCR1_SAIEN; AU_SAI_B->CR1 |= SAI_xCR1_SAIEN; }
-    void DisableSAI() { AU_SAI_A->CR1 &= ~SAI_xCR1_SAIEN; AU_SAI_B->CR1 &= ~SAI_xCR1_SAIEN; }
+    void EnableSAI() {
+        AU_SAI_A->CR1 |= SAI_xCR1_SAIEN;
+#if MIC_EN
+        AU_SAI_B->CR1 |= SAI_xCR1_SAIEN;
+#endif
+    }
+    void DisableSAI() {
+        AU_SAI_A->CR1 &= ~SAI_xCR1_SAIEN;
+#if MIC_EN
+        AU_SAI_B->CR1 &= ~SAI_xCR1_SAIEN;
+#endif
+    }
     int8_t IVolume = 0;
     bool IsOn;
 public:
@@ -77,14 +90,16 @@ public:
     void DisableSpeakers();
 
     // Rx/Tx
-    void SetupParams(MonoStereo_t MonoStereo, uint32_t SampleRate);
-    void TransmitBuf(void *Buf, uint32_t Sz);
+    void SetupMonoStereo(MonoStereo_t MonoStereo);
+    void SetupSampleRate(uint32_t SampleRate);
+    void TransmitBuf(void *Buf, uint32_t Sz16);
+    bool IsTransmitting();
     void Stop();
 
     void StartStream();
     void PutSampleI(SampleStereo_t &Sample);
 #if AU_BATMON_ENABLE
-    u8 GetBatteryLevel(u32 *PVoltage_mV);
+    uint32_t GetBatteryVmv();
 #endif
 };
 

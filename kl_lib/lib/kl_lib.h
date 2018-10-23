@@ -353,16 +353,25 @@ static inline void DelayLoop(volatile uint32_t ACounter) { while(ACounter--); }
 // On writes, write 0x5FA to VECTKEY, otherwise the write is ignored. 4 is SYSRESETREQ: System reset request
 #define REBOOT()                SCB->AIRCR = 0x05FA0004
 
-#if 0 // ======================= Power and backup unit =========================
+#if 1 // ======================= Power and backup unit =========================
 namespace BackupSpc {
     static inline void EnableAccess() {
         rccEnablePWRInterface(FALSE);
 #if defined STM32F2XX || defined STM32F4XX || defined STM32F10X_LD_VL
         rccEnableBKPSRAM(FALSE);
-#endif
         PWR->CR |= PWR_CR_DBP;
+#elif defined STM32L4XX
+        PWR->CR1 |= PWR_CR1_DBP;
+#endif
     }
-    static inline void DisableAccess() { PWR->CR &= ~PWR_CR_DBP; }
+
+    static inline void DisableAccess() {
+#if defined STM32F2XX || defined STM32F4XX || defined STM32F10X_LD_VL
+        PWR->CR &= ~PWR_CR_DBP;
+#elif defined STM32L4XX
+        PWR->CR1 &= ~PWR_CR1_DBP;
+#endif
+    }
 
     static inline void Reset() {
         RCC->BDCR |=  RCC_BDCR_BDRST;
@@ -382,7 +391,7 @@ namespace BackupSpc {
 } // namespace
 #endif
 
-#if 0 // ============================= RTC =====================================
+#if 1 // ============================= RTC =====================================
 namespace Rtc {
 #if defined STM32F10X_LD_VL
 // Wait until the RTC registers (RTC_CNT, RTC_ALR and RTC_PRL) are synchronized with RTC APB clock.
@@ -412,7 +421,7 @@ static inline void SetCounter(uint32_t CounterValue) {
     RTC->CNTL = (CounterValue & RTC_LSB_MASK);
     ExitConfigMode();
 }
-#elif defined STM32F072xB
+#elif defined STM32F072xB || defined STM32L4XX
 static inline void DisableWriteProtection() {
     RTC->WPR = 0xCAU;
     RTC->WPR = 0x53U;
@@ -434,7 +443,7 @@ static inline void ClearWakeupFlag() { RTC->ISR &= ~RTC_ISR_WUTF; }
 
 static inline void SetClkSrcLSE() {
     RCC->BDCR &= ~RCC_BDCR_RTCSEL;  // Clear bits
-    RCC->BDCR |=  RCC_BDCR_RTCSEL_LSE;
+    RCC->BDCR |=  0b01UL << 8;
 }
 static inline void EnableClk() { RCC->BDCR |= RCC_BDCR_RTCEN; }
 
@@ -1878,6 +1887,10 @@ class Clk_t {
 private:
     uint8_t EnableHSE();
     uint8_t EnablePLL();
+    void EnablePLLROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
+    void EnablePLLQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
+
+    uint8_t EnableSai1();
 public:
     // Frequency values
     uint32_t AHBFreqHz;     // HCLK: AHB Buses, Core, Memory, DMA
@@ -1888,18 +1901,25 @@ public:
     uint8_t SwitchToHSE();
     uint8_t SwitchToPLL();
     uint8_t SwitchToMSI();
-    void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
+
     uint8_t EnableHSI();
     uint8_t EnableMSI();
+    void EnableLSE()  { RCC->BDCR |= RCC_BDCR_LSEON; }
+
+    void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
     void DisableHSI() { RCC->CR &= ~RCC_CR_HSION; }
-    void DisablePLL() { RCC->CR &= ~RCC_CR_PLLON; }
+    void DisablePLL();
     void DisableMSI() { RCC->CR &= ~RCC_CR_MSION; }
+    void DisableSai1();
+
+    bool IsLseOn()      { return (RCC->BDCR & RCC_BDCR_LSERDY); }
 
     void SetupBusDividers(AHBDiv_t AHBDiv, APBDiv_t APB1Div, APBDiv_t APB2Div);
+
     // PLL and PLLSAI
     void SetupPllSrc(PllSrc_t Src) { MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, ((uint32_t)Src)); }
     uint8_t SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q);
-    uint8_t SetupPllSai1(uint32_t N, uint32_t R, uint32_t Q, uint32_t P);
+    void SetupPllSai1(uint32_t N, uint32_t R, uint32_t Q, uint32_t P);
     void EnableSai1ROut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1REN); }
     void EnableSai1QOut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1QEN); }
     void EnableSai1POut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1PEN); }
@@ -1908,7 +1928,7 @@ public:
     void EnablePrefeth() { FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_DCEN | FLASH_ACR_ICEN; }
     void SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange);
     void SetVoltageRange(MCUVoltRange_t VoltRange);
-    void Select48MhzSrc(Src48MHz_t Src);
+    void SetupSai1Qas48MhzSrc();
     // LSI
     void EnableLSI() {
         RCC->CSR |= RCC_CSR_LSION;
