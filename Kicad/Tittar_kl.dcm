@@ -45,10 +45,6 @@ $CMP GERCON
 D Germetic contact
 $ENDCMP
 #
-$CMP LED_2COLOR
-D Two-color LED, common catode
-$ENDCMP
-#
 $CMP LED_5050
 D LED in 5050 case
 $ENDCMP
@@ -63,6 +59,14 @@ $ENDCMP
 #
 $CMP LED_RGB_WS2812B
 D RGB LED with controller
+$ENDCMP
+#
+$CMP LEDx2_CmnA
+D Two-color LED, common catode
+$ENDCMP
+#
+$CMP LEDx2_CmnC
+D Two-color LED, common catode
 $ENDCMP
 #
 $CMP MOTOR

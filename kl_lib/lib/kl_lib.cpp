@@ -58,7 +58,14 @@ keepcost;  top-most, releasable (via malloc_trim) space
 **********************************************/
 void PrintMemoryInfo() {
     struct mallinfo info = mallinfo();
-    Printf("4arena: %u; ordblks: %u; hblks: %u; hblkhd: %u; uordblks: %u; fordblks: %u; keepcost: %u\r",
+    Printf(
+            "total space allocated from system: %u\r"
+            "number of non-inuse chunks: %u\r"
+            "number of mmapped regions: %u\r"
+            "total space in mmapped regions: %u\r"
+            "total allocated space: %u\r"
+            "total non-inuse space: %u\r"
+            "top-most, releasable: %u\r",
             info.arena, info.ordblks, info.hblks, info.hblkhd,
             info.uordblks, info.fordblks, info.keepcost);
 }
@@ -425,8 +432,8 @@ void HardFault_Handler(void) {
 #endif
 
 #if 1 // ================= FLASH & EEPROM ====================
-#define FLASH_EraseTimeout      MS2ST(7)
-#define FLASH_ProgramTimeout    MS2ST(7)
+#define FLASH_EraseTimeout      MS2ST(45)
+#define FLASH_ProgramTimeout    MS2ST(45)
 namespace Flash {
 
 // ==== Common ====
@@ -532,6 +539,7 @@ void LockFlash() {
 #endif
 }
 
+// Beware: use Page Address (0...255), not absolute address kind of 0x08003f00
 uint8_t ErasePage(uint32_t PageAddress) {
     uint8_t status = WaitForLastOperation(FLASH_EraseTimeout);
     if(status == retvOk) {
@@ -545,6 +553,7 @@ uint8_t ErasePage(uint32_t PageAddress) {
         FLASH->PECR &= ~FLASH_PECR_PROG;
         FLASH->PECR &= ~FLASH_PECR_ERASE;
 #elif defined STM32L4XX
+        chSysLock();
         ClearErrFlags();    // Clear all error programming flags
         uint32_t Reg = FLASH->CR;
         Reg &= ~(FLASH_CR_PNB | FLASH_CR_BKER);
@@ -553,6 +562,7 @@ uint8_t ErasePage(uint32_t PageAddress) {
         FLASH->CR |= FLASH_CR_STRT;
         status = WaitForLastOperation(FLASH_EraseTimeout);
         FLASH->CR &= ~FLASH_CR_PER; // Disable the PageErase Bit
+        chSysUnlock();
 #elif defined STM32F2XX
 
 #else

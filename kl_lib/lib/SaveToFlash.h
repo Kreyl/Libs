@@ -9,6 +9,7 @@
 
 #include "inttypes.h"
 #include "chtypes.h"
+#include "board.h"
 
 /* Time of saving: 32ms @ 8MHz
  *
@@ -23,15 +24,19 @@ SECTIONS {
     } > flash0
 } */
 
-#define FLASH_PAGE_SIZE     1024
+#if defined STM32L476xx
+#define FLASH_PAGE_SIZE     2048UL
+#else
+#define FLASH_PAGE_SIZE     1024UL
+#endif
 
 #define FLASH_2_BANKS       FALSE
 
 namespace Flash {
 
-void Load(uint32_t *ptr, uint32_t ByteSz);
-void LoadI(uint32_t *ptr, uint32_t ByteSz);
-uint8_t Save(uint32_t *ptr, uint32_t ByteSz);
+void Load(void *ptr, uint32_t ByteSz);
+void LoadI(void *ptr, uint32_t ByteSz);
+uint8_t Save(void *ptr, uint32_t ByteSz);
 
 void* GetFlashPointer();
 

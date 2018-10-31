@@ -12,12 +12,18 @@
 
 // Data inside the Flash. Init value is dummy.
 // For some reason "aligned" attribute does not work, therefore array used here.
+#ifdef STM32L4XX
+#define WORD64_CNT     (FLASH_PAGE_SIZE/8)
+__attribute__ ((section("MyFlash1")))
+const uint64_t IData[WORD64_CNT] = { 0xCA115EA1 };
+#else
 __attribute__ ((section("MyFlash1")))
 const uint32_t IData[(FLASH_PAGE_SIZE/4)] = { 0xCA115EA1 };
 
 #if FLASH_2_BANKS
 __attribute__ ((section("MyFlash2")))
 const uint32_t IData2[(FLASH_PAGE_SIZE/4)] = { 0xCA115EA1 };
+#endif
 #endif
 
 namespace Flash {
@@ -26,10 +32,10 @@ void* GetFlashPointer() {
     return (void*)IData;
 }
 
-void LoadI(uint32_t *ptr, uint32_t ByteSz) {
+void LoadI(void *ptr, uint32_t ByteSz) {
     memcpy(ptr, IData, ByteSz);
 }
-void Load(uint32_t *ptr, uint32_t ByteSz) {
+void Load(void *ptr, uint32_t ByteSz) {
     chSysLock();
     LoadI(ptr, ByteSz);
     chSysUnlock();
@@ -46,8 +52,40 @@ void Load2(uint32_t *ptr, uint32_t ByteSz) {
 }
 #endif
 
-uint8_t Save(uint32_t *ptr, uint32_t ByteSz) {
+// Data must be aligned to uint64_t
+uint8_t Save(void *ptr, uint32_t ByteSz) {
+#ifdef STM32L4XX
+    uint32_t Addr = (uint32_t)&IData;
+    uint8_t Rslt = retvOk;
+    uint64_t *Buf = (uint64_t*)ptr;
+    uint32_t DWordCnt = (ByteSz + 7) / 8;
+    chSysLock();
+    Flash::UnlockFlash();
+    chSysUnlock();
+    if(Flash::ErasePage(Addr / FLASH_PAGE_SIZE) != retvOk) {
+        Printf("\rPage Erase fail\r");
+        chThdSleepMilliseconds(45);
+        Rslt = retvFail;
+        goto End;
+    }
+
+    for(uint32_t i=0; i<DWordCnt; i++) {
+        if(Flash::ProgramDWord(Addr, Buf[i]) != retvOk) {
+            Printf("Write Fail\r");
+            chThdSleepMilliseconds(45);
+            Rslt = retvFail;
+            goto End;
+        }
+        Addr += 8;
+    }
+    End:
+    chSysLock();
+    Flash::LockFlash();
+    chSysUnlock();
+    return Rslt;
+#else
     return Flash::ProgramBuf(ptr, ByteSz, (uint32_t)&IData[0]);
+#endif
 }
 
 #if FLASH_2_BANKS
