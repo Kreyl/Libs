@@ -102,7 +102,7 @@ private:
     void IOnTxEnd() {} // Dummy
     uint8_t IPutChar(char c) { return IPutByte(c);  }
     void IStartTransmissionIfNotYet() { BaseUart_t::IStartTransmissionIfNotYet(); }
-    void Printf(const char *format, ...) {
+    void Print(const char *format, ...) {
         va_list args;
         va_start(args, format);
         IVsPrintf(format, args);

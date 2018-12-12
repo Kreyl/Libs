@@ -35,6 +35,11 @@ static bool IsCombo;
 static systime_t LongComboTimer;
 static bool IsLongCombo;
 #endif
+#if BTN_DOUBLE_CLICK
+static systime_t DoubleClickTimer;
+static bool IsWaitingSecondClick = false;
+static uint8_t FirstClickID = 0;
+#endif
 
 static void AddEvtToQueue(BtnEvtInfo_t &Evt);
 static void AddEvtToQueue(BtnEvt_t AType, uint8_t KeyIndx);
@@ -78,15 +83,26 @@ void ProcessButtons(PinSnsState_t *BtnState, uint32_t Len) {
             else IsCombo = false;
 #endif // combo
 
-#if BTN_SHORTPRESS // Single key pressed, no combo
-#if BTN_COMBO
-            if(!IsCombo)
-#endif // combo
-            {
-                AddEvtToQueue(beShortPress, i);  // Add single keypress
+#if BTN_DOUBLE_CLICK
+            // Check if same button pressed within timeframe
+            if(IsWaitingSecondClick and FirstClickID == i and chVTTimeElapsedSinceX(DoubleClickTimer) < (MS2ST(BTN_DOUBLECLICK_DELAY_MS))) {
+                AddEvtToQueue(beDoubleClick, i);
+                IsWaitingSecondClick = false;
             }
-
+            else {
+                AddEvtToQueue(beShortPress, i); // First click
+                IsWaitingSecondClick = true;
+                DoubleClickTimer = chVTGetSystemTimeX();
+                FirstClickID = i;
+            }
 #endif
+
+// Single key pressed, no combo
+#if BTN_SHORTPRESS && !BTN_DOUBLE_CLICK
+            AddEvtToQueue(beShortPress, i);  // Add single keypress
+#endif
+
+
 
 #if BTN_LONGPRESS
             LongPressTimer = chVTGetSystemTimeX();
@@ -162,26 +178,14 @@ void ProcessButtons(PinSnsState_t *BtnState, uint32_t Len) {
 
 #if BTN_REPEAT // Check if repeat
             if(!IsRepeating[i]) {
-                if(chVTTimeElapsedSinceX(RepeatTimer) >= MS2ST(BTN_DELAY_BEFORE_REPEAT_MS)) {
+                if(TimeElapsed(&RepeatTimer, BTN_DELAY_BEFORE_REPEAT_MS)) {
                     IsRepeating[i] = true;
-                    RepeatTimer = chVTGetSystemTimeX();
-#if BTN_COMBO
-                    if(!IsCombo)
-#endif
-                    {
-                        AddEvtToQueue(beRepeat, i);
-                    }
+                    AddEvtToQueue(beRepeat, i);
                 }
             }
             else {
-                if(chVTTimeElapsedSinceX(RepeatTimer) >= MS2ST(BTN_REPEAT_PERIOD_MS)) {
-                    RepeatTimer = chVTGetSystemTimeX();
-#if BTN_COMBO
-                    if(!IsCombo)
-#endif
-                    {
-                        AddEvtToQueue(beRepeat, i);
-                    }
+                if(TimeElapsed(&RepeatTimer, BTN_REPEAT_PERIOD_MS)) {
+                    AddEvtToQueue(beRepeat, i);
                 }
             }
 #endif

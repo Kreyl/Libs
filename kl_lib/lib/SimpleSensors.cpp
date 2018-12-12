@@ -13,7 +13,7 @@
 
 static PinSnsState_t States[PIN_SNS_CNT];
 
-static THD_WORKING_AREA(waPinSnsThread, 64);
+static THD_WORKING_AREA(waPinSnsThread, 128);
 __noreturn
 static void SensorsThread(void *arg) {
     chRegSetThreadName("PinSensors");

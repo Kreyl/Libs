@@ -18,8 +18,8 @@ enum ProcessDataResult_t {pdrProceed, pdrNewCmd};
 
 class Cmd_t {
 private:
-    char IString[CMD_BUF_SZ];
     uint32_t Cnt;
+    char IString[CMD_BUF_SZ];
     bool Completed;
 public:
     char *Name, *Token;
@@ -42,6 +42,8 @@ public:
         else if(Cnt < (CMD_BUF_SZ-1)) IString[Cnt++] = c;  // Add char if buffer not full
         return pdrProceed;
     }
+    void Reset() { Completed = true; }
+
     uint8_t GetNextString(char **PStr = nullptr) {
         Token = strtok(NULL, DELIMITERS);
         if(PStr != nullptr) *PStr = Token;
@@ -53,9 +55,16 @@ public:
         uint8_t r = GetNextString();
         if(r == retvOk) {
             char *p;
-            int32_t dw32 = strtol(Token, &p, 0);
-            if(*p == '\0') *POutput = (T)dw32;
-            else r = retvNotANumber;
+            if(*Token == '-') { // signed
+                int32_t dw32 = strtol(Token, &p, 0);
+                if(*p == '\0') *POutput = (T)dw32;
+                else r = retvNotANumber;
+            }
+            else {
+                uint32_t dw32 = strtoul(Token, &p, 0);
+                if(*p == '\0') *POutput = (T)dw32;
+                else r = retvNotANumber;
+            }
         }
         return r;
     }
@@ -101,9 +110,9 @@ class Shell_t {
 public:
 	Cmd_t Cmd;
 	virtual void SignalCmdProcessed() = 0;
-	virtual void Printf(const char *format, ...) = 0;
-	void Reply(const char* CmdCode, int32_t Data) { Printf("%S,%d\r\n", CmdCode, Data); }
-	void Ack(int32_t Result) { Printf("Ack %d\r\n", Result); }
+	virtual void Print(const char *format, ...) = 0;
+	void Reply(const char* CmdCode, int32_t Data) { Print("%S,%d\r\n", CmdCode, Data); }
+	void Ack(int32_t Result) { Print("Ack %d\r\n", Result); }
 };
 
 

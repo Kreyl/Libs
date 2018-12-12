@@ -1,4 +1,4 @@
-(module RES_0603 (layer F.Cu) (tedit 5BA09B64)
+(module RES_0603 (layer F.Cu) (tedit 5BEDDB4C)
   (attr smd)
   (fp_text reference R2 (at 0 0) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))

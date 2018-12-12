@@ -57,14 +57,15 @@ union EvtMsg_t {
                 int32_t Value;
                 uint8_t ValueID;
             } __attribute__((__packed__));
-            uint8_t b[EMSG_DATA8_CNT];
-            uint16_t w16[EMSG_DATA16_CNT];
+//            uint8_t b[EMSG_DATA8_CNT];
+//            uint16_t w16[EMSG_DATA16_CNT];
 #if BUTTONS_ENABLED
             BtnEvtInfo_t BtnEvtInfo;
 #endif
         } __attribute__((__packed__));
         uint8_t ID;
     } __attribute__((__packed__));
+
     EvtMsg_t& operator = (const EvtMsg_t &Right) {
         DWord[0] = Right.DWord[0];
         DWord[1] = Right.DWord[1];

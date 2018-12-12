@@ -64,17 +64,6 @@
 #define FALSE   0
 #endif
 
-// Short type names
-typedef uint8_t u8;
-typedef uint8_t Byte;
-typedef int8_t  i8;
-typedef uint16_t u16;
-typedef int16_t s16;
-typedef uint32_t u32;
-typedef int32_t s32;
-typedef uint64_t u64;
-typedef int64_t s64;
-
 // Return values
 #define retvOk              0
 #define retvFail            1
@@ -85,18 +74,24 @@ typedef int64_t s64;
 #define retvCmdUnknown      6
 #define retvBadValue        7
 #define retvNew             8
-#define retvLast            9
-#define retvEmpty           10
-#define retvOverflow        11
-#define retvNotANumber      12
-#define retvWriteProtect    13
-#define retvEndOfFile       14
-#define retvNotFound        15
-#define retvBadState        16
-#define retvDisconnected    17
-#define retvCollision       18
-#define retvCRCError        19
-#define retvNACK            20
+#define retvSame            9
+#define retvLast            10
+#define retvEmpty           11
+#define retvOverflow        12
+#define retvNotANumber      13
+#define retvWriteProtect    14
+#define retvWriteError      15
+#define retvEndOfFile       16
+#define retvNotFound        17
+#define retvBadState        18
+#define retvDisconnected    19
+#define retvCollision       20
+#define retvCRCError        21
+#define retvNACK            22
+#define retvNoAnswer        23
+#define retvOutOfMemory     24
+#define retvNotAuthorised   25
+#define retvNoChanges       26
 
 // Binary semaphores
 #define NOT_TAKEN       false
@@ -1186,6 +1181,8 @@ static inline bool ResetOccured() {
     }
     else return false;
 }
+
+void DisableInDebug();
 
 void GoSleep(uint32_t Timeout_ms);
 

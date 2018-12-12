@@ -1175,6 +1175,10 @@ enum Pre_t {
     iwdgPre256 = 0x06
 };
 
+void DisableInDebug() {
+    DBGMCU->APB1FZR1 |= DBGMCU_APB1FZR1_DBG_IWDG_STOP;
+}
+
 static void Enable() { IWDG->KR = 0xCCCC; }
 static void EnableAccess() { IWDG->KR = 0x5555; }
 
