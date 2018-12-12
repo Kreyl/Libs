@@ -51,7 +51,7 @@ struct UartParams_t {
 
 // ==== Base class ====
 class BaseUart_t {
-private:
+protected:
     const UartParams_t *Params;
 #if UART_USE_DMA
     char TXBuf[UART_TXBUF_SZ];
@@ -112,6 +112,27 @@ public:
     CmdUart_t(const UartParams_t *APParams) : BaseUart_t(APParams) {}
     void ProcessByteIfReceived();
     void SignalCmdProcessed() { BaseUart_t::SignalRxProcessed(); }
+};
+
+class CmdUart485_t : public CmdUart_t {
+private:
+    PinOutput_t PinTxRx;
+    void IStartTransmissionIfNotYet() {
+        PinTxRx.SetHi();
+        BaseUart_t::IStartTransmissionIfNotYet();
+    }
+    void IOnTxEnd() {
+        while(!(Params->Uart->SR & USART_SR_TC)); // wait last bit to be shifted out
+        PinTxRx.SetLo();
+    }
+public:
+    void Init() {
+        CmdUart_t::Init();
+        PinTxRx.Init();
+        PinTxRx.SetLo();
+    }
+    CmdUart485_t(const UartParams_t *APParams, GPIO_TypeDef *APGPIO, uint16_t APin, PinOutMode_t AOutputType) :
+        CmdUart_t(APParams), PinTxRx(APGPIO, APin, AOutputType) {}
 };
 
 #define BYTE_UART_EN    FALSE

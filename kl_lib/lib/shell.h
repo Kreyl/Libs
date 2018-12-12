@@ -128,7 +128,7 @@ public:
     void PrintEOL();
 };
 
-#if 1 // ========================= Byte protocol ===============================
+#if 0 // ========================= Byte protocol ===============================
 #define BYTECMD_DATA_SZ     99
 class ByteCmd_t {
 private:

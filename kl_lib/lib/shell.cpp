@@ -39,13 +39,14 @@ void PrintfEOL() {
     Uart.PrintEOL();
 }
 
-extern "C"
+extern "C" {
 void PrintfC(const char *format, ...) {
     va_list args;
     va_start(args, format);
     Uart.IVsPrintf(format, args);
     va_end(args);
 }
+} // exern C
 
 
 class PrintToBuf_t : public PrintfHelper_t {
@@ -69,7 +70,7 @@ char* PrintfToBuf(char* PBuf, const char *format, ...) {
     return PtB.S;
 }
 
-
+#if 0
 void ByteShell_t::Reply(uint8_t CmdCode, uint32_t Len, uint8_t *PData) {
 //    Printf("BSendCmd %X; %u; %A\r", CmdCode, Len, PData, Len, ' ');
     // Send StartOfCmd
@@ -87,6 +88,7 @@ void ByteShell_t::Reply(uint8_t CmdCode, uint32_t Len, uint8_t *PData) {
     if(IPutChar('\n') != retvOk) return;
     IStartTransmissionIfNotYet();
 }
+#endif
 
 #if PRINTF_FLOAT_EN
 #define FLOAT_PRECISION     9
