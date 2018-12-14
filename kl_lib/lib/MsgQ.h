@@ -82,12 +82,18 @@ union EvtMsg_t {
 template<typename T, uint32_t Sz>
 class EvtMsgQ_t {
 private:
-    T IBuf[Sz];
-    T *ReadPtr = IBuf, *WritePtr = IBuf;
+    union {
+        uint64_t __Align;
+        T IBuf[Sz];
+    };
+    T *ReadPtr, *WritePtr;
     semaphore_t FullSem;    // Full counter
     semaphore_t EmptySem;   // Empty counter
 public:
+    EvtMsgQ_t() : __Align(0), ReadPtr(IBuf), WritePtr(IBuf) {}
     void Init() {
+        ReadPtr = IBuf;
+        WritePtr = IBuf;
         chSemObjectInit(&EmptySem, Sz);
         chSemObjectInit(&FullSem, (cnt_t)0);
     }
