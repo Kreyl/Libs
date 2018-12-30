@@ -1,4 +1,4 @@
-(module BTN_IT1198 (layer F.Cu) (tedit 5BA71CED)
+(module BTN_IT1198 (layer F.Cu) (tedit 5C27DCCE)
   (fp_text reference REF** (at 0.1 -5.6) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
@@ -24,4 +24,9 @@
   (pad 2 smd rect (at 1.7 -3.45) (size 0.7 1.1) (layers F.Cu F.Paste F.Mask))
   (pad "" np_thru_hole circle (at -0.85 -2.1) (size 0.8 0.8) (drill 0.8) (layers *.Cu))
   (pad "" np_thru_hole circle (at 0.85 -2.1) (size 0.8 0.8) (drill 0.8) (layers *.Cu))
+  (model "${KICAD_SYMBOL_DIR}/3d/BtnsSwitches/Button IT1198.STEP"
+    (offset (xyz 0 1 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 180))
+  )
 )
