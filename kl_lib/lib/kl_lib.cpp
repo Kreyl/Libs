@@ -910,7 +910,7 @@ IrqHandler_t* ExtiIrqHandler[16];
 #if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX || defined STM32F1XX
 ftVoidVoid ExtiIrqHandler[5], ExtiIrqHandler_9_5, ExtiIrqHandler_15_10;
 #elif defined STM32F030 || defined STM32F0
-IrqHandler_t *ExtiIrqHandler_0_1, *ExtiIrqHandler_2_3, *ExtiIrqHandler_4_15;
+ftVoidVoid ExtiIrqHandler_0_1, ExtiIrqHandler_2_3, ExtiIrqHandler_4_15;
 #endif
 #endif // INDIVIDUAL_EXTI_IRQ_REQUIRED
 
@@ -1033,7 +1033,7 @@ void Vector54() {
     }
     EXTI->PR = ClearMask;
 #else
-    if(ExtiIrqHandler_0_1 != nullptr) ExtiIrqHandler_0_1->IIrqHandler();
+    if(ExtiIrqHandler_0_1 != nullptr) ExtiIrqHandler_0_1();
 //    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
     EXTI->PR = 0x0003;  // Clean IRQ flag
 #endif
@@ -1057,7 +1057,7 @@ void Vector58() {
         }
         EXTI->PR = ClearMask;
 #else
-    if(ExtiIrqHandler_2_3 != nullptr) ExtiIrqHandler_2_3->IIrqHandler();
+    if(ExtiIrqHandler_2_3 != nullptr) ExtiIrqHandler_2_3();
 //    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
     EXTI->PR = 0x000C;  // Clean IRQ flag
 #endif
@@ -1080,7 +1080,7 @@ void Vector5C() {
     }
     EXTI->PR = ClearMask;
 #else
-    if(ExtiIrqHandler_4_15 != nullptr) ExtiIrqHandler_4_15->IIrqHandler();
+    if(ExtiIrqHandler_4_15 != nullptr) ExtiIrqHandler_4_15();
 //    else PrintfCNow("Unhandled %S\r", __FUNCTION__);
     EXTI->PR = 0xFFF0;  // Clean IRQ flag
 #endif
@@ -1163,7 +1163,7 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
 }; // namespace
 #endif
 
-#if 1 // ============================== IWDG ===================================
+#if 0 // ============================== IWDG ===================================
 namespace Iwdg {
 enum Pre_t {
     iwdgPre4 = 0x00,

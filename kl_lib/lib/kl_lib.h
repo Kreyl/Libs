@@ -1052,7 +1052,7 @@ extern IrqHandler_t *ExtiIrqHandler[16];
 #if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX || defined STM32F1XX
 extern ftVoidVoid ExtiIrqHandler[5], ExtiIrqHandler_9_5, ExtiIrqHandler_15_10;
 #elif defined STM32F030 || defined STM32F0
-extern IrqHandler_t *ExtiIrqHandler_0_1, *ExtiIrqHandler_2_3, *ExtiIrqHandler_4_15;
+extern ftVoidVoid ExtiIrqHandler_0_1, ExtiIrqHandler_2_3, ExtiIrqHandler_4_15;
 #endif
 #endif // INDIVIDUAL_EXTI_IRQ_REQUIRED
 }
@@ -1132,8 +1132,12 @@ public:
         else if(PGpio == GPIOD) SYSCFG->EXTICR[Indx] |= 3UL << Offset;
         else if(PGpio == GPIOE) SYSCFG->EXTICR[Indx] |= 4UL << Offset;
         else if(PGpio == GPIOF) SYSCFG->EXTICR[Indx] |= 5UL << Offset;
+#ifdef GPIOG
         else if(PGpio == GPIOG) SYSCFG->EXTICR[Indx] |= 6UL << Offset;
+#endif
+#ifdef GPIOH
         else if(PGpio == GPIOH) SYSCFG->EXTICR[Indx] |= 7UL << Offset;
+#endif
 #ifdef GPIOI
         else if(PGpio == GPIOI) SYSCFG->EXTICR[Indx] |= 8UL << Offset;
 #endif

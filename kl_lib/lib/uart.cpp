@@ -401,8 +401,8 @@ void BaseUart_t::OnClkChange() {
     if(Params->Uart == USART1) Params->Uart->BRR = Clk.APB2FreqHz / Params->Baudrate;
     else                       Params->Uart->BRR = Clk.APB1FreqHz / Params->Baudrate;
 #elif defined STM32F072xB
-    if(Params->Uart == USART1 or Params->Uart == USART2) Params->Uart->BRR = HSI_FREQ_HZ / IBaudrate;
-    else Params->Uart->BRR = Clk.APBFreqHz / IBaudrate;
+    if(Params->Uart == USART1 or Params->Uart == USART2) Params->Uart->BRR = HSI_FREQ_HZ / Params->Baudrate;
+    else Params->Uart->BRR = Clk.APBFreqHz / Params->Baudrate;
 #elif defined STM32F0XX
     Params->Uart->BRR = Clk.APBFreqHz / IBaudrate;
 #elif defined STM32F2XX || defined STM32F4XX
@@ -437,6 +437,110 @@ void CmdUart_t::ProcessByteIfReceived() {
         } // if new cmd
     } // while get byte
 //    PrintfI("e\r");
+}
+#endif
+
+#if 1 // ==== Modbus ====
+ProcessDataResult_t ModbusCmd_t::PutChar(char c) {
+    // Start of cmd
+    if(c == ':') {
+        Started = true;
+        Cnt = 0;
+    }
+    // End of cmd
+    else if((c == '\r') or (c == '\n')) {   // end of line, check if cmd completed
+        Started = false;
+        if(Cnt >= 6) { // if not too short
+            IString[Cnt] = 0; // End of string
+            Cnt = 0;
+            if(Parse() == retvOk) return pdrNewCmd;
+        }
+    }
+    // Some other char
+    else {
+        if(Started) { // Ignore if not
+            // Check if ascii
+            if((c >= '0' and c <= '9') or (c >= 'A' and c <= 'F') or (c >= 'a' and c <= 'f')) {
+                if(Cnt < (CMD_BUF_SZ-1)) IString[Cnt++] = c;  // Add char if buffer not full
+            }
+        }
+    }
+    return pdrProceed;
+}
+
+uint8_t CharToByte(char c, uint8_t *PRslt) {
+    if(c >= '0' and c <= '9') { *PRslt = (c - '0'); return retvOk; }
+    else if(c >= 'A' and c <= 'F') { *PRslt = (0xA + c - 'A'); return retvOk; }
+    else if(c >= 'a' and c <= 'f') { *PRslt = (0xA + c - 'a'); return retvOk; }
+    else return retvFail;
+}
+
+uint8_t TwoCharsToByte(char c1, char c2, uint8_t *PRslt) {
+    uint8_t b1, b2;
+    if(CharToByte(c1, &b1) != retvOk) return retvFail;
+    if(CharToByte(c2, &b2) != retvOk) return retvFail;
+    b1 <<= 4;
+    b1 |= b2;
+    *PRslt = b1;
+    return retvOk;
+}
+
+uint8_t ModbusCmd_t::Parse() {
+    // Addr
+    if(TwoCharsToByte(IString[0], IString[1], &Addr) != retvOk) return retvFail;
+    // Function
+    if(TwoCharsToByte(IString[2], IString[3], &Function) != retvOk) return retvFail;
+    // Data
+    char* p = &IString[4];
+    uint8_t LRC = Addr + Function;
+    DataCnt = 0;
+    while(true) {
+        uint8_t b;
+        if(TwoCharsToByte(p[0], p[1], &b) != retvOk) break; // End of string
+        Data[DataCnt++] = b;
+        LRC += b;
+        p += 2;
+    }
+    // Check LRC
+    if(LRC == 0) {
+        DataCnt--; // Remove last LRC byte
+        return retvOk;
+    }
+    else return retvFail;
+}
+
+void ModbusUart485_t::ProcessByteIfReceived() {
+    if(!RxProcessed) return;
+    uint8_t b;
+    while(GetByte(&b) == retvOk) {
+        if(Cmd.PutChar(b) == pdrNewCmd) {
+            RxProcessed = false;
+//            EvtQMain.SendNowOrExit(EvtMsg_t(evtIdModbusCmd));
+        } // if new cmd
+    } // while get byte
+}
+
+void ModbusUart485_t::IOnTxEnd() {
+#ifdef USART_SR_TC
+    Params->Uart->SR &= ~USART_SR_TC; // Clear TxCompleted flag
+    for(volatile uint32_t i=0; i<1000; i++) {
+        if(Params->Uart->SR & USART_SR_TC) break; // wait last bit to be shifted out
+    }
+#else
+    Params->Uart->ISR &= ~USART_ISR_TC; // Clear TxCompleted flag
+    for(volatile uint32_t i=0; i<1000; i++) {
+        if(Params->Uart->ISR & USART_ISR_TC) break; // wait last bit to be shifted out
+    }
+#endif
+    PinTxRx.SetLo();
+}
+
+void ModbusUart485_t::Reply() {
+    // Calc LRC
+    uint8_t LRC = Cmd.Addr + Cmd.Function;
+    for(uint32_t i=0; i<Cmd.DataCnt; i++) LRC += Cmd.Data[i];
+    LRC = (uint8_t)(-(int32_t)LRC);
+    Print(":%02X%02X%A%02X\r\n", Cmd.Addr, Cmd.Function, Cmd.Data, Cmd.DataCnt, 0, LRC);
 }
 #endif
 

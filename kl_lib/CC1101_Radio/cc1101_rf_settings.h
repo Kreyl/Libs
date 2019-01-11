@@ -51,7 +51,6 @@
 // ==== MCSM1 ==== bits 7:6 not used, 5:4 ClearChannel mode, 3:2 RxOff mode, 1:0 TxOff mode
 #define CC_CCA_MODE         0b00000000  // Always clear
 //#define CC_CCA_MODE         0b00100000  // Unless currently receiving a packet
-//#define CC_CCA_MODE         0b00110000  // If RSSI below threshold unless currently receiving a packet
 #define CC_RXOFF_MODE       0b00000000  // RX->IDLE
 //#define CC_RXOFF_MODE       0b00001100  // RX->RX
 #define CC_TXOFF_MODE       0b00000000  // TX->IDLE
@@ -59,8 +58,7 @@
 
 #define CC_MCSM2_VALUE      0b00000111  // WOR settings, nothing interesting here
 
-//#define CC_FIFOTHR_VALUE    0b00000111  // RX attenuation = 0; RXFIFO and TXFIFO thresholds: TX 33, RX 32
-#define CC_FIFOTHR_VALUE    0b00001100  // RX attenuation = 0; RXFIFO and TXFIFO thresholds: TX 13, RX 52
+#define CC_FIFOTHR_VALUE    0b00000111  // RX attenuation = 0; RXFIFO and TXFIFO thresholds: TX 33, RX 32
 #define CC_IOCFG2_VALUE     0x07        // GDO2 - Asserts when a packet has been received with CRC OK. De-asserts when the first byte is read from the RX FIFO.
 #define CC_IOCFG0_VALUE     0x06        // GDO0 - Asserts when sync word has been sent / received, and de-asserts at the end of the packet.
                                         // In RX, the pin will also deassert when a packet is discarded due to address or maximum length filtering
