@@ -70,6 +70,27 @@ void PrintMemoryInfo() {
             info.uordblks, info.fordblks, info.keepcost);
 }
 
+#if 1 // ============================ kl_string ================================
+__always_inline
+inline int kl_tolower(char c) {
+    return (c >= 'A' and c <= 'Z')? (c + ('a' - 'A')) : c;
+}
+
+/* Compare S1 and S2, ignoring case, returning less than, equal to or
+   greater than zero if S1 is lexicographically less than,
+   equal to or greater than S2.  */
+int kl_strcasecmp(const char *s1, const char *s2) {
+  const unsigned char *p1 = (const unsigned char *) s1;
+  const unsigned char *p2 = (const unsigned char *) s2;
+  int result;
+  if (p1 == p2) return 0;
+  while((result = kl_tolower(*p1) - kl_tolower(*p2++)) == 0) {
+      if(*p1++ == '\0') break;
+  }
+  return result;
+}
+#endif
+
 #ifdef DMA_MEM2MEM
 static thread_reference_t MemThdRef;
 static void DmaMem2MemIrq(void *p, uint32_t flags) {
@@ -1163,7 +1184,7 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
 }; // namespace
 #endif
 
-#if 0 // ============================== IWDG ===================================
+#if 1 // ============================== IWDG ===================================
 namespace Iwdg {
 enum Pre_t {
     iwdgPre4 = 0x00,

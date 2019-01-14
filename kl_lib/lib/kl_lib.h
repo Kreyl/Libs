@@ -228,6 +228,12 @@ uint8_t TryStrToFloat(char* S, float *POutput);
 }; // namespace
 #endif
 
+#if 1 // ============================ kl_string ================================
+int kl_strcasecmp(const char *s1, const char *s2);
+
+
+#endif
+
 #ifdef DMA_MEM2MEM
 namespace Mem2MemDma { // ========== MEM2MEM DMA ===========
 

@@ -14,21 +14,18 @@
 
 // Constants
 #define MAX_NAME_LEN        128UL
-#define COMMON_STR_LEN      256UL   // Length of common use string
-
-// Variables
-extern FILINFO FileInfo;
-extern DIR Dir;
-extern FIL CommonFile;
 
 uint8_t TryOpenFileRead(const char *Filename, FIL *PFile);
 uint8_t TryOpenFileRewrite(const char *Filename, FIL *PFile);
+uint8_t TryOpenFileReadWrite(const char *Filename, FIL *PFile); // Open existing
 void CloseFile(FIL *PFile);
 uint8_t CheckFileNotEmpty(FIL *PFile);
 uint8_t TryRead(FIL *PFile, void *Ptr, uint32_t Sz);
 static inline bool FileIsOpen(FIL *PFile) {
     return (PFile->obj.fs != 0);
 }
+uint8_t RemoveDir(const char* DirName);
+uint8_t RemoveDir1AndRenameDir2AsDir1(const char* DirName1, const char* DirName2);
 
 template <typename T>
 uint8_t TryRead(FIL *PFile, T *Ptr) {
@@ -44,7 +41,7 @@ bool DirExistsAndContains(const char* DirName, const char* Extension);
 uint8_t CountFilesInDir(const char* DirName, const char* Extension, int32_t *PCnt);
 uint8_t CountDirsStartingWith(const char* Path, const char* DirNameStart, uint32_t *PCnt);
 
-#if 1 // ========================= GetRandom from dir ==========================
+#if 0 // ========================= GetRandom from dir ==========================
 struct DirRandData_t {
     char Name[MAX_NAME_LEN];
     int32_t LastN;
@@ -52,7 +49,6 @@ struct DirRandData_t {
 };
 
 #define DIR_CNT   9
-
 class DirList_t {
 private:
     DirRandData_t Dirs[DIR_CNT];

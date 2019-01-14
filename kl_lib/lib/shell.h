@@ -18,8 +18,8 @@ enum ProcessDataResult_t {pdrProceed, pdrNewCmd};
 
 class Cmd_t {
 private:
-    uint32_t Cnt;
     char IString[CMD_BUF_SZ];
+    uint32_t Cnt;
     bool Completed;
 public:
     char *Name, *Token;
@@ -42,8 +42,6 @@ public:
         else if(Cnt < (CMD_BUF_SZ-1)) IString[Cnt++] = c;  // Add char if buffer not full
         return pdrProceed;
     }
-    void Reset() { Completed = true; }
-
     uint8_t GetNextString(char **PStr = nullptr) {
         Token = strtok(NULL, DELIMITERS);
         if(PStr != nullptr) *PStr = Token;
@@ -55,16 +53,9 @@ public:
         uint8_t r = GetNextString();
         if(r == retvOk) {
             char *p;
-            if(*Token == '-') { // signed
-                int32_t dw32 = strtol(Token, &p, 0);
-                if(*p == '\0') *POutput = (T)dw32;
-                else r = retvNotANumber;
-            }
-            else {
-                uint32_t dw32 = strtoul(Token, &p, 0);
-                if(*p == '\0') *POutput = (T)dw32;
-                else r = retvNotANumber;
-            }
+            int32_t dw32 = strtol(Token, &p, 0);
+            if(*p == '\0') *POutput = (T)dw32;
+            else r = retvNotANumber;
         }
         return r;
     }
@@ -97,7 +88,7 @@ public:
         return Rslt;
     }
 
-    bool NameIs(const char *SCmd) { return (strcasecmp(Name, SCmd) == 0); }
+    bool NameIs(const char *SCmd) { return (kl_strcasecmp(Name, SCmd) == 0); }
     Cmd_t() {
         Cnt = 0;
         Completed = false;
@@ -110,9 +101,9 @@ class Shell_t {
 public:
 	Cmd_t Cmd;
 	virtual void SignalCmdProcessed() = 0;
-	virtual void Print(const char *format, ...) = 0;
-	void Reply(const char* CmdCode, int32_t Data) { Print("%S,%d\r\n", CmdCode, Data); }
-	void Ack(int32_t Result) { Print("Ack %d\r\n", Result); }
+	virtual void Printf(const char *format, ...) = 0;
+	void Reply(const char* CmdCode, int32_t Data) { Printf("%S,%d\r\n", CmdCode, Data); }
+	void Ack(int32_t Result) { Printf("Ack %d\r\n", Result); }
 };
 
 
@@ -128,7 +119,7 @@ public:
     void PrintEOL();
 };
 
-#if 0 // ========================= Byte protocol ===============================
+#if 1 // ========================= Byte protocol ===============================
 #define BYTECMD_DATA_SZ     99
 class ByteCmd_t {
 private:
