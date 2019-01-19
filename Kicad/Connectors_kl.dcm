@@ -75,6 +75,11 @@ D Symbole general de connecteur
 K CONN
 $ENDCMP
 #
+$CMP CONN_40
+D 38-pin connector, general form
+K CONN
+$ENDCMP
+#
 $CMP CONN_4_H
 D Connector with housing
 K CONN

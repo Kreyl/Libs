@@ -1,5 +1,9 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP 1x2OR
+D 4x 2AND gates
+$ENDCMP
+#
 $CMP 4x2AND
 D 4x 2AND gates
 $ENDCMP
