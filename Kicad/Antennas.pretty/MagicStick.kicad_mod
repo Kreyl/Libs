@@ -1,0 +1,15 @@
+(module MagicStick (layer F.Cu) (tedit 5C439EAF)
+  (fp_text reference REF** (at 0 0.5) (layer F.SilkS) hide
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (fp_text value MagicStick (at 0 -0.5) (layer F.SilkS) hide
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (fp_line (start 0 0) (end 0 4.5) (layer Dwgs.User) (width 0.12))
+  (pad 1 smd custom (at -0.2 3) (size 0.3 0.3) (layers F.Cu)
+    (options (clearance outline) (anchor circle))
+    (primitives
+      (gr_poly (pts
+         (xy 0.2 0.3) (xy -58.8 -0.1) (xy -58.8 -0.7) (xy 0.2 -0.3)) (width 0.01))
+    ))
+)

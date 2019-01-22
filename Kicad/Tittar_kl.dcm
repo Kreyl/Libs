@@ -53,6 +53,10 @@ $CMP LED_DOUBLE
 D Two LEDs in one package
 $ENDCMP
 #
+$CMP LED_RGB_6PIN_PAD
+D LED in 5050 case
+$ENDCMP
+#
 $CMP LED_RGB_CA
 D RGB LED, common anode
 $ENDCMP
