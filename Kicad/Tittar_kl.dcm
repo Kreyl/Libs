@@ -33,10 +33,6 @@ D Diode simple
 K Diode
 $ENDCMP
 #
-$CMP DIODE_TVS
-D Protection TVS diode
-$ENDCMP
-#
 $CMP FUSE
 D Protection fuse
 $ENDCMP
