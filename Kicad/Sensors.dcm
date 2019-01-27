@@ -44,6 +44,10 @@ $CMP LIS331
 D Accelerometer 3axis, +-24g
 $ENDCMP
 #
+$CMP LM75
+D Temperature sns
+$ENDCMP
+#
 $CMP LSM6DS3
 D Acc + Gyro
 $ENDCMP

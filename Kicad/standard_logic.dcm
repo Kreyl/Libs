@@ -4,6 +4,10 @@ $CMP 1x2OR
 D 4x 2AND gates
 $ENDCMP
 #
+$CMP 1xBUF_W3STATE
+D Single Hi-Lo/Lo-Hi tri-state buffer SOT23-5
+$ENDCMP
+#
 $CMP 4x2AND
 D 4x 2AND gates
 $ENDCMP
@@ -14,10 +18,6 @@ $ENDCMP
 #
 $CMP ADM1085
 D Pwr supervisor with delay
-$ENDCMP
-#
-$CMP MC74VHC1
-D Single Hi-Lo/Lo-Hi tri-state buffer SOT23-5
 $ENDCMP
 #
 $CMP MCP120
