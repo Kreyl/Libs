@@ -41,6 +41,10 @@ $CMP BQ2461x
 D PWM Bat Charger with AC ctrl
 $ENDCMP
 #
+$CMP BSP742
+D Smart Power High-Side-Switch
+$ENDCMP
+#
 $CMP BSP762
 D Smart Power High-Side-Switch
 $ENDCMP
