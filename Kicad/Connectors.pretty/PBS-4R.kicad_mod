@@ -1,4 +1,4 @@
-(module PBS-4R (layer F.Cu) (tedit 5BB43DCB)
+(module PBS-4R (layer F.Cu) (tedit 5C682FE1)
   (descr "Receptacle 4pin@2.54 Right angle")
   (fp_text reference PBS-4R (at -2 2.4) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
@@ -21,4 +21,9 @@
   (pad 2 thru_hole circle (at -1.27 0) (size 1.5 1.5) (drill 0.9) (layers *.Cu *.Mask))
   (pad 3 thru_hole circle (at 1.27 0) (size 1.5 1.5) (drill 0.9) (layers *.Cu *.Mask))
   (pad 4 thru_hole circle (at 3.81 0) (size 1.5 1.5) (drill 0.9) (layers *.Cu *.Mask))
+  (model ${KICAD_SYMBOL_DIR}/3d/Connectors/Conn_PBS4R.STEP
+    (offset (xyz 0 -5 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 0))
+  )
 )
