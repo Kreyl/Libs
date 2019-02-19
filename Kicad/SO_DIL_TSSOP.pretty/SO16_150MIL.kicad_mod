@@ -1,4 +1,4 @@
-(module SO16_150MIL (layer F.Cu) (tedit 5704C55A)
+(module SO16_150MIL (layer F.Cu) (tedit 5C6BD7AF)
   (descr "SO16 150mil")
   (attr smd)
   (fp_text reference SO16-150MIL (at 0 -0.889) (layer F.SilkS)
@@ -31,9 +31,9 @@
   (pad 12 smd oval (at 1.27 -2.9) (size 0.5 1.6) (layers F.Cu F.Paste F.Mask))
   (pad 13 smd oval (at 0 -2.9) (size 0.5 1.6) (layers F.Cu F.Paste F.Mask))
   (pad 14 smd oval (at -1.27 -2.9) (size 0.5 1.6) (layers F.Cu F.Paste F.Mask))
-  (model smd/cms_so8.wrl
-    (at (xyz 0 0 0))
-    (scale (xyz 0.5 0.32 0.5))
+  (model ${KICAD_SYMBOL_DIR}/3d/SO_DIL_TSSOP/SO16_150.stp
+    (offset (xyz 0.635 0 0))
+    (scale (xyz 1 1 1))
     (rotate (xyz 0 0 0))
   )
 )

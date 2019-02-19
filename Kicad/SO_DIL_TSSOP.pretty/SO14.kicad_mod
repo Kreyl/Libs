@@ -1,4 +1,4 @@
-(module SO14 (layer F.Cu) (tedit 58456D30)
+(module SO14 (layer F.Cu) (tedit 5C6C02D4)
   (fp_text reference REF** (at 2.5 0) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
@@ -31,4 +31,9 @@
   (pad 5 smd oval (at 1.27 2.794) (size 0.51 1.5) (layers F.Cu F.Paste F.Mask))
   (pad 6 smd oval (at 2.54 2.794) (size 0.51 1.5) (layers F.Cu F.Paste F.Mask))
   (pad 7 smd oval (at 3.81 2.794) (size 0.51 1.5) (layers F.Cu F.Paste F.Mask))
+  (model ${KICAD_SYMBOL_DIR}/3d/SO_DIL_TSSOP/SO14_150.stp
+    (at (xyz 0 0 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 0))
+  )
 )
