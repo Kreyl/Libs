@@ -450,18 +450,13 @@ i2c_t i2c1 {&I2C1Params};
 static const i2cParams_t I2C2Params = {
         I2C2,
         I2C2_GPIO, I2C2_SCL, I2C2_SDA, I2C_AF,
+        0xE14,                          // Calculated by Cube for 100kHz
         I2C2_DMA_TX,
         I2C2_DMA_RX,
-        I2C_DMATX_MODE(I2C2_DMA_CHNL),
-        I2C_DMARX_MODE(I2C2_DMA_CHNL),
-#if defined STM32L4XX
+        (STM32_DMA_CR_PSIZE_BYTE | STM32_DMA_CR_MSIZE_BYTE | STM32_DMA_CR_MINC | STM32_DMA_CR_DIR_M2P | STM32_DMA_CR_CHSEL(I2C2_DMA_CHNL) | DMA_PRIORITY_MEDIUM),
+        (STM32_DMA_CR_PSIZE_BYTE | STM32_DMA_CR_MSIZE_BYTE | STM32_DMA_CR_MINC | STM32_DMA_CR_DIR_P2M | STM32_DMA_CR_CHSEL(I2C2_DMA_CHNL) | DMA_PRIORITY_MEDIUM),
         STM32_I2C2_EVENT_NUMBER,
-        STM32_I2C2_ERROR_NUMBER,
-        I2C_CLK_SRC
-#else
-        STM32_I2C1_GLOBAL_NUMBER,
-        STM32_I2C1_GLOBAL_NUMBER,
-#endif
+        STM32_I2C2_ERROR_NUMBER
 };
 i2c_t i2c2 {&I2C2Params};
 #endif
@@ -519,7 +514,6 @@ void i2c_t::Init() {
     // Get input clock
     uint32_t ClkHz;
     if(PParams->ClkSrc == i2cclkHSI) {
-        Clk.EnableHSI();
         Clk.SetI2CClkSrc(pi2c, i2cclkHSI);
         ClkHz = HSI_FREQ_HZ;
     }
@@ -588,9 +582,7 @@ uint8_t i2c_t::CheckAddress(uint32_t Addr) {
 #if I2C_USE_SEMAPHORE
     if(chBSemWait(&BSemaphore) != MSG_OK) return FAILURE;
 #endif
-    IReset(); // Reset I2C
     uint8_t Rslt;
-    int32_t Retries = 9999;
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
     if(IBusyWait() != retvOk) {
         Rslt = retvBusy;
@@ -600,13 +592,7 @@ uint8_t i2c_t::CheckAddress(uint32_t Addr) {
     IReset(); // Reset I2C
     pi2c->CR2 = (Addr << 1) | I2C_CR2_AUTOEND;
     pi2c->CR2 |= I2C_CR2_START;     // Start
-    while(!(pi2c->ISR & I2C_ISR_STOPF)) {
-        if(!Retries--) {
-            Rslt = retvTimeout;
-            Printf("i2cC TO\r");
-            goto ChckEnd;
-        }
-    }
+    while(!(pi2c->ISR & I2C_ISR_STOPF));
     if(pi2c->ISR & I2C_ISR_NACKF) Rslt = retvNotFound;
     else Rslt = retvOk;
 
@@ -638,12 +624,12 @@ uint8_t i2c_t::Write(uint32_t Addr, uint8_t *WPtr, uint32_t WLength) {
     // Prepare tx
     IState = istWrite;  // Nothing to read
     pi2c->CR2 = (Addr << 1) | (WLength << 16);
-    chSysLock();
     dmaStreamEnable(PParams->PDmaTx);   // Enable TX DMA
     // Enable IRQs: TX completed, error, NAck
     pi2c->CR1 |= (I2C_CR1_TCIE | I2C_CR1_ERRIE | I2C_CR1_NACKIE);
     pi2c->CR2 |= I2C_CR2_START;         // Start transmission
     // Wait completion
+    chSysLock();
     r = chThdSuspendTimeoutS(&PThd, MS2ST(I2C_TIMEOUT_MS));
     chSysUnlock();
     // Disable IRQs
@@ -711,10 +697,6 @@ uint8_t i2c_t::WriteRead(uint32_t Addr, uint8_t *WPtr, uint32_t WLength, uint8_t
     return Rslt;
 }
 
-uint8_t i2c_t::WriteReadNoDMA(uint32_t Addr, uint8_t *WPtr,  uint32_t WLength, uint8_t *RPtr, uint32_t RLength) {
-    return 0;
-}
-
 uint8_t i2c_t::WriteWrite(uint32_t Addr, uint8_t *WPtr1, uint32_t WLength1, uint8_t *WPtr2, uint32_t WLength2) {
 #if I2C_USE_SEMAPHORE
     if(chBSemWait(&BSemaphore) != MSG_OK) return FAILURE;
@@ -740,12 +722,12 @@ uint8_t i2c_t::WriteWrite(uint32_t Addr, uint8_t *WPtr1, uint32_t WLength1, uint
         IState = istWrite;
         pi2c->CR2 = (Addr << 1) | (WLength1 << 16);
     }
-    chSysLock();
+    dmaStreamEnable(PParams->PDmaTx);   // Enable TX DMA
     // Enable IRQs: TX completed, error, NAck
     pi2c->CR1 |= (I2C_CR1_TCIE | I2C_CR1_ERRIE | I2C_CR1_NACKIE);
     pi2c->CR2 |= I2C_CR2_START;         // Start transmission
-    dmaStreamEnable(PParams->PDmaTx);   // Enable TX DMA
     // Wait completion
+    chSysLock();
     r = chThdSuspendTimeoutS(&PThd, MS2ST(I2C_TIMEOUT_MS));
     chSysUnlock();
     // Disable IRQs
@@ -764,7 +746,7 @@ uint8_t i2c_t::WriteWrite(uint32_t Addr, uint8_t *WPtr1, uint32_t WLength1, uint
 
 void i2c_t::IReset() {
     PParams->pi2c->CR1 &= ~I2C_CR1_PE;
-    __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); // Wait 9 cycles
+    __NOP(); __NOP(); __NOP();  // Wait 3 cycles
     PParams->pi2c->CR1 |= I2C_CR1_PE;
 }
 
@@ -773,15 +755,6 @@ void i2c_t::Standby() {
     PinSetupAnalog(PParams->PGpio, PParams->SclPin);
     PinSetupAnalog(PParams->PGpio, PParams->SdaPin);
     __NOP(); __NOP(); __NOP();  // Wait 3 cycles
-}
-
-void i2c_t::PutBusLow() {
-    PParams->pi2c->CR1 &= ~I2C_CR1_PE;
-    __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-    PinSetupOut(PParams->PGpio, PParams->SclPin, omOpenDrain);
-    PinSetupOut(PParams->PGpio, PParams->SdaPin, omOpenDrain);
-    PinSetLo(PParams->PGpio, PParams->SclPin);
-    PinSetLo(PParams->PGpio, PParams->SdaPin);
 }
 
 void i2c_t::Resume() {

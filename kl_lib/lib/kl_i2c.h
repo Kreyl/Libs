@@ -110,13 +110,11 @@ public:
     void Init();
     void ScanBus();
     void Standby();
-    void PutBusLow();
     void Resume();
     uint8_t CheckAddress(uint32_t Addr);
     uint8_t Write     (uint32_t Addr, uint8_t *WPtr,  uint32_t WLength);
     uint8_t WriteRead (uint32_t Addr, uint8_t *WPtr,  uint32_t WLength, uint8_t *RPtr, uint32_t RLength);
     uint8_t WriteWrite(uint32_t Addr, uint8_t *WPtr1, uint32_t WLength1, uint8_t *WPtr2, uint32_t WLength2);
-    uint8_t WriteReadNoDMA(uint32_t Addr, uint8_t *WPtr,  uint32_t WLength, uint8_t *RPtr, uint32_t RLength);
     // Inner use
     void IServeIRQ(uint32_t isr);
     void IServeErrIRQ(uint32_t isr);
