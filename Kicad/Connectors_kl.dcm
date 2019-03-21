@@ -44,6 +44,11 @@ D 14-pin connector, general form
 K CONN
 $ENDCMP
 #
+$CMP CONN_15
+D 14-pin connector, general form
+K CONN
+$ENDCMP
+#
 $CMP CONN_16
 D Symbole general de connecteur
 K CONN
