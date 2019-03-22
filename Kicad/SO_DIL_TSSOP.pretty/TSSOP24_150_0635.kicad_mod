@@ -1,4 +1,4 @@
-(module TSSOP24_150_0635 (layer F.Cu) (tedit 5C939ED3)
+(module TSSOP24_150_0635 (layer F.Cu) (tedit 5C94F11A)
   (attr smd)
   (fp_text reference REF** (at 0 -1.1 180) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
@@ -35,4 +35,9 @@
   (pad 11 smd oval (at 2.8575 2.75) (size 0.3 1.4) (layers F.Cu F.Paste F.Mask))
   (pad 13 smd oval (at 3.4925 -2.75) (size 0.3 1.4) (layers F.Cu F.Paste F.Mask))
   (pad 12 smd oval (at 3.4925 2.75) (size 0.3 1.4) (layers F.Cu F.Paste F.Mask))
+  (model ${KICAD_SYMBOL_DIR}/3d/IC's/MS-013AD.stp
+    (at (xyz 0 0 0))
+    (scale (xyz 0.5 0.5 0.5))
+    (rotate (xyz 0 0 0))
+  )
 )
