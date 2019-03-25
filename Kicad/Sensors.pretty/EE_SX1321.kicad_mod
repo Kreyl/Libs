@@ -1,4 +1,4 @@
-(module EE_SX1321 (layer F.Cu) (tedit 5C98A97D)
+(module EE_SX1321 (layer F.Cu) (tedit 5C98AD21)
   (fp_text reference REF** (at 0 0.05) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
@@ -19,4 +19,9 @@
   (pad 4 smd rect (at 2.55 1.4) (size 2 1) (layers F.Cu F.Paste F.Mask))
   (pad 5 smd rect (at 2.55 0) (size 2 1) (layers F.Cu F.Paste F.Mask))
   (pad 6 smd rect (at 2.55 -1.4) (size 2 1) (layers F.Cu F.Paste F.Mask))
+  (model ${KICAD_SYMBOL_DIR}/3d/Sensors/EE_SX1321.STEP
+    (at (xyz 0 0 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 0))
+  )
 )
