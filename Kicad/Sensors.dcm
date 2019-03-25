@@ -12,6 +12,10 @@ $CMP BALL_SNS
 D Ball vibration sensor
 $ENDCMP
 #
+$CMP EE_SX1321
+D Transmissive Optical Sensor with Phototransistor Output
+$ENDCMP
+#
 $CMP ICM20608
 D Acc + Gyro
 $ENDCMP
