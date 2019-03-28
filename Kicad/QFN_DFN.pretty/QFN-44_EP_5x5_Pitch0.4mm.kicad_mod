@@ -1,4 +1,4 @@
-(module QFN-44_EP_5x5_Pitch0.4mm (layer F.Cu) (tedit 5C9B51BE)
+(module QFN-44_EP_5x5_Pitch0.4mm (layer F.Cu) (tedit 5C9CCC6C)
   (attr smd)
   (fp_text reference REF** (at 0.25 -3.5) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
@@ -65,4 +65,9 @@
   (pad 44 smd oval (at -2 -2.5) (size 0.2 0.6) (layers F.Cu F.Paste F.Mask))
   (pad PAD smd rect (at 0 0) (size 2.55 2.55) (layers F.Cu F.Paste F.Mask)
     (solder_paste_margin -0.75))
+  (model ${KICAD_SYMBOL_DIR}/3d/QFN_DFN/QFN-32-1EP_5x5mm_Pitch0.5mm.wrl
+    (at (xyz 0 0 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 0))
+  )
 )
