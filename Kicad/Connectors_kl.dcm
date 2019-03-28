@@ -44,6 +44,11 @@ D 14-pin connector, general form
 K CONN
 $ENDCMP
 #
+$CMP CONN_14_W_PAD
+D 14-pin connector, general form
+K CONN
+$ENDCMP
+#
 $CMP CONN_15
 D 14-pin connector, general form
 K CONN

@@ -4,4 +4,8 @@ $CMP ICN2012
 D 74HC138 w 2.5A P-MOSFETs
 $ENDCMP
 #
+$CMP SN3236
+D 36-ch LED Drv i2c ctrl
+$ENDCMP
+#
 #End Doc Library

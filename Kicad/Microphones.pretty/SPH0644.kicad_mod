@@ -1,4 +1,4 @@
-(module SPH0644 (layer F.Cu) (tedit 5C40A1EC)
+(module SPH0644 (layer F.Cu) (tedit 5C9B41FC)
   (fp_text reference REF** (at 0.18 -2.99) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
@@ -19,5 +19,6 @@
     (primitives
       (gr_circle (center -0.65 -0.01) (end 0.0125 -0.01) (width 0.3))
     ))
-  (pad "" np_thru_hole circle (at 0 0) (size 0.6 0.6) (drill 0.6) (layers *.Cu *.Mask))
+  (pad "" np_thru_hole circle (at 0 0) (size 0.5 0.5) (drill 0.5) (layers *.Cu *.Mask)
+    (solder_mask_margin 0.3) (clearance 0.254))
 )
