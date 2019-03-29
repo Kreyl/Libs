@@ -1,9 +1,9 @@
-(module Hole1d8_out3d2mm (layer F.Cu) (tedit 5C9E0DEA)
+(module Hole1d6_out2d4mm (layer F.Cu) (tedit 5C9E0E8E)
   (fp_text reference Hole3_3mm (at 0 2.8) (layer F.SilkS) hide
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
   (fp_text value VAL** (at 0 -2.8) (layer F.SilkS) hide
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
-  (pad H thru_hole circle (at 0 0) (size 3.2 3.2) (drill 1.8) (layers *.Cu *.Mask))
+  (pad H thru_hole circle (at 0 0) (size 2.4 2.4) (drill 1.6) (layers *.Cu *.Mask))
 )
