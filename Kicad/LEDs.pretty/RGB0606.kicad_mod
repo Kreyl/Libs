@@ -1,4 +1,4 @@
-(module RGB0606 (layer F.Cu) (tedit 5CA232AB)
+(module RGB0606 (layer F.Cu) (tedit 5CA36F75)
   (fp_text reference REF** (at 0.1 1.4) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
@@ -14,9 +14,9 @@
   (pad R smd rect (at -0.7 0.5) (size 0.6 0.7) (layers F.Cu F.Paste F.Mask))
   (pad COM smd rect (at 0.7 0.5) (size 0.6 0.7) (layers F.Cu F.Paste F.Mask))
   (pad B smd rect (at 0.7 -0.5) (size 0.6 0.7) (layers F.Cu F.Paste F.Mask))
-  (model "${KICAD_SYMBOL_DIR}/3d/LED/LED 0603.STEP"
+  (model ${KICAD_SYMBOL_DIR}/3d/LED/LED_0606.STEP
     (at (xyz 0 0 0))
-    (scale (xyz 1 1 2))
-    (rotate (xyz -90 0 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 0))
   )
 )
