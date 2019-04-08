@@ -19,7 +19,7 @@ void CCIrqHandler();
 class cc1101_t : public IrqHandler_t {
 private:
     const Spi_t ISpi;
-    const GPIO_TypeDef *PGpio;
+    const GPIO_TypeDef *SpiGpio, *CSGpio;
     const uint16_t Sck, Miso, Mosi, Cs;
     const PinIrq_t IGdo0;
     uint8_t IState; // Inner CC state, returned as first byte
@@ -27,12 +27,12 @@ private:
     // Pins
     uint8_t BusyWait() {
         for(uint32_t i=0; i<CC_BUSYWAIT_TIMEOUT; i++) {
-            if(PinIsLo(PGpio, Miso)) return retvOk;
+            if(PinIsLo(SpiGpio, Miso)) return retvOk;
         }
         return retvFail;
     }
-    void CsHi() { PinSetHi((GPIO_TypeDef*)PGpio, Cs); }
-    void CsLo() { PinSetLo((GPIO_TypeDef*)PGpio, Cs); }
+    void CsHi() { PinSetHi((GPIO_TypeDef*)CSGpio, Cs); }
+    void CsLo() { PinSetLo((GPIO_TypeDef*)CSGpio, Cs); }
     // General
     void RfConfig();
     int8_t RSSI_dBm(uint8_t ARawRSSI);
@@ -45,11 +45,11 @@ private:
     uint8_t Reset()       { return WriteStrobe(CC_SRES); }
     uint8_t EnterTX()     { return WriteStrobe(CC_STX);  }
     uint8_t EnterRX()     { return WriteStrobe(CC_SRX);  }
-    uint8_t EnterIdle()    { return WriteStrobe(CC_SIDLE); }
-    uint8_t EnterPwrDown() { return WriteStrobe(CC_SPWD);  }
     uint8_t FlushRxFIFO() { return WriteStrobe(CC_SFRX); }
 public:
     uint8_t Init();
+    uint8_t EnterIdle()    { return WriteStrobe(CC_SIDLE); }
+    uint8_t EnterPwrDown() { return WriteStrobe(CC_SPWD);  }
     void SetChannel(uint8_t AChannel);
     void SetTxPower(uint8_t APwr)  { WriteRegister(CC_PATABLE, APwr); }
     void SetPktSize(uint8_t ASize) { WriteRegister(CC_PKTLEN, ASize); }
@@ -67,11 +67,14 @@ public:
     uint8_t ReadFIFO(void *Ptr, int8_t *PRssi, uint8_t Len);
 
     void IIrqHandler() { chThdResumeI(&ThdRef, MSG_OK); }   // NotNull check perfprmed inside chThdResumeI
+
     cc1101_t(
-            SPI_TypeDef *ASpi, GPIO_TypeDef *APGpio,
-            uint16_t ASck, uint16_t AMiso, uint16_t AMosi, uint16_t ACs, uint16_t AGdo0, ftVoidVoid AIrqHandler):
-        ISpi(ASpi), PGpio(APGpio),
+            SPI_TypeDef *ASpi, GPIO_TypeDef *ASpiGpio,
+            uint16_t ASck, uint16_t AMiso, uint16_t AMosi,
+            GPIO_TypeDef *ACSGpio, uint16_t ACs,
+            GPIO_TypeDef *AGd0Gpio, uint16_t AGdo0):
+        ISpi(ASpi), SpiGpio(ASpiGpio), CSGpio(ACSGpio),
         Sck(ASck), Miso(AMiso), Mosi(AMosi), Cs(ACs),
-        IGdo0(APGpio, AGdo0, pudNone, AIrqHandler),
+        IGdo0(AGd0Gpio, AGdo0, pudNone, CCIrqHandler),
         IState(0), ThdRef(nullptr) {}
 };
