@@ -31,7 +31,7 @@ static inline uint32_t ClrCalcDelay(uint16_t AValue, uint32_t Smooth) {
 
 // Calculate Smooth value from desired duration of switching
 static inline int32_t CalcSmooth_st_from_ms(int32_t Duration_ms) {
-    return (MS2ST(Duration_ms) * 10L) / 36L;
+    return (TIME_MS2I(Duration_ms) * 10L) / 36L;
 }
 
 struct Color_t {

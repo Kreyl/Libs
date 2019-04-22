@@ -23,31 +23,15 @@ uint8_t cc1101_t::Init() {
 #elif defined STM32F030 || defined STM32F0
 #define CC_AF   AF0
 #endif
-    PinSetupOut      ((GPIO_TypeDef*)PGpio, Cs,   omPushPull);
-    PinSetupAlterFunc((GPIO_TypeDef*)PGpio, Sck,  omPushPull, pudNone, CC_AF);
-    PinSetupAlterFunc((GPIO_TypeDef*)PGpio, Miso, omPushPull, pudNone, CC_AF);
-    PinSetupAlterFunc((GPIO_TypeDef*)PGpio, Mosi, omPushPull, pudNone, CC_AF);
+    PinSetupOut      ((GPIO_TypeDef*)CSGpio, Cs,   omPushPull);
+    PinSetupAlterFunc((GPIO_TypeDef*)SpiGpio, Sck,  omPushPull, pudNone, CC_AF);
+    PinSetupAlterFunc((GPIO_TypeDef*)SpiGpio, Miso, omPushPull, pudNone, CC_AF);
+    PinSetupAlterFunc((GPIO_TypeDef*)SpiGpio, Mosi, omPushPull, pudNone, CC_AF);
     IGdo0.Init(ttFalling);
     CsHi();
     // ==== SPI ====
     // MSB first, master, ClkLowIdle, FirstEdge, Baudrate no more than 6.5MHz
-    uint32_t div;
-#if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX
-    if(ISpi.PSpi == SPI1) div = Clk.APB2FreqHz / CC_MAX_BAUDRATE_HZ;
-    else div = Clk.APB1FreqHz / CC_MAX_BAUDRATE_HZ;
-#elif defined STM32F030 || defined STM32F0
-    div = Clk.APBFreqHz / CC_MAX_BAUDRATE_HZ;
-#endif
-    SpiClkDivider_t ClkDiv = sclkDiv2;
-    if     (div > 128) ClkDiv = sclkDiv256;
-    else if(div > 64) ClkDiv = sclkDiv128;
-    else if(div > 32) ClkDiv = sclkDiv64;
-    else if(div > 16) ClkDiv = sclkDiv32;
-    else if(div > 8)  ClkDiv = sclkDiv16;
-    else if(div > 4)  ClkDiv = sclkDiv8;
-    else if(div > 2)  ClkDiv = sclkDiv4;
-
-    ISpi.Setup(boMSB, cpolIdleLow, cphaFirstEdge, ClkDiv);
+    ISpi.Setup(boMSB, cpolIdleLow, cphaFirstEdge, CC_MAX_BAUDRATE_HZ);
     ISpi.Enable();
     // ==== Init CC ====
     if(Reset() != retvOk) {
@@ -146,20 +130,19 @@ void cc1101_t::Transmit(void *Ptr, uint8_t Len) {
 //     WaitUntilChannelIsBusy();   // If this is not done, time after time FIFO is destroyed
 //    while(IState != CC_STB_IDLE) EnterIdle();
     EnterTX();  // Start transmission of preamble while writing FIFO
+    chSysLock();
     WriteTX((uint8_t*)Ptr, Len);
     // Enter TX and wait IRQ
-    chSysLock();
     chThdSuspendS(&ThdRef); // Wait IRQ
     chSysUnlock();          // Will be here when IRQ fires
 }
 
 // Enter RX mode and wait reception for Timeout_ms.
 uint8_t cc1101_t::Receive(uint32_t Timeout_ms, void *Ptr, uint8_t Len, int8_t *PRssi) {
-//    Recalibrate();
     FlushRxFIFO();
     chSysLock();
     EnterRX();
-    msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, MS2ST(Timeout_ms));    // Wait IRQ
+    msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, TIME_MS2I(Timeout_ms));    // Wait IRQ
     chSysUnlock();  // Will be here when IRQ will fire, or timeout occur - with appropriate message
 
     if(Rslt == MSG_TIMEOUT) {   // Nothing received, timeout occured
