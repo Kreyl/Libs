@@ -9,7 +9,6 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "core_cmInstr.h"
 #include <cstdlib>
 #include <sys/cdefs.h>
 #include "EvtMsgIDs.h"
@@ -231,7 +230,6 @@ uint8_t TryStrToFloat(char* S, float *POutput);
 #if 1 // ============================ kl_string ================================
 int kl_strcasecmp(const char *s1, const char *s2);
 
-
 #endif
 
 #ifdef DMA_MEM2MEM
@@ -289,7 +287,7 @@ class TmrKL_t : private IrqHandler_t {
 private:
     virtual_timer_t Tmr;
     void StartI() { chVTSetI(&Tmr, Period, TmrKLCallback, this); }  // Will be reset before start
-    systime_t Period;
+    sysinterval_t Period;
     EvtMsgId_t EvtId;
     TmrKLType_t TmrType;
     void IIrqHandler();
@@ -299,7 +297,7 @@ public:
         StartI();
         chSysUnlock();
     }
-    void StartOrRestart(systime_t NewPeriod) {
+    void StartOrRestart(sysinterval_t NewPeriod) {
         chSysLock();
         Period = NewPeriod;
         StartI();
@@ -312,14 +310,14 @@ public:
     }
     void Stop() { chVTReset(&Tmr); }
 
-    void SetNewPeriod_ms(uint32_t NewPeriod) { Period = MS2ST(NewPeriod); }
-    void SetNewPeriod_s(uint32_t NewPeriod) { Period = S2ST(NewPeriod); }
+    void SetNewPeriod_ms(uint32_t NewPeriod) { Period = TIME_MS2I(NewPeriod); }
+    void SetNewPeriod_s(uint32_t NewPeriod) { Period = TIME_S2I(NewPeriod); }
 
-    TmrKL_t(systime_t APeriod, EvtMsgId_t AEvtId, TmrKLType_t AType) :
+    TmrKL_t(sysinterval_t APeriod, EvtMsgId_t AEvtId, TmrKLType_t AType) :
         Period(APeriod), EvtId(AEvtId), TmrType(AType) {}
     // Dummy period is set
     TmrKL_t(EvtMsgId_t AEvtId, TmrKLType_t AType) :
-            Period(S2ST(9)), EvtId(AEvtId), TmrType(AType) {}
+            Period(TIME_S2I(9)), EvtId(AEvtId), TmrType(AType) {}
 };
 #endif
 
@@ -354,7 +352,7 @@ static inline void DelayLoop(volatile uint32_t ACounter) { while(ACounter--); }
 // On writes, write 0x5FA to VECTKEY, otherwise the write is ignored. 4 is SYSRESETREQ: System reset request
 #define REBOOT()                SCB->AIRCR = 0x05FA0004
 
-#if 1 // ======================= Power and backup unit =========================
+#if 0 // ======================= Power and backup unit =========================
 namespace BackupSpc {
     static inline void EnableAccess() {
         rccEnablePWRInterface(FALSE);
@@ -392,7 +390,7 @@ namespace BackupSpc {
 } // namespace
 #endif
 
-#if 1 // ============================= RTC =====================================
+#if 0 // ============================= RTC =====================================
 namespace Rtc {
 #if defined STM32F10X_LD_VL
 // Wait until the RTC registers (RTC_CNT, RTC_ALR and RTC_PRL) are synchronized with RTC APB clock.
@@ -698,7 +696,9 @@ static void PinClockEnable(const GPIO_TypeDef *PGpioPort) {
     else if(PGpioPort == GPIOC) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOCEN;
     else if(PGpioPort == GPIOD) RCC->AHB2ENR |= RCC_AHB2ENR_GPIODEN;
     else if(PGpioPort == GPIOE) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOEEN;
+#ifdef GPIOF
     else if(PGpioPort == GPIOF) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOFEN;
+#endif
     else if(PGpioPort == GPIOH) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOHEN;
 #else
     if     (PGpioPort == GPIOA) RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
@@ -843,7 +843,7 @@ static inline void PinSetupAnalog(GPIO_TypeDef *PGpioPort, const uint16_t APinNu
 #endif
 }
 
-#ifdef STM32L4XX
+#ifdef STM32L476
 static inline void PinConnectAdc(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber) {
     SET_BIT(PGpioPort->ASCR, 1<<APinNumber);
 }
@@ -1137,7 +1137,9 @@ public:
         else if(PGpio == GPIOC) SYSCFG->EXTICR[Indx] |= 2UL << Offset;
         else if(PGpio == GPIOD) SYSCFG->EXTICR[Indx] |= 3UL << Offset;
         else if(PGpio == GPIOE) SYSCFG->EXTICR[Indx] |= 4UL << Offset;
+#ifdef GPIOF
         else if(PGpio == GPIOF) SYSCFG->EXTICR[Indx] |= 5UL << Offset;
+#endif
 #ifdef GPIOG
         else if(PGpio == GPIOG) SYSCFG->EXTICR[Indx] |= 6UL << Offset;
 #endif
@@ -1979,14 +1981,18 @@ public:
             tmp &= ~RCC_CCIPR_USART3SEL;
             tmp |= ((uint32_t)ClkSrc) << 4;
         }
+#ifdef UART4
         else if(uart == UART4) {
             tmp &= ~RCC_CCIPR_UART4SEL;
             tmp |= ((uint32_t)ClkSrc) << 6;
         }
+#endif
+#ifdef UART5
         else if(uart == UART5) {
             tmp &= ~RCC_CCIPR_UART5SEL;
             tmp |= ((uint32_t)ClkSrc) << 8;
         }
+#endif
         else if(uart == LPUART1) {
             tmp &= ~RCC_CCIPR_LPUART1SEL;
             tmp |= ((uint32_t)ClkSrc) << 10;
@@ -1999,8 +2005,12 @@ public:
         if     (uart == USART1) ClkSrc = (uartClk_t)((RCC->CCIPR & RCC_CCIPR_USART1SEL) >> 0);
         else if(uart == USART2) ClkSrc = (uartClk_t)((RCC->CCIPR & RCC_CCIPR_USART2SEL) >> 2);
         else if(uart == USART3) ClkSrc = (uartClk_t)((RCC->CCIPR & RCC_CCIPR_USART3SEL) >> 4);
+#ifdef UART4
         else if(uart == UART4)  ClkSrc = (uartClk_t)((RCC->CCIPR & RCC_CCIPR_UART4SEL)  >> 6);
+#endif
+#ifdef UART5
         else if(uart == UART5)  ClkSrc = (uartClk_t)((RCC->CCIPR & RCC_CCIPR_UART5SEL)  >> 8);
+#endif
         else if(uart == LPUART1) ClkSrc = (uartClk_t)((RCC->CCIPR & RCC_CCIPR_LPUART1SEL) >> 10);
         // Get clock
         switch(ClkSrc) {

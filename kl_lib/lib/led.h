@@ -230,7 +230,7 @@ public:
 #endif
 
 #if 1 // ============================ LedHSV ===================================
-class LedHSVParent_t : public BaseSequencer_t<LedHSVChunk_t> {
+class LedHSV_t : public BaseSequencer_t<LedHSVChunk_t> {
 protected:
     const PinOutputPWM_t  R, G, B;
     const uint32_t PWMFreq;
@@ -263,7 +263,7 @@ protected:
         return sltProceed;
     }
 public:
-    LedHSVParent_t(
+    LedHSV_t(
             const PwmSetup_t ARed,
             const PwmSetup_t AGreen,
             const PwmSetup_t ABlue,
@@ -294,66 +294,6 @@ public:
     void SetCurrentH(uint16_t NewH) {
         ICurrColor.H = NewH;
         SetColor(ICurrColor);
-    }
-};
-#endif
-
-#if 1 // ============================== LedHSV =================================
-class LedHSV_t : public LedHSVParent_t {
-public:
-    LedHSV_t(
-            const PwmSetup_t ARed,
-            const PwmSetup_t AGreen,
-            const PwmSetup_t ABlue,
-            const uint32_t AFreq = 0xFFFFFFFF) :
-                LedHSVParent_t(ARed, AGreen, ABlue, AFreq) {}
-
-    void SetColor(Color_t AColor) {
-        R.Set(AColor.R);
-        G.Set(AColor.G);
-        B.Set(AColor.B);
-    }
-    void SetColor(ColorHSV_t AColor) {
-        Color_t RGBClr = AColor.ToRGB();
-        R.Set(RGBClr.R);
-        G.Set(RGBClr.G);
-        B.Set(RGBClr.B);
-    }
-};
-#endif
-
-#if 1 // =========================== RGB LED with power ========================
-class LedHSVwPower_t : public LedHSVParent_t {
-private:
-    const PinOutput_t PwrPin;
-public:
-    LedHSVwPower_t(
-            const PwmSetup_t ARed,
-            const PwmSetup_t AGreen,
-            const PwmSetup_t ABlue,
-            const PinOutput_t APwrPin,
-            const uint32_t AFreq = 0xFFFFFFFF) :
-                LedHSVParent_t(ARed, AGreen, ABlue, AFreq), PwrPin(APwrPin) {}
-    void Init() {
-        PwrPin.Init();
-        LedHSVParent_t::Init();
-    }
-    void SetColor(Color_t AColor) {
-        if(AColor == clBlack) PwrPin.SetLo();
-        else PwrPin.SetHi();
-        R.Set(AColor.R);
-        G.Set(AColor.G);
-        B.Set(AColor.B);
-    }
-    void SetColor(ColorHSV_t AColor) {
-        if(AColor.V == 0) PwrPin.SetLo();
-        else {
-            PwrPin.SetHi();
-            Color_t RGBClr = AColor.ToRGB();
-            R.Set(RGBClr.R);
-            G.Set(RGBClr.G);
-            B.Set(RGBClr.B);
-        }
     }
 };
 #endif

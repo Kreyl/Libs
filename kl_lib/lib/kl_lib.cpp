@@ -158,7 +158,7 @@ void TrueInit() {
 
 void TrueDeinit() {
     RNG->CR = 0;
-    rccDisableAHB2(RCC_AHB2ENR_RNGEN, FALSE);
+    rccDisableAHB2(RCC_AHB2ENR_RNGEN);
 }
 
 uint32_t TrueGenerate(uint32_t LowInclusive, uint32_t HighInclusive) {
@@ -242,61 +242,61 @@ void Timer_t::Init() const {
 void Timer_t::Deinit() const {
     TMR_DISABLE(ITmr);
 #ifdef TIM1
-    if(ITmr == TIM1)  { rccDisableTIM1(FALSE); }
+    if(ITmr == TIM1)  { rccDisableTIM1(); }
 #endif
 #ifdef TIM2
-    if(ITmr == TIM2)  { rccDisableTIM2(FALSE); }
+    if(ITmr == TIM2)  { rccDisableTIM2(); }
 #endif
 #ifdef TIM3
-    else if(ITmr == TIM3)  { rccDisableTIM3(FALSE); }
+    else if(ITmr == TIM3)  { rccDisableTIM3(); }
 #endif
 #ifdef TIM4
-    else if(ITmr == TIM4)  { rccDisableTIM4(FALSE); }
+    else if(ITmr == TIM4)  { rccDisableTIM4(); }
 #endif
 #ifdef TIM5
-    else if(ITmr == TIM5)  { rccDisableTIM5(FALSE); }
+    else if(ITmr == TIM5)  { rccDisableTIM5(); }
 #endif
 #ifdef TIM6
-    else if(ITmr == TIM6)  { rccDisableTIM6(FALSE); }
+    else if(ITmr == TIM6)  { rccDisableTIM6(); }
 #endif
 #ifdef TIM7
-    else if(ITmr == TIM7)  { rccDisableTIM7(FALSE); }
+    else if(ITmr == TIM7)  { rccDisableTIM7(); }
 #endif
 #ifdef TIM8
-    else if(ITmr == TIM8)  { rccDisableTIM8(FALSE); }
+    else if(ITmr == TIM8)  { rccDisableTIM8(); }
 #endif
 #ifdef TIM9
-    else if(ITmr == TIM9)  { rccDisableTIM9(FALSE); }
+    else if(ITmr == TIM9)  { rccDisableTIM9(); }
 #endif
 #ifdef TIM10
-    else if(ITmr == TIM10)  { rccDisableTIM10(FALSE); }
+    else if(ITmr == TIM10)  { rccDisableTIM10(); }
 #endif
 #ifdef TIM11
-    else if(ITmr == TIM11)  { rccDisableTIM11(FALSE); }
+    else if(ITmr == TIM11)  { rccDisableTIM11(); }
 #endif
 #ifdef TIM12
-    else if(ITmr == TIM12)  { rccDisableTIM12(FALSE); }
+    else if(ITmr == TIM12)  { rccDisableTIM12(); }
 #endif
 #ifdef TIM13
-    else if(ITmr == TIM13)  { rccDisableTIM13(FALSE); }
+    else if(ITmr == TIM13)  { rccDisableTIM13(); }
 #endif
 #ifdef TIM14
-    else if(ITmr == TIM14)  { rccDisableTIM14(FALSE); }
+    else if(ITmr == TIM14)  { rccDisableTIM14(); }
 #endif
 #ifdef TIM15
-    else if(ITmr == TIM15)  { rccDisableTIM15(FALSE); }
+    else if(ITmr == TIM15)  { rccDisableTIM15(); }
 #endif
 #ifdef TIM16
-    else if(ITmr == TIM16)  { rccDisableTIM16(FALSE); }
+    else if(ITmr == TIM16)  { rccDisableTIM16(); }
 #endif
 #ifdef TIM17
-    else if(ITmr == TIM17)  { rccDisableTIM17(FALSE); }
+    else if(ITmr == TIM17)  { rccDisableTIM17(); }
 #endif
 #ifdef LPTIM1
-    else if(ILPTim == LPTIM1)  { rccDisableAPB1R1(RCC_APB1ENR1_LPTIM1EN, FALSE); }
+    else if(ILPTim == LPTIM1)  { rccDisableAPB1R1(RCC_APB1ENR1_LPTIM1EN); }
 #endif
 #ifdef LPTIM2
-    else if(ILPTim == LPTIM2)  { rccDisableAPB1R2(RCC_APB1ENR2_LPTIM2EN, FALSE); }
+    else if(ILPTim == LPTIM2)  { rccDisableAPB1R2(RCC_APB1ENR2_LPTIM2EN); }
 #endif
 }
 
@@ -383,9 +383,31 @@ void PinOutputPWM_t::Init() const {
 #elif defined STM32L4XX
     AlterFunc_t AF = AF1;
     if(ITmr == TIM1 or ITmr == TIM2 or ILPTim == LPTIM1) AF = AF1;
-    else if(ITmr == TIM3 or ITmr == TIM4 or ITmr == TIM5) AF = AF2;
+#ifdef TIM3
+    else if(ITmr == TIM3) AF = AF2;
+#endif
+#ifdef TIM4
+    else if(ITmr == TIM4) AF = AF2;
+#endif
+#ifdef TIM5
+    else if(ITmr == TIM5) AF = AF2;
+#endif
+#ifdef TIM8
     else if(ITmr == TIM8) AF = AF3;
-    else if(ITmr == TIM15 or ITmr == TIM16 or ITmr == TIM17 or ILPTim == LPTIM2) AF = AF14;
+#endif
+
+#ifdef TIM15
+    else if(ITmr == TIM15) AF = AF14;
+#endif
+#ifdef TIM16
+    else if(ITmr == TIM16) AF = AF14;
+#endif
+#ifdef TIM17
+    else if(ITmr == TIM17) AF = AF14;
+#endif
+#ifdef LPTIM2
+    else if(ILPTim == LPTIM2) AF = AF14;
+#endif
     PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF);
 #endif
 }
@@ -437,8 +459,13 @@ void PrintErrMsg(const char* S) {
     USART1->CR3 &= ~USART_CR3_DMAT;
     while(*S != 0) {
 //        ITM_SendChar(*S++);
+#if defined STM32L1XX
+        while(!(USART1->SR & USART_SR_TXE));
+        USART1->DR = *S;
+#else
         while(!(USART1->ISR & USART_ISR_TXE));
         USART1->TDR = *S;
+#endif
         S++;
     }
 }
@@ -453,8 +480,8 @@ void HardFault_Handler(void) {
 #endif
 
 #if 1 // ================= FLASH & EEPROM ====================
-#define FLASH_EraseTimeout      MS2ST(45)
-#define FLASH_ProgramTimeout    MS2ST(45)
+#define FLASH_EraseTimeout      TIME_MS2I(45)
+#define FLASH_ProgramTimeout    TIME_MS2I(45)
 namespace Flash {
 
 // ==== Common ====
@@ -577,7 +604,11 @@ uint8_t ErasePage(uint32_t PageAddress) {
         chSysLock();
         ClearErrFlags();    // Clear all error programming flags
         uint32_t Reg = FLASH->CR;
+#ifdef FLASH_CR_BKER
         Reg &= ~(FLASH_CR_PNB | FLASH_CR_BKER);
+#else
+        Reg &= ~FLASH_CR_PNB;
+#endif
         Reg |= (PageAddress << FLASH_CR_PNB_Pos) | FLASH_CR_PER;
         FLASH->CR = Reg;
         FLASH->CR |= FLASH_CR_STRT;
@@ -822,7 +853,7 @@ void IwdgFrozeInStandby() {
 #endif
 
 // ==== Dualbank ====
-#if defined STM32L4XX
+#if defined STM32L476
 bool DualbankIsEnabled() {
     return (FLASH->OPTR & FLASH_OPTR_DUALBANK);
 }
@@ -1184,7 +1215,7 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
 }; // namespace
 #endif
 
-#if 1 // ============================== IWDG ===================================
+#if 0 // ============================== IWDG ===================================
 namespace Iwdg {
 enum Pre_t {
     iwdgPre4 = 0x00,
@@ -2278,7 +2309,17 @@ void Clk_t::PrintFreqs() {
 
 uint32_t Clk_t::GetTimInputFreq(TIM_TypeDef* ITmr) {
     uint32_t InputFreq = 0;
-    if(ANY_OF_5(ITmr, TIM1, TIM8, TIM15, TIM16, TIM17)) {   // APB2
+    if(
+            ITmr == TIM1
+#ifdef TIM8
+            or ITmr == TIM8
+#endif
+            or ITmr == TIM15
+            or ITmr == TIM16
+#ifdef TIM17
+            or ITmr == TIM17
+#endif
+            ) {   // APB2
         uint32_t APB2prs = (RCC->CFGR & RCC_CFGR_PPRE2) >> 11;
         if(APB2prs < 0b100) InputFreq = Clk.APB2FreqHz; // APB2CLK = HCLK / 1
         else InputFreq = Clk.APB2FreqHz * 2;            // APB2CLK = HCLK / (not 1)
@@ -2633,13 +2674,13 @@ void Spi_t::Setup(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
     div = Clk.APBFreqHz / Bitrate_Hz;
 #endif
     SpiClkDivider_t ClkDiv = sclkDiv2;
-    if     (div > 128) ClkDiv = sclkDiv256;
-    else if(div > 64) ClkDiv = sclkDiv128;
-    else if(div > 32) ClkDiv = sclkDiv64;
-    else if(div > 16) ClkDiv = sclkDiv32;
-    else if(div > 8)  ClkDiv = sclkDiv16;
-    else if(div > 4)  ClkDiv = sclkDiv8;
-    else if(div > 2)  ClkDiv = sclkDiv4;
+    if     (div >= 128) ClkDiv = sclkDiv256;
+    else if(div >= 64) ClkDiv = sclkDiv128;
+    else if(div >= 32) ClkDiv = sclkDiv64;
+    else if(div >= 16) ClkDiv = sclkDiv32;
+    else if(div >= 8)  ClkDiv = sclkDiv16;
+    else if(div >= 4)  ClkDiv = sclkDiv8;
+    else if(div >= 2)  ClkDiv = sclkDiv4;
     PSpi->CR1 |= ((uint16_t)ClkDiv) << 3;
     // Bit number
 #if defined STM32L1XX || defined STM32F10X_LD_VL || defined STM32F2XX || defined STM32F4XX

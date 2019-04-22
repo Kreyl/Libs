@@ -142,7 +142,7 @@ uint8_t cc1101_t::Receive(uint32_t Timeout_ms, void *Ptr, uint8_t Len, int8_t *P
     FlushRxFIFO();
     chSysLock();
     EnterRX();
-    msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, MS2ST(Timeout_ms));    // Wait IRQ
+    msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, TIME_MS2I(Timeout_ms));    // Wait IRQ
     chSysUnlock();  // Will be here when IRQ will fire, or timeout occur - with appropriate message
 
     if(Rslt == MSG_TIMEOUT) {   // Nothing received, timeout occured

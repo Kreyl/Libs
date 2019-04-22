@@ -12,6 +12,9 @@
 #include "shell.h"
 #include "board.h"
 
+extern "C"
+void DmaUartTxIrq(void *p, uint32_t flags);
+
 struct UartParams_t {
     uint32_t Baudrate;
     USART_TypeDef* Uart;
@@ -20,25 +23,26 @@ struct UartParams_t {
     GPIO_TypeDef *PGpioRx;
     uint16_t PinRx;
     // DMA
-    const stm32_dma_stream_t *PDmaTx;
-    const stm32_dma_stream_t *PDmaRx;
+    uint32_t DmaTxID, DmaRxID;
     uint32_t DmaModeTx, DmaModeRx;
     // MCU-specific
 #if defined STM32F072xB || defined STM32L4XX
     bool UseIndependedClock;
 #endif
-    UartParams_t(uint32_t ABaudrate, USART_TypeDef* AUart, GPIO_TypeDef *APGpioTx,
-            uint16_t APinTx, GPIO_TypeDef *APGpioRx, uint16_t APinRx,
-            const stm32_dma_stream_t *APDmaTx, const stm32_dma_stream_t *APDmaRx,
+    UartParams_t(uint32_t ABaudrate, USART_TypeDef* AUart,
+            GPIO_TypeDef *APGpioTx, uint16_t APinTx,
+            GPIO_TypeDef *APGpioRx, uint16_t APinRx,
+            uint32_t ADmaTxID, uint32_t ADmaRxID,
             uint32_t ADmaModeTx, uint32_t ADmaModeRx
 #if defined STM32F072xB || defined STM32L4XX
     , bool AUseIndependedClock
 #endif
-    ) :         Baudrate(ABaudrate), Uart(AUart), PGpioTx(APGpioTx), PinTx(APinTx),
-                PGpioRx(APGpioRx), PinRx(APinRx), PDmaTx(APDmaTx), PDmaRx(APDmaRx),
-                DmaModeTx(ADmaModeTx), DmaModeRx(ADmaModeRx)
+    ) : Baudrate(ABaudrate), Uart(AUart),
+            PGpioTx(APGpioTx), PinTx(APinTx), PGpioRx(APGpioRx), PinRx(APinRx),
+            DmaTxID(ADmaTxID), DmaRxID(ADmaRxID),
+            DmaModeTx(ADmaModeTx), DmaModeRx(ADmaModeRx)
 #if defined STM32F072xB || defined STM32L4XX
-                , UseIndependedClock(AUseIndependedClock)
+        , UseIndependedClock(AUseIndependedClock)
 #endif
     {}
 };
@@ -52,6 +56,8 @@ struct UartParams_t {
 // ==== Base class ====
 class BaseUart_t {
 protected:
+    const stm32_dma_stream_t *PDmaTx;
+    const stm32_dma_stream_t *PDmaRx;
     const UartParams_t *Params;
 #if UART_USE_DMA
     char TXBuf[UART_TXBUF_SZ];

@@ -170,7 +170,7 @@ void DmaUartTxIrq(void *p, uint32_t flags) { ((BaseUart_t*)p)->IRQDmaTxHandler()
 
 // ==== TX DMA IRQ ====
 void BaseUart_t::IRQDmaTxHandler() {
-    dmaStreamDisable(Params->PDmaTx);    // Registers may be changed only when stream is disabled
+    dmaStreamDisable(PDmaTx);    // Registers may be changed only when stream is disabled
     IFullSlotsCount -= ITransSize;
     PRead += ITransSize;
     if(PRead >= (TXBuf + UART_TXBUF_SZ)) PRead = TXBuf; // Circulate pointer
@@ -187,10 +187,10 @@ void BaseUart_t::ISendViaDMA() {
     ITransSize = MIN_(IFullSlotsCount, PartSz);
     if(ITransSize != 0) {
         IDmaIsIdle = false;
-        dmaStreamSetMemory0(Params->PDmaTx, PRead);
-        dmaStreamSetTransactionSize(Params->PDmaTx, ITransSize);
-        dmaStreamSetMode(Params->PDmaTx, Params->DmaModeTx);
-        dmaStreamEnable(Params->PDmaTx);
+        dmaStreamSetMemory0(PDmaTx, PRead);
+        dmaStreamSetTransactionSize(PDmaTx, ITransSize);
+        dmaStreamSetMode(PDmaTx, Params->DmaModeTx);
+        dmaStreamEnable(PDmaTx);
     }
 }
 
@@ -246,7 +246,7 @@ uint8_t BaseUart_t::GetByte(uint8_t *b) {
 #if defined STM32F2XX || defined STM32F4XX
     int32_t WIndx = UART_RXBUF_SZ - Params->PDmaRx->stream->NDTR;
 #else
-    int32_t WIndx = UART_RXBUF_SZ - Params->PDmaRx->channel->CNDTR;
+    int32_t WIndx = UART_RXBUF_SZ - PDmaRx->channel->CNDTR;
 #endif
     int32_t BytesCnt = WIndx - RIndx;
     if(BytesCnt < 0) BytesCnt += UART_RXBUF_SZ;
@@ -310,8 +310,12 @@ void BaseUart_t::Init() {
         if     (Params->Uart == USART1) RCC->CCIPR |= 0b10;
         else if(Params->Uart == USART2) RCC->CCIPR |= 0b10 << 2;
         else if(Params->Uart == USART3) RCC->CCIPR |= 0b10 << 4;
+#ifdef UART4
         else if(Params->Uart == UART4)  RCC->CCIPR |= 0b10 << 6;
+#endif
+#ifdef UART5
         else if(Params->Uart == UART5)  RCC->CCIPR |= 0b10 << 8;
+#endif
     }
 #endif
     OnClkChange();  // Setup baudrate
@@ -322,9 +326,9 @@ void BaseUart_t::Init() {
 #if defined STM32F0XX
     if(Params->PDmaTx == STM32_DMA1_STREAM4) SYSCFG->CFGR1 |= SYSCFG_CFGR1_USART1TX_DMA_RMP;
 #endif
-    dmaStreamAllocate     (Params->PDmaTx, IRQ_PRIO_MEDIUM, DmaUartTxIrq, this);
-    dmaStreamSetPeripheral(Params->PDmaTx, &Params->Uart->UART_TX_REG);
-    dmaStreamSetMode      (Params->PDmaTx, Params->DmaModeTx);
+    PDmaTx = dmaStreamAlloc(Params->DmaTxID, IRQ_PRIO_MEDIUM, DmaUartTxIrq, this);
+    dmaStreamSetPeripheral(PDmaTx, &Params->Uart->UART_TX_REG);
+    dmaStreamSetMode      (PDmaTx, Params->DmaModeTx);
     IDmaIsIdle = true;
 #endif
 
@@ -361,12 +365,12 @@ void BaseUart_t::Init() {
     if(Params->PDmaRx == STM32_DMA1_STREAM5) SYSCFG->CFGR1 |= SYSCFG_CFGR1_USART1RX_DMA_RMP;
 #endif
     // DMA
-    dmaStreamAllocate     (Params->PDmaRx, IRQ_PRIO_LOW, nullptr, NULL);
-    dmaStreamSetPeripheral(Params->PDmaRx, &Params->Uart->UART_RX_REG);
-    dmaStreamSetMemory0   (Params->PDmaRx, IRxBuf);
-    dmaStreamSetTransactionSize(Params->PDmaRx, UART_RXBUF_SZ);
-    dmaStreamSetMode      (Params->PDmaRx, Params->DmaModeRx);
-    dmaStreamEnable       (Params->PDmaRx);
+    PDmaRx = dmaStreamAlloc(Params->DmaRxID, IRQ_PRIO_MEDIUM, nullptr, NULL);
+    dmaStreamSetPeripheral(PDmaRx, &Params->Uart->UART_RX_REG);
+    dmaStreamSetMemory0   (PDmaRx, IRxBuf);
+    dmaStreamSetTransactionSize(PDmaRx, UART_RXBUF_SZ);
+    dmaStreamSetMode      (PDmaRx, Params->DmaModeRx);
+    dmaStreamEnable       (PDmaRx);
     Params->Uart->CR1 |= USART_CR1_UE;    // Enable USART
 
     // Prepare and start RX
@@ -383,10 +387,10 @@ void BaseUart_t::Init() {
 
 void BaseUart_t::Shutdown() {
     Params->Uart->CR1 &= ~USART_CR1_UE; // UART Disable
-    if     (Params->Uart == USART1) { rccDisableUSART1(FALSE); }
-    else if(Params->Uart == USART2) { rccDisableUSART2(FALSE); }
+    if     (Params->Uart == USART1) { rccDisableUSART1(); }
+    else if(Params->Uart == USART2) { rccDisableUSART2(); }
 #if defined USART3
-    else if(Params->Uart == USART3) { rccDisableUSART3(FALSE); }
+    else if(Params->Uart == USART3) { rccDisableUSART3(); }
 #endif
 #if defined UART4
     else if(Params->Uart == UART4) { rccDisableUART4(FALSE); }
