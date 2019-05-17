@@ -24,6 +24,10 @@ $CMP IRA700
 D Piroelectric sensor
 $ENDCMP
 #
+$CMP KIT3032S
+D Transmissive Optical Sensor with Phototransistor Output
+$ENDCMP
+#
 $CMP L3G4200
 D Giroscope 3axis, 250/500/2000 dps
 $ENDCMP
