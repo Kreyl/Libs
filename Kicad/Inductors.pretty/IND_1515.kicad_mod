@@ -1,4 +1,4 @@
-(module "IND_1515" (layer F.Cu) (tedit 5CE52965)
+(module "IND_1515" (layer F.Cu) (tedit 5CE6D38D)
   (attr smd)
   (fp_text reference "IND_1515" (at 0.1 -2.6) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
@@ -14,9 +14,9 @@
   (fp_line (start -2 -2) (end -2 2) (layer F.SilkS) (width 0.15))
   (pad "1" smd rect (at -1.6 0) (size 1.6 3.7) (layers "F.Cu" "F.Paste" "F.Mask"))
   (pad "2" smd rect (at 1.6 0) (size 1.6 3.7) (layers "F.Cu" "F.Paste" "F.Mask"))
-  (model "D:/Libs/Kicad/3d/lqh44pn_p0.wrl"
+  (model "${KICAD_SYMBOL_DIR}/3d/Inductors/Ind4x4x1d8.stp"
     (at (xyz 0 0 0))
-    (scale (xyz 0.4 0.4 0.4))
+    (scale (xyz 1 1 1))
     (rotate (xyz 0 0 0))
   )
 )
