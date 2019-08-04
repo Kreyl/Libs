@@ -244,7 +244,7 @@ static void UartRxThread(void *arg) {
 
 uint8_t BaseUart_t::GetByte(uint8_t *b) {
 #if defined STM32F2XX || defined STM32F4XX
-    int32_t WIndx = UART_RXBUF_SZ - Params->PDmaRx->stream->NDTR;
+    int32_t WIndx = UART_RXBUF_SZ - PDmaRx->stream->NDTR;
 #else
     int32_t WIndx = UART_RXBUF_SZ - PDmaRx->channel->CNDTR;
 #endif
@@ -393,10 +393,10 @@ void BaseUart_t::Shutdown() {
     else if(Params->Uart == USART3) { rccDisableUSART3(); }
 #endif
 #if defined UART4
-    else if(Params->Uart == UART4) { rccDisableUART4(FALSE); }
+    else if(Params->Uart == UART4) { rccDisableUART4(); }
 #endif
 #if defined UART5
-    else if(Params->Uart == UART5) { rccDisableUART5(FALSE); }
+    else if(Params->Uart == UART5) { rccDisableUART5(); }
 #endif
 }
 
@@ -410,8 +410,8 @@ void BaseUart_t::OnClkChange() {
 #elif defined STM32F0XX
     Params->Uart->BRR = Clk.APBFreqHz / IBaudrate;
 #elif defined STM32F2XX || defined STM32F4XX
-    if(Params->Uart == USART1 or Params->Uart == USART6) Params->Uart->BRR = Clk.APB2FreqHz / IBaudrate;
-    else Params->Uart->BRR = Clk.APB1FreqHz / IBaudrate;
+    if(Params->Uart == USART1 or Params->Uart == USART6) Params->Uart->BRR = Clk.APB2FreqHz / Params->Baudrate;
+    else Params->Uart->BRR = Clk.APB1FreqHz / Params->Baudrate;
 #elif defined STM32L4XX
     if(Params->UseIndependedClock) Params->Uart->BRR = HSI_FREQ_HZ / Params->Baudrate;
     else {
