@@ -1,9 +1,9 @@
-(module LED_0603 (layer F.Cu) (tedit 5B7D6011)
+(module "LED_0603" (layer F.Cu) (tedit 5D124056)
   (attr smd)
-  (fp_text reference LED6 (at 0.1 0) (layer F.Fab)
+  (fp_text reference "LED6" (at 3.4 0) (layer F.SilkS)
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
-  (fp_text value LED (at 0.2 1.4) (layer F.SilkS) hide
+  (fp_text value "LED" (at 0.2 1.4) (layer F.SilkS) hide
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
   (fp_line (start -1.5 0.8) (end -1.5 -0.1) (layer F.SilkS) (width 0.15))
@@ -20,9 +20,9 @@
   (fp_line (start 1.9 0.8) (end 1.7 0.8) (layer F.SilkS) (width 0.15))
   (fp_line (start 1.9 -0.8) (end 1.9 0.8) (layer F.SilkS) (width 0.15))
   (fp_line (start 1.7 -0.8) (end 1.9 -0.8) (layer F.SilkS) (width 0.15))
-  (pad C smd rect (at 0.762 0) (size 0.889 1.016) (layers F.Cu F.Paste F.Mask))
-  (pad A smd rect (at -0.762 0) (size 0.889 1.016) (layers F.Cu F.Paste F.Mask))
-  (model ${KICAD_SYMBOL_DIR}/3d/LED/D_0603_green.step
+  (pad "C" smd rect (at 0.762 0) (size 0.889 1.016) (layers "F.Cu" "F.Paste" "F.Mask"))
+  (pad "A" smd rect (at -0.762 0) (size 0.889 1.016) (layers "F.Cu" "F.Paste" "F.Mask"))
+  (model "${KICAD_SYMBOL_DIR}/3d/LED/D_0603_green.step"
     (at (xyz 0 0 0))
     (scale (xyz 1 1 1))
     (rotate (xyz -90 0 0))
