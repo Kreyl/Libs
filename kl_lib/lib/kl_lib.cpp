@@ -459,7 +459,7 @@ void PrintErrMsg(const char* S) {
     USART1->CR3 &= ~USART_CR3_DMAT;
     while(*S != 0) {
 //        ITM_SendChar(*S++);
-#if defined STM32L1XX
+#if defined STM32L1XX || defined STM32F2XX
         while(!(USART1->SR & USART_SR_TXE));
         USART1->DR = *S;
 #else
@@ -2180,6 +2180,9 @@ void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
     // Setup dividers
     switch(CoreClk) {
         case cclk8MHz:
+        case cclk12MHz:
+        case cclk64MHz:
+        case cclk80MHz:
             break;
         // Setup PLL (must be disabled first)
         case cclk16MHz:
@@ -2667,7 +2670,7 @@ void Spi_t::Setup(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
     if(CPHA == cphaSecondEdge) PSpi->CR1 |= SPI_CR1_CPHA;   // CPHA
     // Baudrate
     int32_t div;
-#if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX
+#if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX
     if(PSpi == SPI1) div = Clk.APB2FreqHz / Bitrate_Hz;
     else div = Clk.APB1FreqHz / Bitrate_Hz;
 #elif defined STM32F030 || defined STM32F0
