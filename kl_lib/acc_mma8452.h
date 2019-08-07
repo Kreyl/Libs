@@ -12,7 +12,16 @@
 #include "board.h"
 #include "kl_i2c.h"
 
-#define ACC_MOTION_TRESHOLD     18      // 1...127. The threshold resolution is 0.063g/LSB.
+#define MOTION_BY_IRQ           FALSE //TRUE
+
+#if MOTION_BY_IRQ
+#define ACC_MOTION_TRESHOLD     17      // 1...127. The threshold resolution is 0.063g/LSB.
+#else
+#define MOTION_THRESHOLD_TOP    1152
+#define MOTION_THRESHOLD_BOTTOM 900
+#endif
+
+#define ACC_ACCELERATIONS_NEEDED    (!MOTION_BY_IRQ)
 
 #define ACC_I2C_ADDR            0x1C
 
@@ -31,12 +40,10 @@
 #define ACC_REG_CONTROL4        0x2D
 #define ACC_REG_CONTROL5        0x2E
 
-//#define ACC_ACCELERATIONS_NEEDED
-
-#ifdef ACC_ACCELERATIONS_NEEDED
+#if ACC_ACCELERATIONS_NEEDED
 struct Accelerations_t {
     uint8_t Status;     // Read to reset latched data
-    int8_t xMSB, xLSB, yMSB, yLSB, zMSB, zLSB;
+    int16_t a[3];
 } __packed;
 #define ACCELERATIONS_SIZE     sizeof(Accelerations_t)
 #endif
@@ -59,13 +66,16 @@ private:
         if(r != retvOk) Printf("ReadReg: %u\r", r);
     }
 public:
-#ifdef ACC_ACCELERATIONS_NEEDED
+#if ACC_ACCELERATIONS_NEEDED
     Accelerations_t Accelerations;
-    uint32_t ThresholdTop, ThresholdBottom;
     void ReadAccelerations() {
         uint8_t RegAddr = ACC_REG_STATUS;
         Acc_i2c.WriteRead(ACC_I2C_ADDR, &RegAddr, 1, (uint8_t*)&Accelerations, ACCELERATIONS_SIZE);
+        Accelerations.a[0] = __REVSH(Accelerations.a[0]);
+        Accelerations.a[1] = __REVSH(Accelerations.a[1]);
+        Accelerations.a[2] = __REVSH(Accelerations.a[2]);
     }
+    int32_t ThresholdStable = 540;
 #endif
     void Init();
     void Task();
