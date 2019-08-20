@@ -6,8 +6,13 @@
  */
 
 #include "ini_kl.h"
+#include "kl_fs_utils.h"
+
+#define INI_STR_SZ  256
 
 namespace ini { // =================== ini file operations =====================
+static char IStr[INI_STR_SZ];
+
 void WriteSection(FIL *PFile, const char *ASection) {
     f_printf(PFile, "[%S]\r\n", ASection);
 }
@@ -38,26 +43,12 @@ static inline char* striptrailing(char *S) {
 }
 
 uint8_t ReadString(const char *AFileName, const char *ASection, const char *AKey, char **PPOutput) {
-    FRESULT rslt;
-//    Printf("%S %S %S\r", __FUNCTION__, AFileName, ASection);
-    // Open file
-    rslt = f_open(&CommonFile, AFileName, FA_READ+FA_OPEN_EXISTING);
-    if(rslt != FR_OK) {
-        if (rslt == FR_NO_FILE) Printf("%S: not found\r", AFileName);
-        else Printf("%S: openFile error: %u\r", AFileName, rslt);
-        return retvFail;
-    }
-    // Check if zero file
-    if(f_size(&CommonFile) == 0) {
-        f_close(&CommonFile);
-        Printf("Empty file\r");
-        return retvFail;
-    }
+    if(uint8_t rslt = TryOpenFileRead(AFileName, &CommonFile) != retvOk) return rslt;
     // Move through file one line at a time until a section is matched or EOF.
     char *StartP, *EndP = nullptr;
     int32_t len = strlen(ASection);
     do {
-        if(f_gets(IStr, SD_STRING_SZ, &CommonFile) == nullptr) {
+        if(f_gets(IStr, INI_STR_SZ, &CommonFile) == nullptr) {
             Printf("iniNoSection %S\r", ASection);
             f_close(&CommonFile);
             return retvFail;
@@ -71,7 +62,7 @@ uint8_t ReadString(const char *AFileName, const char *ASection, const char *AKey
     // Section found, find the key
     len = strlen(AKey);
     do {
-        if(!f_gets(IStr, SD_STRING_SZ, &CommonFile) or *(StartP = skipleading(IStr)) == '[') {
+        if(!f_gets(IStr, INI_STR_SZ, &CommonFile) or *(StartP = skipleading(IStr)) == '[') {
             Printf("iniNoKey\r");
             f_close(&CommonFile);
             return retvFail;
@@ -87,7 +78,7 @@ uint8_t ReadString(const char *AFileName, const char *ASection, const char *AKey
     StartP = skipleading(EndP + 1);
     // Remove a trailing comment
     uint8_t isstring = 0;
-    for(EndP = StartP; (*EndP != '\0') and (((*EndP != ';') and (*EndP != '#')) or isstring) and ((uint32_t)(EndP - StartP) < SD_STRING_SZ); EndP++) {
+    for(EndP = StartP; (*EndP != '\0') and (((*EndP != ';') and (*EndP != '#')) or isstring) and ((uint32_t)(EndP - StartP) < INI_STR_SZ); EndP++) {
         if (*EndP == '"') {
             if (*(EndP + 1) == '"') EndP++;     // skip "" (both quotes)
             else isstring = !isstring; // single quote, toggle isstring
@@ -147,6 +138,15 @@ uint8_t ReadColor (const char *AFileName, const char *ASection, const char *AKey
         return retvOk;
     }
     else return retvFail;
+}
+
+uint8_t ReadInt32(const char *AFileName, const char *ASection, const char *AKey, int32_t *AOutput) {
+    char *S;
+    if(uint8_t rslt = ReadString(AFileName, ASection, AKey, &S) != retvOk) return rslt;
+    char *p;
+    *AOutput = strtol(S, &p, 0);
+    if(*p == '\0') return retvOk;
+    else return retvNotANumber;
 }
 
 } // Namespace

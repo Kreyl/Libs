@@ -8,6 +8,8 @@
 #pragma once
 
 #include "kl_lib.h"
+#include "color.h"
+#include "ff.h"
 
 namespace ini { // =================== ini file operations =====================
 /*
@@ -40,6 +42,8 @@ static uint8_t Read(const char *AFileName, const char *ASection, const char *AKe
     }
     else return retvFail;
 }
+
+uint8_t ReadInt32(const char *AFileName, const char *ASection, const char *AKey, int32_t *AOutput);
 
 uint8_t ReadColor (const char *AFileName, const char *ASection, const char *AKey, Color_t *AOutput);
 
