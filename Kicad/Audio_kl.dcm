@@ -4,6 +4,10 @@ $CMP CS42L52
 D Codec with headphone amp and D class amp
 $ENDCMP
 #
+$CMP CS8571
+D Audio Pwr Amp
+$ENDCMP
+#
 $CMP NAU88C22
 D Codec
 $ENDCMP
