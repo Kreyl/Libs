@@ -84,6 +84,11 @@ D 30-pin connector, general form
 K CONN
 $ENDCMP
 #
+$CMP CONN_36
+D 36-pin connector, general form
+K CONN
+$ENDCMP
+#
 $CMP CONN_38
 D 38-pin connector, general form
 K CONN
