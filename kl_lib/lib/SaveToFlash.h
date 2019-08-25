@@ -22,9 +22,10 @@ SECTIONS {
     {
         *(MyFlash)
     } > flash0
-} */
+}
+*/
 
-#if defined STM32L476xx
+#if defined STM32L476xx || defined STM32L433xx
 #define FLASH_PAGE_SIZE     2048UL
 #else
 #define FLASH_PAGE_SIZE     1024UL

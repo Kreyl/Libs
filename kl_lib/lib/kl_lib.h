@@ -352,12 +352,14 @@ static inline void DelayLoop(volatile uint32_t ACounter) { while(ACounter--); }
 // On writes, write 0x5FA to VECTKEY, otherwise the write is ignored. 4 is SYSRESETREQ: System reset request
 #define REBOOT()                SCB->AIRCR = 0x05FA0004
 
-#if 0 // ======================= Power and backup unit =========================
+#if 1 // ======================= Power and backup unit =========================
 namespace BackupSpc {
     static inline void EnableAccess() {
         rccEnablePWRInterface(FALSE);
 #if defined STM32F2XX || defined STM32F4XX || defined STM32F10X_LD_VL
         rccEnableBKPSRAM(FALSE);
+        PWR->CR |= PWR_CR_DBP;
+#elif defined STM32L1XX
         PWR->CR |= PWR_CR_DBP;
 #elif defined STM32L4XX
         PWR->CR1 |= PWR_CR1_DBP;
@@ -367,14 +369,21 @@ namespace BackupSpc {
     static inline void DisableAccess() {
 #if defined STM32F2XX || defined STM32F4XX || defined STM32F10X_LD_VL
         PWR->CR &= ~PWR_CR_DBP;
+#elif defined STM32L1XX
+        PWR->CR &= ~PWR_CR_DBP;
 #elif defined STM32L4XX
         PWR->CR1 &= ~PWR_CR1_DBP;
 #endif
     }
 
     static inline void Reset() {
+#if defined STM32L1XX
+        RCC->CSR |=  RCC_CSR_RTCRST;
+        RCC->CSR &= ~RCC_CSR_RTCRST;
+#else
         RCC->BDCR |=  RCC_BDCR_BDRST;
         RCC->BDCR &= ~RCC_BDCR_BDRST;
+#endif
     }
 
     // RegN = 0...19
@@ -1179,6 +1188,7 @@ public:
 #endif // EXTI
 
 #if 1 // ============================== IWDG ===================================
+#define IWDG_ENABLED    TRUE    // to enable it in cpp
 namespace Iwdg {
 
 // Up to 32000 ms

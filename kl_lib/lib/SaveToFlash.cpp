@@ -15,14 +15,14 @@
 #ifdef STM32L4XX
 #define WORD64_CNT     (FLASH_PAGE_SIZE/8)
 __attribute__ ((section("MyFlash1")))
-const uint64_t IData[WORD64_CNT] = { 0xCA115EA1 };
+volatile const uint64_t IData[WORD64_CNT] = { 0xCA115EA1 };
 #else
 __attribute__ ((section("MyFlash1")))
-const uint32_t IData[(FLASH_PAGE_SIZE/4)] = { 0xCA115EA1 };
+volatile const uint32_t IData[(FLASH_PAGE_SIZE/4)] = { 0xCA115EA1 };
 
 #if FLASH_2_BANKS
 __attribute__ ((section("MyFlash2")))
-const uint32_t IData2[(FLASH_PAGE_SIZE/4)] = { 0xCA115EA1 };
+volatile const uint32_t IData2[(FLASH_PAGE_SIZE/4)] = { 0xCA115EA1 };
 #endif
 #endif
 
@@ -33,7 +33,7 @@ void* GetFlashPointer() {
 }
 
 void LoadI(void *ptr, uint32_t ByteSz) {
-    memcpy(ptr, IData, ByteSz);
+    memcpy(ptr, (const void*)IData, ByteSz);
 }
 void Load(void *ptr, uint32_t ByteSz) {
     chSysLock();
@@ -60,8 +60,10 @@ uint8_t Save(void *ptr, uint32_t ByteSz) {
     uint64_t *Buf = (uint64_t*)ptr;
     uint32_t DWordCnt = (ByteSz + 7) / 8;
     chSysLock();
+    Flash::LockFlash(); // Otherwise HardFault occurs after flashing and without reset
     Flash::UnlockFlash();
     chSysUnlock();
+
     if(Flash::ErasePage(Addr / FLASH_PAGE_SIZE) != retvOk) {
         Printf("\rPage Erase fail\r");
         chThdSleepMilliseconds(45);

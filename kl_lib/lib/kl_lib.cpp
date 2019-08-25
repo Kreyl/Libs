@@ -908,6 +908,7 @@ uint32_t Read32(uint32_t Addr) {
 
 uint8_t Write32(uint32_t Addr, uint32_t W) {
     Addr += EEPROM_BASE_ADDR;
+    if(*((uint32_t*)(Addr)) == W) return retvOk;
 //    Uart.Printf("EAdr=%u\r", Addr);
     Flash::UnlockEEAndPECR();
     // Wait for last operation to be completed
@@ -1215,7 +1216,7 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
 }; // namespace
 #endif
 
-#if 0 // ============================== IWDG ===================================
+#if IWDG_ENABLED // =========================== IWDG ===========================
 namespace Iwdg {
 enum Pre_t {
     iwdgPre4 = 0x00,
@@ -1227,9 +1228,11 @@ enum Pre_t {
     iwdgPre256 = 0x06
 };
 
+#if defined STM32L4XX
 void DisableInDebug() {
     DBGMCU->APB1FZR1 |= DBGMCU_APB1FZR1_DBG_IWDG_STOP;
 }
+#endif
 
 static void Enable() { IWDG->KR = 0xCCCC; }
 static void EnableAccess() { IWDG->KR = 0x5555; }
