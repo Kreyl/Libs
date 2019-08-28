@@ -248,6 +248,10 @@ $CMP STCS1
 D LED driver 1.5A 24V
 $ENDCMP
 #
+$CMP STM6315
+D Power Supervisor w MasterRst
+$ENDCMP
+#
 $CMP TL431_SO8
 D Programmable precision reference
 $ENDCMP
