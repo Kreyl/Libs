@@ -40,12 +40,20 @@ $CMP M10GSM
 D M10 Quectel GSM module
 $ENDCMP
 #
+$CMP PE4259
+D Switch 10MHz - 3GHz
+$ENDCMP
+#
 $CMP SI4432MODULE
 D RF22-S1 module
 $ENDCMP
 #
 $CMP SIM900
 D SIM900 Simcom GSM module
+$ENDCMP
+#
+$CMP SX1276
+D LORA tranceiver
 $ENDCMP
 #
 $CMP UPG2214
