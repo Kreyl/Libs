@@ -100,7 +100,7 @@ K CONN
 $ENDCMP
 #
 $CMP CONN_40
-D 38-pin connector, general form
+D 40-pin connector, general form
 K CONN
 $ENDCMP
 #
