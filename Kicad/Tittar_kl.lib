@@ -150,6 +150,7 @@ F2 "Capacitors:CAP_0603" 100 -150 28 V I C BNN
 F3 "" -100 -100 60 H I C CNN
 F4 "0.5" 0 0 60 H I C CNN "Price"
 F5 "2" 100 100 60 H I C CNN "SolderPoints"
+F6 "X5R or X7R capacitor, 6.3V or higher" 0 0 79 H I C CNN "Comment"
 $FPLIST
  c*
 $ENDFPLIST
@@ -800,6 +801,7 @@ F2 "Resistors:RES_0603" 80 100 28 V I C CNN
 F3 "" 80 -150 60 V V C CNN
 F4 "0.5" 180 -50 60 V I C CNN "Price"
 F5 "2" 280 50 60 V I C CNN "SolderPoints"
+F6 "1% resistor" 0 0 79 H I C CNN "Comment"
 $FPLIST
  r*
 $ENDFPLIST
