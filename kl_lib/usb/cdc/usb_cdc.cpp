@@ -5,6 +5,7 @@
  *      Author: Kreyl
  */
 
+#include "hal.h"
 #include "usb_cdc.h"
 #include "hal_usb.h"
 #include "descriptors_cdc.h"
@@ -128,7 +129,7 @@ static THD_FUNCTION(ThdCDCRX, arg) {
 }
 
 uint8_t UsbCDC_t::IPutChar(char c) {
-    return (SDU1.vmt->putt(&SDU1, (uint8_t)c, MS2ST(999)) == MSG_OK)? retvOk : retvFail;
+    return (SDU1.vmt->putt(&SDU1, (uint8_t)c, TIME_MS2I(999)) == MSG_OK)? retvOk : retvFail;
 }
 
 void UsbCDC_t::SignalCmdProcessed() {
@@ -139,9 +140,9 @@ void UsbCDC_t::SignalCmdProcessed() {
 #endif
 
 void UsbCDC_t::Init() {
-#ifdef STM32L4XX
-    PinSetupAlterFunc(USB_GPIO, USB_DM, omPushPull, pudNone, USB_AF, psVeryHigh);
-    PinSetupAlterFunc(USB_GPIO, USB_DP, omPushPull, pudNone, USB_AF, psVeryHigh);
+#if defined STM32L4XX || defined STM32F2XX
+    PinSetupAlterFunc(USB_DM, omPushPull, pudNone, USB_AF, psHigh);
+    PinSetupAlterFunc(USB_DP, omPushPull, pudNone, USB_AF, psHigh);
 #else
     PinSetupAnalog(USB_DM);
     PinSetupAnalog(USB_DP);
@@ -155,12 +156,33 @@ void UsbCDC_t::Init() {
 }
 
 void UsbCDC_t::Connect() {
+#if defined STM32F1XX
+    // Disconnect everything
+    PinSetupAnalog(USB_PULLUP);
+    PinSetupAnalog(USB_DM);
+    PinSetupAnalog(USB_DP);
+#else
     usbDisconnectBus(SerUsbCfg.usbp);
-    chThdSleepMilliseconds(504);
+#endif
+    chThdSleepMilliseconds(99);
     usbStart(SerUsbCfg.usbp, &UsbCfg);
+#if defined STM32F1XX
+    PinSetupAlterFunc(USB_DM, omPushPull, pudNone, USB_AF, psHigh);
+    PinSetupAlterFunc(USB_DP, omPushPull, pudNone, USB_AF, psHigh);
+    PinSetHi(USB_PULLUP);
+    PinSetupOut(USB_PULLUP, omPushPull);
+#else
     usbConnectBus(SerUsbCfg.usbp);
+#endif
 }
 void UsbCDC_t::Disconnect() {
     usbStop(SerUsbCfg.usbp);
+#if defined STM32F1XX
+    // Disconnect everything
+    PinSetupAnalog(USB_PULLUP);
+    PinSetupAnalog(USB_DM);
+    PinSetupAnalog(USB_DP);
+#else
     usbDisconnectBus(SerUsbCfg.usbp);
+#endif
 }

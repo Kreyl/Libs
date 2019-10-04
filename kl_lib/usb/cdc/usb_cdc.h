@@ -19,7 +19,7 @@ public:
     void Connect();
     void Disconnect();
     bool IsActive();
-    void Printf(const char *format, ...) {
+    void Print(const char *format, ...) {
         va_list args;
         va_start(args, format);
         IVsPrintf(format, args);

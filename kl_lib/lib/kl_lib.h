@@ -352,14 +352,12 @@ static inline void DelayLoop(volatile uint32_t ACounter) { while(ACounter--); }
 // On writes, write 0x5FA to VECTKEY, otherwise the write is ignored. 4 is SYSRESETREQ: System reset request
 #define REBOOT()                SCB->AIRCR = 0x05FA0004
 
-#if 1 // ======================= Power and backup unit =========================
+#if 0 // ======================= Power and backup unit =========================
 namespace BackupSpc {
     static inline void EnableAccess() {
         rccEnablePWRInterface(FALSE);
 #if defined STM32F2XX || defined STM32F4XX || defined STM32F10X_LD_VL
         rccEnableBKPSRAM(FALSE);
-        PWR->CR |= PWR_CR_DBP;
-#elif defined STM32L1XX
         PWR->CR |= PWR_CR_DBP;
 #elif defined STM32L4XX
         PWR->CR1 |= PWR_CR1_DBP;
@@ -369,21 +367,14 @@ namespace BackupSpc {
     static inline void DisableAccess() {
 #if defined STM32F2XX || defined STM32F4XX || defined STM32F10X_LD_VL
         PWR->CR &= ~PWR_CR_DBP;
-#elif defined STM32L1XX
-        PWR->CR &= ~PWR_CR_DBP;
 #elif defined STM32L4XX
         PWR->CR1 &= ~PWR_CR1_DBP;
 #endif
     }
 
     static inline void Reset() {
-#if defined STM32L1XX
-        RCC->CSR |=  RCC_CSR_RTCRST;
-        RCC->CSR &= ~RCC_CSR_RTCRST;
-#else
         RCC->BDCR |=  RCC_BDCR_BDRST;
         RCC->BDCR &= ~RCC_BDCR_BDRST;
-#endif
     }
 
     // RegN = 0...19
@@ -1133,13 +1124,22 @@ public:
     void Init(ExtiTrigType_t ATriggerType) const {
         // Init pin as input
         PinSetupInput(PGpio, PinN, PullUpDown);
+        // Connect pin to EXTI
 #ifndef STM32F1XX
         rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, FALSE); // Enable sys cfg controller
 #endif
         // Connect EXTI line to the pin of the port
         __unused uint8_t Indx   = PinN / 4;               // Indx of EXTICR register
         __unused uint8_t Offset = (PinN & 0x03) * 4;      // Offset in EXTICR register
-#ifndef STM32F1XX
+#ifdef STM32F1XX
+        RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;     // Enable AFIO clock
+        AFIO->EXTICR[Indx] &= ~((uint32_t)0b1111 << Offset);  // Clear port-related bits
+        // GPIOA requires all zeroes => nothing to do in this case
+        if     (PGpio == GPIOB) AFIO->EXTICR[Indx] |= 1UL << Offset;
+        else if(PGpio == GPIOC) AFIO->EXTICR[Indx] |= 2UL << Offset;
+        else if(PGpio == GPIOD) AFIO->EXTICR[Indx] |= 3UL << Offset;
+        else if(PGpio == GPIOE) AFIO->EXTICR[Indx] |= 4UL << Offset;
+#else
         SYSCFG->EXTICR[Indx] &= ~((uint32_t)0b1111 << Offset);  // Clear port-related bits
         // GPIOA requires all zeroes => nothing to do in this case
         if     (PGpio == GPIOB) SYSCFG->EXTICR[Indx] |= 1UL << Offset;
@@ -1188,7 +1188,6 @@ public:
 #endif // EXTI
 
 #if 1 // ============================== IWDG ===================================
-#define IWDG_ENABLED    TRUE    // to enable it in cpp
 namespace Iwdg {
 
 // Up to 32000 ms
@@ -1275,6 +1274,8 @@ static inline void ClearWUFFlags()     { PWR->SCR |= 0x1F; }
 #else
 static inline void EnterStandby() {
 #if defined STM32F0XX || defined STM32L4XX || defined STM32F2XX
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+#elif defined STM32F1XX
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
 #else
     SCB->SCR |= SCB_SCR_SLEEPDEEP;
@@ -1407,10 +1408,13 @@ public:
 #endif
 
 // =========================== Flash and Option bytes ==========================
+#define FLASH_START_ADDR 0x08000000
 namespace Flash {
 
 void UnlockFlash();
 void LockFlash();
+void ClearPendingFlags();
+uint8_t WaitForLastOperation(systime_t Timeout_st);
 
 uint8_t ErasePage(uint32_t PageAddress);
 #if defined STM32L4XX
@@ -1614,8 +1618,6 @@ enum APBDiv_t {apbDiv1=0b000, apbDiv2=0b100, apbDiv4=0b101, apbDiv8=0b110, apbDi
 
 class Clk_t {
 private:
-    uint8_t EnableHSE();
-    uint8_t EnablePLL();
 public:
     // Frequency values
     uint32_t AHBFreqHz;     // HCLK: AHB Bus, Core, Memory, DMA; 32 MHz max
@@ -1625,10 +1627,12 @@ public:
     uint8_t SwitchToHSI();
     uint8_t SwitchToHSE();
     uint8_t SwitchToPLL();
-    void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
     uint8_t EnableHSI();
+    uint8_t EnableHSE();
+    uint8_t EnablePLL();
     void DisableHSI() { RCC->CR &= ~RCC_CR_HSION; }
     void DisablePLL() { RCC->CR &= ~RCC_CR_PLLON; }
+    void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
 
     void SetupBusDividers(AHBDiv_t AHBDiv, APBDiv_t APB1Div, APBDiv_t APB2Div);
     uint8_t SetupPllMulDiv(PllMul_t PllMul, PreDiv_t PreDiv);
@@ -1636,6 +1640,7 @@ public:
         if(Src == pllSrcHSIdiv2) RCC->CFGR &= ~RCC_CFGR_PLLSRC;
         else RCC->CFGR |= RCC_CFGR_PLLSRC;
     }
+    void SetUsbPrescalerTo1() { RCC->CFGR |= RCC_CFGR_USBPRE; }
     void UpdateFreqValues();
     //void UpdateSysTick() { SysTick->LOAD = AHBFreqHz / CH_FREQUENCY - 1; }
     void SetupFlashLatency(uint8_t AHBClk_MHz);
