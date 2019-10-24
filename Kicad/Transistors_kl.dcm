@@ -36,6 +36,10 @@ $CMP P_8PIN
 D P-channel 8 pin
 $ENDCMP
 #
+$CMP P_8PIN_W_PAD
+D P-channel 8 pin
+$ENDCMP
+#
 $CMP Px2_SO8
 D P-channel x2 in SO8 case
 $ENDCMP

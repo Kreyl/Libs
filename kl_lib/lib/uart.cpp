@@ -12,7 +12,7 @@
 
 #if 1 // ==================== Common and eternal ===============================
 // Pins Alternate function
-#if defined STM32L4XX || defined STM32F0XX
+#if defined STM32L4XX || defined STM32F0XX || defined STM32F7XX
 #define UART_TX_REG     TDR
 #define UART_RX_REG     RDR
 #elif defined STM32L1XX || defined STM32F2XX || defined STM32F1XX
@@ -243,7 +243,7 @@ static void UartRxThread(void *arg) {
 }
 
 uint8_t BaseUart_t::GetByte(uint8_t *b) {
-#if defined STM32F2XX || defined STM32F4XX
+#if defined STM32F2XX || defined STM32F4XX || defined STM32F7XX
     int32_t WIndx = UART_RXBUF_SZ - PDmaRx->stream->NDTR;
 #else
     int32_t WIndx = UART_RXBUF_SZ - PDmaRx->channel->CNDTR;
@@ -260,7 +260,7 @@ uint8_t BaseUart_t::GetByte(uint8_t *b) {
 #if 1 // ==== Init ====
 void BaseUart_t::Init() {
     AlterFunc_t PinAF = AF1;
-    // ==== Tx pin ====
+#if 1 // ==== Tx pin ====
 #if defined STM32L4XX || defined STM32L1XX || defined STM32F2XX
     PinAF = AF7;
 #if defined UART4
@@ -278,11 +278,66 @@ void BaseUart_t::Init() {
     else if(Params->PGpioTx == GPIOB) PinAF = AF0;
 #elif defined STM32F1XX
     // Do nothing as F1xx does not use AF number
+#elif defined STM32F7XX
+    if(Params->Uart == USART1) { // AF4, AF7
+        if(Params->PGpioTx == GPIOB and Params->PinTx == 14) PinAF = AF4;
+        else PinAF = AF7;
+    }
+    else if(Params->Uart == USART2 or Params->Uart == USART3) PinAF = AF7;
+    else if(Params->Uart == UART4) { // AF6, AF8
+        if(Params->PGpioTx == GPIOA and Params->PinTx == 12) PinAF = AF6;
+        else PinAF = AF8;
+    }
+    else if(Params->Uart == UART5) { // AF1, AF7, AF8
+        if(Params->PGpioTx == GPIOB and Params->PinTx == 6) PinAF = AF1;
+        else if(Params->PGpioTx == GPIOB and Params->PinTx == 9) PinAF = AF7;
+        else PinAF = AF8;
+    }
+    else if(Params->Uart == USART6 or Params->Uart == UART8) PinAF = AF8;
+    else if(Params->Uart == UART7) { // AF8, AF12
+        if(Params->PGpioTx == GPIOA or Params->PGpioTx == GPIOB) PinAF = AF12;
+        else PinAF = AF8;
+    }
 #else
 #error "UART AF not defined"
 #endif
     PinSetupAlterFunc(Params->PGpioTx, Params->PinTx, omPushPull, pudNone, PinAF);
-    // ==== Clock ====
+#endif
+
+#if 1 // Setup independent clock if possible and required
+#if defined STM32F072xB
+    if(Params->UseIndependedClock) {
+        Clk.EnableHSI();    // HSI used as independent clock
+        if     (Params->Uart == USART1) RCC->CFGR3 |= RCC_CFGR3_USART1SW_HSI;
+        else if(Params->Uart == USART2) RCC->CFGR3 |= RCC_CFGR3_USART2SW_HSI;
+    }
+#elif defined STM32L4XX
+    uint32_t Offset = 0; // Usart1
+    if(Params->Uart == USART2) Offset = 2;
+    else if(Params->Uart == USART3) Offset = 4;
+    else if(Params->Uart == UART4) Offset = 6;
+    else if(Params->Uart == UART5) Offset = 8;
+    RCC->CCIPR &= ~(0b11UL << Offset); // Clear current bits
+    RCC->CCIPR |= ((uint32_t)Params->ClkSrc) << Offset;
+    // Enable HSI if needed
+    if(Params->ClkSrc == uartclkHSI) Clk.EnableHSI();
+#elif defined STM32F7XX
+    uint32_t Offset = 0; // Usart1
+    if(Params->Uart == USART2) Offset = 2;
+    else if(Params->Uart == USART3) Offset = 4;
+    else if(Params->Uart == UART4) Offset = 6;
+    else if(Params->Uart == UART5) Offset = 8;
+    else if(Params->Uart == USART6) Offset = 10;
+    else if(Params->Uart == UART7) Offset = 12;
+    else if(Params->Uart == UART8) Offset = 14;
+    RCC->DCKCFGR2 &= ~(0b11UL << Offset); // Clear current bits
+    RCC->DCKCFGR2 |= ((uint32_t)Params->ClkSrc) << Offset;
+    // Enable HSI if needed
+    if(Params->ClkSrc == uartclkHSI) Clk.EnableHSI();
+#endif
+#endif // Independent clock
+
+#if 1 // ==== Clock ====
     if     (Params->Uart == USART1) { rccEnableUSART1(FALSE); }
     else if(Params->Uart == USART2) { rccEnableUSART2(FALSE); }
 #if defined USART3
@@ -297,27 +352,14 @@ void BaseUart_t::Init() {
 #if defined USART6
     else if(Params->Uart == USART6) { rccEnableUSART6(FALSE); }
 #endif
-    // Setup independent clock if possible and required
-#if defined STM32F072xB
-    if(Params->UseIndependedClock) {
-        Clk.EnableHSI();    // HSI used as independent clock
-        if     (Params->Uart == USART1) RCC->CFGR3 |= RCC_CFGR3_USART1SW_HSI;
-        else if(Params->Uart == USART2) RCC->CFGR3 |= RCC_CFGR3_USART2SW_HSI;
-    }
-#elif defined STM32L4XX
-    if(Params->UseIndependedClock) {
-        Clk.EnableHSI();    // HSI used as independent clock
-        if     (Params->Uart == USART1) RCC->CCIPR |= 0b10;
-        else if(Params->Uart == USART2) RCC->CCIPR |= 0b10 << 2;
-        else if(Params->Uart == USART3) RCC->CCIPR |= 0b10 << 4;
-#ifdef UART4
-        else if(Params->Uart == UART4)  RCC->CCIPR |= 0b10 << 6;
+#if defined UART7
+    else if(Params->Uart == UART7) { rccEnableUART7(FALSE); }
 #endif
-#ifdef UART5
-        else if(Params->Uart == UART5)  RCC->CCIPR |= 0b10 << 8;
+#if defined UART8
+    else if(Params->Uart == UART8) { rccEnableUART8(FALSE); }
 #endif
-    }
-#endif
+#endif // Clock
+
     OnClkChange();  // Setup baudrate
 
     Params->Uart->CR2 = 0;  // Nothing that interesting there
@@ -352,6 +394,26 @@ void BaseUart_t::Init() {
     else if(Params->PGpioRx == GPIOB) PinAF = AF0;
 #elif defined STM32F1XX
     // Do nothing as F1xx does not use AF number
+#elif defined STM32F7XX
+    if(Params->Uart == USART1) { // AF4, AF7
+        if(Params->PGpioTx == GPIOB and Params->PinTx == 15) PinAF = AF4;
+        else PinAF = AF7;
+    }
+    else if(Params->Uart == USART2 or Params->Uart == USART3) PinAF = AF7;
+    else if(Params->Uart == UART4) { // AF6, AF8
+        if(Params->PGpioTx == GPIOA and Params->PinTx == 11) PinAF = AF6;
+        else PinAF = AF8;
+    }
+    else if(Params->Uart == UART5) { // AF1, AF7, AF8
+        if(Params->PGpioTx == GPIOB and Params->PinTx == 5) PinAF = AF1;
+        else if(Params->PGpioTx == GPIOB and Params->PinTx == 8) PinAF = AF7;
+        else PinAF = AF8;
+    }
+    else if(Params->Uart == USART6 or Params->Uart == UART8) PinAF = AF8;
+    else if(Params->Uart == UART7) { // AF8, AF12
+        if(Params->PGpioTx == GPIOA or Params->PGpioTx == GPIOB) PinAF = AF12;
+        else PinAF = AF8;
+    }
 #else
 #error "UART AF not defined"
 #endif
@@ -398,6 +460,15 @@ void BaseUart_t::Shutdown() {
 #if defined UART5
     else if(Params->Uart == UART5) { rccDisableUART5(); }
 #endif
+#if defined USART6
+    else if(Params->Uart == USART6) { rccDisableUSART6(); }
+#endif
+#if defined UART7
+    else if(Params->Uart == UART7) { rccDisableUART7(); }
+#endif
+#if defined UART8
+    else if(Params->Uart == UART8) { rccDisableUART8(); }
+#endif
 }
 
 void BaseUart_t::OnClkChange() {
@@ -413,11 +484,40 @@ void BaseUart_t::OnClkChange() {
     if(Params->Uart == USART1 or Params->Uart == USART6) Params->Uart->BRR = Clk.APB2FreqHz / Params->Baudrate;
     else Params->Uart->BRR = Clk.APB1FreqHz / Params->Baudrate;
 #elif defined STM32L4XX
-    if(Params->UseIndependedClock) Params->Uart->BRR = HSI_FREQ_HZ / Params->Baudrate;
-    else {
-        if(Params->Uart == USART1) Params->Uart->BRR = Clk.APB2FreqHz / Params->Baudrate;
-        else Params->Uart->BRR = Clk.APB1FreqHz / Params->Baudrate; // All others at APB1
-    }
+    switch(Params->ClkSrc) {
+        case uartclkPCLK:
+            if(Params->Uart == USART1) Params->Uart->BRR = Clk.APB2FreqHz / Params->Baudrate;
+            else Params->Uart->BRR = Clk.APB1FreqHz / Params->Baudrate;
+            break;
+        case uartclkSYSCLK:
+            Params->Uart->BRR = Clk.GetSysClkHz() / Params->Baudrate;
+            break;
+        case uartclkHSI:
+            Params->Uart->BRR = HSI_FREQ_HZ / Params->Baudrate;
+            break;
+        case uartclkLSE:
+            Params->Uart->BRR = LSE_FREQ_HZ / Params->Baudrate;
+            break;
+    } // switch
+#elif defined STM32F7XX
+    switch(Params->ClkSrc) {
+        case uartclkPCLK:
+            if(Params->Uart == USART1 or Params->Uart == USART6)
+                Params->Uart->BRR = Clk.APB2FreqHz / Params->Baudrate;
+            else Params->Uart->BRR = Clk.APB1FreqHz / Params->Baudrate;
+            break;
+        case uartclkSYSCLK:
+            Params->Uart->BRR = Clk.GetSysClkHz() / Params->Baudrate;
+            break;
+        case uartclkHSI:
+            Params->Uart->BRR = HSI_FREQ_HZ / Params->Baudrate;
+            break;
+        case uartclkLSE:
+            Params->Uart->BRR = LSE_FREQ_HZ / Params->Baudrate;
+            break;
+    } // switch
+#else
+#error "UART BRR not defined"
 #endif
 }
 #endif // Init
