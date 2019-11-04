@@ -16,7 +16,7 @@ void CCIrqHandler() { CC.IIrqHandler(); }
 
 uint8_t cc1101_t::Init() {
     // ==== GPIO ====
-#if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX
+#if defined STM32L1XX || defined STM32F4XX || defined STM32L4XX || defined STM32F2XX
     AlterFunc_t CC_AF;
     if(ISpi.PSpi == SPI1 or ISpi.PSpi == SPI2) CC_AF = AF5;
     else CC_AF = AF6;
