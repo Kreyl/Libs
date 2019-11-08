@@ -24,6 +24,10 @@ $CMP PCA9555
 D 16bit IO expander
 $ENDCMP
 #
+$CMP TUSB211
+D USB redriver
+$ENDCMP
+#
 $CMP TXB0102
 D 2-chnl bidir lvl translator
 $ENDCMP
