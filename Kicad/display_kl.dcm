@@ -1,5 +1,9 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP 7SEGx4_CA
+D Common Anode 4 digits
+$ENDCMP
+#
 $CMP BCKLT_TIC48
 D Backlight module for Tic48
 $ENDCMP
