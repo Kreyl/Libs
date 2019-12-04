@@ -354,7 +354,7 @@ static inline void DelayLoop(volatile uint32_t ACounter) { while(ACounter--); }
 // On writes, write 0x5FA to VECTKEY, otherwise the write is ignored. 4 is SYSRESETREQ: System reset request
 #define REBOOT()                SCB->AIRCR = 0x05FA0004
 
-#if 1 // ======================= Power and backup unit =========================
+#if 0 // ======================= Power and backup unit =========================
 namespace BackupSpc {
     static inline void EnableAccess() {
         rccEnablePWRInterface(FALSE);
@@ -392,7 +392,7 @@ namespace BackupSpc {
 } // namespace
 #endif
 
-#if 1 // ============================= RTC =====================================
+#if 0 // ============================= RTC =====================================
 namespace Rtc {
 #if defined STM32F10X_LD_VL
 // Wait until the RTC registers (RTC_CNT, RTC_ALR and RTC_PRL) are synchronized with RTC APB clock.
