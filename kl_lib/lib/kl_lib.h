@@ -1419,7 +1419,7 @@ void LockFlash();
 
 uint8_t ErasePage(uint32_t PageAddress);
 #if defined STM32L4XX
-uint8_t ProgramDWord(uint32_t Address, uint64_t Data);
+uint8_t ProgramBuf32(uint32_t Address, uint32_t *PData, int32_t ASzBytes);
 #else
 uint8_t ProgramWord(uint32_t Address, uint32_t Data);
 uint8_t ProgramBuf(void *PData, uint32_t ByteSz, uint32_t Addr);
