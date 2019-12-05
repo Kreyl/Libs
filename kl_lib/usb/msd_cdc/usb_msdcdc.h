@@ -57,7 +57,9 @@ public:
     void Reset();
     void Connect();
     void Disconnect();
-    void Printf(const char *format, ...) {
+    bool IsActive();
+    void Print(const char *format, ...) {
+        if(!IsActive()) return;
         va_list args;
         va_start(args, format);
         IVsPrintf(format, args);
