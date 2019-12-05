@@ -20,6 +20,10 @@ $CMP ICM20608
 D Acc + Gyro
 $ENDCMP
 #
+$CMP INA219
+D Current sns w I2C
+$ENDCMP
+#
 $CMP IRA700
 D Piroelectric sensor
 $ENDCMP

@@ -1,19 +1,19 @@
-/*
- * ws2812b.h
- *
- *  Created on: 05 апр. 2014 г.
- *      Author: Kreyl
- */
-
 #pragma once
 
 /*
  * ========== WS2812 control module ==========
  * Only basic command "SetCurrentColors" is implemented, all other is up to
  * higher level software.
- * SPI input frequency should be 8 MHz (which results in 4MHz bitrate)
+ * WS2812 requires following timings, ns: (400 + 850) +- 150 each.
+ *
+ * SPI bitrate must be 2500kHz => 400nS per bit.
+ * Then, LED's 0 is 100 (400 + 800), LED's 1 is 110 (800 + 400).
+ * Reset must be:
+ *    WS2812: 50uS => 125bit => ~16 bytes
+ *    WS2813: 300uS => 750bit => 94 bytes
  */
 
+#define WS2812_DYNAMIC   FALSE
 
 #include "ch.h"
 #include "hal.h"
@@ -21,83 +21,86 @@
 #include "color.h"
 #include "uart.h"
 
-#define LED_CNT             3   // Number of WS2812 LEDs
+#if WS2812_DYNAMIC
+#include <vector>
+typedef std::vector<Color_t> ColorBuf_t;
+#else
+#define LED_CNT     18
+#endif
 
-#define NPX_POWER_PIN_EN    TRUE
-
-// Do not touch
-#define SEQ_LEN             4
-#define RST_W_CNT           4 // zero words before and after data to produce reset
-
-// SPI16 Buffer (no tuning required)
-#define DATA_BIT_CNT        (LED_CNT * 3 * 8 * SEQ_LEN)   // Each led has 3 channels 8 bit each
-#define DATA_W_CNT          ((DATA_BIT_CNT + 15) / 16)
-#define TOTAL_W_CNT         (DATA_W_CNT + RST_W_CNT)
+// SPI8 Buffer (no tuning required)
+#define NPX_SEQ_LEN_BITS        3 // 3 bits of SPI to produce 1 bit of LED data
+#define NPX_RST_BYTE_CNT        100
+#define DATA_BIT_CNT(LedCnt)    (LedCnt * 3 * 8 * NPX_SEQ_LEN_BITS) // Each led has 3 channels 8 bit each
+#define DATA_BYTE_CNT(LedCnt)   ((DATA_BIT_CNT(LedCnt) + 7) / 8)
+#define TOTAL_BYTE_CNT(LedCnt)  (DATA_BYTE_CNT(LedCnt) + NPX_RST_BYTE_CNT)
+#if !WS2812_DYNAMIC
+#define WS_IBufSz               TOTAL_BYTE_CNT(LED_CNT)
+#endif
 
 #define NPX_DMA_MODE(Chnl) \
                         (STM32_DMA_CR_CHSEL(Chnl) \
                         | DMA_PRIORITY_HIGH \
-                        | STM32_DMA_CR_MSIZE_HWORD \
-                        | STM32_DMA_CR_PSIZE_HWORD \
+                        | STM32_DMA_CR_MSIZE_BYTE \
+                        | STM32_DMA_CR_PSIZE_BYTE \
                         | STM32_DMA_CR_MINC     /* Memory pointer increase */ \
                         | STM32_DMA_CR_DIR_M2P)  /* Direction is memory to peripheral */ \
                         | STM32_DMA_CR_TCIE
 
 struct NeopixelParams_t {
+    // SPI
     Spi_t ISpi;
     GPIO_TypeDef *PGpio;
     uint16_t Pin;
     AlterFunc_t Af;
     // DMA
-    const stm32_dma_stream_t *PDma;
+    uint32_t DmaID;
     uint32_t DmaMode;
-#if NPX_POWER_PIN_EN
-    GPIO_TypeDef *IPwrPGPIO;
-    uint16_t IPwrPin;
-    PinOutMode_t IPwrOutputType;
-#endif
     NeopixelParams_t(SPI_TypeDef *ASpi,
             GPIO_TypeDef *APGpio, uint16_t APin, AlterFunc_t AAf,
-            const stm32_dma_stream_t *APDma, uint32_t ADmaMode
-#if NPX_POWER_PIN_EN
-    , GPIO_TypeDef *APwrPGPIO, uint16_t APwrPin, PinOutMode_t APwrOutputType
-#endif
-    ) :
+            uint32_t ADmaID, uint32_t ADmaMode) :
                 ISpi(ASpi), PGpio(APGpio), Pin(APin), Af(AAf),
-                PDma(APDma), DmaMode(ADmaMode)
-#if NPX_POWER_PIN_EN
-                , IPwrPGPIO(APwrPGPIO), IPwrPin(APwrPin), IPwrOutputType(APwrOutputType)
-#endif
-    {}
+                DmaID(ADmaID), DmaMode(ADmaMode) {}
 };
 
 
 class Neopixels_t {
 private:
+#if WS2812_DYNAMIC
+    uint8_t *IBitBuf = nullptr;
+    uint32_t WS_IBufSz = 0;
+#else
+    uint8_t IBitBuf[WS_IBufSz];
+#endif
     const NeopixelParams_t *Params;
-    uint16_t IBuf[TOTAL_W_CNT];
-    uint16_t *PBuf;
-    void AppendBitsMadeOfByte(uint8_t Byte);
-#if NPX_POWER_PIN_EN
-    PinOutput_t PwrPin;
-    bool IsAllBlack = true;
-#endif
+    const stm32_dma_stream_t *PDma;
 public:
-    Neopixels_t(const NeopixelParams_t *APParams) : Params(APParams), PBuf(IBuf)
-#if NPX_POWER_PIN_EN
-        , PwrPin(Params->IPwrPGPIO, Params->IPwrPin, Params->IPwrOutputType)
-#endif
-    {}
-
-    void Init();
+    bool TransmitDone = false;
+    ftVoidVoid OnTransmitEnd = nullptr;
+    // Methods
+    Neopixels_t(const NeopixelParams_t *APParams) : Params(APParams) {}
+    void SetCurrentColors();
+    void OnDmaDone();
+#if WS2812_DYNAMIC
+    int32_t LedCnt = 0;
+    ColorBuf_t ClrBuf;
+    void Init(int32_t ALedCnt);
+    void SetAll(Color_t Clr) {
+        for(int32_t i=0; i<LedCnt; i++) ClrBuf[i] = Clr;
+    }
     bool AreOff() {
-        for(uint8_t i=0; i<LED_CNT; i++) {
-            if(ICurrentClr[i] != clBlack) return false;
-        }
+        for(uint8_t i=0; i<LedCnt; i++) { if(ClrBuf[i] != clBlack) return false; }
         return true;
     }
-    // Inner use
-    Color_t ICurrentClr[LED_CNT];
-    void ISetCurrentColors();
-    void OnDmaDone();
+#else
+    Color_t ClrBuf[LED_CNT];
+    void Init();
+    void SetAll(Color_t Clr) {
+        for(int32_t i=0; i<LED_CNT; i++) ClrBuf[i] = Clr;
+    }
+    bool AreOff() {
+        for(uint8_t i=0; i<LED_CNT; i++) { if(ClrBuf[i] != clBlack) return false; }
+        return true;
+    }
+#endif
 };
