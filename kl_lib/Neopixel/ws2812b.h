@@ -20,12 +20,11 @@
 #include "kl_lib.h"
 #include "color.h"
 #include "uart.h"
+#include "board.h"
 
 #if WS2812_DYNAMIC
 #include <vector>
 typedef std::vector<Color_t> ColorBuf_t;
-#else
-#define LED_CNT     18
 #endif
 
 // SPI8 Buffer (no tuning required)

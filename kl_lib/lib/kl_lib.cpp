@@ -645,24 +645,18 @@ uint8_t ErasePage(uint32_t PageAddress) {
 }
 
 #if defined STM32L4XX
-uint8_t ProgramBuf32(uint32_t Address, uint32_t *PData, int32_t ASzBytes) {
-//    Printf("PrgBuf %X  %u\r", Address, ASzBytes); chThdSleepMilliseconds(45);
+uint8_t ProgramDWord(uint32_t Address, uint64_t Data) {
     uint8_t status = WaitForLastOperation(FLASH_ProgramTimeout);
     if(status == retvOk) {
         chSysLock();
         ClearErrFlags();
-        FLASH->ACR &= ~FLASH_ACR_DCEN;      // Deactivate the data cache to avoid data misbehavior
-        FLASH->CR |= FLASH_CR_PG;           // Enable flash writing
-        // Write data
-        while(ASzBytes >= 7 and status == retvOk) {
-            // Write Word64
-            *(volatile uint32_t*)Address = *PData++;
-            Address += 4;
-            *(volatile uint32_t*)Address = *PData++;
-            Address += 4;
-            ASzBytes -= 8;
-            status = WaitForLastOperation(FLASH_ProgramTimeout);
-        }
+        // Deactivate the data cache to avoid data misbehavior
+        FLASH->ACR &= ~FLASH_ACR_DCEN;
+        // Program Dword
+        SET_BIT(FLASH->CR, FLASH_CR_PG);    // Enable flash writing
+        *(volatile uint32_t*)Address = (uint32_t)Data;
+        *(volatile uint32_t*)(Address + 4) = (uint32_t)(Data >> 32);
+        status = WaitForLastOperation(FLASH_ProgramTimeout);
         FLASH->CR &= ~FLASH_CR_PG;          // Disable flash writing
         // Flush the caches to be sure of the data consistency
         FLASH->ACR |= FLASH_ACR_ICRST;      // }
@@ -883,7 +877,7 @@ void IwdgFrozeInStandby() {
 #endif
 
 // ==== Dualbank ====
-#if defined STM32L4XX
+#if defined STM32L476
 bool DualbankIsEnabled() {
     return (FLASH->OPTR & FLASH_OPTR_DUALBANK);
 }

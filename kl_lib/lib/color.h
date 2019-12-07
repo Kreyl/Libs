@@ -186,19 +186,19 @@ public:
         Delay2 = (Brt == AClr.Brt)? 0 : ClrCalcDelay(Brt, SmoothValue);
         return (Delay2 > Delay)? Delay2 : Delay;
     }
+//    void SetRGBWBrightness(Color_t &AClr, int32_t Brt) {
+//        R = SetSingleBrt(AClr.R, Brt);
+//        G = SetSingleBrt(AClr.G, Brt);
+//        B = SetSingleBrt(AClr.B, Brt);
+//        W = SetSingleBrt(AClr.W, Brt);
+//    }
+//    void SetRGBBrightness(Color_t &AClr, int32_t Brt) {
+//        R = SetSingleBrt(AClr.R, Brt);
+//        G = SetSingleBrt(AClr.G, Brt);
+//        B = SetSingleBrt(AClr.B, Brt);
+//    }
 
-    void SetRGBWBrightness(Color_t &AClr, int32_t Brt, const int32_t BrtMax) {
-        R = SetSingleBrt(AClr.R, Brt, BrtMax);
-        G = SetSingleBrt(AClr.G, Brt, BrtMax);
-        B = SetSingleBrt(AClr.B, Brt, BrtMax);
-        W = SetSingleBrt(AClr.W, Brt, BrtMax);
-    }
 
-    void SetRGBBrightness(Color_t &AClr, const int32_t ABrt, const int32_t BrtMax) {
-        R = SetSingleBrt(AClr.R, ABrt, BrtMax);
-        G = SetSingleBrt(AClr.G, ABrt, BrtMax);
-        B = SetSingleBrt(AClr.B, ABrt, BrtMax);
-    }
     void SetRGBBrightness(const int32_t ABrt, const int32_t BrtMax) {
         R = SetSingleBrt(R, ABrt, BrtMax);
         G = SetSingleBrt(G, ABrt, BrtMax);
@@ -381,9 +381,9 @@ struct ColorHSV_t {
     bool operator != (const ColorHSV_t &AColor) const { return (DWord32 != AColor.DWord32); }
 
     ColorHSV_t() : H(0), S(0), V(0) {}
+    ColorHSV_t(const Color_t &Clr) { FromRGB(Clr); }
     ColorHSV_t(uint16_t AH, uint8_t AS, uint8_t AV) : H(AH), S(AS), V(AV) {}
     ColorHSV_t(const ColorHSV_t &AClr) : H(AClr.H), S(AClr.S), V(AClr.V) {}
-    ColorHSV_t(Color_t &AClr) { FromRGB(AClr); }
 } __attribute__((packed));
 
 // Colors
