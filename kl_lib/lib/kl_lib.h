@@ -999,12 +999,15 @@ public:
 
 class PinInput_t {
 private:
-    const PinInputSetup_t ISetup;
+    GPIO_TypeDef *PGpio;
+    uint16_t Pin;
+    PinPullUpDown_t PullUpDown;
 public:
-    void Init() const { PinSetupInput(ISetup.PGpio, ISetup.Pin, ISetup.PullUpDown); }
-    void Deinit() const { PinSetupAnalog(ISetup.PGpio, ISetup.Pin); }
-    bool IsHi() const { return PinIsHi(ISetup.PGpio, ISetup.Pin); }
-    PinInput_t(const PinInputSetup_t &ASetup) : ISetup(ASetup) {}
+    void Init() const { PinSetupInput(PGpio, Pin, PullUpDown); }
+    void Deinit() const { PinSetupAnalog(PGpio, Pin); }
+    bool IsHi() const { return PinIsHi(PGpio, Pin); }
+    PinInput_t(GPIO_TypeDef *APGpio, uint16_t APin, PinPullUpDown_t APullUpDown) :
+        PGpio(APGpio), Pin(APin), PullUpDown(APullUpDown) {}
 };
 
 
@@ -1417,9 +1420,10 @@ namespace Flash {
 void UnlockFlash();
 void LockFlash();
 
+void ClearPendingFlags();
 uint8_t ErasePage(uint32_t PageAddress);
 #if defined STM32L4XX
-uint8_t ProgramDWord(uint32_t Address, uint64_t Data);
+uint8_t ProgramBuf32(uint32_t Address, uint32_t *PData, int32_t ASzBytes);
 #else
 uint8_t ProgramWord(uint32_t Address, uint32_t Data);
 uint8_t ProgramBuf(void *PData, uint32_t ByteSz, uint32_t Addr);
