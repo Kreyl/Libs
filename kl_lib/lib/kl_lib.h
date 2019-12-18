@@ -1029,6 +1029,7 @@ public:
     void Init() const;
     void Deinit() const { Timer_t::Deinit(); PinSetupAnalog(ISetup.PGpio, ISetup.Pin); }
     void SetFrequencyHz(uint32_t FreqHz) const { Timer_t::SetUpdateFrequencyChangingPrescaler(FreqHz); }
+    void SetTopValue(uint32_t TopVal) const { Timer_t::SetTopValue(TopVal); }
     PinOutputPWM_t(const PwmSetup_t &ASetup) : Timer_t(ASetup.PTimer), ISetup(ASetup) {}
     PinOutputPWM_t(GPIO_TypeDef *PGpio, uint16_t Pin,
             TIM_TypeDef *PTimer, uint32_t TimerChnl,
@@ -1323,6 +1324,8 @@ enum SpiClkDivider_t {
     sclkDiv256 = 0b111,
 };
 
+enum NssPinCtrl_t {nssCtrlSoft, nssCtrlHard};
+
 class Spi_t {
 public:
     SPI_TypeDef *PSpi;
@@ -1330,8 +1333,13 @@ public:
     // Example: boMSB, cpolIdleLow, cphaFirstEdge, sbFdiv2, bitn8
     void Setup(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
             int32_t Bitrate_Hz, BitNumber_t BitNumber = bitn8) const;
-    void Enable ()       const { PSpi->CR1 |=  SPI_CR1_SPE; }
-    void Disable()       const { PSpi->CR1 &= ~SPI_CR1_SPE; }
+    void SetupSlave(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
+            NssPinCtrl_t NssCtrl, BitNumber_t BitNumber = bitn8) const;
+    void Enable ()  const { PSpi->CR1 |=  SPI_CR1_SPE; }
+    void Disable()  const { PSpi->CR1 &= ~SPI_CR1_SPE; }
+    void SetNSSHi() const { PSpi->CR1 |=  SPI_CR1_SSI; }
+    void SetNSSLo() const { PSpi->CR1 &= ~SPI_CR1_SSI; }
+
     // DMA
     void EnableTxDma()   const { PSpi->CR2 |=  SPI_CR2_TXDMAEN; }
     void DisableTxDma()  const { PSpi->CR2 &= ~SPI_CR2_TXDMAEN; }

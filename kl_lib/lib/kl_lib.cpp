@@ -3000,6 +3000,32 @@ void Spi_t::Setup(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
 #endif
 }
 
+void Spi_t::SetupSlave(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA, NssPinCtrl_t NssCtrl, BitNumber_t BitNumber) const {
+    // Clocking
+    if      (PSpi == SPI1) { rccEnableSPI1(FALSE); }
+#ifdef SPI2
+    else if (PSpi == SPI2) { rccEnableSPI2(FALSE); }
+#endif
+#ifdef SPI3
+    else if (PSpi == SPI3) { rccEnableSPI3(FALSE); }
+#endif
+    PSpi->CR1 = 0; // Mode: Slave, NSS hardware controlled, NoCRC, FullDuplex
+    PSpi->CR2 = 0;
+    // Bit number
+#if defined STM32L1XX || defined STM32F10X_LD_VL || defined STM32F2XX || defined STM32F4XX
+    if(BitNumber == bitn16) PSpi->CR1 |= SPI_CR1_DFF;
+#elif defined STM32F030 || defined STM32F072xB || defined STM32L4XX
+    if(BitNumber == bitn16) PSpi->CR2 = (uint16_t)0b1111 << 8;  // 16 bit, RXNE generated when 16 bit is received
+    else PSpi->CR2 = ((uint16_t)0b0111 << 8) | SPI_CR2_FRXTH;   // 8 bit, RXNE generated when 8 bit is received
+#endif
+    // CPOL, CPHA, Bit Order
+    if(CPOL == cpolIdleHigh)   PSpi->CR1 |= SPI_CR1_CPOL; // CPOL
+    if(CPHA == cphaSecondEdge) PSpi->CR1 |= SPI_CR1_CPHA; // CPHA
+    if(BitOrder == boLSB)      PSpi->CR1 |= SPI_CR1_LSBFIRST; // MSB/LSB
+    // NSS
+    if(NssCtrl == nssCtrlSoft) PSpi->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI; // NSS software controlled and is 1
+}
+
 // IRQs
 static ftVoidVoid Spi1RxIrqHandler = nullptr;
 #ifdef SPI2
