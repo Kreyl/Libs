@@ -47,6 +47,10 @@ F1 "ICN2595" -300 850 60 H V C CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 F4 "0.154" 0 0 50 H I C CNN "Price"
+F5 "IC" 0 0 50 H I C CNN "Type"
+F6 "16-ch LED current supply" 0 0 50 H I C CNN "Description"
+F7 "ICN2595" 0 0 50 H I C CNN "PN"
+F8 "Chipone" 0 0 50 H I C CNN "Manufacturer"
 $FPLIST
  SO16*
 $ENDFPLIST
