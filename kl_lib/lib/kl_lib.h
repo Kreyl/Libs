@@ -986,6 +986,11 @@ private:
     PinOutMode_t OutputType;
 public:
     void Init() const { PinSetupOut(PGpio, Pin, OutputType); }
+    void InitAndSetHi() const {
+        PinClockEnable(PGpio);
+        PinSetHi(PGpio, Pin);
+        this->Init();
+    }
     void Deinit() const { PinSetupAnalog(PGpio, Pin); }
     void SetHi() const { PinSetHi(PGpio, Pin); }
     void SetLo() const { PinSetLo(PGpio, Pin); }
@@ -1922,12 +1927,7 @@ enum uartClk_t {uartclkPCLK = 0, uartclkSYSCLK = 1, uartclkHSI = 2, uartclkLSE =
 
 class Clk_t {
 private:
-    uint8_t EnableHSE();
-    uint8_t EnablePLL();
-    void EnablePLLROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
-    void EnablePLLQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
 
-    uint8_t EnableSai1();
 public:
     // Frequency values
     uint32_t AHBFreqHz;     // HCLK: AHB Buses, Core, Memory, DMA
@@ -1942,6 +1942,12 @@ public:
     uint8_t EnableHSI();
     uint8_t EnableMSI();
     void EnableLSE()  { RCC->BDCR |= RCC_BDCR_LSEON; }
+    uint8_t EnableHSE();
+    uint8_t EnablePLL();
+    void EnablePLLROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
+    void EnablePLLQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
+
+    uint8_t EnableSai1();
 
     void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
     void DisableHSI() { RCC->CR &= ~RCC_CR_HSION; }
