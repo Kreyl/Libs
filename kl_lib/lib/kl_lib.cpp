@@ -2509,7 +2509,6 @@ void Clk_t::SetupSai1Qas48MhzSrc() {
     uint32_t InputFreq, tmp;
     uint32_t PllM = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLM) >> 4) + 1;
     uint32_t PllSrc = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC);
-    PllM = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLM) >> 4) + 1 ;
     switch(PllSrc) {
         case 0x02:  // HSI used as PLL clock source
             InputFreq = (HSI_FREQ_HZ / PllM);
