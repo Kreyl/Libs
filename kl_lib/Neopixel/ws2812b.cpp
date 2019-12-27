@@ -4,28 +4,23 @@ void NpxDmaDone(void *p, uint32_t flags) {
     ((Neopixels_t*)p)->OnDmaDone();
 }
 
-#if WS2812_DYNAMIC
-void Neopixels_t::Init(int32_t ALedCnt) {
-#else
 void Neopixels_t::Init() {
-#endif
     // GPIO and DMA
     PinSetupAlterFunc(Params->PGpio, Params->Pin, omPushPull, pudNone, Params->Af);
     Params->ISpi.Setup(boMSB, cpolIdleLow, cphaFirstEdge, 2500000, bitn8);
     Params->ISpi.Enable();
     Params->ISpi.EnableTxDma();
 
-#if WS2812_DYNAMIC
     // Allocate memory
-    Printf("LedCnt: %u\r", ALedCnt);
-    LedCnt = ALedCnt;
-    IBufSz = TOTAL_BYTE_CNT(LedCnt);
-    Printf("TotalByteCnt: %u\r", IBufSz);
-    IBitBuf = (uint8_t*)malloc(IBufSz);
-    ClrBuf.resize(LedCnt);
+    LedCntTotal = 0;
+    for(int32_t i=0; i<BandCnt; i++) LedCntTotal += BandSetup[i].Length;
+    Printf("LedCnt: %u\r", LedCntTotal);
+    IBitBufSz = TOTAL_BYTE_CNT(LedCntTotal);
+    Printf("TotalByteCnt: %u\r", IBitBufSz);
+    IBitBuf = (uint8_t*)malloc(IBitBufSz);
+    ClrBuf.resize(LedCntTotal);
     // Zero it all, to zero head and tail
-    memset(IBitBuf, 0, IBufSz);
-#endif
+    memset(IBitBuf, 0, IBitBufSz);
 
     // ==== DMA ====
     PDma = dmaStreamAlloc(Params->DmaID, IRQ_PRIO_LOW, NpxDmaDone, this);
@@ -68,7 +63,7 @@ void Neopixels_t::SetCurrentColors() {
     // Start transmission
     dmaStreamDisable(PDma);
     dmaStreamSetMemory0(PDma, IBitBuf);
-    dmaStreamSetTransactionSize(PDma, WS_IBufSz);
+    dmaStreamSetTransactionSize(PDma, IBitBufSz);
     dmaStreamSetMode(PDma, Params->DmaMode);
     dmaStreamEnable(PDma);
 }
