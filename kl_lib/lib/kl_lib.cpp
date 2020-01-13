@@ -645,24 +645,18 @@ uint8_t ErasePage(uint32_t PageAddress) {
 }
 
 #if defined STM32L4XX
-uint8_t ProgramBuf32(uint32_t Address, uint32_t *PData, int32_t ASzBytes) {
-    Printf("PrgBuf %X  %u\r", Address, ASzBytes); chThdSleepMilliseconds(45);
+uint8_t ProgramDWord(uint32_t Address, uint64_t Data) {
     uint8_t status = WaitForLastOperation(FLASH_ProgramTimeout);
     if(status == retvOk) {
         chSysLock();
         ClearErrFlags();
-        FLASH->ACR &= ~FLASH_ACR_DCEN;      // Deactivate the data cache to avoid data misbehavior
-        FLASH->CR |= FLASH_CR_PG;           // Enable flash writing
-        // Write data
-        while(ASzBytes >= 7 and status == retvOk) {
-            // Write Word64
-            *(volatile uint32_t*)Address = *PData++;
-            Address += 4;
-            *(volatile uint32_t*)Address = *PData++;
-            Address += 4;
-            ASzBytes -= 8;
-            status = WaitForLastOperation(FLASH_ProgramTimeout);
-        }
+        // Deactivate the data cache to avoid data misbehavior
+        FLASH->ACR &= ~FLASH_ACR_DCEN;
+        // Program Dword
+        SET_BIT(FLASH->CR, FLASH_CR_PG);    // Enable flash writing
+        *(volatile uint32_t*)Address = (uint32_t)Data;
+        *(volatile uint32_t*)(Address + 4) = (uint32_t)(Data >> 32);
+        status = WaitForLastOperation(FLASH_ProgramTimeout);
         FLASH->CR &= ~FLASH_CR_PG;          // Disable flash writing
         // Flush the caches to be sure of the data consistency
         FLASH->ACR |= FLASH_ACR_ICRST;      // }
@@ -883,7 +877,7 @@ void IwdgFrozeInStandby() {
 #endif
 
 // ==== Dualbank ====
-#if defined STM32L4XX
+#if defined STM32L476
 bool DualbankIsEnabled() {
     return (FLASH->OPTR & FLASH_OPTR_DUALBANK);
 }
@@ -1245,7 +1239,7 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
 }; // namespace
 #endif
 
-#if 0 // ============================== IWDG ===================================
+#if 1 // ============================== IWDG ===================================
 namespace Iwdg {
 enum Pre_t {
     iwdgPre4 = 0x00,
@@ -1271,7 +1265,7 @@ void SetTimeout(uint32_t ms) {
     EnableAccess();
     SetPrescaler(iwdgPre256);
     uint32_t Count = (ms * (LSI_FREQ_HZ/1000UL)) / 256UL;
-    TRIM_VALUE(Count, 0xFFF);
+    LimitMaxValue(Count, 0xFFF);
     SetReload(Count);
     Reload();   // Reload and lock access
 }
@@ -1460,6 +1454,7 @@ uint8_t Clk_t::SwitchToHSE() {
 
 // Enables HSE, enables PLL, switches to PLL
 uint8_t Clk_t::SwitchToPLL() {
+    if(EnableHSE() != 0) return 1;
     if(EnablePLL() != 0) return 2;
     // Select PLL as system clock src
     RCC->CFGR |= RCC_CFGR_SW_PLL;
@@ -1487,6 +1482,7 @@ uint8_t Clk_t::SetupPLLDividers(PllMul_t PllMul, PllDiv_t PllDiv) {
     tmp &= RCC_CFGR_PLLDIV | RCC_CFGR_PLLMUL;
     tmp |= ((uint32_t)PllDiv) << 22;
     tmp |= ((uint32_t)PllMul) << 18;
+    tmp |= RCC_CFGR_PLLSRC_HSE;
     RCC->CFGR = tmp;
     return 0;
 }
@@ -2509,6 +2505,7 @@ void Clk_t::SetupSai1Qas48MhzSrc() {
     uint32_t InputFreq, tmp;
     uint32_t PllM = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLM) >> 4) + 1;
     uint32_t PllSrc = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC);
+    PllM = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLM) >> 4) + 1 ;
     switch(PllSrc) {
         case 0x02:  // HSI used as PLL clock source
             InputFreq = (HSI_FREQ_HZ / PllM);
@@ -3003,32 +3000,6 @@ void Spi_t::Setup(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
     if(BitNumber == bitn16) PSpi->CR2 = (uint16_t)0b1111 << 8;  // 16 bit, RXNE generated when 16 bit is received
     else PSpi->CR2 = ((uint16_t)0b0111 << 8) | SPI_CR2_FRXTH;   // 8 bit, RXNE generated when 8 bit is received
 #endif
-}
-
-void Spi_t::SetupSlave(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA, NssPinCtrl_t NssCtrl, BitNumber_t BitNumber) const {
-    // Clocking
-    if      (PSpi == SPI1) { rccEnableSPI1(FALSE); }
-#ifdef SPI2
-    else if (PSpi == SPI2) { rccEnableSPI2(FALSE); }
-#endif
-#ifdef SPI3
-    else if (PSpi == SPI3) { rccEnableSPI3(FALSE); }
-#endif
-    PSpi->CR1 = 0; // Mode: Slave, NSS hardware controlled, NoCRC, FullDuplex
-    PSpi->CR2 = 0;
-    // Bit number
-#if defined STM32L1XX || defined STM32F10X_LD_VL || defined STM32F2XX || defined STM32F4XX
-    if(BitNumber == bitn16) PSpi->CR1 |= SPI_CR1_DFF;
-#elif defined STM32F030 || defined STM32F072xB || defined STM32L4XX
-    if(BitNumber == bitn16) PSpi->CR2 = (uint16_t)0b1111 << 8;  // 16 bit, RXNE generated when 16 bit is received
-    else PSpi->CR2 = ((uint16_t)0b0111 << 8) | SPI_CR2_FRXTH;   // 8 bit, RXNE generated when 8 bit is received
-#endif
-    // CPOL, CPHA, Bit Order
-    if(CPOL == cpolIdleHigh)   PSpi->CR1 |= SPI_CR1_CPOL; // CPOL
-    if(CPHA == cphaSecondEdge) PSpi->CR1 |= SPI_CR1_CPHA; // CPHA
-    if(BitOrder == boLSB)      PSpi->CR1 |= SPI_CR1_LSBFIRST; // MSB/LSB
-    // NSS
-    if(NssCtrl == nssCtrlSoft) PSpi->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI; // NSS software controlled and is 1
 }
 
 // IRQs

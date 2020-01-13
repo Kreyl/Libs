@@ -167,7 +167,7 @@ public:
     inline uint32_t GetEmptyCount() { return Sz-IFullSlotsCount; }
     inline uint32_t GetFullCount()  { return IFullSlotsCount; }
     void Flush(uint32_t ALength) {
-        TRIM_VALUE(ALength, IFullSlotsCount);
+        LimitMaxValue(ALength, IFullSlotsCount);
         IFullSlotsCount -= ALength;
         uint32_t PartSz = (IBuf + Sz) - PRead;
         if(ALength >= PartSz) {

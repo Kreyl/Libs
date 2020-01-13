@@ -121,9 +121,11 @@ public:
 #define MIN_(a, b)   ( ((a)<(b))? (a) : (b) )
 #define MAX_(a, b)   ( ((a)>(b))? (a) : (b) )
 #define ABS(a)      ( ((a) < 0)? -(a) : (a) )
-#define TRIM_VALUE(v, Max)  { if((v) > (Max)) (v) = (Max); }
 #define IS_LIKE(v, precise, deviation)  (((precise - deviation) < v) and (v < (precise + deviation)))
 #define BitIsSet(r, b)  ((r) & (b))
+#define Limit2Bounds(v, vMin, vMax)     { if((v) < (vMin)) { (v) = (vMin); } else if((v) > (vMax)) { (v) = (vMax); } }
+#define LimitMinValue(v, vMin)          { if((v) < (vMin)) { (v) = (vMin); } }
+#define LimitMaxValue(v, vMax)          { if((v) > (vMax)) { (v) = (vMax); } }
 
 #define ANY_OF_2(a, b1, b2)             (((a)==(b1)) or ((a)==(b2)))
 #define ANY_OF_3(a, b1, b2, b3)         (((a)==(b1)) or ((a)==(b2)) or ((a)==(b3)))
@@ -354,7 +356,7 @@ static inline void DelayLoop(volatile uint32_t ACounter) { while(ACounter--); }
 // On writes, write 0x5FA to VECTKEY, otherwise the write is ignored. 4 is SYSRESETREQ: System reset request
 #define REBOOT()                SCB->AIRCR = 0x05FA0004
 
-#if 0 // ======================= Power and backup unit =========================
+#if 1 // ======================= Power and backup unit =========================
 namespace BackupSpc {
     static inline void EnableAccess() {
         rccEnablePWRInterface(FALSE);
@@ -392,7 +394,7 @@ namespace BackupSpc {
 } // namespace
 #endif
 
-#if 0 // ============================= RTC =====================================
+#if 1 // ============================= RTC =====================================
 namespace Rtc {
 #if defined STM32F10X_LD_VL
 // Wait until the RTC registers (RTC_CNT, RTC_ALR and RTC_PRL) are synchronized with RTC APB clock.
@@ -989,7 +991,7 @@ public:
     void InitAndSetHi() const {
         PinClockEnable(PGpio);
         PinSetHi(PGpio, Pin);
-        this->Init();
+        PinSetupOut(PGpio, Pin, OutputType);
     }
     void Deinit() const { PinSetupAnalog(PGpio, Pin); }
     void SetHi() const { PinSetHi(PGpio, Pin); }
@@ -1004,15 +1006,12 @@ public:
 
 class PinInput_t {
 private:
-    GPIO_TypeDef *PGpio;
-    uint16_t Pin;
-    PinPullUpDown_t PullUpDown;
+    const PinInputSetup_t ISetup;
 public:
-    void Init() const { PinSetupInput(PGpio, Pin, PullUpDown); }
-    void Deinit() const { PinSetupAnalog(PGpio, Pin); }
-    bool IsHi() const { return PinIsHi(PGpio, Pin); }
-    PinInput_t(GPIO_TypeDef *APGpio, uint16_t APin, PinPullUpDown_t APullUpDown) :
-        PGpio(APGpio), Pin(APin), PullUpDown(APullUpDown) {}
+    void Init() const { PinSetupInput(ISetup.PGpio, ISetup.Pin, ISetup.PullUpDown); }
+    void Deinit() const { PinSetupAnalog(ISetup.PGpio, ISetup.Pin); }
+    bool IsHi() const { return PinIsHi(ISetup.PGpio, ISetup.Pin); }
+    PinInput_t(const PinInputSetup_t &ASetup) : ISetup(ASetup) {}
 };
 
 
@@ -1037,7 +1036,6 @@ public:
     void Init() const;
     void Deinit() const { Timer_t::Deinit(); PinSetupAnalog(ISetup.PGpio, ISetup.Pin); }
     void SetFrequencyHz(uint32_t FreqHz) const { Timer_t::SetUpdateFrequencyChangingPrescaler(FreqHz); }
-    void SetTopValue(uint32_t TopVal) const { Timer_t::SetTopValue(TopVal); }
     PinOutputPWM_t(const PwmSetup_t &ASetup) : Timer_t(ASetup.PTimer), ISetup(ASetup) {}
     PinOutputPWM_t(GPIO_TypeDef *PGpio, uint16_t Pin,
             TIM_TypeDef *PTimer, uint32_t TimerChnl,
@@ -1332,8 +1330,6 @@ enum SpiClkDivider_t {
     sclkDiv256 = 0b111,
 };
 
-enum NssPinCtrl_t {nssCtrlSoft, nssCtrlHard};
-
 class Spi_t {
 public:
     SPI_TypeDef *PSpi;
@@ -1341,13 +1337,8 @@ public:
     // Example: boMSB, cpolIdleLow, cphaFirstEdge, sbFdiv2, bitn8
     void Setup(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
             int32_t Bitrate_Hz, BitNumber_t BitNumber = bitn8) const;
-    void SetupSlave(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
-            NssPinCtrl_t NssCtrl, BitNumber_t BitNumber = bitn8) const;
-    void Enable ()  const { PSpi->CR1 |=  SPI_CR1_SPE; }
-    void Disable()  const { PSpi->CR1 &= ~SPI_CR1_SPE; }
-    void SetNSSHi() const { PSpi->CR1 |=  SPI_CR1_SSI; }
-    void SetNSSLo() const { PSpi->CR1 &= ~SPI_CR1_SSI; }
-
+    void Enable ()       const { PSpi->CR1 |=  SPI_CR1_SPE; }
+    void Disable()       const { PSpi->CR1 &= ~SPI_CR1_SPE; }
     // DMA
     void EnableTxDma()   const { PSpi->CR2 |=  SPI_CR2_TXDMAEN; }
     void DisableTxDma()  const { PSpi->CR2 &= ~SPI_CR2_TXDMAEN; }
@@ -1433,10 +1424,9 @@ namespace Flash {
 void UnlockFlash();
 void LockFlash();
 
-void ClearPendingFlags();
 uint8_t ErasePage(uint32_t PageAddress);
 #if defined STM32L4XX
-uint8_t ProgramBuf32(uint32_t Address, uint32_t *PData, int32_t ASzBytes);
+uint8_t ProgramDWord(uint32_t Address, uint64_t Data);
 #else
 uint8_t ProgramWord(uint32_t Address, uint32_t Data);
 uint8_t ProgramBuf(void *PData, uint32_t ByteSz, uint32_t Addr);
@@ -1927,7 +1917,12 @@ enum uartClk_t {uartclkPCLK = 0, uartclkSYSCLK = 1, uartclkHSI = 2, uartclkLSE =
 
 class Clk_t {
 private:
+    uint8_t EnableHSE();
+    uint8_t EnablePLL();
+    void EnablePLLROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
+    void EnablePLLQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
 
+    uint8_t EnableSai1();
 public:
     // Frequency values
     uint32_t AHBFreqHz;     // HCLK: AHB Buses, Core, Memory, DMA
@@ -1942,12 +1937,6 @@ public:
     uint8_t EnableHSI();
     uint8_t EnableMSI();
     void EnableLSE()  { RCC->BDCR |= RCC_BDCR_LSEON; }
-    uint8_t EnableHSE();
-    uint8_t EnablePLL();
-    void EnablePLLROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
-    void EnablePLLQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
-
-    uint8_t EnableSai1();
 
     void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
     void DisableHSI() { RCC->CR &= ~RCC_CR_HSION; }
