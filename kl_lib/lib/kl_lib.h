@@ -152,8 +152,8 @@ static T Average(T *p, uint32_t Len) {
     return Rslt;
 }
 
-template <typename T>
-static inline T Proportion(T MinX, T MaxX, T MinY, T MaxY, T x) {
+static inline int32_t Proportion(int32_t MinX, int32_t MaxX, int32_t MinY, int32_t MaxY, int32_t x) {
+    Limit2Bounds(x, MinX, MaxX);
     return (((x - MaxX) * (MaxY - MinY)) / (MaxX - MinX)) + MaxY;
 }
 
@@ -988,11 +988,6 @@ private:
     PinOutMode_t OutputType;
 public:
     void Init() const { PinSetupOut(PGpio, Pin, OutputType); }
-    void InitAndSetHi() const {
-        PinClockEnable(PGpio);
-        PinSetHi(PGpio, Pin);
-        PinSetupOut(PGpio, Pin, OutputType);
-    }
     void Deinit() const { PinSetupAnalog(PGpio, Pin); }
     void SetHi() const { PinSetHi(PGpio, Pin); }
     void SetLo() const { PinSetLo(PGpio, Pin); }

@@ -6,57 +6,56 @@
  */
 
 #include "kl_adc.h"
-#include "main.h"
 #include "board.h"
 #include "MsgQ.h"
+#include "shell.h"
 
 #if ADC_REQUIRED
 
 Adc_t Adc;
-const uint8_t AdcChannels[ADC_CHANNEL_CNT] = ADC_CHANNELS;
-static thread_reference_t ThdRef;
-static bool FirstConversion;
+//const uint8_t AdcChannels[ADC_CHANNEL_CNT] = ADC_CHANNELS;
+//static thread_reference_t ThdRef;
+//static bool FirstConversion;
 
-static THD_WORKING_AREA(waAdcThread, 128);
-__noreturn
-static void AdcThread(void *arg) {
-    chRegSetThreadName("Adc");
-    while(true) {
-        chThdSleepMilliseconds(ADC_MEAS_PERIOD_MS);
-        chSysLock();
-        Adc.StartMeasurement();
-        chThdSuspendS(&ThdRef);
-        chSysUnlock();
-        // Will be here after measurements done
-//        Printf("AdcDone\r");
-        if(FirstConversion) FirstConversion = false;
-        else {
-            uint32_t VRef_adc = Adc.GetResult(ADC_VREFINT_CHNL);
-//            Printf("VRef_adc=%u\r", VRef_adc);
-            // Iterate all channels
-            for(int i=0; i<ADC_CHANNEL_CNT; i++) {
-                if(AdcChannels[i] == ADC_VREFINT_CHNL) continue; // Ignore VrefInt channel
-                uint32_t Vadc = Adc.GetResult(AdcChannels[i]);
-                uint32_t Vmv = Adc.Adc2mV(Vadc, VRef_adc);   // Resistor divider
-//                Printf("N=%u; Vadc=%u; Vmv=%u\r", i, Vadc, Vmv);
-                EvtMsg_t Msg(evtIdAdcRslt, AdcChannels[i], Vmv);
-                EvtQMain.SendNowOrExit(Msg);
-            } // for
-        } // not first conv
-    } // while true
-}
+//static THD_WORKING_AREA(waAdcThread, 128);
+//__noreturn
+//static void AdcThread(void *arg) {
+//    chRegSetThreadName("Adc");
+//    while(true) {
+////        chThdSleepMilliseconds(ADC_MEAS_PERIOD_MS);
+//        chSysLock();
+//        Adc.StartMeasurement();
+//        chThdSuspendS(&ThdRef);
+//        chSysUnlock();
+//        // Will be here after measurements done
+////        Printf("AdcDone\r");
+//        if(FirstConversion) FirstConversion = false;
+//        else {
+////            uint32_t VRef_adc = Adc.GetResult(ADC_VREFINT_CHNL);
+////            Printf("VRef_adc=%u\r", VRef_adc);
+//            // Iterate all channels
+//            for(int i=0; i<ADC_CHANNEL_CNT; i++) {
+//                if(AdcChannels[i] == ADC_VREFINT_CHNL) continue; // Ignore VrefInt channel
+////                uint32_t Vadc = Adc.GetResult(AdcChannels[i]);
+////                uint32_t Vmv = Adc.Adc2mV(Vadc, VRef_adc);   // Resistor divider
+////                Printf("N=%u; Vadc=%u; Vmv=%u\r", i, Vadc, Vmv);
+////                EvtMsg_t Msg(evtIdAdcRslt, AdcChannels[i], Vmv);
+////                EvtQMain.SendNowOrExit(Msg);
+//            } // for
+//        } // not first conv
+//    } // while true
+//}
 
 // Wrapper for IRQ
-extern "C" {
-void AdcTxIrq(void *p, uint32_t flags) {
-    dmaStreamDisable(ADC_DMA);
-    Adc.Disable();
-    // Wake thread
-    chSysLockFromISR();
-    chThdResumeI(&ThdRef, MSG_OK);
-    chSysUnlockFromISR();
-}
-} // extern C
+//extern "C"
+//void AdcTxIrq(void *p, uint32_t flags) {
+//    dmaStreamDisable(ADC_DMA);
+//    Adc.Disable();
+//    // Wake thread
+//    chSysLockFromISR();
+//    chThdResumeI(&ThdRef, MSG_OK);
+//    chSysUnlockFromISR();
+//}
 
 #if defined STM32F0XX
 void Adc_t::Init() {
@@ -269,44 +268,50 @@ uint32_t Adc_t::GetResult(uint8_t AChannel) {
 
 #if defined STM32L4XX
 // Wrapper for IRQ
-extern "C" {
-void AdcTxIrq(void *p, uint32_t flags) {
-    dmaStreamDisable(ADC_DMA);
-    Adc.Disable();
+extern "C"
+void AdcTxIrq(void *p, uint32_t flags) { Adc.OnDmaIrq(); }
+
+void Adc_t::OnDmaIrq() {
+    dmaStreamDisable(PDma);
+    Disable();
     // Signal event
     chSysLockFromISR();
-    App.SignalEvtI(EVT_ADC_DONE);
+    chThdResumeI(&ThdRef, MSG_OK);
     chSysUnlockFromISR();
 }
-} // extern C
 
 void Adc_t::Init() {
-    rccEnableADC123(FALSE);       // Enable AHB clock
-    // Setup ADC clock: PLLSAI1 "R" selected as ADC clk
-    MODIFY_REG(RCC->CCIPR, RCC_CCIPR_ADCSEL, RCC_CCIPR_ADCSEL_0);
-    // Setup PLL
-    if(Clk.SetupPllSai1(16, 8) != OK) return;
-    Clk.EnableSai1ROut();
-    // Power-on ADC
-    CLEAR_BIT(ADC1->CR, ADC_CR_DEEPPWD);    // Exit deep power-down mode
-    SET_BIT(ADC1->CR, ADC_CR_ADVREGEN);     // Enable ADC internal voltage regulator
+    rccEnableADC123(FALSE);      // Enable AHB clock
+    // Power-on ADC, exit deep power-down mode
+    ADC1->CR &= ~(ADC_CR_DEEPPWD | ADC_CR_ADCAL | ADC_CR_JADSTP | ADC_CR_ADSTP | ADC_CR_JADSTART | ADC_CR_ADSTART | ADC_CR_ADDIS | ADC_CR_ADEN);
+    ADC1->CR |= ADC_CR_ADVREGEN; // Enable ADC internal voltage regulator
     chThdSleepMicroseconds(20);
+    // Setup clock
+    ADC123_COMMON->CCR = 0b0000UL << 18; // Prescaler = 1
+    EnableVref();
+    ADC1->CFGR = ADC_CFGR_JQDIS | ADC_CFGR_OVRMOD; // Overwrite DR even if old value was not read
+    ADC123_COMMON->CCR |= ADC_CCR_VBATEN;
     // Setup channels
-    SetSequenceLength(ADC_SEQ_LEN);
-    for(uint8_t i=0; i < ADC_CHANNEL_CNT; i++) {
-        SetChannelSampleTime(AdcChannels[i], ADC_SAMPLE_TIME);
-        SetSequenceItem(i+1, AdcChannels[i]);   // First sequence item is 1, not 0
-    }
+//    SetSequenceLength(ADC_SEQ_LEN);
+//    for(uint8_t i=0; i < ADC_CHANNEL_CNT; i++) {
+//        SetChannelSampleTime(AdcChannels[i], ADC_SAMPLE_TIME);
+//        SetSequenceItem(i+1, AdcChannels[i]);   // First sequence item is 1, not 0
+//    }
+    // Setup oversampler: measure 8 times, divide by 8, en oversampler
+    ADC1->CFGR2 = (0b0011UL << 5) | (0b010UL << 2) | ADC_CFGR2_ROVSE;
+
     // ==== DMA ====
-    dmaStreamAllocate     (ADC_DMA, IRQ_PRIO_LOW, AdcTxIrq, NULL);
-    dmaStreamSetPeripheral(ADC_DMA, &ADC1->DR);
-    dmaStreamSetMode      (ADC_DMA, ADC_DMA_MODE);
+    PDma = dmaStreamAlloc(ADC_DMA, IRQ_PRIO_MEDIUM, AdcTxIrq, nullptr);
+    dmaStreamSetPeripheral(PDma, &ADC1->DR);
+    dmaStreamSetMode      (PDma, ADC_DMA_MODE);
+    ADC1->CFGR |= ADC_CFGR_DMAEN;    // Enable DMA
 }
 
 void Adc_t::Calibrate() {
-    CLEAR_BIT(ADC1->CR, ADC_CR_ADCALDIF);   // Calibration for single-ended inputs
-    SET_BIT(ADC1->CR, ADC_CR_ADCAL);        // Start calibration
-    while(READ_BIT(ADC1->CR, ADC_CR_ADCAL) != 0);   // Let it to complete
+    ADC1->CR &= ~ADC_CR_ADCALDIF;   // Calibration for single-ended inputs
+    ADC1->CR |= ADC_CR_ADCAL;        // Start calibration
+    while((ADC1->CR & ADC_CR_ADCAL) != 0);   // Let it to complete
+    __NOP(); __NOP(); __NOP(); __NOP(); // ADEN bit cannot be set during ADCAL=1 and 4 ADC clock cycle after the ADCAL bit is cleared by hardware(end of the calibration).
 }
 
 void Adc_t::SetSequenceLength(uint32_t ALen) {
@@ -316,15 +321,15 @@ void Adc_t::SetSequenceLength(uint32_t ALen) {
 
 void Adc_t::SetChannelSampleTime(uint32_t AChnl, AdcSampleTime_t ASampleTime) {
     uint32_t Offset;
-    if(AChnl <= 9) {
+    if(AChnl <= 9) { // 0...9
         Offset = AChnl * 3;
-        ADC1->SMPR2 &= ~((uint32_t)0b111 << Offset);    // Clear bits
-        ADC1->SMPR2 |= (uint32_t)ASampleTime << Offset; // Set new bits
+        ADC1->SMPR1 &= ~(0b111UL << Offset);    // Clear bits
+        ADC1->SMPR1 |= (uint32_t)ASampleTime << Offset; // Set new bits
     }
     else {
         Offset = (AChnl - 10) * 3;
-        ADC1->SMPR1 &= ~((uint32_t)0b111 << Offset);    // Clear bits
-        ADC1->SMPR1 |= (uint32_t)ASampleTime << Offset; // Set new bits
+        ADC1->SMPR2 &= ~(0b111UL << Offset);    // Clear bits
+        ADC1->SMPR2 |= (uint32_t)ASampleTime << Offset; // Set new bits
     }
 }
 
@@ -389,10 +394,10 @@ void Adc_t::StartMeasurement() {
     // Setup ADC. Do not set OVRMOD bit as it breaks sequence in case of DMA
     SET_BIT(ADC1->CFGR, ADC_CFGR_DMAEN);    // Enable DMA
     // DMA
-    dmaStreamSetMemory0(ADC_DMA, IBuf);
-    dmaStreamSetTransactionSize(ADC_DMA, ADC_SEQ_LEN);
-    dmaStreamSetMode(ADC_DMA, ADC_DMA_MODE);
-    dmaStreamEnable(ADC_DMA);
+//    dmaStreamSetMemory0(ADC_DMA, IBuf);
+//    dmaStreamSetTransactionSize(ADC_DMA, ADC_SEQ_LEN);
+//    dmaStreamSetMode(ADC_DMA, ADC_DMA_MODE);
+//    dmaStreamEnable(ADC_DMA);
     // ADC
     StartConversion();
 }
@@ -408,6 +413,46 @@ uint32_t Adc_t::GetResult(uint8_t AChannel) {
     }
 #endif
     return IBuf[0];
+}
+
+void Adc_t::StopCalibrateEnable() {
+    // Stop ADC
+    if(IsEnabled()) {
+        SET_BIT(ADC1->CR, ADC_CR_ADSTP);    // Stop any ongoing conversion
+        while(READ_BIT(ADC1->CR, ADC_CR_ADSTP) != 0);   // Let it to complete
+        Disable();
+        while(IsEnabled());   // Let it to complete
+    }
+    Calibrate();
+    // Clear flags by writing 1 to it
+    ADC1->ISR |= ADC_ISR_ADRDY | ADC_ISR_EOC | ADC_ISR_EOS;
+    ADC1->CR  |= ADC_CR_ADEN;    // Enable ADC
+    while((ADC1->ISR & ADC_ISR_ADRDY) == 0);   // Let it wake
+}
+
+uint16_t Adc_t::MeasureOnceSync(uint32_t AChnl) {
+    StopCalibrateEnable();
+    // Setup channel (allowed only when ADC is enabled)
+    SetSequenceLength(2); // Channel of interest and Vrefint
+    SetChannelSampleTime(ADC_VREFINT_CHNL, ast12d5Cycles);
+    SetChannelSampleTime(AChnl, ast12d5Cycles);
+    SetSequenceItem(1, ADC_VREFINT_CHNL);
+    SetSequenceItem(2, AChnl);
+    // Setup DMA
+    dmaStreamSetMemory0(PDma, IBuf);
+    dmaStreamSetTransactionSize(PDma, 2);
+    dmaStreamSetMode(PDma, ADC_DMA_MODE);
+    dmaStreamEnable(PDma);
+    // Start
+    chSysLock();
+    StartConversion();
+    chThdSuspendS(&ThdRef);
+    chSysUnlock();
+//    while((ADC1->ISR & ADC_ISR_EOS) == 0);
+
+    Printf("%u; %u\r", IBuf[0], IBuf[1]);
+//    Disable();
+    return Adc2mV(IBuf[1], IBuf[0]);
 }
 
 uint32_t Adc_t::Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
