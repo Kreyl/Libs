@@ -109,9 +109,8 @@ public:
 
 // Parent class for everything that prints
 class PrintfHelper_t {
-private:
-    uint8_t IPutUint(uint32_t n, uint32_t base, uint32_t width, char filler);
 protected:
+    uint8_t IPutUint(uint32_t n, uint32_t base, uint32_t width, char filler);
     virtual uint8_t IPutChar(char c) = 0;
     virtual void IStartTransmissionIfNotYet() = 0;
 public:

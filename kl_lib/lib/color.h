@@ -112,18 +112,18 @@ public:
     // H: 0...360, S: 0...100, V: 0...100
     void FromHSV(uint16_t H, uint8_t S, uint8_t V) {
         // Calc chroma: 0...255
-        int32_t C = ((int32_t)V * (int32_t)S * 255) / 10000;
+        int32_t C = ((int32_t)V * (int32_t)S * 255L) / 10000L;
         // Tmp values
-        int32_t X = 60 - Abs32((H % 120) - 60); // 0...60
-        X = (C * X) / 60;
-        int32_t m = (((int32_t)V * 255) / 100) - C; // To add the same amount to each component, to match lightness
+        int32_t X = 60L - Abs32((H % 120L) - 60L); // 0...60
+        X = (C * X) / 60L;
+        int32_t m = (((int32_t)V * 255L) / 100L) - C; // To add the same amount to each component, to match lightness
         // RGB
-        if     (H < 60)  { R = C+m; G = X+m; B = m;   } // [0; 60)
-        else if(H < 120) { R = X+m; G = C+m; B = m;   }
-        else if(H < 180) { R = m;   G = C+m; B = X+m; }
-        else if(H < 240) { R = m;   G = X+m; B = C+m; }
-        else if(H < 300) { R = X+m; G = m;   B = C+m; }
-        else             { R = C+m; G = m;   B = X+m; } // [300; 360]
+        if     (H < 60L)  { R = C+m; G = X+m; B = m;   } // [0; 60)
+        else if(H < 120L) { R = X+m; G = C+m; B = m;   }
+        else if(H < 180L) { R = m;   G = C+m; B = X+m; }
+        else if(H < 240L) { R = m;   G = X+m; B = C+m; }
+        else if(H < 300L) { R = X+m; G = m;   B = C+m; }
+        else              { R = C+m; G = m;   B = X+m; } // [300; 360]
     }
 
     bool IsRandom() const { return (R == 0 and G == 0 and B == 0 and Brt == RANDOM_CLR_BRT); }
@@ -186,19 +186,19 @@ public:
         Delay2 = (Brt == AClr.Brt)? 0 : ClrCalcDelay(Brt, SmoothValue);
         return (Delay2 > Delay)? Delay2 : Delay;
     }
-//    void SetRGBWBrightness(Color_t &AClr, int32_t Brt) {
-//        R = SetSingleBrt(AClr.R, Brt);
-//        G = SetSingleBrt(AClr.G, Brt);
-//        B = SetSingleBrt(AClr.B, Brt);
-//        W = SetSingleBrt(AClr.W, Brt);
-//    }
-//    void SetRGBBrightness(Color_t &AClr, int32_t Brt) {
-//        R = SetSingleBrt(AClr.R, Brt);
-//        G = SetSingleBrt(AClr.G, Brt);
-//        B = SetSingleBrt(AClr.B, Brt);
-//    }
 
+    void SetRGBWBrightness(Color_t &AClr, int32_t Brt, const int32_t BrtMax) {
+        R = SetSingleBrt(AClr.R, Brt, BrtMax);
+        G = SetSingleBrt(AClr.G, Brt, BrtMax);
+        B = SetSingleBrt(AClr.B, Brt, BrtMax);
+        W = SetSingleBrt(AClr.W, Brt, BrtMax);
+    }
 
+    void SetRGBBrightness(Color_t &AClr, const int32_t ABrt, const int32_t BrtMax) {
+        R = SetSingleBrt(AClr.R, ABrt, BrtMax);
+        G = SetSingleBrt(AClr.G, ABrt, BrtMax);
+        B = SetSingleBrt(AClr.B, ABrt, BrtMax);
+    }
     void SetRGBBrightness(const int32_t ABrt, const int32_t BrtMax) {
         R = SetSingleBrt(R, ABrt, BrtMax);
         G = SetSingleBrt(G, ABrt, BrtMax);
@@ -325,18 +325,18 @@ struct ColorHSV_t {
 
     void ToRGB(uint8_t *PR, uint8_t *PG, uint8_t *PB) const {
         // Calc chroma: 0...255
-        int32_t C = ((int32_t)V * (int32_t)S * 255) / 10000;
+        int32_t C = ((int32_t)V * (int32_t)S * 255L) / 10000L;
         // Tmp values
-        int32_t X = 60 - Abs32((H % 120) - 60); // 0...60
-        X = (C * X) / 60;
+        int32_t X = 60L - Abs32((H % 120L) - 60L); // 0...60
+        X = (C * X) / 60L;
         int32_t m = (((int32_t)V * 255) / 100) - C; // To add the same amount to each component, to match lightness
         // RGB
-        if     (H < 60)  { *PR = C+m; *PG = X+m; *PB = m;   } // [0; 60)
-        else if(H < 120) { *PR = X+m; *PG = C+m; *PB = m;   }
-        else if(H < 180) { *PR = m;   *PG = C+m; *PB = X+m; }
-        else if(H < 240) { *PR = m;   *PG = X+m; *PB = C+m; }
-        else if(H < 300) { *PR = X+m; *PG = m;   *PB = C+m; }
-        else             { *PR = C+m; *PG = m;   *PB = X+m; } // [300; 360]
+        if     (H < 60L)  { *PR = C+m; *PG = X+m; *PB = m;   } // [0; 60)
+        else if(H < 120L) { *PR = X+m; *PG = C+m; *PB = m;   }
+        else if(H < 180L) { *PR = m;   *PG = C+m; *PB = X+m; }
+        else if(H < 240L) { *PR = m;   *PG = X+m; *PB = C+m; }
+        else if(H < 300L) { *PR = X+m; *PG = m;   *PB = C+m; }
+        else              { *PR = C+m; *PG = m;   *PB = X+m; } // [300; 360]
     }
 
     void ToRGB(Color_t &AColor) { ToRGB(&AColor.R, &AColor.G, &AColor.B); }
@@ -357,15 +357,15 @@ struct ColorHSV_t {
         if(Min > Blue) Min = Blue;
         // H
         if(Max == Min) H = 0;
-        else if(Max == Red and Green >= Blue) H = (60 * (Green - Blue)) / (Max - Min) + 0;
-        else if(Max == Red and Green <  Blue) H = (60 * (Green - Blue)) / (Max - Min) + 360;
-        else if(Max == Green)                 H = (60 * (Blue - Red))   / (Max - Min) + 120;
-        else if(Max == Blue)                  H = (60 * (Red - Green))  / (Max - Min) + 240;
+        else if(Max == Red and Green >= Blue) H = (60L * (Green - Blue)) / (Max - Min) + 0L;
+        else if(Max == Red and Green <  Blue) H = (60L * (Green - Blue)) / (Max - Min) + 360L;
+        else if(Max == Green)                 H = (60L * (Blue - Red))   / (Max - Min) + 120L;
+        else if(Max == Blue)                  H = (60L * (Red - Green))  / (Max - Min) + 240L;
         // S
         if(Max == 0) S = 0;
-        else S = 100 - (100 * Min) / Max;
+        else S = 100L - (100L * Min) / Max;
         // V
-        V = (100 * Max) / 255;
+        V = (100L * Max) / 255L;
     }
 
     void FromRGB(Color_t Clr) {
@@ -381,9 +381,9 @@ struct ColorHSV_t {
     bool operator != (const ColorHSV_t &AColor) const { return (DWord32 != AColor.DWord32); }
 
     ColorHSV_t() : H(0), S(0), V(0) {}
-    ColorHSV_t(const Color_t &Clr) { FromRGB(Clr); }
     ColorHSV_t(uint16_t AH, uint8_t AS, uint8_t AV) : H(AH), S(AS), V(AV) {}
     ColorHSV_t(const ColorHSV_t &AClr) : H(AClr.H), S(AClr.S), V(AClr.V) {}
+    ColorHSV_t(Color_t &AClr) { FromRGB(AClr); }
 } __attribute__((packed));
 
 // Colors

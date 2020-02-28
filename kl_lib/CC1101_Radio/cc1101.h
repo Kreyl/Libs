@@ -56,6 +56,7 @@ public:
     // State change
     void Transmit(void *Ptr, uint8_t Len);
     uint8_t Receive(uint32_t Timeout_ms, void *Ptr, uint8_t Len,  int8_t *PRssi=nullptr);
+    uint8_t Receive_st(sysinterval_t Timeout_st, void *Ptr, uint8_t Len,  int8_t *PRssi=nullptr);
     void PowerOff();
     uint8_t Recalibrate() {
         while(IState != CC_STB_IDLE) {
