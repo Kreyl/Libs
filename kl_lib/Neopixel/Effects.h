@@ -7,7 +7,9 @@
 
 #pragma once
 
-void EffInit();
+namespace Eff {
+void Init();
 
-void EffFadeIn();
-void EffFadeOut();
+void FadeIn();
+void FadeOut();
+}

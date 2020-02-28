@@ -144,7 +144,7 @@ public:
 #define ADC_VREFINT_CHNL        0   // Do not change, see ref man
 #define ADC_TEMPERATURE_CHNL    17
 #define ADC_VBAT_CHNL           18
-#define ADC_MAX_SEQ_LEN         16  // 1...16; Const, see ref man
+#define ADC_MAX_SEQ_LEN         16  // 1...16; Const, see ref man p.38
 #define ADC_VREFINT_CAL         (*(volatile uint16_t*)0x1FFF75AA)
 
 #define ADC_SEQ_LEN             (ADC_CHANNEL_CNT)
@@ -167,22 +167,27 @@ enum AdcSampleTime_t {
 
 class Adc_t {
 private:
+    const stm32_dma_stream_t *PDma;
     uint16_t IBuf[ADC_SEQ_LEN];
+    thread_reference_t ThdRef = nullptr;
     void Calibrate();
-    bool IsEnabled() { return READ_BIT(ADC1->CR, ADC_CR_ADEN); }
+    bool IsEnabled() { return (ADC1->CR & ADC_CR_ADEN); }
     void SetSequenceLength(uint32_t ALen);
     void SetChannelSampleTime(uint32_t AChnl, AdcSampleTime_t ASampleTime);
     void SetSequenceItem(uint8_t SeqIndx, uint32_t AChnl);
     void StartConversion() { ADC1->CR |= ADC_CR_ADSTART; }
+    void StopCalibrateEnable();
 public:
     void Init();
     void EnableVref()  { ADC123_COMMON->CCR |= ADC_CCR_VREFEN; }
     void DisableVref() { ADC123_COMMON->CCR &= ADC_CCR_VREFEN; }
     void StartMeasurement();
     uint32_t Adc2mV(uint32_t AdcChValue, uint32_t VrefValue);
-    void Disable() { SET_BIT(ADC1->CR, ADC_CR_ADDIS); }
-    void ClockOff() { rccDisableADC123(FALSE); }
+    void Disable() { ADC1->CR |= ADC_CR_ADDIS; }
+    void ClockOff() { rccDisableADC123(); }
     uint32_t GetResult(uint8_t AChannel);
+    uint16_t MeasureOnceSync(uint32_t AChnl);
+    void OnDmaIrq();
 };
 #endif
 

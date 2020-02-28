@@ -178,13 +178,15 @@ void ProcessButtons(PinSnsState_t *BtnState, uint32_t Len) {
 
 #if BTN_REPEAT // Check if repeat
             if(!IsRepeating[i]) {
-                if(TimeElapsed(&RepeatTimer, BTN_DELAY_BEFORE_REPEAT_MS)) {
+                if(chVTTimeElapsedSinceX(RepeatTimer) >= TIME_MS2I(BTN_DELAY_BEFORE_REPEAT_MS)) {
+                    RepeatTimer = chVTGetSystemTimeX();
                     IsRepeating[i] = true;
                     AddEvtToQueue(beRepeat, i);
                 }
             }
             else {
-                if(TimeElapsed(&RepeatTimer, BTN_REPEAT_PERIOD_MS)) {
+                if(chVTTimeElapsedSinceX(RepeatTimer) >= TIME_MS2I(BTN_REPEAT_PERIOD_MS)) {
+                    RepeatTimer = chVTGetSystemTimeX();
                     AddEvtToQueue(beRepeat, i);
                 }
             }

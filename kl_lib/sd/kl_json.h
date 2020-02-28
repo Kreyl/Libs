@@ -9,7 +9,11 @@
 
 #include "kl_lib.h"
 #include "color.h"
+
+#define JSON_FILE_EN    FALSE
+#if JSON_FILE_EN
 #include "ff.h"
+#endif
 
 #define ISTRLEN     256
 
@@ -17,7 +21,9 @@ enum TokenParseRslt_t {tprFail, tprBufEnd, tprContainer, tprValue, tprValueEndOf
 
 class JsonObj_t {
 private:
+#if JSON_FILE_EN
     uint8_t ISaveToFile(FIL *AFile, bool SaveNeighbor);
+#endif
 public:
     char *Name = nullptr;
     char *Value = nullptr;
@@ -50,6 +56,7 @@ public:
     uint8_t SetNewValue(int32_t NewValue);
     uint8_t SetNewValue(bool NewValue);
     // Strings
+    bool NameIsEqualTo(const char* S) const;
     bool ValueIsEqualTo(const char* S) const;
     uint8_t CopyValueIfNotEmpty(char** ptr) const;
     uint8_t CopyValueIfNotEmpty(char *PBuf, uint32_t SzMax) const;
@@ -58,8 +65,9 @@ public:
     uint8_t ToColor(Color_t *PClr) const;
     uint8_t ToTwoInts(int32_t *PInt1, int32_t *PInt2) const;
     uint8_t ToByteArray(uint8_t *PArr, int32_t Len) const;
-    // Save to file
+#if JSON_FILE_EN    // Save to file
     uint8_t SaveToFile(FIL *AFile);
+#endif
 };
 
 class JsonParser_t {
@@ -88,8 +96,9 @@ private:
     bool WasStar = false;
     bool WasSlash = false;
     TokenParseRslt_t IParse();
-    // File operations
+#if JSON_FILE_EN   // File operations
     FIL *IFile = nullptr;
+#endif
     char *IBuf = nullptr;
 public:
     JsonObj_t Root;
@@ -104,4 +113,6 @@ public:
     ~JsonParser_t();
 };
 
+#if JSON_FILE_EN
 uint8_t JsonGetNodeValue(const char* Filename, const char* NodeName, char** PPValue);
+#endif

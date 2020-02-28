@@ -5,9 +5,10 @@
  *      Author: Kreyl
  */
 
-#include <kl_json.h>
+#include "kl_json.h"
+#if JSON_FILE_EN
 #include "kl_fs_utils.h"
-
+#endif
 static const JsonObj_t EmptyNode;
 #define JBUFSZ      4096
 #define ISTRLEN     256
@@ -359,6 +360,10 @@ uint8_t JsonObj_t::ToFloat(float *POut) const {
 }
 
 // ==== Strings ====
+bool JsonObj_t::NameIsEqualTo(const char* S) const {
+    return (strcasecmp(Name, S) == 0);
+}
+
 bool JsonObj_t::ValueIsEqualTo(const char* S) const {
     return (strcasecmp(Value, S) == 0);
 }
@@ -431,6 +436,7 @@ uint8_t JsonObj_t::ToByteArray(uint8_t *PArr, int32_t Len) const {
 
 #endif
 
+#if JSON_FILE_EN
 uint8_t JsonObj_t::SaveToFile(FIL *AFile) {
     return ISaveToFile(AFile, false);
 }
@@ -454,7 +460,7 @@ uint8_t JsonObj_t::ISaveToFile(FIL *AFile, bool SaveNeighbor) {
     }
     return retvOk;
 }
-
+#endif
 
 #if 1 // ============================ Json Parser ==============================
 void JsonParser_t::InitContext() {
@@ -543,6 +549,7 @@ uint8_t JsonParser_t::ContinueToReadBuf(char* ABuf, uint32_t ALen) {
     } // while
 }
 
+#if JSON_FILE_EN
 uint8_t JsonParser_t::StartReadFromFile(const char* AFName) {
     // Open file
     if(IFile) free(IFile);
@@ -586,22 +593,26 @@ uint8_t JsonParser_t::SaveToSameFile() {
     if(f_sync(IFile) != FR_OK) return retvFail;
     return retvOk;
 }
+#endif
 
 JsonParser_t::~JsonParser_t() {
     if(Node and Node != &Root) {
         delete Node;
         Node = nullptr;
     }
+#if JSON_FILE_EN
     if(IFile) {
         f_close(IFile);
         free(IFile);
     }
+#endif
     if(IBuf) free(IBuf);
 }
 #endif
 
+#if JSON_FILE_EN
 /*
- * Searc in first JBUFSZ chars
+ * Search in first JBUFSZ chars
  * PPValue may be nullptr
  * Retval: retvFail, retvNotFound (when no such file), retvEndOfFile (when no such nodename), retvOk
  */
@@ -728,3 +739,4 @@ uint8_t JsonGetNodeValue(const char* Filename, const char* NodeName, char** PPVa
     delete IFile;
     return Rslt;
 }
+#endif
