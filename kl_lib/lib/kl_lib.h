@@ -121,11 +121,9 @@ public:
 #define MIN_(a, b)   ( ((a)<(b))? (a) : (b) )
 #define MAX_(a, b)   ( ((a)>(b))? (a) : (b) )
 #define ABS(a)      ( ((a) < 0)? -(a) : (a) )
+#define TRIM_VALUE(v, Max)  { if((v) > (Max)) (v) = (Max); }
 #define IS_LIKE(v, precise, deviation)  (((precise - deviation) < v) and (v < (precise + deviation)))
 #define BitIsSet(r, b)  ((r) & (b))
-#define Limit2Bounds(v, vMin, vMax)     { if((v) < (vMin)) { (v) = (vMin); } else if((v) > (vMax)) { (v) = (vMax); } }
-#define LimitMinValue(v, vMin)          { if((v) < (vMin)) { (v) = (vMin); } }
-#define LimitMaxValue(v, vMax)          { if((v) > (vMax)) { (v) = (vMax); } }
 
 #define ANY_OF_2(a, b1, b2)             (((a)==(b1)) or ((a)==(b2)))
 #define ANY_OF_3(a, b1, b2, b3)         (((a)==(b1)) or ((a)==(b2)) or ((a)==(b3)))
@@ -152,8 +150,8 @@ static T Average(T *p, uint32_t Len) {
     return Rslt;
 }
 
-static inline int32_t Proportion(int32_t MinX, int32_t MaxX, int32_t MinY, int32_t MaxY, int32_t x) {
-    Limit2Bounds(x, MinX, MaxX);
+template <typename T>
+static inline T Proportion(T MinX, T MaxX, T MinY, T MaxY, T x) {
     return (((x - MaxX) * (MaxY - MinY)) / (MaxX - MinX)) + MaxY;
 }
 
@@ -503,6 +501,7 @@ public:
     void Disable() const { TMR_DISABLE(ITmr); }
     void SetUpdateFrequencyChangingPrescaler(uint32_t FreqHz) const;
     void SetUpdateFrequencyChangingTopValue(uint32_t FreqHz) const;
+    void SetUpdateFrequencyChangingBoth(uint32_t FreqHz) const;
     void SetTopValue(uint32_t Value) const { ITmr->ARR = Value; }
     uint32_t GetTopValue() const { return ITmr->ARR; }
     void EnableArrBuffering()  const { ITmr->CR1 |=  TIM_CR1_ARPE; }
@@ -559,6 +558,7 @@ public:
     void ClearCompare3IrqPendingBit() const { ITmr->SR &= ~TIM_SR_CC3IF; }
     void ClearCompare4IrqPendingBit() const { ITmr->SR &= ~TIM_SR_CC4IF; }
     // Check
+    bool IsEnabled() const { return (ITmr->CR1 & TIM_CR1_CEN); }
     bool IsUpdateIrqFired() const { return (ITmr->SR & TIM_SR_UIF); }
     bool IsCompare1IrqFired() const { return (ITmr->SR & TIM_SR_CC1IF); }
     bool IsCompare2IrqFired() const { return (ITmr->SR & TIM_SR_CC2IF); }
@@ -853,7 +853,7 @@ static inline void PinSetupAnalog(GPIO_TypeDef *PGpioPort, const uint16_t APinNu
 #endif
 }
 
-#ifdef STM32L476
+#ifdef STM32L4XX
 static inline void PinConnectAdc(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber) {
     SET_BIT(PGpioPort->ASCR, 1<<APinNumber);
 }
@@ -1419,9 +1419,11 @@ namespace Flash {
 void UnlockFlash();
 void LockFlash();
 
+void ClearPendingFlags();
 uint8_t ErasePage(uint32_t PageAddress);
+
 #if defined STM32L4XX
-uint8_t ProgramDWord(uint32_t Address, uint64_t Data);
+uint8_t ProgramBuf32(uint32_t Address, uint32_t *PData, int32_t ASzBytes);
 #else
 uint8_t ProgramWord(uint32_t Address, uint32_t Data);
 uint8_t ProgramBuf(void *PData, uint32_t ByteSz, uint32_t Addr);
@@ -1911,13 +1913,6 @@ enum i2cClk_t { i2cclkPCLK1 = 0, i2cclkSYSCLK = 1, i2cclkHSI = 2 };
 enum uartClk_t {uartclkPCLK = 0, uartclkSYSCLK = 1, uartclkHSI = 2, uartclkLSE = 3 };
 
 class Clk_t {
-private:
-    uint8_t EnableHSE();
-    uint8_t EnablePLL();
-    void EnablePLLROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
-    void EnablePLLQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
-
-    uint8_t EnableSai1();
 public:
     // Frequency values
     uint32_t AHBFreqHz;     // HCLK: AHB Buses, Core, Memory, DMA
@@ -1931,7 +1926,12 @@ public:
 
     uint8_t EnableHSI();
     uint8_t EnableMSI();
+    uint8_t EnableHSE();
+    uint8_t EnablePLL();
     void EnableLSE()  { RCC->BDCR |= RCC_BDCR_LSEON; }
+    void EnablePLLROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
+    void EnablePLLQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
+    uint8_t EnableSai1();
 
     void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
     void DisableHSI() { RCC->CR &= ~RCC_CR_HSION; }

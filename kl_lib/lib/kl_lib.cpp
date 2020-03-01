@@ -423,17 +423,25 @@ void PinOutputPWM_t::Init() const {
 void Timer_t::SetUpdateFrequencyChangingPrescaler(uint32_t FreqHz) const {
     // Figure out input timer freq
     uint32_t UpdFreqMax = Clk.GetTimInputFreq(ITmr) / (ITmr->ARR + 1);
-    uint32_t div = UpdFreqMax / FreqHz;
-    if(div != 0) div--;
+    uint32_t Psc = UpdFreqMax / FreqHz;
+    if(Psc != 0) Psc--;
 //    Uart.Printf("InputFreq=%u; UpdFreqMax=%u; div=%u; ARR=%u\r", InputFreq, UpdFreqMax, div, ITmr->ARR);
-    ITmr->PSC = div;
+    ITmr->PSC = Psc;
     ITmr->CNT = 0;  // Reset counter to start from scratch
 }
 
 void Timer_t::SetUpdateFrequencyChangingTopValue(uint32_t FreqHz) const {
-    uint32_t TopVal  = (Clk.GetTimInputFreq(ITmr) / FreqHz) - 1;
-//    Uart.Printf("Topval = %u\r", TopVal);
+    uint32_t UpdFreqMax = Clk.GetTimInputFreq(ITmr) / (ITmr->PSC + 1);
+    uint32_t TopVal  = (UpdFreqMax / FreqHz);
+    if(TopVal != 0) TopVal--;
     SetTopValue(TopVal);
+    ITmr->CNT = 0;  // Reset counter to start from scratch
+}
+
+void Timer_t::SetUpdateFrequencyChangingBoth(uint32_t FreqHz) const {
+    uint32_t Psc = (Clk.GetTimInputFreq(ITmr) / FreqHz) / 0x10000;
+    ITmr->PSC = Psc;
+    SetUpdateFrequencyChangingTopValue(FreqHz);
 }
 #endif
 
@@ -498,8 +506,6 @@ void ClearPendingFlags() {
     FLASH->SR = FLASH_SR_EOP | FLASH_SR_PGAERR | FLASH_SR_WRPERR;
 #elif defined STM32L4XX
     FLASH->SR = FLASH_SR_EOP | FLASH_SR_PROGERR | FLASH_SR_WRPERR;
-#elif defined STM32F2XX
-
 #elif defined STM32F7XX
 
 #else
@@ -591,8 +597,6 @@ void UnlockFlash() {
 void LockFlash() {
 #if defined STM32L1XX
     FLASH->PECR |= FLASH_PECR_PRGLOCK;
-#elif defined STM32F2XX
-
 #else
     WaitForLastOperation(FLASH_ProgramTimeout);
     FLASH->CR |= FLASH_CR_LOCK;
@@ -627,8 +631,6 @@ uint8_t ErasePage(uint32_t PageAddress) {
         status = WaitForLastOperation(FLASH_EraseTimeout);
         FLASH->CR &= ~FLASH_CR_PER; // Disable the PageErase Bit
         chSysUnlock();
-#elif defined STM32F2XX
-
 #elif defined STM32F7XX
 
 #else
@@ -645,18 +647,24 @@ uint8_t ErasePage(uint32_t PageAddress) {
 }
 
 #if defined STM32L4XX
-uint8_t ProgramDWord(uint32_t Address, uint64_t Data) {
+uint8_t ProgramBuf32(uint32_t Address, uint32_t *PData, int32_t ASzBytes) {
+    Printf("PrgBuf %X  %u\r", Address, ASzBytes); chThdSleepMilliseconds(45);
     uint8_t status = WaitForLastOperation(FLASH_ProgramTimeout);
     if(status == retvOk) {
         chSysLock();
         ClearErrFlags();
-        // Deactivate the data cache to avoid data misbehavior
-        FLASH->ACR &= ~FLASH_ACR_DCEN;
-        // Program Dword
-        SET_BIT(FLASH->CR, FLASH_CR_PG);    // Enable flash writing
-        *(volatile uint32_t*)Address = (uint32_t)Data;
-        *(volatile uint32_t*)(Address + 4) = (uint32_t)(Data >> 32);
-        status = WaitForLastOperation(FLASH_ProgramTimeout);
+        FLASH->ACR &= ~FLASH_ACR_DCEN;      // Deactivate the data cache to avoid data misbehavior
+        FLASH->CR |= FLASH_CR_PG;           // Enable flash writing
+        // Write data
+        while(ASzBytes >= 7 and status == retvOk) {
+            // Write Word64
+            *(volatile uint32_t*)Address = *PData++;
+            Address += 4;
+            *(volatile uint32_t*)Address = *PData++;
+            Address += 4;
+            ASzBytes -= 8;
+            status = WaitForLastOperation(FLASH_ProgramTimeout);
+        }
         FLASH->CR &= ~FLASH_CR_PG;          // Disable flash writing
         // Flush the caches to be sure of the data consistency
         FLASH->ACR |= FLASH_ACR_ICRST;      // }
@@ -877,7 +885,7 @@ void IwdgFrozeInStandby() {
 #endif
 
 // ==== Dualbank ====
-#if defined STM32L476
+#if defined STM32L4XX
 bool DualbankIsEnabled() {
     return (FLASH->OPTR & FLASH_OPTR_DUALBANK);
 }
@@ -1265,7 +1273,7 @@ void SetTimeout(uint32_t ms) {
     EnableAccess();
     SetPrescaler(iwdgPre256);
     uint32_t Count = (ms * (LSI_FREQ_HZ/1000UL)) / 256UL;
-    LimitMaxValue(Count, 0xFFF);
+    TRIM_VALUE(Count, 0xFFF);
     SetReload(Count);
     Reload();   // Reload and lock access
 }
