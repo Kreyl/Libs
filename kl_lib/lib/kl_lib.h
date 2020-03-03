@@ -578,6 +578,9 @@ struct PinInputSetup_t {
     GPIO_TypeDef *PGpio;
     uint16_t Pin;
     PinPullUpDown_t PullUpDown;
+    PinInputSetup_t(GPIO_TypeDef *APGpio, uint16_t APin, PinPullUpDown_t APullUpDown) :
+        PGpio(APGpio), Pin(APin), PullUpDown(APullUpDown) {}
+
 };
 
 struct PwmSetup_t {
@@ -988,6 +991,11 @@ private:
     PinOutMode_t OutputType;
 public:
     void Init() const { PinSetupOut(PGpio, Pin, OutputType); }
+    void InitAndSetHi() const {
+        PinClockEnable(PGpio);
+        PinSetHi(PGpio, Pin);
+        PinSetupOut(PGpio, Pin, OutputType);
+    }
     void Deinit() const { PinSetupAnalog(PGpio, Pin); }
     void SetHi() const { PinSetHi(PGpio, Pin); }
     void SetLo() const { PinSetLo(PGpio, Pin); }
@@ -1007,6 +1015,8 @@ public:
     void Deinit() const { PinSetupAnalog(ISetup.PGpio, ISetup.Pin); }
     bool IsHi() const { return PinIsHi(ISetup.PGpio, ISetup.Pin); }
     PinInput_t(const PinInputSetup_t &ASetup) : ISetup(ASetup) {}
+    PinInput_t(GPIO_TypeDef *APGpio, uint16_t APin, PinPullUpDown_t APullUpDown) :
+        ISetup(APGpio, APin, APullUpDown) {}
 };
 
 
@@ -1929,15 +1939,18 @@ public:
     uint8_t EnableHSE();
     uint8_t EnablePLL();
     void EnableLSE()  { RCC->BDCR |= RCC_BDCR_LSEON; }
-    void EnablePLLROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
-    void EnablePLLQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
-    uint8_t EnableSai1();
+    void EnablePllROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
+    void EnablePllQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
+    uint8_t EnablePllSai1();
+    uint8_t EnablePllSai2();
+    void EnablePllSai2POut() { RCC->PLLSAI2CFGR |= RCC_PLLSAI2CFGR_PLLSAI2PEN; }
 
     void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
     void DisableHSI() { RCC->CR &= ~RCC_CR_HSION; }
     void DisablePLL();
     void DisableMSI() { RCC->CR &= ~RCC_CR_MSION; }
-    void DisableSai1();
+    void DisablePllSai1();
+    void DisablePllSai2();
 
     bool IsLseOn()      { return (RCC->BDCR & RCC_BDCR_LSERDY); }
 
@@ -1945,8 +1958,10 @@ public:
 
     // PLL and PLLSAI
     void SetupPllSrc(PllSrc_t Src) { MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, ((uint32_t)Src)); }
-    uint8_t SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q);
+    uint8_t SetupM(uint32_t M);
+    uint8_t SetupPll(uint32_t N, uint32_t R, uint32_t Q);
     void SetupPllSai1(uint32_t N, uint32_t R, uint32_t Q, uint32_t P);
+    void SetupPllSai2(uint32_t N, uint32_t R, uint32_t P);
     void EnableSai1ROut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1REN); }
     void EnableSai1QOut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1QEN); }
     void EnableSai1POut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1PEN); }
