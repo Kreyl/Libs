@@ -306,11 +306,9 @@ void BaseUart_t::Init() {
 
 #if 1 // Setup independent clock if possible and required
 #if defined STM32F072xB
-    if(Params->UseIndependedClock) {
-        Clk.EnableHSI();    // HSI used as independent clock
-        if     (Params->Uart == USART1) RCC->CFGR3 |= RCC_CFGR3_USART1SW_HSI;
-        else if(Params->Uart == USART2) RCC->CFGR3 |= RCC_CFGR3_USART2SW_HSI;
-    }
+    uint32_t Offset = (Params->Uart == USART1)? 0 : 16;
+    RCC->CFGR3 &= ~(0b11UL << Offset);
+    RCC->CFGR3 |= ((uint32_t)Params->ClkSrc) << Offset;
 #elif defined STM32L4XX
     uint32_t Offset = 0; // Usart1
     if(Params->Uart == USART2) Offset = 2;
@@ -366,7 +364,7 @@ void BaseUart_t::Init() {
 #if UART_USE_DMA    // ==== DMA ====
     // Remap DMA request if needed
 #if defined STM32F0XX
-    if(Params->PDmaTx == STM32_DMA1_STREAM4) SYSCFG->CFGR1 |= SYSCFG_CFGR1_USART1TX_DMA_RMP;
+    if(PDmaTx == STM32_DMA1_STREAM4) SYSCFG->CFGR1 |= SYSCFG_CFGR1_USART1TX_DMA_RMP;
 #endif
     PDmaTx = dmaStreamAlloc(Params->DmaTxID, IRQ_PRIO_MEDIUM, DmaUartTxIrq, this);
     dmaStreamSetPeripheral(PDmaTx, &Params->Uart->UART_TX_REG);
@@ -424,7 +422,7 @@ void BaseUart_t::Init() {
 #endif
     // Remap DMA request if needed
 #if defined STM32F0XX
-    if(Params->PDmaRx == STM32_DMA1_STREAM5) SYSCFG->CFGR1 |= SYSCFG_CFGR1_USART1RX_DMA_RMP;
+    if(PDmaRx == STM32_DMA1_STREAM5) SYSCFG->CFGR1 |= SYSCFG_CFGR1_USART1RX_DMA_RMP;
 #endif
     // DMA
     PDmaRx = dmaStreamAlloc(Params->DmaRxID, IRQ_PRIO_MEDIUM, nullptr, NULL);

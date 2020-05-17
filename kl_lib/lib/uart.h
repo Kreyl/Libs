@@ -56,8 +56,8 @@ struct UartParams_t {
 // ==== Base class ====
 class BaseUart_t {
 protected:
-    const stm32_dma_stream_t *PDmaTx;
-    const stm32_dma_stream_t *PDmaRx;
+    const stm32_dma_stream_t *PDmaTx = nullptr;
+    const stm32_dma_stream_t *PDmaRx = nullptr;
     const UartParams_t *Params;
 #if UART_USE_DMA
     char TXBuf[UART_TXBUF_SZ];
@@ -66,7 +66,7 @@ protected:
     uint32_t IFullSlotsCount, ITransSize;
     void ISendViaDMA();
 #endif
-    int32_t OldWIndx, RIndx;
+    int32_t RIndx;
     uint8_t IRxBuf[UART_RXBUF_SZ];
 protected:
     bool RxProcessed = true;
@@ -80,7 +80,7 @@ protected:
 #if UART_USE_DMA
     , PRead(TXBuf), PWrite(TXBuf), IDmaIsIdle(true), IFullSlotsCount(0), ITransSize(0)
 #endif
-    , OldWIndx(0), RIndx(0)
+    , RIndx(0)
     {}
 public:
     void Init();
@@ -116,6 +116,8 @@ private:
     }
 public:
     CmdUart_t(const UartParams_t *APParams) : BaseUart_t(APParams) {}
+    uint8_t ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);
+    uint8_t TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);
     void ProcessByteIfReceived();
     void SignalCmdProcessed() { BaseUart_t::SignalRxProcessed(); }
 };

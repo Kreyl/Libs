@@ -1,9 +1,14 @@
-(module TESTPOINT_1d5MM (layer F.Cu) (tedit 5BCEDE74)
-  (fp_text reference TP1 (at 0 1.09982) (layer F.SilkS) hide
+(module "TESTPOINT_1d5MM" (layer F.Cu) (tedit 5EA2E460)
+  (fp_text reference "TP1" (at 0 1.09982) (layer F.SilkS) hide
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
-  (fp_text value TESTPOINT (at 0 -0.89916) (layer F.SilkS) hide
+  (fp_text value "TESTPOINT" (at 0 -0.89916) (layer F.SilkS) hide
     (effects (font (size 0.6 0.6) (thickness 0.15)))
   )
-  (pad 1 smd circle (at 0 0) (size 1.5 1.5) (layers F.Cu F.Mask))
+  (pad "1" smd circle (at 0 0) (size 1.5 1.5) (layers "F.Cu" "F.Mask") (tstamp 6c45e0c3-ad36-4509-a2e9-0c6d3c220617))
+  (model "${KICAD_SYMBOL_DIR}/3d/PCB/Testpoint1d5.STEP"
+    (at (xyz 0 0 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 0))
+  )
 )

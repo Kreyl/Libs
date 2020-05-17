@@ -232,6 +232,10 @@ uint8_t TryStrToFloat(char* S, float *POutput);
 #if 1 // ============================ kl_string ================================
 int kl_strcasecmp(const char *s1, const char *s2);
 
+char* kl_strtok(register char* s, register const char* delim, register char**PLast);
+
+int kl_sscanf(const char* s, const char* format, ...);
+
 #endif
 
 #ifdef DMA_MEM2MEM
@@ -663,26 +667,26 @@ __always_inline
 static inline void PinSetLo(GPIO_TypeDef *PGpio, uint16_t APin) { PGpio->BSRRH = (1 << APin); }
 #elif defined STM32F2XX || defined STM32L1XX || defined STM32F7XX
 __always_inline
-static inline void PinSetHi(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BSRR = 1 << APin; }
+static void PinSetHi(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BSRR = 1 << APin; }
 __always_inline
-static inline void PinSetLo(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BSRR = 1 << (APin + 16);  }
+static void PinSetLo(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BSRR = 1 << (APin + 16);  }
 #elif defined STM32F0XX || defined STM32F10X_LD_VL || defined STM32L4XX || defined STM32F103xE
 __always_inline
-static inline void PinSetHi(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BSRR = 1 << APin; }
+static void PinSetHi(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BSRR = 1 << APin; }
 __always_inline
-static inline void PinSetLo(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BRR = 1 << APin;  }
+static void PinSetLo(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->BRR = 1 << APin;  }
 #endif
 __always_inline
-static inline void PinToggle(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->ODR ^= 1 << APin; }
+static void PinToggle(GPIO_TypeDef *PGpio, uint32_t APin) { PGpio->ODR ^= 1 << APin; }
 // Check input
 __always_inline
-static inline bool PinIsHi(GPIO_TypeDef *PGpio, uint32_t APin) { return PGpio->IDR & (1 << APin); }
+static bool PinIsHi(GPIO_TypeDef *PGpio, uint32_t APin) { return PGpio->IDR & (1 << APin); }
 __always_inline
-static inline bool PinIsHi(const GPIO_TypeDef *PGpio, uint32_t APin) { return PGpio->IDR & (1 << APin); }
+static bool PinIsHi(const GPIO_TypeDef *PGpio, uint32_t APin) { return PGpio->IDR & (1 << APin); }
 __always_inline
-static inline bool PinIsLo(GPIO_TypeDef *PGpio, uint32_t APin) { return !(PGpio->IDR & (1 << APin)); }
+static bool PinIsLo(GPIO_TypeDef *PGpio, uint32_t APin) { return !(PGpio->IDR & (1 << APin)); }
 __always_inline
-static inline bool PinIsLo(const GPIO_TypeDef *PGpio, uint32_t APin) { return !(PGpio->IDR & (1 << APin)); }
+static bool PinIsLo(const GPIO_TypeDef *PGpio, uint32_t APin) { return !(PGpio->IDR & (1 << APin)); }
 
 // Setup
 static void PinClockEnable(const GPIO_TypeDef *PGpioPort) {
@@ -952,21 +956,21 @@ static inline void PortInit(GPIO_TypeDef *PGpioPort,
 }
 
 __always_inline
-static inline void PortSetupOutput(GPIO_TypeDef *PGpioPort) {
+static void PortSetupOutput(GPIO_TypeDef *PGpioPort) {
     PGpioPort->MODER = 0x55555555;
 }
 __always_inline
-static inline void PortSetupInput(GPIO_TypeDef *PGpioPort) {
+static void PortSetupInput(GPIO_TypeDef *PGpioPort) {
     PGpioPort->MODER = 0x00000000;
 }
 #endif
 
 __always_inline
-static inline void PortSetValue(GPIO_TypeDef *PGpioPort, uint16_t Data) {
+static void PortSetValue(GPIO_TypeDef *PGpioPort, uint16_t Data) {
     PGpioPort->ODR = Data;
 }
 __always_inline
-static inline uint16_t PortGetValue(GPIO_TypeDef *PGpioPort) {
+static uint16_t PortGetValue(GPIO_TypeDef *PGpioPort) {
     return PGpioPort->IDR;
 }
 #endif // Simple pin manipulations
@@ -1399,6 +1403,25 @@ public:
         while(!(PSpi->SR & SPI_SR_RXNE));
         return PSpi->DR;
     }
+    void Transmit(uint8_t Params, uint8_t *ptr, uint32_t Len) {
+        PSpi->CR1 &= ~SPI_CR1_SPE; // Disable SPI
+        PSpi->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_MSTR;
+        if(Params & 0x80) PSpi->CR1 |= SPI_CR1_LSBFIRST; // 0 = MSB, 1 = LSB
+        if(Params & 0x40) PSpi->CR1 |= SPI_CR1_CPOL;     // 0 = IdleLow, 1 = IdleHigh
+        if(Params & 0x20) PSpi->CR1 |= SPI_CR1_CPHA;     // 0 = FirstEdge, 1 = SecondEdge
+        PSpi->CR1 |= (Params & 0x07) << 3; // Setup divider
+        PSpi->CR2 = ((uint16_t)0b0111 << 8) | SPI_CR2_FRXTH;   // 8 bit, RXNE generated when 8 bit is received
+        (void)PSpi->SR; // Read Status reg to clear some flags
+        // Do it
+        PSpi->CR1 |=  SPI_CR1_SPE; // Enable SPI
+        while(Len) {
+            *((volatile uint8_t*)&PSpi->DR) = *ptr;
+            while(!(PSpi->SR & SPI_SR_RXNE));  // Wait for SPI transmission to complete
+            *ptr = *((volatile uint8_t*)&PSpi->DR);
+            ptr++;
+            Len--;
+        }
+    }
 #if defined STM32L4XX
 //    void WriteRead2Bytes(uint8_t b1, uint8_t b2) const {
 //        *((volatile uint8_t*)&PSpi->DR) = b1;
@@ -1428,6 +1451,9 @@ namespace Flash {
 
 void UnlockFlash();
 void LockFlash();
+void UnlockOptionBytes();
+void LockOptionBytes();
+
 
 void ClearPendingFlags();
 uint8_t ErasePage(uint32_t PageAddress);
@@ -1438,6 +1464,10 @@ uint8_t ProgramBuf32(uint32_t Address, uint32_t *PData, int32_t ASzBytes);
 uint8_t ProgramWord(uint32_t Address, uint32_t Data);
 uint8_t ProgramBuf(void *PData, uint32_t ByteSz, uint32_t Addr);
 #endif
+
+void WriteOptionBytes(uint32_t Value);
+
+void ToggleBootBankAndReset();
 
 bool FirmwareIsLocked();
 void LockFirmware();
@@ -1731,6 +1761,7 @@ enum ClkSrc_t {csHSI=0b00, csHSE=0b01, csPLL=0b10};
 #else
 enum PllSrc_t {plsHSIdiv2=0b00, plsHSIdivPREDIV=0b01, plsHSEdivPREDIV=0b10, plsHSI48divPREDIV=0b11};
 enum ClkSrc_t {csHSI=0b00, csHSE=0b01, csPLL=0b10, csHSI48=0b11};
+enum uartClk_t {uartclkPCLK = 0, uartclkSYSCLK = 1, uartclkLSE = 2, uartclkHSI = 3 };
 #endif
 
 enum AHBDiv_t {
@@ -1957,8 +1988,9 @@ public:
     void SetupBusDividers(AHBDiv_t AHBDiv, APBDiv_t APB1Div, APBDiv_t APB2Div);
 
     // PLL and PLLSAI
-    void SetupPllSrc(PllSrc_t Src) { MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, ((uint32_t)Src)); }
     uint8_t SetupM(uint32_t M);
+    void SetupPllSrc(PllSrc_t PllSrc);
+    PllSrc_t GetPllSrc();
     uint8_t SetupPll(uint32_t N, uint32_t R, uint32_t Q);
     void SetupPllSai1(uint32_t N, uint32_t R, uint32_t Q, uint32_t P);
     void SetupPllSai2(uint32_t N, uint32_t R, uint32_t P);
@@ -1967,10 +1999,11 @@ public:
     void EnableSai1POut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1PEN); }
 
     void UpdateFreqValues();
-    void EnablePrefeth() { FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_DCEN | FLASH_ACR_ICEN; }
+    void EnablePrefetch() { FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_DCEN | FLASH_ACR_ICEN; }
     void SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange);
     void SetVoltageRange(MCUVoltRange_t VoltRange);
     void SetupSai1Qas48MhzSrc();
+    void SetupPllQas48MhzSrc();
     // LSI
     void EnableLSI() {
         RCC->CSR |= RCC_CSR_LSION;
@@ -2152,7 +2185,7 @@ public:
     void SetupPllSai(uint32_t N, uint32_t P, uint32_t Q, uint32_t R);
 
     void UpdateFreqValues();
-    void EnablePrefeth() { FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_PRFTEN; }
+    void EnablePrefetch() { FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_PRFTEN; }
     void SetupFlashLatency(uint8_t AHBClk_MHz, uint32_t MCUVoltage_mv);
     void SetVoltageScale(MCUVoltScale_t VoltScale);
     void Setup48Mhz();

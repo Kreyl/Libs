@@ -1,12 +1,12 @@
-(module "ANT_868_Spear" (layer F.Cu) (tedit 5E6EB8C5)
+(module "ANT_868_Spear" (layer F.Cu) (tedit 5E752F7A)
   (fp_text reference "Ref**" (at 2.7 2.55) (layer F.Fab)
     (effects (font (size 1.27 1.27) (thickness 0.15)))
   )
   (fp_text value "Val**" (at 2.7 5.05) (layer F.Fab)
     (effects (font (size 1.27 1.27) (thickness 0.15)))
   )
-  (fp_poly (pts (xy 9 48) (xy 1 48) (xy 1 44) (xy 9 44)) (layer F.Fab) (width 0.001))
-  (fp_poly (pts (xy 9 0) (xy 8 0) (xy 8 48) (xy 9 48)) (layer F.Fab) (width 0.001))
+  (fp_poly (pts (xy 9 0) (xy 8 0) (xy 8 48) (xy 9 48)) (layer F.SilkS) (width 0.001))
+  (fp_poly (pts (xy 9 48) (xy 1 48) (xy 1 44) (xy 9 44)) (layer F.SilkS) (width 0.001))
   (pad "1" smd custom (at -4.4 0.25) (size 0.5 0.5) (layers "F.Cu")
     (options (clearance outline) (anchor rect))
     (primitives
@@ -28,7 +28,6 @@
          (xy -3.154718 9.849719) (xy -2.654718 9.849719) (xy -2.654718 16.376771) (xy -3.154718 16.376771)) (width 0.001))
       (gr_poly (pts
          (xy 8.345526 20.882617) (xy -3.25333 20.882617) (xy -3.25333 20.382617) (xy 8.345526 20.382617)) (width 0.001))
-
       (gr_poly (pts
          (xy -3.25333 25.499056) (xy 1.753051 25.499056) (xy 1.753051 24.999056) (xy -3.25333 24.999056)) (width 0.001))
       (gr_poly (pts
@@ -37,5 +36,5 @@
          (xy 0.25 -0.05) (xy -0.25 -0.05) (xy -0.25 3.684353) (xy 0.25 3.684353)) (width 0.001))
       (gr_poly (pts
          (xy -3.25333 20.382617) (xy -2.75333 20.382617) (xy -2.75333 25.499056) (xy -3.25333 25.499056)) (width 0.001))
-    ))
+    ) (tstamp c93ea4d3-4e57-4f28-9f62-52fe61d879a6))
 )

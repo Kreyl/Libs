@@ -10,6 +10,7 @@
 #include <string.h>
 #include "MsgQ.h"
 #include <malloc.h>
+#include <string>
 
 #if 0 // ============================ General ==================================
 // To replace standard error handler in case of virtual methods implementation
@@ -70,9 +71,26 @@ void PrintMemoryInfo() {
             info.uordblks, info.fordblks, info.keepcost);
 }
 
+extern "C"
+caddr_t _sbrk(int incr) {
+    extern uint8_t __heap_base__;
+    extern uint8_t __heap_end__;
+
+    static uint8_t *current_end = &__heap_base__;
+    uint8_t *current_block_address = current_end;
+
+    incr = (incr + 3) & (~3);
+    if(current_end + incr > &__heap_end__) {
+        errno = ENOMEM;
+        return (caddr_t) -1;
+    }
+    current_end += incr;
+    return (caddr_t)current_block_address;
+}
+
 #if 1 // ============================ kl_string ================================
 __always_inline
-inline int kl_tolower(char c) {
+int kl_tolower(char c) {
     return (c >= 'A' and c <= 'Z')? (c + ('a' - 'A')) : c;
 }
 
@@ -88,6 +106,35 @@ int kl_strcasecmp(const char *s1, const char *s2) {
       if(*p1++ == '\0') break;
   }
   return result;
+}
+
+char* kl_strtok(register char* s, register const char* delim, register char**PLast) {
+    if(s == nullptr and (s = *PLast) == nullptr) return nullptr;
+    register char* spanp;
+    // Skip leading delimiters
+    cont:
+    register char c = *s++, sc;
+    for(spanp = (char*)delim; (sc = *spanp++) != 0;) {
+        if(c == sc) goto cont;
+    }
+
+    if(c == 0) {    // no non-delimiter characters left, but string ended
+        *PLast = nullptr;
+        return nullptr;
+    }
+    char* tok = s - 1;
+    while(true) {
+        c = *s++;
+        spanp = (char*)delim;
+        do {
+            if((sc = *spanp++) == c) {
+                if(c == 0) s = nullptr;
+                else *(s-1) = 0;
+                *PLast = s;
+                return tok;
+            }
+        } while (sc != 0);
+    }
 }
 #endif
 
@@ -472,15 +519,15 @@ void chDbgPanic(const char *msg1) {
 }
 
 void PrintErrMsg(const char* S) {
-    USART1->CR3 &= ~USART_CR3_DMAT;
+    CMD_UART->CR3 &= ~USART_CR3_DMAT;
     while(*S != 0) {
 //        ITM_SendChar(*S++);
 #if defined STM32L1XX || defined STM32F2XX
-        while(!(USART1->SR & USART_SR_TXE));
-        USART1->DR = *S;
+        while(!(CMD_UART->SR & USART_SR_TXE));
+        CMD_UART->DR = *S;
 #else
-        while(!(USART1->ISR & USART_ISR_TXE));
-        USART1->TDR = *S;
+        while(!(CMD_UART->ISR & USART_ISR_TXE));
+        CMD_UART->TDR = *S;
 #endif
         S++;
     }
@@ -648,7 +695,8 @@ uint8_t ErasePage(uint32_t PageAddress) {
 
 #if defined STM32L4XX
 uint8_t ProgramBuf32(uint32_t Address, uint32_t *PData, int32_t ASzBytes) {
-    Printf("PrgBuf %X  %u\r", Address, ASzBytes); chThdSleepMilliseconds(45);
+//    Printf("PrgBuf %X  %u\r", Address, ASzBytes); chThdSleepMilliseconds(45);
+    ASzBytes = 8 * ((ASzBytes + 7) / 8);
     uint8_t status = WaitForLastOperation(FLASH_ProgramTimeout);
     if(status == retvOk) {
         chSysLock();
@@ -656,7 +704,7 @@ uint8_t ProgramBuf32(uint32_t Address, uint32_t *PData, int32_t ASzBytes) {
         FLASH->ACR &= ~FLASH_ACR_DCEN;      // Deactivate the data cache to avoid data misbehavior
         FLASH->CR |= FLASH_CR_PG;           // Enable flash writing
         // Write data
-        while(ASzBytes >= 7 and status == retvOk) {
+        while(ASzBytes > 0 and status == retvOk) {
             // Write Word64
             *(volatile uint32_t*)Address = *PData++;
             Address += 4;
@@ -768,10 +816,8 @@ void LockOptionBytes() {
 #endif
 }
 
-void WriteOptionByteRDP(uint8_t Value) {
-    UnlockFlash();
+void WriteOptionBytes(uint32_t OptReg) {
     ClearPendingFlags();
-    UnlockOptionBytes();
     if(WaitForLastOperation(FLASH_ProgramTimeout) == retvOk) {
 #ifdef STM32L1XX
         uint32_t OptBytes = *(volatile uint32_t*)0x1FF80000;
@@ -781,9 +827,6 @@ void WriteOptionByteRDP(uint8_t Value) {
         *(volatile uint32_t*)0x1FF80000 = OptBytes;
         WaitForLastOperation(FLASH_ProgramTimeout);
 #elif defined STM32L4XX
-        uint32_t OptReg = FLASH->OPTR;
-        OptReg &= ~FLASH_OPTR_RDP_Msk;  // Clear RDP
-        OptReg |= Value;
         FLASH->OPTR = OptReg;
         FLASH->CR |= FLASH_CR_OPTSTRT;
         WaitForLastOperation(FLASH_ProgramTimeout);
@@ -799,15 +842,32 @@ void WriteOptionByteRDP(uint8_t Value) {
         CLEAR_BIT(FLASH->CR, FLASH_CR_OPTER);
         if(Rslt == retvOk) {
             SET_BIT(FLASH->CR, FLASH_CR_OPTPG); // Enable the Option Bytes Programming operation
-            OB->RDP = Value;
+            OB->RDP = OptReg;
             WaitForLastOperation(FLASH_ProgramTimeout);
             CLEAR_BIT(FLASH->CR, FLASH_CR_OPTPG); // Disable the Option Bytes Programming operation
         }
 #endif
     }
-    LockOptionBytes();
-    LockFlash();
 }
+
+#if defined FLASH_OPTR_BFB2
+void ToggleBootBankAndReset() {
+    uint32_t Optr = FLASH->OPTR;
+    // switch BFB bit and enable dualbank just in case
+    Optr = (Optr ^ FLASH_OPTR_BFB2) | FLASH_OPTR_DUALBANK;
+    Flash::LockFlash(); // Just in case if not locked
+    while(FLASH->SR & FLASH_SR_BSY);
+    Flash::UnlockFlash();
+    Flash::UnlockOptionBytes();
+    FLASH->OPTR = Optr;
+    FLASH->CR |= FLASH_CR_OPTSTRT;
+    while(FLASH->SR & FLASH_SR_BSY);
+    // Option byte loading requested. Will reset MCU.
+    FLASH->CR |= FLASH_CR_OBL_LAUNCH;
+    Flash::LockOptionBytes(); // Must never be here, but who knows.
+    Flash::LockFlash();
+}
+#endif
 
 // ==== Firmare lock ====
 bool FirmwareIsLocked() {
@@ -846,6 +906,8 @@ void LockFirmware() {
         LockFlash();    // Will lock option bytes too
         WaitForLastOperation(FLASH_ProgramTimeout);
     }
+#elif defined STM32F0XX
+
 #else
     WriteOptionByteRDP(0x1D); // Any value except 0xAA or 0xCC
     // Set the OBL_Launch bit to reset system and launch the option byte loading
@@ -1247,7 +1309,7 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
 }; // namespace
 #endif
 
-#if 1 // ============================== IWDG ===================================
+#if 0 // ============================== IWDG ===================================
 namespace Iwdg {
 enum Pre_t {
     iwdgPre4 = 0x00,
@@ -2406,7 +2468,7 @@ void Clk_t::SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange) {
 }
 
 void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
-    EnablePrefeth();
+    EnablePrefetch();
     // First, switch to MSI if clock src is not MSI
     if((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_MSI) {
         if(SwitchToMSI() != retvOk) return;
@@ -2492,6 +2554,18 @@ uint8_t Clk_t::SetupM(uint32_t M) {
     return retvOk;
 }
 
+void Clk_t::SetupPllSrc(PllSrc_t PllSrc) {
+    uint32_t tmp = RCC->PLLCFGR;
+    tmp &= ~RCC_PLLCFGR_PLLSRC;
+    tmp |= (uint32_t)PllSrc;
+    RCC->PLLCFGR = tmp;
+}
+
+PllSrc_t Clk_t::GetPllSrc() {
+    uint32_t tmp = RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC;
+    return (PllSrc_t)tmp;
+}
+
 // M: 1...8; N: 8...86; R: 2,4,6,8
 uint8_t Clk_t::SetupPll(uint32_t N, uint32_t R, uint32_t Q) {
     if(!((N >= 8 and N <= 86) and (R == 2 or R == 4 or R == 6 or R == 8))) return retvBadValue;
@@ -2500,9 +2574,8 @@ uint8_t Clk_t::SetupPll(uint32_t N, uint32_t R, uint32_t Q) {
     Q = (Q / 2) - 1;    // 2,4,6,8 => 0,1,2,3
     uint32_t tmp = RCC->PLLCFGR;
     tmp &= ~(RCC_PLLCFGR_PLLR | RCC_PLLCFGR_PLLREN | RCC_PLLCFGR_PLLQ | RCC_PLLCFGR_PLLQEN |
-            RCC_PLLCFGR_PLLP | RCC_PLLCFGR_PLLPEN | RCC_PLLCFGR_PLLN | RCC_PLLCFGR_PLLSRC);
-    tmp |= RCC_PLLCFGR_PLLSRC_HSE | // Use only HSE as src
-            (N << 8) |
+            RCC_PLLCFGR_PLLP | RCC_PLLCFGR_PLLPEN | RCC_PLLCFGR_PLLN);
+    tmp |=  (N << 8) |
             (R << 25) |
             (Q << 21);
     RCC->PLLCFGR = tmp;
@@ -2565,6 +2638,13 @@ void Clk_t::SetupSai1Qas48MhzSrc() {
         tmp |= ((uint32_t)src48PllSai1Q) << 26;
         RCC->CCIPR = tmp;
     }
+}
+
+void Clk_t::SetupPllQas48MhzSrc() {
+    uint32_t tmp = RCC->CCIPR;
+    tmp &= ~RCC_CCIPR_CLK48SEL;
+    tmp |= ((uint32_t)src48PllQ) << 26;
+    RCC->CCIPR = tmp;
 }
 
 // ==== Enable/Disable ====
@@ -2810,7 +2890,7 @@ void Clk_t::SwitchToPLL() {
 }
 
 void Clk_t::SetCoreClk80MHz() {
-    EnablePrefeth();
+    EnablePrefetch();
     // First, switch to HSI if clock src is not HSI
     if((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI) SwitchToHSI();
     // Disable PLL and SAI, enable HSE
