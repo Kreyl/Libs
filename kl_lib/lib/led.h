@@ -1,7 +1,7 @@
 /*
  * led_rgb.h
  *
- *  Created on: 31 àâã. 2014 ã.
+ *  Created on: 31 ï¿½ï¿½ï¿½. 2014 ï¿½.
  *      Author: Kreyl
  */
 
@@ -92,7 +92,7 @@ public:
 // Set LED top value to (255*255)
 class LedSmoothWBrt_t : public LedSmooth_t {
 private:
-    uint32_t CurrBrt = LED_SMOOTH_MAX_BRT;
+    uint32_t CurrBrt = 0;
     void SetCurrent() {
         // CurrBrt=[0;LED_SMOOTH_MAX_BRT]; ICurrentValue=[0;255]
         uint32_t FValue = ICurrentValue * CurrBrt;

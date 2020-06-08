@@ -79,8 +79,10 @@ struct i2cParams_t {
     uint16_t SdaPin;
     AlterFunc_t PinAF;
     // DMA
+#if I2C_USE_DMA
     uint32_t DmaTxID, DmaRxID;
     uint32_t DmaModeTx, DmaModeRx;
+#endif
     // IRQ
     uint32_t IrqEvtNumber, IrqErrorNumber;
     // Clock
@@ -94,19 +96,22 @@ enum i2cState_t {istIdle, istWriteRead, istWriteWrite, istRead, istWrite, istFai
 class i2c_t {
 private:
     const i2cParams_t *PParams;
-    const stm32_dma_stream_t *PDmaTx, *PDmaRx;
+#if I2C_USE_DMA
+    const stm32_dma_stream_t *PDmaTx = nullptr, *PDmaRx = nullptr;
+#endif
     uint8_t IBusyWait();
     void IReset();
-    thread_reference_t PThd;
-    i2cState_t IState;
+    thread_reference_t PThd = nullptr;
+    i2cState_t IState = istIdle;
     void IWakeup();
-    uint8_t *IPtr;  // }
-    uint32_t ILen;  // } required for WriteWrite method
+    uint8_t *IPtr = nullptr;
+    uint8_t *IPtr2 = nullptr;
+    uint32_t ILen2 = 0;
 #if I2C_USE_SEMAPHORE
     binary_semaphore_t BSemaphore;
 #endif
 public:
-    i2c_t(const i2cParams_t *APParams) : PParams(APParams), PThd(nullptr), IState(istIdle), IPtr(nullptr), ILen(0) {}
+    i2c_t(const i2cParams_t *APParams) : PParams(APParams) {}
     void Init();
     void ScanBus();
     void Standby();

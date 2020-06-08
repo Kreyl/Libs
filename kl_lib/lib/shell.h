@@ -24,7 +24,8 @@ private:
     bool Completed;
     systime_t LastCharTimestamp = 0;
     char* Remainer = nullptr;
-
+    bool IsSpace(char c) { return (c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r' || c == ' '); }
+    bool IsDigit(char c) { return c >= '0' and c <= '9'; }
 public:
     char *Name;
     ProcessDataResult_t PutChar(char c) {
@@ -180,16 +181,26 @@ public:
 #if PRINTF_FLOAT_EN
     uint8_t GetNextFloat(float *POutput) {
         char* S = GetNextString();
-        if(S) {
-            char *p;
-            float f = strtof(S, &p);
-            if(*p == '\0') {
-                *POutput = f;
-                return retvOk;
-            }
-            else return retvNotANumber;
+        if(!S) return retvFail;
+        char *p;
+        float f = strtof(S, &p);
+        if(*p == '\0') {
+            *POutput = f;
+            return retvOk;
         }
-        return retvFail;
+        else return retvNotANumber;
+    }
+
+    uint8_t GetNextDouble(double *POutput) {
+        char* S = GetNextString();
+        if(!S) return retvFail;
+        char *p;
+        double f = strtod(S, &p);
+        if(*p == '\0') {
+            *POutput = f;
+            return retvOk;
+        }
+        else return retvNotANumber;
     }
 #endif
 

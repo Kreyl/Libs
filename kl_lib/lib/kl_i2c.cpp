@@ -409,6 +409,7 @@ uint8_t i2c_t::WaitBTF() {
 #endif // MCU type
 
 #if defined STM32L4XX || defined STM32F030
+#if I2C_USE_DMA
 #define I2C_DMATX_MODE(Chnl) \
                         STM32_DMA_CR_CHSEL(Chnl) |   \
                         DMA_PRIORITY_LOW | \
@@ -424,7 +425,7 @@ uint8_t i2c_t::WaitBTF() {
                         STM32_DMA_CR_PSIZE_BYTE | \
                         STM32_DMA_CR_MINC |         /* Memory pointer increase */ \
                         STM32_DMA_CR_DIR_P2M        /* Direction is peripheral to memory */
-
+#endif
 
 #if 1 // ==== Inner defines ====
 #define I2C_INT_MASK    ((uint32_t)(I2C_ISR_TCR | I2C_ISR_TC | I2C_ISR_STOPF | I2C_ISR_NACKF | I2C_ISR_ADDR | I2C_ISR_RXNE | I2C_ISR_TXIS))
@@ -444,10 +445,12 @@ uint8_t i2c_t::WaitBTF() {
 static const i2cParams_t I2C1Params = {
         I2C1,
         I2C1_GPIO, I2C1_SCL, I2C1_SDA, I2C_AF,
+#if I2C_USE_DMA
         I2C1_DMA_TX,
         I2C1_DMA_RX,
         I2C_DMATX_MODE(I2C1_DMA_CHNL),
         I2C_DMARX_MODE(I2C1_DMA_CHNL),
+#endif
 #if defined STM32L4XX
         STM32_I2C1_EVENT_NUMBER,
         STM32_I2C1_ERROR_NUMBER,
@@ -551,12 +554,16 @@ void i2c_t::Init() {
     pi2c->TIMINGR = (Prescaler << 28) | 0x00100000 | (SclLen << 8) | SclLen;
 
     // Analog filter enabled, digital disabled, clk stretch enabled, DMA enabled
+#if I2C_USE_DMA
     pi2c->CR1 = I2C_CR1_TXDMAEN | I2C_CR1_RXDMAEN;
     // ==== DMA ====
     PDmaTx = dmaStreamAlloc(PParams->DmaTxID, IRQ_PRIO_MEDIUM, nullptr, nullptr);
     PDmaRx = dmaStreamAlloc(PParams->DmaRxID, IRQ_PRIO_MEDIUM, nullptr, nullptr);
     dmaStreamSetPeripheral(PDmaTx, &pi2c->TXDR);
     dmaStreamSetPeripheral(PDmaRx, &pi2c->RXDR);
+#else
+    pi2c->CR1 = 0;
+#endif
     // ==== IRQ ====
     nvicEnableVector(PParams->IrqEvtNumber, IRQ_PRIO_MEDIUM);
     nvicEnableVector(PParams->IrqErrorNumber, IRQ_PRIO_MEDIUM);
@@ -640,18 +647,26 @@ uint8_t i2c_t::Write(uint32_t Addr, uint8_t *WPtr, uint32_t WLength) {
         goto WriteEnd;
     }
     IReset(); // Reset I2C
-    // Prepare TX DMA
+#if I2C_USE_DMA    // Prepare TX DMA
     dmaStreamSetMode(PDmaTx, PParams->DmaModeTx);
     dmaStreamSetMemory0(PDmaTx, WPtr);
     dmaStreamSetTransactionSize(PDmaTx, WLength);
+#endif
     // Prepare tx
     IState = istWrite;  // Nothing to read
-    pi2c->CR2 = (Addr << 1) | (WLength << 16);
+    pi2c->CR2 = (Addr << 1) | (WLength << 16); // Put address and number of bytes to send
     chSysLock();
+#if I2C_USE_DMA
     dmaStreamEnable(PDmaTx);   // Enable TX DMA
+#else
+    // Do not use AUTOEND as TC IRQ will not be generated.
+    IPtr = WPtr;
+    pi2c->CR1 |= I2C_CR1_TXIE;    // En IRQ on TX Data empty
+#endif
     // Enable IRQs: TX completed, error, NAck
     pi2c->CR1 |= (I2C_CR1_TCIE | I2C_CR1_ERRIE | I2C_CR1_NACKIE);
-    pi2c->CR2 |= I2C_CR2_START;         // Start transmission
+    pi2c->CR2 |= I2C_CR2_START; // Start transmission
+
     // Wait completion
     r = chThdSuspendTimeoutS(&PThd, TIME_MS2I(I2C_TIMEOUT_MS));
     chSysUnlock();
@@ -683,7 +698,8 @@ uint8_t i2c_t::WriteRead(uint32_t Addr, uint8_t *WPtr, uint32_t WLength, uint8_t
         goto WriteReadEnd;
     }
     IReset(); // Reset I2C
-    // Prepare TX DMA
+    pi2c->CR2 = (Addr << 1) | (WLength << 16);
+#if I2C_USE_DMA    // Prepare TX DMA
     dmaStreamSetMode(PDmaTx, PParams->DmaModeTx);
     dmaStreamSetMemory0(PDmaTx, WPtr);
     dmaStreamSetTransactionSize(PDmaTx, WLength);
@@ -696,9 +712,17 @@ uint8_t i2c_t::WriteRead(uint32_t Addr, uint8_t *WPtr, uint32_t WLength, uint8_t
         IState = istWriteRead;
     }
     else IState = istWrite;  // Nothing to read
-
-    pi2c->CR2 = (Addr << 1) | (WLength << 16);
     dmaStreamEnable(PDmaTx);   // Enable TX DMA
+#else
+    IPtr = WPtr;
+    if(RLength != 0 and RPtr != nullptr) {
+        IPtr2 = RPtr;
+        ILen2 = RLength;
+        IState = istWriteRead;
+    }
+    else IState = istWrite;  // Nothing to read
+    pi2c->CR1 |= I2C_CR1_TXIE | I2C_CR1_RXIE;
+#endif
     chSysLock();
     // Enable IRQs: TX completed, error, NAck
     pi2c->CR1 |= (I2C_CR1_TCIE | I2C_CR1_ERRIE | I2C_CR1_NACKIE);
@@ -734,16 +758,20 @@ uint8_t i2c_t::WriteWrite(uint32_t Addr, uint8_t *WPtr1, uint32_t WLength1, uint
     if(WLength1 == 0 or WPtr1 == nullptr) { Rslt = retvCmdError; goto WriteWriteEnd; }
     if(IBusyWait() != retvOk) { Rslt = retvBusy; goto WriteWriteEnd; }
     IReset(); // Reset I2C
-    // Prepare TX DMA
+#if I2C_USE_DMA    // Prepare TX DMA
     dmaStreamSetMode(PDmaTx, PParams->DmaModeTx);
     dmaStreamSetMemory0(PDmaTx, WPtr1);
     dmaStreamSetTransactionSize(PDmaTx, WLength1);
+#else
+    IPtr = WPtr1;
+    pi2c->CR1 |= I2C_CR1_TXIE;
+#endif
     // Prepare transmission
     if(WLength2 != 0 and WPtr2 != nullptr) {
         IState = istWriteWrite;
-        IPtr = WPtr2;
-        ILen = WLength2;
-        pi2c->CR2 = (Addr << 1) | (WLength1 << 16) | I2C_CR2_RELOAD;
+        IPtr2 = WPtr2;
+        ILen2 = WLength2;
+        pi2c->CR2 = (Addr << 1) | (WLength1 << 16) | I2C_CR2_RELOAD; // Generate TCR IRQ on first batch done
     }
     else { // No second write
         IState = istWrite;
@@ -753,7 +781,9 @@ uint8_t i2c_t::WriteWrite(uint32_t Addr, uint8_t *WPtr1, uint32_t WLength1, uint
     // Enable IRQs: TX completed, error, NAck
     pi2c->CR1 |= (I2C_CR1_TCIE | I2C_CR1_ERRIE | I2C_CR1_NACKIE);
     pi2c->CR2 |= I2C_CR2_START;         // Start transmission
+#if I2C_USE_DMA
     dmaStreamEnable(PDmaTx);   // Enable TX DMA
+#endif
     // Wait completion
     r = chThdSuspendTimeoutS(&PThd, TIME_MS2I(I2C_TIMEOUT_MS));
     chSysUnlock();
@@ -811,12 +841,14 @@ uint8_t i2c_t::IBusyWait() {
 
 void i2c_t::IServeIRQ(uint32_t isr) {
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
+//    PrintfI("ISR: 0x%X\r\n", isr);
 #if 1 // ==== NACK ====
-    if((isr & I2C_ISR_NACKF) != 0) {
-        PrintfI("i2c 0x%X NACK\r", (pi2c->CR2 >> 1) & 0xFF);
-        // Stop DMA
+    if(isr & I2C_ISR_NACKF) {
+        PrintfI("i2c 0x%X NACK\r\n", (pi2c->CR2 >> 1) & 0xFF);
+#if I2C_USE_DMA // Stop DMA
         dmaStreamDisable(PDmaTx);
         dmaStreamDisable(PDmaRx);
+#endif
         // Stop transaction
         pi2c->CR2 |= I2C_CR2_STOP;
         // Disable IRQs
@@ -826,29 +858,49 @@ void i2c_t::IServeIRQ(uint32_t isr) {
         return;
     }
 #endif
+
+#if !I2C_USE_DMA
+    if(isr & I2C_ISR_TXIS) {
+//        PrintfI("v: 0x%X\r\n", *IPtr);
+        pi2c->TXDR = *IPtr++;
+    }
+    if(isr & I2C_ISR_RXNE) {
+        *IPtr2++ = pi2c->RXDR;
+    }
+#endif
+
 #if 1 // ==== TX partly completed ====
     if((isr & I2C_ISR_TCR) != 0) {
+#if I2C_USE_DMA // Stop DMA
         dmaStreamDisable(PDmaTx);
+#endif
         if(IState == istWriteWrite) {
             // Send next ILen bytes
-            pi2c->CR2 = (pi2c->CR2 & ~(I2C_CR2_NBYTES | I2C_CR2_RELOAD)) | (ILen << 16);
-            // Prepare and enable TX DMA for second write
+            pi2c->CR2 = (pi2c->CR2 & ~(I2C_CR2_NBYTES | I2C_CR2_RELOAD)) | (ILen2 << 16);
+#if I2C_USE_DMA // Prepare and enable TX DMA for second write
             dmaStreamSetMode(PDmaTx, PParams->DmaModeTx);
-            dmaStreamSetMemory0(PDmaTx, IPtr);
+            dmaStreamSetMemory0(PDmaTx, IPtr2);
             dmaStreamSetTransactionSize(PDmaTx, ILen);
             dmaStreamEnable(PDmaTx);
+#else
+            IPtr = IPtr2;
+#endif
             IState = istWrite;
         }
     }
 #endif
 #if 1 // ==== TX completed ====
     if((isr & I2C_ISR_TC) != 0) {
+#if I2C_USE_DMA // Stop DMA
         dmaStreamDisable(PDmaTx);  // }
         dmaStreamDisable(PDmaRx);  // } Both sorts of transaction may be completed
+#endif
         if(IState == istWriteRead) {  // Write phase completed
             // Receive ILen bytes
-            pi2c->CR2 = (pi2c->CR2 & ~I2C_CR2_NBYTES) | I2C_CR2_RD_WRN | (ILen << 16);
+            pi2c->CR2 = (pi2c->CR2 & ~I2C_CR2_NBYTES) | I2C_CR2_RD_WRN | (ILen2 << 16);
+#if I2C_USE_DMA
             dmaStreamEnable(PDmaRx);
+#endif
             pi2c->CR2 |= I2C_CR2_START; // Send repeated start
             IState = istRead;
         } // if WriteRead
@@ -864,9 +916,10 @@ void i2c_t::IServeIRQ(uint32_t isr) {
 
 void i2c_t::IServeErrIRQ(uint32_t isr) {
 //    Uart.PrintfI("isre: %X\r", isr);
-    // Stop DMA
+#if I2C_USE_DMA // Stop DMA
     dmaStreamDisable(PDmaTx);
     dmaStreamDisable(PDmaRx);
+#endif
     // Check errors
     uint32_t Errors = 0;
     if(isr & I2C_ISR_BERR) Errors |= I2C_BUS_ERROR;

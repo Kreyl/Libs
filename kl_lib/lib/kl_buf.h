@@ -15,8 +15,20 @@ enum AddRslt_t {addrOk, addrFail, addrSwitch};
 
 // Simple buffer
 struct Buf_t {
-    uint8_t *Ptr;
     uint32_t Length;
+    uint8_t *Ptr;
+};
+
+template <uint32_t MaxSz>
+struct BufSz_t {
+    uint32_t Length;
+    uint8_t Buf[MaxSz];
+};
+
+template <typename T, uint32_t MaxSz>
+struct BufTypeSz_t {
+    uint32_t Length;
+    T Buf[MaxSz];
 };
 
 #if 1 // ============================== Circular ===============================

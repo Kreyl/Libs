@@ -1,7 +1,7 @@
 /*
  * ee.h
  *
- *  Created on: 3 мая 2016 г.
+ *  Created on: 3 пїЅпїЅпїЅ 2016 пїЅ.
  *      Author: Kreyl
  */
 
@@ -11,9 +11,10 @@
 #include "kl_lib.h"
 #include "kl_i2c.h"
 
-#define EE_I2C_ADDR     0x50    // A0=A1=A2=0
+#define EE_I2C_ADDR     0x53    // A0=A1=1, A2=0
 // Number of bytes to be written simultaneously. IC dependant, see datasheet.
-#define EE_PAGE_SZ      8
+#define EE_PAGE_SZ      8UL
+#define EE_BANK_SZ      128UL
 
 class EE_t {
 private:
@@ -49,43 +50,57 @@ public:
     EE_t(i2c_t *pi2c) : i2c(pi2c) {}
 #endif
 
-    uint8_t Read(uint8_t MemAddr, void *Ptr, uint32_t Length) const {
-        Resume();
-        uint8_t Rslt = i2c->WriteRead(EE_I2C_ADDR, &MemAddr, 1, (uint8_t*)Ptr, Length);
-        Standby();
-//        Uart.Printf("Read: %u\r", Rslt);
-        return Rslt;
+    uint8_t Read(uint32_t MemAddr, void *Ptr, uint32_t Length) const {
+        uint8_t *p8 = (uint8_t*)Ptr;
+        // Read bank by bank
+        while(Length) {
+            uint32_t BytesLeftInBank = EE_BANK_SZ - (MemAddr % EE_BANK_SZ);
+            uint32_t ToReadCnt = (Length > BytesLeftInBank)? BytesLeftInBank : Length;
+            // Construct i2c Addr with high address bits: A10, A9 and A8
+            uint8_t i2cAddr = EE_I2C_ADDR | ((MemAddr >> 8) & 0x03);
+            uint8_t ReadAddr = MemAddr & 0xFF;
+            if(i2c->WriteRead(i2cAddr, &ReadAddr, 1, p8, ToReadCnt) != retvOk) return retvFail;
+            Length -= ToReadCnt;
+            p8 += ToReadCnt;
+            MemAddr += ToReadCnt;
+        }
+        return retvOk;
     }
 
     template <typename T>
     uint8_t Read(uint8_t MemAddr, T* Ptr) const {
-        Resume();
+//        Resume();
         uint8_t Rslt = i2c->WriteRead(EE_I2C_ADDR, &MemAddr, 1, (uint8_t*)Ptr, sizeof(T));
-        Standby();
+//        Standby();
         return Rslt;
     }
 
-    uint8_t Write(uint8_t MemAddr, void *Ptr, uint32_t Length) const {
-//        Uart.Printf("Wr: %u; len=%u\r", MemAddr, Length);
+    uint8_t Write(uint32_t MemAddr, void *Ptr, uint32_t Length) const {
+//        Printf("Wr: %u; len=%u\r", MemAddr, Length);
         uint8_t *p8 = (uint8_t*)Ptr;
-        Resume();
         // Write page by page
         while(Length) {
-            uint8_t ToWriteCnt = (Length > EE_PAGE_SZ)? EE_PAGE_SZ : Length;
+            uint32_t BytesLeftInPage = EE_PAGE_SZ - (MemAddr % EE_PAGE_SZ);
+            uint32_t ToWriteCnt = (Length > BytesLeftInPage)? BytesLeftInPage : Length;
+            // Construct i2c Addr with high address bits: A10, A9 and A8
+            uint8_t i2cAddr = EE_I2C_ADDR | ((MemAddr >> 8) & 0x03);
+            uint8_t WriteAddr = MemAddr & 0xFF;
+            //Printf("MemAddr: %u; BytesLeftInPage: %u; ToWriteCnt: %u; i2cAddr: %X; WriteAddr: %u\r\n", MemAddr, BytesLeftInPage, ToWriteCnt, i2cAddr, WriteAddr);
             // Try to write
             uint32_t Retries = 0;
             while(true) {
-//                Uart.Printf("Wr: try %u\r", Retries);
-                if(i2c->WriteWrite(EE_I2C_ADDR, &MemAddr, 1, p8, ToWriteCnt) == retvOk) {
+//                Printf("Wr: try %u\r", Retries);
+                if(i2c->WriteWrite(i2cAddr, &WriteAddr, 1, p8, ToWriteCnt) == retvOk) {
                     Length -= ToWriteCnt;
                     p8 += ToWriteCnt;
                     MemAddr += ToWriteCnt;
+                    chThdSleepMilliseconds(7);
                     break;  // get out of trying
                 }
                 else {
                     Retries++;
                     if(Retries > 7) {
-                        Uart.Printf("EE Timeout1\r");
+                        Printf("EE Timeout1\r");
                         Standby();
                         return retvTimeout;
                     }
@@ -93,24 +108,11 @@ public:
                 }
             } // while trying
         } // while(Length)
-        // Wait completion
-        uint32_t Retries = 0;
-        do {
-    //        Uart.Printf("Wait: try %u\r", Retries);
-            chThdSleepMilliseconds(1);
-            Retries++;
-            if(Retries > 7) {
-                Uart.Printf("EE Timeout2\r");
-                Standby();
-                return retvTimeout;
-            }
-        } while(i2c->CheckAddress(EE_I2C_ADDR) != retvOk);
-        Standby();
         return retvOk;
     }
 
     template <typename T>
-    uint8_t Write(uint8_t MemAddr, T *Ptr) const {
+    uint8_t Write(uint32_t MemAddr, T *Ptr) const {
         return Write(MemAddr, Ptr, sizeof(T));
     }
 };

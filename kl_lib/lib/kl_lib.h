@@ -121,7 +121,9 @@ public:
 #define MIN_(a, b)   ( ((a)<(b))? (a) : (b) )
 #define MAX_(a, b)   ( ((a)>(b))? (a) : (b) )
 #define ABS(a)      ( ((a) < 0)? -(a) : (a) )
-#define TRIM_VALUE(v, Max)  { if((v) > (Max)) (v) = (Max); }
+#define Limit2Bounds(v, vMin, vMax)     { if((v) < (vMin)) { (v) = (vMin); } else if((v) > (vMax)) { (v) = (vMax); } }
+#define LimitMinValue(v, vMin)          { if((v) < (vMin)) { (v) = (vMin); } }
+#define LimitMaxValue(v, vMax)          { if((v) > (vMax)) { (v) = (vMax); } }
 #define IS_LIKE(v, precise, deviation)  (((precise - deviation) < v) and (v < (precise + deviation)))
 #define BitIsSet(r, b)  ((r) & (b))
 
@@ -1973,6 +1975,8 @@ public:
     void EnablePllROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
     void EnablePllQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
     uint8_t EnablePllSai1();
+    void EnablePllSai1QOut() { RCC->PLLSAI1CFGR |= RCC_PLLSAI1CFGR_PLLSAI1QEN; }
+
     uint8_t EnablePllSai2();
     void EnablePllSai2POut() { RCC->PLLSAI2CFGR |= RCC_PLLSAI2CFGR_PLLSAI2PEN; }
 

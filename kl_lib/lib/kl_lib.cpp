@@ -2598,46 +2598,10 @@ void Clk_t::SetupPllSai2(uint32_t N, uint32_t R, uint32_t P) {
 }
 
 void Clk_t::SetupSai1Qas48MhzSrc() {
-    // Get SAI input freq
-    uint32_t InputFreq, tmp;
-    uint32_t PllM = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLM) >> 4) + 1;
-    uint32_t PllSrc = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC);
-    switch(PllSrc) {
-        case 0x02:  // HSI used as PLL clock source
-            InputFreq = (HSI_FREQ_HZ / PllM);
-            break;
-        case 0x03:  // HSE used as PLL clock source
-            InputFreq = (CRYSTAL_FREQ_HZ / PllM);
-            break;
-        default: {   // MSI used as PLL clock source
-            uint32_t MSIRange;
-            // Get MSI Range frequency
-            if((RCC->CR & RCC_CR_MSIRGSEL) == 0) tmp = (RCC->CSR & RCC_CSR_MSISRANGE) >> 8;  // MSISRANGE from RCC_CSR applies
-            else tmp = (RCC->CR & RCC_CR_MSIRANGE) >> 4;    // MSIRANGE from RCC_CR applies
-            MSIRange = MSIRangeTable[tmp];                  // MSI frequency range in Hz
-            // Calc freq
-            InputFreq = (MSIRange / PllM);
-        } break;
-    } // switch(PllSrc)
-
-    // Setup Sai
-    DisablePllSai1();
-    switch(InputFreq) {
-        case 2000000:  SetupPllSai1(48, 2, 2, 7); break; // 2 * 48 / 2 = 48
-        case 3000000:  SetupPllSai1(32, 2, 2, 7); break; // 3 * 32 / 2 = 48
-        case 4000000:  SetupPllSai1(24, 2, 2, 7); break; // 4 * 24 / 2 = 48
-        case 12000000: SetupPllSai1( 8, 2, 2, 7); break; // 12 * 8 / 2 = 48
-        default: return;
-    }
-
-    if(EnablePllSai1() == retvOk) {
-        // Setup Sai1Q as 48MHz source
-        EnableSai1QOut(); // Enable 48MHz output
-        tmp = RCC->CCIPR;
-        tmp &= ~RCC_CCIPR_CLK48SEL;
-        tmp |= ((uint32_t)src48PllSai1Q) << 26;
-        RCC->CCIPR = tmp;
-    }
+    uint32_t tmp = RCC->CCIPR;
+    tmp &= ~RCC_CCIPR_CLK48SEL;
+    tmp |= ((uint32_t)src48PllSai1Q) << 26;
+    RCC->CCIPR = tmp;
 }
 
 void Clk_t::SetupPllQas48MhzSrc() {
