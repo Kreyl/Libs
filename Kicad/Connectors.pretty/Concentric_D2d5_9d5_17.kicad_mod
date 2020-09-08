@@ -1,0 +1,17 @@
+(module "Concentric_D2d5_9d5_17" (layer F.Cu) (tedit 5F2A660F)
+  (descr "Concentric circles")
+  (fp_text reference "XL1" (at -0.25 -2.15) (layer F.SilkS) hide
+    (effects (font (size 0.6 0.6) (thickness 0.15)))
+  )
+  (fp_text value "CONN_1" (at 0.15 2.35) (layer F.SilkS) hide
+    (effects (font (size 0.635 0.635) (thickness 0.15875)))
+  )
+  (fp_circle (center 0 0) (end 6.875 0) (layer F.Cu) (width 3.25))
+  (fp_circle (center 0 0) (end 6.875 0) (layer F.Mask) (width 3.45))
+  (fp_circle (center 0 0) (end 3.25 0) (layer F.Cu) (width 3))
+  (fp_circle (center 0 0) (end 3.25 0) (layer F.Mask) (width 3.2))
+  (pad "2" smd circle (at -3 0) (size 1 1) (layers "F.Cu" "F.Mask") (tstamp 619220f9-157f-4b3a-990a-2d989c998e8b))
+  (pad "1" smd circle (at 0 0) (size 2.5 2.5) (layers "F.Cu" "F.Mask")
+    (solder_mask_margin 0.15) (tstamp be5ea80c-decc-4355-be66-5bd2ab274c79))
+  (pad "3" smd circle (at -7 0) (size 1 1) (layers "F.Cu" "F.Mask") (tstamp 619220f9-157f-4b3a-990a-2d989c998e8b))
+)

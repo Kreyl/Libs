@@ -11,11 +11,13 @@
 #include "kl_lib.h"
 #include "kl_i2c.h"
 
-#define EE_I2C_ADDR     0x53    // A0=A1=1, A2=0
-// Number of bytes to be written simultaneously. IC dependant, see datasheet.
-#define EE_PAGE_SZ      8UL
-#define EE_BANK_SZ      128UL
+/*
+ * i2cAddr typically is [0x50; 0x57].
+ * Page sz is number of bytes to be written simultaneously. IC dependant, see datasheet.
+ * Bank Sz makes sense for multi-bank ICs, say 24c08.
+ */
 
+template <uint8_t Selfi2cAddr, uint32_t PageSz, uint32_t BankSz>
 class EE_t {
 private:
     i2c_t *i2c;
@@ -54,10 +56,10 @@ public:
         uint8_t *p8 = (uint8_t*)Ptr;
         // Read bank by bank
         while(Length) {
-            uint32_t BytesLeftInBank = EE_BANK_SZ - (MemAddr % EE_BANK_SZ);
+            uint32_t BytesLeftInBank = BankSz - (MemAddr % BankSz);
             uint32_t ToReadCnt = (Length > BytesLeftInBank)? BytesLeftInBank : Length;
             // Construct i2c Addr with high address bits: A10, A9 and A8
-            uint8_t i2cAddr = EE_I2C_ADDR | ((MemAddr >> 8) & 0x03);
+            uint8_t i2cAddr = Selfi2cAddr | ((MemAddr >> 8) & 0x03);
             uint8_t ReadAddr = MemAddr & 0xFF;
             if(i2c->WriteRead(i2cAddr, &ReadAddr, 1, p8, ToReadCnt) != retvOk) return retvFail;
             Length -= ToReadCnt;
@@ -70,7 +72,7 @@ public:
     template <typename T>
     uint8_t Read(uint8_t MemAddr, T* Ptr) const {
 //        Resume();
-        uint8_t Rslt = i2c->WriteRead(EE_I2C_ADDR, &MemAddr, 1, (uint8_t*)Ptr, sizeof(T));
+        uint8_t Rslt = i2c->WriteRead(Selfi2cAddr, &MemAddr, 1, (uint8_t*)Ptr, sizeof(T));
 //        Standby();
         return Rslt;
     }
@@ -80,10 +82,10 @@ public:
         uint8_t *p8 = (uint8_t*)Ptr;
         // Write page by page
         while(Length) {
-            uint32_t BytesLeftInPage = EE_PAGE_SZ - (MemAddr % EE_PAGE_SZ);
+            uint32_t BytesLeftInPage = PageSz - (MemAddr % PageSz);
             uint32_t ToWriteCnt = (Length > BytesLeftInPage)? BytesLeftInPage : Length;
             // Construct i2c Addr with high address bits: A10, A9 and A8
-            uint8_t i2cAddr = EE_I2C_ADDR | ((MemAddr >> 8) & 0x03);
+            uint8_t i2cAddr = Selfi2cAddr | ((MemAddr >> 8) & 0x03);
             uint8_t WriteAddr = MemAddr & 0xFF;
             //Printf("MemAddr: %u; BytesLeftInPage: %u; ToWriteCnt: %u; i2cAddr: %X; WriteAddr: %u\r\n", MemAddr, BytesLeftInPage, ToWriteCnt, i2cAddr, WriteAddr);
             // Try to write

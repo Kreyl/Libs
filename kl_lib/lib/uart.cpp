@@ -536,6 +536,7 @@ void CmdUart_t::ProcessByteIfReceived() {
         if(Cmd.PutChar(b) == pdrNewCmd) {
             RxProcessed = false;
             EvtQMain.SendNowOrExit(EvtMsg_t(evtIdShellCmd, (Shell_t*)this));
+            break;
         } // if new cmd
     } // while get byte
 //    PrintfI("e\r");

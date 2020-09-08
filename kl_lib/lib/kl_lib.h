@@ -381,8 +381,10 @@ namespace BackupSpc {
     }
 
     static inline void Reset() {
+#if defined STM32L4XX || defined STM32F7XX
         RCC->BDCR |=  RCC_BDCR_BDRST;
         RCC->BDCR &= ~RCC_BDCR_BDRST;
+#endif
     }
 
     // RegN = 0...19
@@ -449,10 +451,17 @@ static inline void ClearWakeupFlag() { RTC->ISR &= ~RTC_ISR_WUTF; }
 #endif
 
 static inline void SetClkSrcLSE() {
+#if defined STM32L4XX || defined STM32F7XX
     RCC->BDCR &= ~RCC_BDCR_RTCSEL;  // Clear bits
     RCC->BDCR |=  0b01UL << 8;
+#endif
 }
-static inline void EnableClk() { RCC->BDCR |= RCC_BDCR_RTCEN; }
+
+static inline void EnableClk() {
+#if defined STM32L4XX || defined STM32F7XX
+    RCC->BDCR |= RCC_BDCR_RTCEN;
+#endif
+}
 
 #define RTC_LSB_MASK     ((uint32_t)0x0000FFFF)  // RTC LSB Mask
 #define PRLH_MSB_MASK    ((uint32_t)0x000F0000)  // RTC Prescaler MSB Mask
@@ -1412,7 +1421,11 @@ public:
         if(Params & 0x40) PSpi->CR1 |= SPI_CR1_CPOL;     // 0 = IdleLow, 1 = IdleHigh
         if(Params & 0x20) PSpi->CR1 |= SPI_CR1_CPHA;     // 0 = FirstEdge, 1 = SecondEdge
         PSpi->CR1 |= (Params & 0x07) << 3; // Setup divider
+#if defined SPI_CR2_FRXTH
         PSpi->CR2 = ((uint16_t)0b0111 << 8) | SPI_CR2_FRXTH;   // 8 bit, RXNE generated when 8 bit is received
+#else
+        PSpi->CR2 = ((uint16_t)0b0111 << 8);
+#endif
         (void)PSpi->SR; // Read Status reg to clear some flags
         // Do it
         PSpi->CR1 |=  SPI_CR1_SPE; // Enable SPI
@@ -1556,7 +1569,6 @@ enum APBDiv_t {apbDiv1=0b000, apbDiv2=0b100, apbDiv4=0b101, apbDiv8=0b110, apbDi
 
 class Clk_t {
 private:
-    uint8_t EnableHSE();
     uint8_t EnablePLL();
     uint8_t EnableMSI();
 public:
@@ -1571,6 +1583,7 @@ public:
     uint8_t SwitchToMSI();
     void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
     uint8_t EnableHSI();
+    uint8_t EnableHSE();
     void DisableHSI() { RCC->CR &= ~RCC_CR_HSION; }
     void DisablePLL() { RCC->CR &= ~RCC_CR_PLLON; }
     void DisableMSI() { RCC->CR &= ~RCC_CR_MSION; }

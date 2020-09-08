@@ -11,6 +11,7 @@
 #include <stdarg.h>
 #include "kl_lib.h"
 #include "board.h"
+#include "color.h"
 
 #define DELIMITERS              " ,"
 #define PREV_CHAR_TIMEOUT_ms    99UL
@@ -20,10 +21,10 @@ enum ProcessDataResult_t {pdrProceed, pdrNewCmd};
 class Cmd_t {
 private:
     char IString[CMD_BUF_SZ];
+    char* Remainer = nullptr;
     uint32_t Cnt;
     bool Completed;
     systime_t LastCharTimestamp = 0;
-    char* Remainer = nullptr;
     bool IsSpace(char c) { return (c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r' || c == ' '); }
     bool IsDigit(char c) { return c >= '0' and c <= '9'; }
 public:
@@ -215,6 +216,13 @@ public:
         return retvOk;
     }
 
+    uint8_t GetClrRGB(Color_t *PClr) {
+        if(GetNext<uint8_t>(&PClr->R) != retvOk) return retvFail;
+        if(GetNext<uint8_t>(&PClr->G) != retvOk) return retvFail;
+        if(GetNext<uint8_t>(&PClr->B) != retvOk) return retvFail;
+        return retvOk;
+    }
+
     /*  int32_t Indx, Value;
         if(PCmd->GetParams<int32_t>(2, &Indx, &Value) == retvOk) {...}
         else PShell->Ack(retvCmdError);    */
@@ -243,6 +251,7 @@ public:
 class Shell_t {
 public:
 	Cmd_t Cmd;
+	virtual void SignalCmdProcessed() = 0;
 	virtual void Print(const char *format, ...) = 0;
 //	void Reply(const char* CmdCode, int32_t Data) { Print("%S,%d\r\n", CmdCode, Data); }
 //	void Ack(int32_t Result) { Print("Ack %d\r\n", Result); }

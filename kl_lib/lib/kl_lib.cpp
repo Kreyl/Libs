@@ -822,8 +822,8 @@ void WriteOptionBytes(uint32_t OptReg) {
 #ifdef STM32L1XX
         uint32_t OptBytes = *(volatile uint32_t*)0x1FF80000;
         OptBytes &= 0xFF00FF00; // Clear RDP and nRDP
-        OptBytes |= Value;      // Write RDP
-        OptBytes |= (Value ^ 0xFF) << 16; // Write nRDP;
+        OptBytes |= OptReg;      // Write RDP
+        OptBytes |= (OptReg ^ 0xFF) << 16; // Write nRDP;
         *(volatile uint32_t*)0x1FF80000 = OptBytes;
         WaitForLastOperation(FLASH_ProgramTimeout);
 #elif defined STM32L4XX
@@ -909,7 +909,7 @@ void LockFirmware() {
 #elif defined STM32F0XX
 
 #else
-    WriteOptionByteRDP(0x1D); // Any value except 0xAA or 0xCC
+    WriteOptionBytes(0x1D); // Any value except 0xAA or 0xCC
     // Set the OBL_Launch bit to reset system and launch the option byte loading
 #ifdef STM32L1XX
     FLASH->PECR |= FLASH_PECR_OBL_LAUNCH;

@@ -104,7 +104,7 @@ public:
 };
 
 class CmdUart_t : public BaseUart_t, public PrintfHelper_t, public Shell_t {
-private:
+protected:
     void IOnTxEnd() {} // Dummy
     uint8_t IPutChar(char c) { return IPutByte(c);  }
     void IStartTransmissionIfNotYet() { BaseUart_t::IStartTransmissionIfNotYet(); }
@@ -116,8 +116,8 @@ private:
     }
 public:
     CmdUart_t(const UartParams_t *APParams) : BaseUart_t(APParams) {}
-    uint8_t ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);
-    uint8_t TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);
+    uint8_t ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) { return retvFail; }
+    uint8_t TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) { return retvFail; }
     void ProcessByteIfReceived();
     void SignalCmdProcessed() { BaseUart_t::SignalRxProcessed(); }
 };

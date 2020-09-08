@@ -7,28 +7,30 @@ void NpxDmaDone(void *p, uint32_t flags) {
 void Neopixels_t::Init() {
     // GPIO and DMA
     PinSetupAlterFunc(Params->PGpio, Params->Pin, omPushPull, pudNone, Params->Af);
-    Params->ISpi.Setup(boMSB, cpolIdleLow, cphaFirstEdge, 2500000, bitn8);
+    Params->ISpi.Setup(boMSB, cpolIdleLow, cphaFirstEdge, NPX_SPI_BITRATE, bitn16);
     Params->ISpi.Enable();
     Params->ISpi.EnableTxDma();
 
     // Allocate memory
-    LedCntTotal = 0;
+    int32_t LedCntTotal = 0;
     for(int32_t i=0; i<BandCnt; i++) LedCntTotal += BandSetup[i].Length;
     Printf("LedCnt: %u\r", LedCntTotal);
-    IBitBufSz = TOTAL_BYTE_CNT(LedCntTotal);
-    Printf("TotalByteCnt: %u\r", IBitBufSz);
-    IBitBuf = (uint8_t*)malloc(IBitBufSz);
+    IBitBufWordCnt = NPX_WORD_CNT(LedCntTotal);
+    Printf("TotalByteCnt: %u\r", IBitBufWordCnt*2);
+    IBitBuf = (uint32_t*)malloc(IBitBufWordCnt*2);
     ClrBuf.resize(LedCntTotal);
     // Zero it all, to zero head and tail
-    memset(IBitBuf, 0, IBitBufSz);
+    memset(IBitBuf, 0, IBitBufWordCnt*2);
 
     // ==== DMA ====
     PDma = dmaStreamAlloc(Params->DmaID, IRQ_PRIO_LOW, NpxDmaDone, this);
     dmaStreamSetPeripheral(PDma, &Params->ISpi.PSpi->DR);
     dmaStreamSetMode      (PDma, Params->DmaMode);
+    TransmitDone = true;
 }
 
 static uint32_t ITable[256] = {
+#if WS2812B_V2
         0x244992,0x264992,0x344992,0x364992,0xA44992,0xA64992,0xB44992,0xB64992,0x244D92,0x264D92,0x344D92,0x364D92,0xA44D92,0xA64D92,0xB44D92,0xB64D92,
         0x246992,0x266992,0x346992,0x366992,0xA46992,0xA66992,0xB46992,0xB66992,0x246D92,0x266D92,0x346D92,0x366D92,0xA46D92,0xA66D92,0xB46D92,0xB66D92,
         0x244993,0x264993,0x344993,0x364993,0xA44993,0xA64993,0xB44993,0xB64993,0x244D93,0x264D93,0x344D93,0x364D93,0xA44D93,0xA64D93,0xB44D93,0xB64D93,
@@ -45,10 +47,45 @@ static uint32_t ITable[256] = {
         0x2469DA,0x2669DA,0x3469DA,0x3669DA,0xA469DA,0xA669DA,0xB469DA,0xB669DA,0x246DDA,0x266DDA,0x346DDA,0x366DDA,0xA46DDA,0xA66DDA,0xB46DDA,0xB66DDA,
         0x2449DB,0x2649DB,0x3449DB,0x3649DB,0xA449DB,0xA649DB,0xB449DB,0xB649DB,0x244DDB,0x264DDB,0x344DDB,0x364DDB,0xA44DDB,0xA64DDB,0xB44DDB,0xB64DDB,
         0x2469DB,0x2669DB,0x3469DB,0x3669DB,0xA469DB,0xA669DB,0xB469DB,0xB669DB,0x246DDB,0x266DDB,0x346DDB,0x366DDB,0xA46DDB,0xA66DDB,0xB46DDB,0xB66DDB,
+#else // WS2812B_V5
+        0x88888888,0x888C8888,0x88C88888,0x88CC8888,0x8C888888,0x8C8C8888,0x8CC88888,0x8CCC8888,
+        0xC8888888,0xC88C8888,0xC8C88888,0xC8CC8888,0xCC888888,0xCC8C8888,0xCCC88888,0xCCCC8888,
+        0x8888888C,0x888C888C,0x88C8888C,0x88CC888C,0x8C88888C,0x8C8C888C,0x8CC8888C,0x8CCC888C,
+        0xC888888C,0xC88C888C,0xC8C8888C,0xC8CC888C,0xCC88888C,0xCC8C888C,0xCCC8888C,0xCCCC888C,
+        0x888888C8,0x888C88C8,0x88C888C8,0x88CC88C8,0x8C8888C8,0x8C8C88C8,0x8CC888C8,0x8CCC88C8,
+        0xC88888C8,0xC88C88C8,0xC8C888C8,0xC8CC88C8,0xCC8888C8,0xCC8C88C8,0xCCC888C8,0xCCCC88C8,
+        0x888888CC,0x888C88CC,0x88C888CC,0x88CC88CC,0x8C8888CC,0x8C8C88CC,0x8CC888CC,0x8CCC88CC,
+        0xC88888CC,0xC88C88CC,0xC8C888CC,0xC8CC88CC,0xCC8888CC,0xCC8C88CC,0xCCC888CC,0xCCCC88CC,
+        0x88888C88,0x888C8C88,0x88C88C88,0x88CC8C88,0x8C888C88,0x8C8C8C88,0x8CC88C88,0x8CCC8C88,
+        0xC8888C88,0xC88C8C88,0xC8C88C88,0xC8CC8C88,0xCC888C88,0xCC8C8C88,0xCCC88C88,0xCCCC8C88,
+        0x88888C8C,0x888C8C8C,0x88C88C8C,0x88CC8C8C,0x8C888C8C,0x8C8C8C8C,0x8CC88C8C,0x8CCC8C8C,
+        0xC8888C8C,0xC88C8C8C,0xC8C88C8C,0xC8CC8C8C,0xCC888C8C,0xCC8C8C8C,0xCCC88C8C,0xCCCC8C8C,
+        0x88888CC8,0x888C8CC8,0x88C88CC8,0x88CC8CC8,0x8C888CC8,0x8C8C8CC8,0x8CC88CC8,0x8CCC8CC8,
+        0xC8888CC8,0xC88C8CC8,0xC8C88CC8,0xC8CC8CC8,0xCC888CC8,0xCC8C8CC8,0xCCC88CC8,0xCCCC8CC8,
+        0x88888CCC,0x888C8CCC,0x88C88CCC,0x88CC8CCC,0x8C888CCC,0x8C8C8CCC,0x8CC88CCC,0x8CCC8CCC,
+        0xC8888CCC,0xC88C8CCC,0xC8C88CCC,0xC8CC8CCC,0xCC888CCC,0xCC8C8CCC,0xCCC88CCC,0xCCCC8CCC,
+        0x8888C888,0x888CC888,0x88C8C888,0x88CCC888,0x8C88C888,0x8C8CC888,0x8CC8C888,0x8CCCC888,
+        0xC888C888,0xC88CC888,0xC8C8C888,0xC8CCC888,0xCC88C888,0xCC8CC888,0xCCC8C888,0xCCCCC888,
+        0x8888C88C,0x888CC88C,0x88C8C88C,0x88CCC88C,0x8C88C88C,0x8C8CC88C,0x8CC8C88C,0x8CCCC88C,
+        0xC888C88C,0xC88CC88C,0xC8C8C88C,0xC8CCC88C,0xCC88C88C,0xCC8CC88C,0xCCC8C88C,0xCCCCC88C,
+        0x8888C8C8,0x888CC8C8,0x88C8C8C8,0x88CCC8C8,0x8C88C8C8,0x8C8CC8C8,0x8CC8C8C8,0x8CCCC8C8,
+        0xC888C8C8,0xC88CC8C8,0xC8C8C8C8,0xC8CCC8C8,0xCC88C8C8,0xCC8CC8C8,0xCCC8C8C8,0xCCCCC8C8,
+        0x8888C8CC,0x888CC8CC,0x88C8C8CC,0x88CCC8CC,0x8C88C8CC,0x8C8CC8CC,0x8CC8C8CC,0x8CCCC8CC,
+        0xC888C8CC,0xC88CC8CC,0xC8C8C8CC,0xC8CCC8CC,0xCC88C8CC,0xCC8CC8CC,0xCCC8C8CC,0xCCCCC8CC,
+        0x8888CC88,0x888CCC88,0x88C8CC88,0x88CCCC88,0x8C88CC88,0x8C8CCC88,0x8CC8CC88,0x8CCCCC88,
+        0xC888CC88,0xC88CCC88,0xC8C8CC88,0xC8CCCC88,0xCC88CC88,0xCC8CCC88,0xCCC8CC88,0xCCCCCC88,
+        0x8888CC8C,0x888CCC8C,0x88C8CC8C,0x88CCCC8C,0x8C88CC8C,0x8C8CCC8C,0x8CC8CC8C,0x8CCCCC8C,
+        0xC888CC8C,0xC88CCC8C,0xC8C8CC8C,0xC8CCCC8C,0xCC88CC8C,0xCC8CCC8C,0xCCC8CC8C,0xCCCCCC8C,
+        0x8888CCC8,0x888CCCC8,0x88C8CCC8,0x88CCCCC8,0x8C88CCC8,0x8C8CCCC8,0x8CC8CCC8,0x8CCCCCC8,
+        0xC888CCC8,0xC88CCCC8,0xC8C8CCC8,0xC8CCCCC8,0xCC88CCC8,0xCC8CCCC8,0xCCC8CCC8,0xCCCCCCC8,
+        0x8888CCCC,0x888CCCCC,0x88C8CCCC,0x88CCCCCC,0x8C88CCCC,0x8C8CCCCC,0x8CC8CCCC,0x8CCCCCCC,
+        0xC888CCCC,0xC88CCCCC,0xC8C8CCCC,0xC8CCCCCC,0xCC88CCCC,0xCC8CCCCC,0xCCC8CCCC,0xCCCCCCCC,
+#endif
 };
 
 void Neopixels_t::SetCurrentColors() {
     TransmitDone = false;
+#if WS2812B_V2
     uint8_t *p = IBitBuf + (NPX_RST_BYTE_CNT / 2); // First and last words are zero to form reset
     // Fill bit buffer
     for(auto &Color : ClrBuf) {
@@ -66,9 +103,52 @@ void Neopixels_t::SetCurrentColors() {
     dmaStreamSetTransactionSize(PDma, IBitBufSz);
     dmaStreamSetMode(PDma, Params->DmaMode);
     dmaStreamEnable(PDma);
+#else // WS2812B_V5
+    // Fill bit buffer
+    uint32_t *p = IBitBuf + (NPX_RST_BYTE_CNT / 8); // First and last words are zero to form reset
+    for(auto &Color : ClrBuf) {
+        *p++ = ITable[Color.G];
+        *p++ = ITable[Color.R];
+        *p++ = ITable[Color.B];
+    }
+    // Start transmission
+    dmaStreamDisable(PDma);
+    dmaStreamSetMemory0(PDma, IBitBuf);
+    dmaStreamSetTransactionSize(PDma, IBitBufWordCnt);
+    dmaStreamSetMode(PDma, Params->DmaMode);
+    dmaStreamEnable(PDma);
+#endif
 }
 
 void Neopixels_t::OnDmaDone() {
     TransmitDone = true;
     if(OnTransmitEnd) OnTransmitEnd();
+}
+
+
+void NpxPrintTable() {
+#if WS2812B_V2
+
+#else // WS2812B_V5
+    for(uint32_t i=0x00; i<=0xFF; i++) {
+        uint32_t w = 0;
+        int Shift = 24;
+        for(int n=0; n<4; n++) {
+            uint32_t Pair = 0b11UL & (i >> (3-n)*2);
+            switch(Pair) {
+                case 0b00: w |= 0b10001000UL << Shift; break;
+                case 0b01: w |= 0b10001100UL << Shift; break;
+                case 0b10: w |= 0b11001000UL << Shift; break;
+                case 0b11: w |= 0b11001100UL << Shift; break;
+            }
+            Shift -= 8;
+        }
+
+        w = (w << 16) | (w >> 16);
+
+        Printf("0x%08X,", w);
+        if(i % 8 == 7) PrintfEOL();
+        chThdSleepMilliseconds(4);
+    }
+#endif
 }
