@@ -1,0 +1,12 @@
+(module "Hole3d5_out10mm" (layer "F.Cu") (tedit 5F9DA7CB)
+  (attr through_hole)
+  (fp_text reference "HOLE4" (at 0 3.2004) (layer "F.SilkS") hide
+    (effects (font (size 0.127 0.127) (thickness 0.00254)))
+    (tstamp b4f5cc8c-ccd5-444e-8899-7fd85ada8e6f)
+  )
+  (fp_text value "HOLE_METALLED" (at -0.09906 -3.2004) (layer "F.SilkS") hide
+    (effects (font (size 0.127 0.127) (thickness 0.00254)))
+    (tstamp 0c9fb54f-76e5-4b40-81a8-e8291624e363)
+  )
+  (pad "H" thru_hole circle (at 0 0) (size 10 10) (drill 3.5) (layers *.Cu *.Mask) (tstamp 0a7cf918-e6b5-4eeb-82a2-ef1aca9ac45b))
+)

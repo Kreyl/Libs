@@ -19,7 +19,7 @@ struct ColorHSV_t;
 #define RANDOM_CLR_BRT      255
 
 // Mixing two colors
-#define ClrMix(C, B, L)     ((C * L + B * (255 - L)) / 255)
+#define ClrMix(Fore, Back, Weight)     ((Fore * Weight + Back * (255 - Weight)) / 255)
 
 __attribute__((__always_inline__))
 static inline int32_t Abs32(int32_t w) { return (w < 0)? -w : w; }
@@ -157,11 +157,18 @@ public:
         rslt |= ((uint16_t)B) >> 3;
         return rslt;
     }
-    // Mixage
-    void BeMixOf(const Color_t &Fore, const Color_t &Back, uint32_t ABrt) {
-        R = ClrMix(Fore.R, Back.R, ABrt);
-        G = ClrMix(Fore.G, Back.G, ABrt);
-        B = ClrMix(Fore.B, Back.B, ABrt);
+    // ==== Mixage ====
+    // Weight = 0: result is Back; Weight = 255: result is Fore; otherwise result is mix
+    void MixwWeight(const Color_t &Fore, const Color_t &Back, uint32_t Weight) {
+        R = ClrMix(Fore.R, Back.R, Weight);
+        G = ClrMix(Fore.G, Back.G, Weight);
+        B = ClrMix(Fore.B, Back.B, Weight);
+    }
+    // Weight = 0: not changed; Weight = 255: result is Fore; otherwise result is mix
+    void MixwWeight(const Color_t &Fore, uint32_t Weight) {
+        R = ClrMix(Fore.R, R, Weight);
+        G = ClrMix(Fore.G, G, Weight);
+        B = ClrMix(Fore.B, B, Weight);
     }
     void MixWith(const Color_t &Clr) {
         if(Clr.Brt == 0) return;    // Alien is off, no changes with us

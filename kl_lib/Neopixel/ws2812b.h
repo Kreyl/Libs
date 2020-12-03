@@ -8,8 +8,8 @@
  * higher level software.
  * There are different timings for V2 and V5. Wir verachten sie.
  */
-//#define WS2812B_V2    TRUE
-#define WS2812B_V5      TRUE
+#define WS2812B_V2    TRUE
+//#define WS2812B_V5      TRUE
 
 /*
  * WS2812 V2 requires timings, ns: (400 + 850) +- 150 each.
@@ -42,20 +42,30 @@ typedef std::vector<Color_t> ColorBuf_t;
 // SPI Buffer (no tuning required)
 #if WS2812B_V2
 #define NPX_SPI_BITRATE         2500000
-#define NPX_SEQ_LEN_BITS        3 // 3 bits of SPI to produce 1 bit of LED data
+#define NPX_SPI_BITNUMBER       bitn8
+#define NPX_BYTES_PER_BYTE      3 // 3 bits of SPI to produce 1 bit of LED data
 #define NPX_RST_BYTE_CNT        100
-#define DATA_BIT_CNT(LedCnt)    (LedCnt * 3 * 8 * NPX_SEQ_LEN_BITS) // Each led has 3 channels 8 bit each
-#define DATA_BYTE_CNT(LedCnt)   ((DATA_BIT_CNT(LedCnt) + 7) / 8)
-#define TOTAL_BYTE_CNT(LedCnt)  (DATA_BYTE_CNT(LedCnt) + NPX_RST_BYTE_CNT)
+//#define DATA_BIT_CNT(LedCnt)    (LedCnt * 3 * 8 * NPX_SEQ_LEN_BITS) // Each led has 3 channels 8 bit each
+#define NPX_DATA_BYTE_CNT(LedCnt)   ((LedCnt) * 3 * NPX_BYTES_PER_BYTE)
+#define NPX_TOTAL_BYTE_CNT(LedCnt)  (NPX_DATA_BYTE_CNT(LedCnt) + NPX_RST_BYTE_CNT)
+
+#define NPX_DMA_MODE(Chnl) \
+                        (STM32_DMA_CR_CHSEL(Chnl) \
+                        | DMA_PRIORITY_HIGH \
+                        | STM32_DMA_CR_MSIZE_BYTE \
+                        | STM32_DMA_CR_PSIZE_BYTE \
+                        | STM32_DMA_CR_MINC     /* Memory pointer increase */ \
+                        | STM32_DMA_CR_DIR_M2P)  /* Direction is memory to peripheral */ \
+                        | STM32_DMA_CR_TCIE
 
 #else // WS2812B_V5
 #define NPX_SPI_BITRATE         3000000
+#define NPX_SPI_BITNUMBER       bitn16
 #define NPX_BYTES_PER_BYTE      4 // 2 bits are 1 byte, 8 bits are 4 bytes
 #define NPX_RST_BYTE_CNT        108
 #define NPX_DATA_BYTE_CNT(LedCnt)   ((LedCnt) * 3 * NPX_BYTES_PER_BYTE)
 #define NPX_TOTAL_BYTE_CNT(LedCnt)  (NPX_DATA_BYTE_CNT(LedCnt) + NPX_RST_BYTE_CNT)
 #define NPX_WORD_CNT(LedCnt)        ((NPX_TOTAL_BYTE_CNT(LedCnt) + 1) / 2)
-#endif
 
 #define NPX_DMA_MODE(Chnl) \
                         (STM32_DMA_CR_CHSEL(Chnl) \
@@ -65,12 +75,15 @@ typedef std::vector<Color_t> ColorBuf_t;
                         | STM32_DMA_CR_MINC     /* Memory pointer increase */ \
                         | STM32_DMA_CR_DIR_M2P)  /* Direction is memory to peripheral */ \
                         | STM32_DMA_CR_TCIE
+#endif
+
 
 void NpxPrintTable();
 
 // Band setup
 enum BandDirection_t {dirForward, dirBackward};
 struct BandSetup_t {
+    int32_t StartIndx;
     int32_t Length;
     BandDirection_t Dir;
 };
@@ -94,11 +107,17 @@ struct NeopixelParams_t {
 
 class Neopixels_t {
 private:
+#if WS2812B_V2
+    uint32_t IBitBufSz = 0;
+    uint8_t *IBitBuf = nullptr;
+#else
     uint32_t IBitBufWordCnt = 0;
     uint32_t *IBitBuf = nullptr;
+#endif
     const NeopixelParams_t *Params;
     const stm32_dma_stream_t *PDma = nullptr;
 public:
+    int32_t LedCntTotal = 0;
     // Band setup
     const int32_t BandCnt;
     const BandSetup_t *BandSetup;
@@ -108,12 +127,37 @@ public:
     Neopixels_t(const NeopixelParams_t *APParams,
             const uint32_t ABandCnt, const BandSetup_t *PBandSetup) :
                 Params(APParams), BandCnt(ABandCnt), BandSetup(PBandSetup) { }
+
+    // 0 <= x < BandLen
+    void MixIntoBand(int32_t x, int32_t BandIndx, ColorHSV_t ClrHSV) {
+        if(x < 0) return;
+        int32_t BandLen = BandSetup[BandIndx].Length;
+        if(x >= BandLen) return;
+        if(BandSetup[BandIndx].Dir == dirBackward) x = (BandLen - 1) - x;
+        x += BandSetup[BandIndx].StartIndx;
+        Color_t Clr = ClrHSV.ToRGB();
+        Clr.Brt = 100;
+        ClrBuf[x].MixWith(Clr);
+    }
+
     void SetCurrentColors();
     void OnDmaDone();
     ColorBuf_t ClrBuf;
     void Init();
     void SetAll(Color_t Clr) {
         for(auto &IClr : ClrBuf) IClr = Clr;
+    }
+    void MixAllwWeight(Color_t Clr, uint32_t Weight) {
+        for(auto &IClr : ClrBuf) IClr.MixwWeight(Clr, Weight);
+    }
+    // Brt = [0; 255]
+    void SetBrightness(uint32_t Brt) {
+        ColorHSV_t ClrH;
+        for(auto &IClr : ClrBuf) {
+            ClrH.FromRGB(IClr);
+            ClrH.V = (ClrH.V * Brt) / 255;
+            IClr.FromHSV(ClrH.H, ClrH.S, ClrH.V);
+        }
     }
     bool AreOff() {
         for(auto &IClr : ClrBuf) {

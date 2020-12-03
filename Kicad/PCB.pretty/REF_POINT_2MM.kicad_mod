@@ -1,10 +1,13 @@
-(module REF_POINT_2MM (layer F.Cu) (tedit 5A9471EF)
-  (fp_text reference REF_POINT_1MM (at 0 -1.6002) (layer F.SilkS) hide
+(module "REF_POINT_2MM" (layer "F.Cu") (tedit 5FA46E70)
+  (attr through_hole)
+  (fp_text reference "REF_POINT_1MM" (at 0 -1.6002) (layer "F.SilkS") hide
     (effects (font (size 0.59944 0.59944) (thickness 0.14986)))
+    (tstamp b280624a-83b3-4a4c-94c6-29ee0d21d0c5)
   )
-  (fp_text value VAL** (at 0 1.80086) (layer F.SilkS) hide
+  (fp_text value "VAL**" (at 0 1.80086) (layer "F.SilkS") hide
     (effects (font (size 0.59944 0.59944) (thickness 0.14986)))
+    (tstamp c27c8fab-5c5d-449c-ad13-ae0c846cc696)
   )
-  (pad REF smd circle (at 0 0) (size 2 2) (layers F.Cu F.Mask)
-    (solder_mask_margin 1.5) (clearance 1.5) (zone_connect 0))
+  (pad "REF" smd circle (at 0 0) (size 2 2) (layers "F.Cu" "F.Mask")
+    (solder_mask_margin 1.5) (clearance 1.65) (zone_connect 0) (tstamp 8df0d7a7-e006-4ff8-9f4d-31460f8041e8))
 )

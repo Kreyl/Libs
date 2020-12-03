@@ -5,22 +5,31 @@ void NpxDmaDone(void *p, uint32_t flags) {
 }
 
 void Neopixels_t::Init() {
+    // Total len
+    for(int32_t n=0; n < BandCnt; n++) LedCntTotal += BandSetup[n].Length;
+
     // GPIO and DMA
     PinSetupAlterFunc(Params->PGpio, Params->Pin, omPushPull, pudNone, Params->Af);
-    Params->ISpi.Setup(boMSB, cpolIdleLow, cphaFirstEdge, NPX_SPI_BITRATE, bitn16);
+    Params->ISpi.Setup(boMSB, cpolIdleLow, cphaFirstEdge, NPX_SPI_BITRATE, NPX_SPI_BITNUMBER);
     Params->ISpi.Enable();
     Params->ISpi.EnableTxDma();
 
     // Allocate memory
-    int32_t LedCntTotal = 0;
-    for(int32_t i=0; i<BandCnt; i++) LedCntTotal += BandSetup[i].Length;
     Printf("LedCnt: %u\r", LedCntTotal);
+#if WS2812B_V2
+    IBitBufSz = NPX_TOTAL_BYTE_CNT(LedCntTotal);
+    Printf("TotalByteCnt: %u\r", IBitBufSz);
+    IBitBuf = (uint8_t*)malloc(IBitBufSz);
+    ClrBuf.resize(LedCntTotal);
+    memset(IBitBuf, 0, IBitBufSz);
+#else
     IBitBufWordCnt = NPX_WORD_CNT(LedCntTotal);
     Printf("TotalByteCnt: %u\r", IBitBufWordCnt*2);
     IBitBuf = (uint32_t*)malloc(IBitBufWordCnt*2);
     ClrBuf.resize(LedCntTotal);
     // Zero it all, to zero head and tail
     memset(IBitBuf, 0, IBitBufWordCnt*2);
+#endif
 
     // ==== DMA ====
     PDma = dmaStreamAlloc(Params->DmaID, IRQ_PRIO_LOW, NpxDmaDone, this);
