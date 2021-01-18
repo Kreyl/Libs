@@ -2602,6 +2602,15 @@ void Clk_t::SetupSai1Qas48MhzSrc() {
     RCC->CCIPR = tmp;
 }
 
+void Clk_t::SetupSai1Qas48MhzSrcWidhADC() {
+    uint32_t tmp = RCC->CCIPR;
+    tmp &= ~RCC_CCIPR_ADCSEL;
+    tmp |= ((uint32_t)src48PllSai1Q) << 28; // SAI1R is ADC clock
+    tmp &= ~RCC_CCIPR_CLK48SEL;
+    tmp |= ((uint32_t)src48PllSai1Q) << 26;
+    RCC->CCIPR = tmp;
+}
+
 void Clk_t::SetupPllQas48MhzSrc() {
     uint32_t tmp = RCC->CCIPR;
     tmp &= ~RCC_CCIPR_CLK48SEL;

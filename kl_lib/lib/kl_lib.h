@@ -727,6 +727,9 @@ static void PinClockEnable(const GPIO_TypeDef *PGpioPort) {
 #ifdef GPIOF
     else if(PGpioPort == GPIOF) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOFEN;
 #endif
+#ifdef GPIOG
+    else if(PGpioPort == GPIOG) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOGEN;
+#endif
     else if(PGpioPort == GPIOH) RCC->AHB2ENR |= RCC_AHB2ENR_GPIOHEN;
 #else
     if     (PGpioPort == GPIOA) RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
@@ -1988,10 +1991,7 @@ public:
     void EnablePllROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
     void EnablePllQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
     uint8_t EnablePllSai1();
-    void EnablePllSai1QOut() { RCC->PLLSAI1CFGR |= RCC_PLLSAI1CFGR_PLLSAI1QEN; }
-
     uint8_t EnablePllSai2();
-    void EnablePllSai2POut() { RCC->PLLSAI2CFGR |= RCC_PLLSAI2CFGR_PLLSAI2PEN; }
 
     void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
     void DisableHSI() { RCC->CR &= ~RCC_CR_HSION; }
@@ -2014,12 +2014,14 @@ public:
     void EnableSai1ROut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1REN); }
     void EnableSai1QOut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1QEN); }
     void EnableSai1POut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1PEN); }
+    void EnableSai2POut() { SET_BIT(RCC->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2PEN); }
 
     void UpdateFreqValues();
     void EnablePrefetch() { FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_DCEN | FLASH_ACR_ICEN; }
     void SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange);
     void SetVoltageRange(MCUVoltRange_t VoltRange);
     void SetupSai1Qas48MhzSrc();
+    void SetupSai1Qas48MhzSrcWidhADC();
     void SetupPllQas48MhzSrc();
     // LSI
     void EnableLSI() {
