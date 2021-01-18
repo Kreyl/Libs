@@ -1,7 +1,7 @@
 /*
  * CS42L52.cpp
  *
- *  Created on: 15 марта 2017 г.
+ *  Created on: 15 пїЅпїЅпїЅпїЅпїЅ 2017 пїЅ.
  *      Author: Kreyl
  */
 
@@ -150,6 +150,9 @@ void AuOnNewSampleI(SampleStereo_t &Sample) { }
 //                        STM32_DMA_CR_TCIE           /* Enable Transmission Complete IRQ */
 #endif
 
+#if MCLK_TIM_EN
+const PinOutputPWM_t MClk(AU_MCLK_TIM);
+#endif
 // DMA Tx Completed IRQ
 extern "C"
 void DmaSAITxIrq(void *p, uint32_t flags);
@@ -161,7 +164,7 @@ void CS42L52_t::Init() {
     chThdSleepMilliseconds(18);
     // Init i2c
     AU_i2c.Init();
-    AU_i2c.CheckAddress(0x4A); // Otherwise it does not work.
+    AU_i2c.CheckAddress(CS42_I2C_ADDR); // Otherwise it does not work.
 //    AU_i2c.ScanBus();
     // Check if connected
     uint8_t b;
@@ -217,11 +220,18 @@ void CS42L52_t::Init() {
 #endif // Setup regs
 #if 1 // ======= Setup SAI =======
     // === Clock ===
+#if MCLK_TIM_EN
+    MClk.Init();
+    MClk.SetFrequencyHz(12000000);
+    MClk.Set(1);
+#else
     Clk.EnableMCO(mcoHSE, mcoDiv1); // Master clock output
+#endif
     AU_SAI_RccEn();
     // Clock Src: PLL SAI1 P
-    Clk.EnableSai1POut();
-    MODIFY_REG(RCC->CCIPR, RCC_CCIPR_SAI1SEL, 0);
+//    Clk.SetupPllSai1(19, 2, 7);
+//    Clk.EnableSai1POut();
+//    MODIFY_REG(RCC->CCIPR, RCC_CCIPR_SAI1SEL, 0);
 
     // === GPIOs ===
     PinSetupAlterFunc(AU_LRCK); // Left/Right (Frame sync) clock output
@@ -253,8 +263,8 @@ void CS42L52_t::Init() {
 
 #if 1 // ==== DMA ====
     AU_SAI_A->CR1 |= SAI_xCR1_DMAEN;
-    dmaStreamAllocate(SAI_DMA_A, IRQ_PRIO_HIGH, DmaSAITxIrq, nullptr);
-    dmaStreamSetPeripheral(SAI_DMA_A, &AU_SAI_A->DR);
+    PDmaA = dmaStreamAlloc(SAI_DMA_A, IRQ_PRIO_HIGH, DmaSAITxIrq, nullptr);
+    dmaStreamSetPeripheral(PDmaA, &AU_SAI_A->DR);
 #endif
 }
 
@@ -288,17 +298,17 @@ uint8_t CS42L52_t::SetPGAGain(int8_t Gain_dB) {
     return WriteTwoTheSame(0x12, b);
 }
 
-uint8_t CS42L52_t::SetAdcVolume(i8 Volume_dB) {
+uint8_t CS42L52_t::SetAdcVolume(int8_t Volume_dB) {
     if(Volume_dB < -96 or Volume_dB > 24) return retvBadValue;
     return WriteTwoTheSame(0x16, Volume_dB);
 }
 
-uint8_t CS42L52_t::SetAdcMixerVolume(i8 Volume_dB) {
+uint8_t CS42L52_t::SetAdcMixerVolume(int8_t Volume_dB) {
     if(Volume_dB < -51 or Volume_dB > 12) return retvBadValue;
     Volume_dB *= 2; // 0.5dB step
     return WriteTwoTheSame(0x18, Volume_dB);
 }
-uint8_t CS42L52_t::SetPcmMixerVolume(i8 Volume_dB) {
+uint8_t CS42L52_t::SetPcmMixerVolume(int8_t Volume_dB) {
     if(Volume_dB < -51 or Volume_dB > 12) return retvBadValue;
     Volume_dB *= 2; // 0.5dB step
     return WriteTwoTheSame(0x1A, Volume_dB);
@@ -307,7 +317,7 @@ uint8_t CS42L52_t::SetPcmMixerVolume(i8 Volume_dB) {
 
 #if 1 // ============================= Tx/Rx ===================================
 void CS42L52_t::SetupMonoStereo(MonoStereo_t MonoStereo) {
-    dmaStreamDisable(SAI_DMA_A);
+    dmaStreamDisable(PDmaA);
     DisableSAI();   // All settings must be changed when both blocks are disabled
     // Wait until really disabled
     while(AU_SAI_A->CR1 & SAI_xCR1_SAIEN);
@@ -328,27 +338,27 @@ void CS42L52_t::SetupSampleRate(uint32_t SampleRate) {  // Setup sample rate. No
 }
 
 void CS42L52_t::TransmitBuf(void *Buf, uint32_t Sz16) {
-    dmaStreamDisable(SAI_DMA_A);
-    dmaStreamSetMemory0(SAI_DMA_A, Buf);
-    dmaStreamSetMode(SAI_DMA_A, SAI_DMATX_MONO_MODE);
-    dmaStreamSetTransactionSize(SAI_DMA_A, Sz16);
-    dmaStreamEnable(SAI_DMA_A);
+    dmaStreamDisable(PDmaA);
+    dmaStreamSetMemory0(PDmaA, Buf);
+    dmaStreamSetMode(PDmaA, SAI_DMATX_MONO_MODE);
+    dmaStreamSetTransactionSize(PDmaA, Sz16);
+    dmaStreamEnable(PDmaA);
     EnableSAI(); // Start tx
 }
 
 bool CS42L52_t::IsTransmitting() {
-    return (SAI_DMA_A->channel->CNDTR != 0);
+    return (PDmaA->channel->CNDTR != 0);
 }
 
 void CS42L52_t::Stop() {
-    dmaStreamDisable(SAI_DMA_A);
+    dmaStreamDisable(PDmaA);
     AU_SAI_A->CR2 = SAI_xCR2_FFLUSH;
 }
-
+#if MIC_EN
 void CS42L52_t::StartStream() {
     DisableSAI();   // All settings must be changed when both blocks are disabled
-    dmaStreamDisable(SAI_DMA_A);
-    dmaStreamDisable(SAI_DMA_B);
+    dmaStreamDisable(PDmaA);
+    dmaStreamDisable(PDmaB);
     AU_SAI_A->CR1 &= ~(SAI_xCR1_MONO | SAI_xCR1_DMAEN); // Always stereo, no DMA
     AU_SAI_A->CR2 = SAI_xCR2_FFLUSH | SAI_FIFO_THR; // Flush FIFO
     AU_SAI_B->CR2 = SAI_xCR2_FFLUSH | SAI_FIFO_THR; // Flush FIFO
@@ -357,7 +367,7 @@ void CS42L52_t::StartStream() {
     nvicEnableVector(SAI_IRQ_NUMBER, IRQ_PRIO_MEDIUM);
     EnableSAI();
 }
-
+#endif
 void CS42L52_t::PutSampleI(SampleStereo_t &Sample) {
     AU_SAI_A->DR = Sample.Right;    // }
     AU_SAI_A->DR = Sample.Left;     // } Somehow Left will be sent first if put last
@@ -393,7 +403,7 @@ void CS42L52_t::SetupNoiseGate(EnableDisable_t En, uint8_t Threshold, uint8_t De
 
 #if AU_BATMON_ENABLE
 uint32_t CS42L52_t::GetBatteryVmv() {
-    u8 b;
+    uint8_t b;
     ReadReg(0x30, &b);
     return ((uint32_t)b * 10 * AU_VA_mv) / 633;
 }
@@ -424,14 +434,14 @@ uint8_t CS42L52_t::WriteMany(uint8_t StartAddr, uint8_t *PValues, uint8_t Len) {
 
 #if 1 // ============================= Volumes =================================
 // -102...12 dB
-u8 CS42L52_t::SetMasterVolume(i8 Volume_dB) {
+uint8_t CS42L52_t::SetMasterVolume(int8_t Volume_dB) {
     if(Volume_dB < -102 or Volume_dB > 12) return retvBadValue;
     Volume_dB *= 2; // 0.5dB step
     return WriteTwoTheSame(0x20, Volume_dB);
 }
 
 // -96...0 dB
-u8 CS42L52_t::SetHeadphoneVolume(i8 Volume_dB) {
+uint8_t CS42L52_t::SetHeadphoneVolume(int8_t Volume_dB) {
     if(Volume_dB < -96 or Volume_dB > 0) return retvBadValue;
     IVolume = Volume_dB;
     Volume_dB *= 2; // 0.5dB step
@@ -439,7 +449,7 @@ u8 CS42L52_t::SetHeadphoneVolume(i8 Volume_dB) {
 }
 
 // -96...0 dB
-u8 CS42L52_t::SetSpeakerVolume(i8 Volume_dB) {
+uint8_t CS42L52_t::SetSpeakerVolume(int8_t Volume_dB) {
     if(Volume_dB < -96 or Volume_dB > 0) return retvBadValue;
     Volume_dB *= 2; // 0.5dB step
     return WriteTwoTheSame(0x24, Volume_dB);
@@ -474,7 +484,7 @@ void CS42L52_t::DisableMicSystem() {
 }
 
 void CS42L52_t::EnableHeadphones() {
-    u8 Reg = 0;
+    uint8_t Reg = 0;
     ReadReg(CS_R_PWR_CTRL3, &Reg);
     Reg &= 0x0F;        // Clear headphones ctrl bits
     Reg |= 0b10100000;  // Headphones always on
@@ -482,14 +492,14 @@ void CS42L52_t::EnableHeadphones() {
 }
 
 void CS42L52_t::DisableHeadphones() {
-    u8 Reg = 0;
+    uint8_t Reg = 0;
     ReadReg(CS_R_PWR_CTRL3, &Reg);
     Reg |= 0b11110000;  // Headphones always off
     WriteReg(CS_R_PWR_CTRL3, Reg);
 }
 
 void CS42L52_t::EnableSpeakerMono() {
-    u8 Reg = 0;
+    uint8_t Reg = 0;
     ReadReg(CS_R_PWR_CTRL3, &Reg);
     Reg &= 0xF0;        // Clear speaker ctrl bits
     Reg |= 0b00001010;  // SpeakerA En , SpeakerB En (will not work otherwise)
@@ -498,7 +508,7 @@ void CS42L52_t::EnableSpeakerMono() {
 }
 
 void CS42L52_t::DisableSpeakers() {
-    u8 Reg = 0;
+    uint8_t Reg = 0;
     ReadReg(CS_R_PWR_CTRL3, &Reg);
     Reg |= 0b00001111;  // Speakers always off
     WriteReg(CS_R_PWR_CTRL3, Reg);
