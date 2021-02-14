@@ -27,15 +27,15 @@
  */
 
 // ================================= Settings ==================================
-#define BUTTONS_CNT                 3
+#define BUTTONS_CNT                 2
 // Select required events etc.
 #define BTN_SHORTPRESS              TRUE    // beShortPress evt
 #define BTN_RELEASE                 FALSE
-#define BTN_LONGPRESS               FALSE    // Send LongPress evt
+#define BTN_LONGPRESS               TRUE    // Send LongPress evt
 #define BTN_REPEAT                  FALSE   // Send Repeat evt
 #define BTN_COMBO                   FALSE    // Allow combo
 #define BTN_LONG_COMBO              FALSE    // Allow longpress combo
-#define BTN_DOUBLE_CLICK            TRUE
+#define BTN_DOUBLE_CLICK            FALSE
 #define BTN_GETSTATE_REQUIRED       FALSE
 
 #define BTN_REPEAT_PERIOD_MS        180
