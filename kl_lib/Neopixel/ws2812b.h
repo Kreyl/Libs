@@ -33,7 +33,7 @@
 #include "hal.h"
 #include "kl_lib.h"
 #include "color.h"
-#include "uart.h"
+#include "uart2.h"
 #include "board.h"
 #include <vector>
 
@@ -46,8 +46,6 @@ typedef std::vector<Color_t> ColorBuf_t;
 #define NPX_BYTES_PER_BYTE      3 // 3 bits of SPI to produce 1 bit of LED data
 #define NPX_RST_BYTE_CNT        100
 //#define DATA_BIT_CNT(LedCnt)    (LedCnt * 3 * 8 * NPX_SEQ_LEN_BITS) // Each led has 3 channels 8 bit each
-#define NPX_DATA_BYTE_CNT(LedCnt)   ((LedCnt) * 3 * NPX_BYTES_PER_BYTE)
-#define NPX_TOTAL_BYTE_CNT(LedCnt)  (NPX_DATA_BYTE_CNT(LedCnt) + NPX_RST_BYTE_CNT)
 
 #define NPX_DMA_MODE(Chnl) \
                         (STM32_DMA_CR_CHSEL(Chnl) \
@@ -80,13 +78,7 @@ typedef std::vector<Color_t> ColorBuf_t;
 
 void NpxPrintTable();
 
-// Band setup
-enum BandDirection_t {dirForward, dirBackward};
-struct BandSetup_t {
-    int32_t StartIndx;
-    int32_t Length;
-    BandDirection_t Dir;
-};
+enum NpxType_t {npxRGB, npxRGBW};
 
 struct NeopixelParams_t {
     // SPI
@@ -97,11 +89,15 @@ struct NeopixelParams_t {
     // DMA
     uint32_t DmaID;
     uint32_t DmaMode;
+    // Count
+    uint32_t NpxCnt;
+    NpxType_t Type;
     NeopixelParams_t(SPI_TypeDef *ASpi,
             GPIO_TypeDef *APGpio, uint16_t APin, AlterFunc_t AAf,
-            uint32_t ADmaID, uint32_t ADmaMode) :
+            uint32_t ADmaID, uint32_t ADmaMode,
+            uint32_t NpxCnt, NpxType_t Type) :
                 ISpi(ASpi), PGpio(APGpio), Pin(APin), Af(AAf),
-                DmaID(ADmaID), DmaMode(ADmaMode) {}
+                DmaID(ADmaID), DmaMode(ADmaMode), NpxCnt(NpxCnt), Type(Type) {}
 };
 
 
@@ -117,28 +113,10 @@ private:
     const NeopixelParams_t *Params;
     const stm32_dma_stream_t *PDma = nullptr;
 public:
-    int32_t LedCntTotal = 0;
-    // Band setup
-    const int32_t BandCnt;
-    const BandSetup_t *BandSetup;
     bool TransmitDone = false;
     ftVoidVoid OnTransmitEnd = nullptr;
     // Methods
-    Neopixels_t(const NeopixelParams_t *APParams,
-            const uint32_t ABandCnt, const BandSetup_t *PBandSetup) :
-                Params(APParams), BandCnt(ABandCnt), BandSetup(PBandSetup) { }
-
-    // 0 <= x < BandLen
-    void MixIntoBand(int32_t x, int32_t BandIndx, ColorHSV_t ClrHSV) {
-        if(x < 0) return;
-        int32_t BandLen = BandSetup[BandIndx].Length;
-        if(x >= BandLen) return;
-        if(BandSetup[BandIndx].Dir == dirBackward) x = (BandLen - 1) - x;
-        x += BandSetup[BandIndx].StartIndx;
-        Color_t Clr = ClrHSV.ToRGB();
-        Clr.Brt = 100;
-        ClrBuf[x].MixWith(Clr);
-    }
+    Neopixels_t(const NeopixelParams_t *APParams) : Params(APParams) { }
 
     void SetCurrentColors();
     void OnDmaDone();

@@ -5,22 +5,21 @@ void NpxDmaDone(void *p, uint32_t flags) {
 }
 
 void Neopixels_t::Init() {
-    // Total len
-    for(int32_t n=0; n < BandCnt; n++) LedCntTotal += BandSetup[n].Length;
-
     // GPIO and DMA
     PinSetupAlterFunc(Params->PGpio, Params->Pin, omPushPull, pudNone, Params->Af);
+//    PinSetupAlterFunc(Params->PGpio, Params->Pin, omOpenDrain/, pudNone, Params->Af);
     Params->ISpi.Setup(boMSB, cpolIdleLow, cphaFirstEdge, NPX_SPI_BITRATE, NPX_SPI_BITNUMBER);
     Params->ISpi.Enable();
     Params->ISpi.EnableTxDma();
 
     // Allocate memory
-    Printf("LedCnt: %u\r", LedCntTotal);
+    Printf("LedCnt: %u\r", Params->NpxCnt);
 #if WS2812B_V2
-    IBitBufSz = NPX_TOTAL_BYTE_CNT(LedCntTotal);
+    IBitBufSz = NPX_RST_BYTE_CNT + (Params->NpxCnt * (Params->Type == npxRGBW? 4 : 3) * NPX_BYTES_PER_BYTE);
+
     Printf("TotalByteCnt: %u\r", IBitBufSz);
     IBitBuf = (uint8_t*)malloc(IBitBufSz);
-    ClrBuf.resize(LedCntTotal);
+    ClrBuf.resize(Params->NpxCnt);
     memset(IBitBuf, 0, IBitBufSz);
 #else
     IBitBufWordCnt = NPX_WORD_CNT(LedCntTotal);
@@ -99,11 +98,15 @@ void Neopixels_t::SetCurrentColors() {
     // Fill bit buffer
     for(auto &Color : ClrBuf) {
         memcpy(p, &ITable[Color.G], 4);
-        p += 3;
+        p += NPX_BYTES_PER_BYTE;
         memcpy(p, &ITable[Color.R], 4);
-        p += 3;
+        p += NPX_BYTES_PER_BYTE;
         memcpy(p, &ITable[Color.B], 4);
-        p += 3;
+        p += NPX_BYTES_PER_BYTE;
+        if(Params->Type == npxRGBW) {
+            memcpy(p, &ITable[Color.W], 4);
+            p += NPX_BYTES_PER_BYTE;
+        }
     }
 //    Printf("%A\r", IBitBuf, IBufSz, ' ');
     // Start transmission
