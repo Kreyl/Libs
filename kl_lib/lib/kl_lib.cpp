@@ -1309,7 +1309,7 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
 }; // namespace
 #endif
 
-#if 0 // ============================== IWDG ===================================
+#if 1 // ============================== IWDG ===================================
 namespace Iwdg {
 enum Pre_t {
     iwdgPre4 = 0x00,
@@ -1335,7 +1335,7 @@ void SetTimeout(uint32_t ms) {
     EnableAccess();
     SetPrescaler(iwdgPre256);
     uint32_t Count = (ms * (LSI_FREQ_HZ/1000UL)) / 256UL;
-    TRIM_VALUE(Count, 0xFFF);
+    LimitMaxValue(Count, 0xFFF);
     SetReload(Count);
     Reload();   // Reload and lock access
 }
