@@ -3092,6 +3092,28 @@ void Spi_t::Setup(BitOrder_t BitOrder, CPOL_t CPOL, CPHA_t CPHA,
     else PSpi->CR2 = ((uint16_t)0b0111 << 8) | SPI_CR2_FRXTH;   // 8 bit, RXNE generated when 8 bit is received
 #endif
 }
+void Spi_t::PrintFreq() const {
+    uint32_t SpiFreqHz;
+#if defined STM32L1XX || defined STM32F4XX || defined STM32F2XX || defined STM32L4XX
+    if(PSpi == SPI1) SpiFreqHz = Clk.APB2FreqHz;
+    else SpiFreqHz = Clk.APB1FreqHz;
+#elif defined STM32F030 || defined STM32F0
+    SpiFreqHz = Clk.APBFreqHz;
+#elif defined STM32F7XX
+    if(PSpi == SPI2 or PSpi == SPI3) SpiFreqHz = Clk.APB1FreqHz;
+    else SpiFreqHz = Clk.APB2FreqHz;
+#endif
+    uint16_t ClkDiv = (PSpi->CR1 >> 3)&0b111;
+    if (ClkDiv == sclkDiv2) SpiFreqHz /= 2;
+    else if (ClkDiv == sclkDiv4) SpiFreqHz /= 4;
+    else if (ClkDiv == sclkDiv8) SpiFreqHz /= 8;
+    else if (ClkDiv == sclkDiv16) SpiFreqHz /= 16;
+    else if (ClkDiv == sclkDiv32) SpiFreqHz /= 32;
+    else if (ClkDiv == sclkDiv64) SpiFreqHz /= 64;
+    else if (ClkDiv == sclkDiv128) SpiFreqHz /= 128;
+    else if (ClkDiv == sclkDiv256) SpiFreqHz /= 256;
+    Printf("SPI Freq=%uHz\r", SpiFreqHz);
+}
 
 // IRQs
 static ftVoidVoid Spi1RxIrqHandler = nullptr;

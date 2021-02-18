@@ -100,7 +100,7 @@
 
 enum BitOrder_t {boMSB, boLSB};
 enum LowHigh_t  {Low, High};
-enum RiseFall_t {rfRising, rfFalling, rfNone};
+enum RiseFall_t {rfRising, rfFalling, rfNone, rfBoth};
 enum Inverted_t {invNotInverted, invInverted};
 enum PinOutMode_t {omPushPull = 0, omOpenDrain = 1};
 enum BitNumber_t {bitn8, bitn16, bitn32};
@@ -554,6 +554,39 @@ public:
         tmp |= (uint16_t)SlaveMode;
         ITmr->SMCR = tmp;
     }
+
+    // Inputs
+    enum InputPresacaler_t{pscDiv1=0UL, pscDiv2=01UL, pscDiv4=2UL, pscDiv8=3UL};
+    void SetupInput1(uint32_t Mode, InputPresacaler_t Psc, RiseFall_t Rsfll) const {
+        ITmr->CCMR1 = (ITmr->CCMR1 & 0xFF00) | ((uint32_t)Psc << 2)  | (Mode << 0);
+        uint16_t bits = (Rsfll == rfRising)? 0b0000U : (Rsfll == rfFalling)? 0b0010U : 0b1010;
+        ITmr->CCER = (ITmr->CCER & ~(0xAU << 0)) | (bits << 0);
+    }
+    void SetupInput2(uint32_t Mode, InputPresacaler_t Psc, RiseFall_t Rsfll) const {
+        ITmr->CCMR1 = (ITmr->CCMR1 & 0x00FF) | ((uint32_t)Psc << 10) | (Mode << 8);
+        uint16_t bits = (Rsfll == rfRising)? 0b0000U : (Rsfll == rfFalling)? 0b0010U : 0b1010;
+        ITmr->CCER = (ITmr->CCER & ~(0xAU << 4)) | (bits << 4);
+    }
+    void SetupInput3(uint32_t Mode, InputPresacaler_t Psc, RiseFall_t Rsfll) const {
+        ITmr->CCMR2 = (ITmr->CCMR2 & 0xFF00) | ((uint32_t)Psc << 2)  | (Mode << 0);
+        uint16_t bits = (Rsfll == rfRising)? 0b0000U : (Rsfll == rfFalling)? 0b0010U : 0b1010;
+        ITmr->CCER = (ITmr->CCER & ~(0xAU << 8)) | (bits << 8);
+    }
+    void SetupInput4(uint32_t Mode, InputPresacaler_t Psc, RiseFall_t Rsfll) const {
+        ITmr->CCMR2 = (ITmr->CCMR2 & 0x00FF) | ((uint32_t)Psc << 10) | (Mode << 8);
+        uint16_t bits = (Rsfll == rfRising)? 0b0000U : (Rsfll == rfFalling)? 0b0010U : 0b1010;
+        ITmr->CCER = (ITmr->CCER & ~(0xAU << 12)) | (bits << 12);
+    }
+
+    // Outputs
+    void SetupOutput1(uint32_t Mode) const { ITmr->CCMR1 = (ITmr->CCMR1 & 0xFFFEFF00) | ((Mode & 8UL) << 13) | ((Mode & 7UL) << 4); }
+    void SetupOutput2(uint32_t Mode) const { ITmr->CCMR1 = (ITmr->CCMR1 & 0xFEFF00FF) | ((Mode & 8UL) << 21) | ((Mode & 7UL) << 12); }
+    void SetupOutput3(uint32_t Mode) const { ITmr->CCMR2 = (ITmr->CCMR2 & 0xFFFEFF00) | ((Mode & 8UL) << 13) | ((Mode & 7UL) << 4); }
+    void SetupOutput4(uint32_t Mode) const { ITmr->CCMR2 = (ITmr->CCMR2 & 0xFEFF00FF) | ((Mode & 8UL) << 21) | ((Mode & 7UL) << 12); }
+    void EnableCCOutput1() const { ITmr->CCER |= TIM_CCER_CC1E; }
+    void EnableCCOutput2() const { ITmr->CCER |= TIM_CCER_CC2E; }
+    void EnableCCOutput3() const { ITmr->CCER |= TIM_CCER_CC3E; }
+    void EnableCCOutput4() const { ITmr->CCER |= TIM_CCER_CC4E; }
 
     // DMA, Irq, Evt
     void EnableDmaOnTrigger() const { ITmr->DIER |= TIM_DIER_TDE; }
@@ -1362,6 +1395,8 @@ public:
             int32_t Bitrate_Hz, BitNumber_t BitNumber = bitn8) const;
     void Enable ()       const { PSpi->CR1 |=  SPI_CR1_SPE; }
     void Disable()       const { PSpi->CR1 &= ~SPI_CR1_SPE; }
+    void PrintFreq() const;
+
     // DMA
     void EnableTxDma()   const { PSpi->CR2 |=  SPI_CR2_TXDMAEN; }
     void DisableTxDma()  const { PSpi->CR2 &= ~SPI_CR2_TXDMAEN; }
