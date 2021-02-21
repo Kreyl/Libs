@@ -90,12 +90,6 @@ class CmdUart_t : public BaseUart_t, public PrintfHelper_t, public Shell_t {
 private:
     uint8_t IPutChar(char c) { return IPutByte(c);  }
     void IStartTransmissionIfNotYet() { BaseUart_t::IStartTransmissionIfNotYet(); }
-    void Print(const char *format, ...) {
-        va_list args;
-        va_start(args, format);
-        IVsPrintf(format, args);
-        va_end(args);
-    }
 public:
     CmdUart_t(const UartParams_t &APParams) : BaseUart_t(APParams) {}
     uint8_t TryParseRxBuff() {
@@ -104,6 +98,12 @@ public:
             if(Cmd.PutChar(b) == pdrNewCmd) return retvOk;
         } // while get byte
         return retvFail;
+    }
+    void Print(const char *format, ...) {
+        va_list args;
+        va_start(args, format);
+        IVsPrintf(format, args);
+        va_end(args);
     }
     uint8_t ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);
     uint8_t TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);

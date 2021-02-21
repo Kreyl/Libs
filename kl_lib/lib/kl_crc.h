@@ -12,6 +12,7 @@
 #define CRC_CCITT16
 
 #define CRC_INITVALUE   0x0000U
+#define CRC_POLY        0x1021U
 
 namespace Crc {
 

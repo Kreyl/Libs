@@ -69,9 +69,9 @@ void BaseUart_t::EnableTCIrq(const uint32_t Priority, ftVoidVoid ACallback) {
 
 #if 1 // ===== IRQs =====
 #if defined STM32L4XX
-static BaseUart_t *IUart1=nullptr, *IUart2=nullptr, *IUart3=nullptr, *IUart4=nullptr, *IUart5=nullptr;
-
 extern "C" {
+
+static BaseUart_t *IUart1=nullptr;
 void VectorD4() {   // USART1
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
@@ -82,6 +82,7 @@ void VectorD4() {   // USART1
     CH_IRQ_EPILOGUE();
 }
 
+static BaseUart_t *IUart2=nullptr;
 void VectorD8() {   // USART2
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
@@ -92,6 +93,8 @@ void VectorD8() {   // USART2
     CH_IRQ_EPILOGUE();
 }
 
+#ifdef USART3
+static BaseUart_t *IUart3=nullptr;
 void VectorDC() {   // USART3
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
@@ -101,7 +104,10 @@ void VectorDC() {   // USART3
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
+#endif
 
+#ifdef UART4
+static BaseUart_t *IUart4=nullptr;
 void Vector110() {   // UART4
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
@@ -111,6 +117,10 @@ void Vector110() {   // UART4
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
+#endif
+
+#ifdef UART5
+static BaseUart_t *IUart5=nullptr;
 void Vector114() {   // UART5
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
@@ -120,6 +130,7 @@ void Vector114() {   // UART5
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
+#endif
 } // extern C
 #elif defined STM32F0XX
 static BaseUart_t *IUart1=nullptr, *IUart2=nullptr, *IUart3=nullptr;
@@ -278,8 +289,12 @@ void BaseUart_t::Init() {
     uint32_t Offset = 0; // Usart1
     if(Params->Uart == USART2) Offset = 2;
     else if(Params->Uart == USART3) Offset = 4;
+#ifdef UART4
     else if(Params->Uart == UART4) Offset = 6;
+#endif
+#ifdef UART5
     else if(Params->Uart == UART5) Offset = 8;
+#endif
     RCC->CCIPR &= ~(0b11UL << Offset); // Clear current bits
     RCC->CCIPR |= ((uint32_t)Params->ClkSrc) << Offset;
     // Enable HSI if needed
@@ -492,7 +507,7 @@ void BaseUart_t::OnClkChange() {
 #if 1 // ========================== CMD UART ===================================
 void CmdUart_t::OnUartIrqI(uint32_t flags) {
     if(flags & USART_ISR_CMF) {
-        EvtQMain.SendNowOrExitI(EvtMsg_t(evtIdUartCmdRcvd, (void*)this));
+        EvtQMain.SendNowOrExitI(EvtMsg_t(evtIdShellCmdRcvd, (void*)this));
     }
 }
 
