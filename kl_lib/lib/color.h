@@ -7,10 +7,12 @@
 
 #pragma once
 
+#include "kl_lib.h"
 #include "inttypes.h"
 #include <sys/cdefs.h>
-#include "shell.h"
 #include <stdlib.h> // for random
+
+void Printf(const char *format, ...);
 
 struct ColorHSV_t;
 
@@ -313,12 +315,44 @@ struct ColorHSV_t {
     };
 
     void Adjust(const ColorHSV_t &Target) {
-        if     (H < Target.H) H++;
-        else if(H > Target.H) H--;
+        int16_t dH = Target.H - H;
+//        Printf(" Adjust dH %i (%u %u)\r", dH, H, Target.H);
+        if      ((0<dH and dH<=180) or -180>dH) {
+            if (H >= 360-1) H = 0;
+            else H++;
+        }
+        else if ((0>dH and dH>=-180) or 180<dH) {
+            if (H == 0) H = 360-1;
+            else H--;
+        }
         if     (S < Target.S) S++;
         else if(S > Target.S) S--;
         if     (V < Target.V) V++;
         else if(V > Target.V) V--;
+    }
+
+    // Weight = 0: result is Back; Weight = 255: result is Fore; otherwise result is mix
+    void MixwWeight(const ColorHSV_t &Fore, const ColorHSV_t &Back, uint32_t Weight) {
+        uint8_t R, G, B;
+        uint8_t ForeR, ForeG, ForeB;
+        uint8_t BackR, BackG, BackB;
+        Fore.ToRGB(&ForeR, &ForeG, &ForeB);
+        Back.ToRGB(&BackR, &BackG, &BackB);
+        R = ClrMix(ForeR, BackR, Weight);
+        G = ClrMix(ForeG, BackG, Weight);
+        B = ClrMix(ForeB, BackB, Weight);
+        FromRGB(R, G, B);
+    }
+    // Weight = 0: not changed; Weight = 255: result is Fore; otherwise result is mix
+    void MixwWeight(const ColorHSV_t &Fore, uint32_t Weight) {
+        uint8_t R, G, B;
+        uint8_t ForeR, ForeG, ForeB;
+        ToRGB(&R, &G, &B);
+        Fore.ToRGB(&ForeR, &ForeG, &ForeB);
+        R = ClrMix(ForeR, R, Weight);
+        G = ClrMix(ForeG, G, Weight);
+        B = ClrMix(ForeB, B, Weight);
+        FromRGB(R, G, B);
     }
 
     uint32_t DelayToNextAdj(const ColorHSV_t &Target, uint32_t SmoothValue) {

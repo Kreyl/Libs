@@ -223,6 +223,13 @@ public:
         return retvOk;
     }
 
+    uint8_t GetClrHSV(ColorHSV_t *PClr) {
+        if(GetNext<uint16_t>(&PClr->H) != retvOk) return retvFail;
+        if(GetNext<uint8_t>(&PClr->S) != retvOk) return retvFail;
+        if(GetNext<uint8_t>(&PClr->V) != retvOk) return retvFail;
+        return retvOk;
+    }
+
     /*  int32_t Indx, Value;
         if(PCmd->GetParams<int32_t>(2, &Indx, &Value) == retvOk) {...}
         else PShell->Ack(retvCmdError);    */
