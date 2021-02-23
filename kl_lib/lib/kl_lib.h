@@ -1315,6 +1315,13 @@ static inline void EnableWakeup2Pin(RiseFall_t RiseFall)  {
 }
 static inline void DisableWakeup2Pin() { PWR->CR3 &= ~PWR_CR3_EWUP2; }
 
+static inline void EnableWakeup3Pin(RiseFall_t RiseFall)  {
+    if(RiseFall == rfFalling) PWR->CR4 |= PWR_CR4_WP3;
+    else PWR->CR4 &= ~PWR_CR4_WP3;
+    PWR->CR3 |=  PWR_CR3_EWUP3;
+}
+static inline void DisableWakeup3Pin() { PWR->CR3 &= ~PWR_CR3_EWUP3; }
+
 static inline void EnableWakeup4Pin(RiseFall_t RiseFall)  {
     if(RiseFall == rfFalling) PWR->CR4 |= PWR_CR4_WP4;
     else PWR->CR4 &= ~PWR_CR4_WP4;
@@ -1330,6 +1337,11 @@ static inline void EnableWakeup5Pin(RiseFall_t RiseFall)  {
 static inline void DisableWakeup5Pin() { PWR->CR3 &= ~PWR_CR3_EWUP5; }
 
 static inline bool WasInStandby()      { return (PWR->SR1 & PWR_SR1_SBF); }
+static inline bool WokeUpByWKUP1()     { return (PWR->SR1 & PWR_SR1_WUF1); }
+static inline bool WokeUpByWKUP2()     { return (PWR->SR1 & PWR_SR1_WUF2); }
+static inline bool WokeUpByWKUP3()     { return (PWR->SR1 & PWR_SR1_WUF3); }
+static inline bool WokeUpByWKUP4()     { return (PWR->SR1 & PWR_SR1_WUF4); }
+static inline bool WokeUpByWKUP5()     { return (PWR->SR1 & PWR_SR1_WUF5); }
 static inline bool WkupOccured()       { return (PWR->SR1 & 0x1F); }
 static inline void ClearStandbyFlag()  { PWR->SCR |= PWR_SCR_CSBF; }
 static inline void ClearWUFFlags()     { PWR->SCR |= 0x1F; }
