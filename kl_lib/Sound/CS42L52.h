@@ -10,10 +10,19 @@
 #include "kl_lib.h"
 
 #define MIC_EN              FALSE
-
-#define CS42_I2C_ADDR       0x4A
+#define MCLK_TIM_EN         FALSE
 #define AU_BATMON_ENABLE    TRUE
-#define AU_VA_mv            2500UL    // Required for battery voltage calculation
+
+#define CS42_I2C_ADDR       0x4A    // 0x4A (SA0=0) / 0x4B (SA0=1)
+#define AU_VA_mv            2500UL  // Required for battery voltage calculation
+
+#define Headphone_VOL_MAX   0
+#define Headphone_VOL_MIN   -45
+#define Headphone_VOL_STEP  3
+
+#define Speaker_VOL_MAX     0
+#define Speaker_VOL_MIN     -36
+#define Speaker_VOL_STEP    2
 
 enum AuBeepFreq_t {abfC4=0b0000, abfC5=0b0001, abfD5=0b0010, abfE5=0b0011, abfF5=0b0100, abfG5=0b0101, abfA5=0b0110,
     abfB5=0b0111, abfC6=0b1000, abfD6=0b1001, abfE6=0b1010, abfF6=0b1011, abfG6=0b1100, abfA6=0b1101, abfB6=0b1110, abfC7=0b1111
@@ -34,6 +43,10 @@ enum MonoStereo_t { Stereo, Mono };
 
 class CS42L52_t {
 private:
+    const stm32_dma_stream_t *PDmaTx = nullptr;
+#if MIC_EN
+    const stm32_dma_stream_t *PDmaRx = nullptr;
+#endif
     void EnableSAI() {
         AU_SAI_A->CR1 |= SAI_xCR1_SAIEN;
 #if MIC_EN
@@ -46,6 +59,7 @@ private:
         AU_SAI_B->CR1 &= ~SAI_xCR1_SAIEN;
 #endif
     }
+    int8_t ISpkVolume;
     int8_t IVolume;
     bool IsOn;
 public:
@@ -85,12 +99,17 @@ public:
     void SetVolume(int8_t AVolume);
     int8_t GetVolume() { return IVolume; }
 
+    void SpeakerVolumeUp();
+    void SpeakerVolumeDown();
+    int8_t GetSpeakerVolume() { return ISpkVolume; }
+
     // Enable/Disable
     void EnableMicSystem();
     void DisableMicSystem();
     void EnableHeadphones();
     void DisableHeadphones();
     void EnableSpeakerMono();
+    void EnableSpeakerStereo();
     void DisableSpeakers();
 
     // Rx/Tx
@@ -99,13 +118,14 @@ public:
     void TransmitBuf(volatile void *Buf, uint32_t Sz16);
     bool IsTransmitting();
     void Stop();
-
+#if MIC_EN
     void StartStream();
+#endif
     void PutSampleI(SampleStereo_t &Sample);
 #if AU_BATMON_ENABLE
     uint32_t GetBatteryVmv();
 #endif
-    CS42L52_t() : IVolume(0), IsOn(false) {}
+    CS42L52_t() : ISpkVolume(0), IVolume(0), IsOn(false) {}
 };
 
 extern CS42L52_t Codec;

@@ -9,9 +9,9 @@
 #include "shell.h"
 #include "kl_i2c.h"
 
+#ifdef AU_RESET
 static const PinOutput_t PinRst(AU_RESET);
-static const stm32_dma_stream_t *PDmaTx;
-//static const stm32_dma_stream_t *PDmaRx;
+#endif
 
 __attribute__((weak))
 void AuOnNewSampleI(SampleStereo_t &Sample) { }
@@ -142,8 +142,8 @@ void AuOnNewSampleI(SampleStereo_t &Sample) { }
                         STM32_DMA_CR_DIR_M2P |  /* Direction is memory to peripheral */ \
                         STM32_DMA_CR_TCIE       /* Enable Transmission Complete IRQ */
 
-#define SAI_DMARX_MODE  STM32_DMA_CR_CHSEL(Chnl) |   \
-                        DMA_PRIORITY_LOW | \
+#define SAI_DMARX_MODE  STM32_DMA_CR_CHSEL(SAI_DMA_CHNL) |   \
+                        DMA_PRIORITY_MEDIUM | \
                         STM32_DMA_CR_MSIZE_BYTE | \
                         STM32_DMA_CR_PSIZE_BYTE | \
                         STM32_DMA_CR_MINC |         /* Memory pointer increase */ \
@@ -152,6 +152,9 @@ void AuOnNewSampleI(SampleStereo_t &Sample) { }
 //                        STM32_DMA_CR_TCIE           /* Enable Transmission Complete IRQ */
 #endif
 
+#if MCLK_TIM_EN
+const PinOutputPWM_t MClk(AU_MCLK_TIM);
+#endif
 // DMA Tx Completed IRQ
 extern "C"
 void DmaSAITxIrq(void *p, uint32_t flags) {
@@ -161,11 +164,15 @@ void DmaSAITxIrq(void *p, uint32_t flags) {
 }
 
 void CS42L52_t::Init() {
+#ifdef AU_RESET
     PinRst.Init();
     // Remove reset
     PinRst.SetHi();
     chThdSleepMilliseconds(18);
-    AU_i2c.CheckAddress(0x4A); // Otherwise it does not work.
+#endif
+    // Init i2c
+//    AU_i2c.Init();
+    AU_i2c.CheckAddress(CS42_I2C_ADDR); // Otherwise it does not work.
 //    AU_i2c.ScanBus();
     // Check if connected
     uint8_t b;
@@ -221,7 +228,13 @@ void CS42L52_t::Init() {
 #endif // Setup regs
 #if 1 // ======= Setup SAI =======
     // === Clock ===
+#if MCLK_TIM_EN
+    MClk.Init();
+    MClk.SetFrequencyHz(12000000);
+    MClk.Set(1);
+#else
     Clk.EnableMCO(mcoHSE, mcoDiv1); // Master clock output
+#endif
     AU_SAI_RccEn();
 
     // === GPIOs ===
@@ -267,7 +280,9 @@ void CS42L52_t::Deinit() {
     }
     AU_SAI_A->CR2 = SAI_xCR2_FFLUSH;
     Clk.DisableMCO();
+#ifdef AU_RESET
     PinRst.SetLo();
+#endif
     AU_SAI_RccDis();
     IsOn = false;
 }
@@ -359,13 +374,11 @@ void CS42L52_t::Stop() {
     dmaStreamDisable(PDmaTx);
     AU_SAI_A->CR2 = SAI_xCR2_FFLUSH;
 }
-
+#if MIC_EN
 void CS42L52_t::StartStream() {
     DisableSAI();   // All settings must be changed when both blocks are disabled
     dmaStreamDisable(PDmaTx);
-#if MIC_EN
-    dmaStreamDisable(SAI_DMA_B);
-#endif
+    dmaStreamDisable(PDmaRx);
     AU_SAI_A->CR1 &= ~(SAI_xCR1_MONO | SAI_xCR1_DMAEN); // Always stereo, no DMA
     AU_SAI_A->CR2 = SAI_xCR2_FFLUSH | SAI_FIFO_THR; // Flush FIFO
     AU_SAI_B->CR2 = SAI_xCR2_FFLUSH | SAI_FIFO_THR; // Flush FIFO
@@ -374,6 +387,7 @@ void CS42L52_t::StartStream() {
     nvicEnableVector(SAI_IRQ_NUMBER, IRQ_PRIO_MEDIUM);
     EnableSAI();
 }
+#endif
 
 void CS42L52_t::PutSampleI(SampleStereo_t &Sample) {
     AU_SAI_A->DR = Sample.Right;    // }
@@ -414,7 +428,7 @@ uint32_t CS42L52_t::GetBatteryVmv() {
 //        PinRst.SetHi();
 //        Clk.EnableMCO(mcoHSE, mcoDiv1); // Master clock output
 //        chThdSleepMilliseconds(18);
-//        AU_i2c.CheckAddress(0x4A); // Otherwise it does not work.
+//        AU_i2c.CheckAddress(CS42_I2C_ADDR); // Otherwise it does not work.
 //        WriteReg(CS_R_PWR_CTRL1, 0b11111110); // PwrCtrl 1: Power on codec only
 //        WriteReg(0x2F, 0b01001000); // Bat compensation dis, VP monitor en
 //        chThdSleepMilliseconds(999);
@@ -475,24 +489,34 @@ uint8_t CS42L52_t::SetHeadphoneVolume(int8_t Volume_dB) {
 // -96...0 dB
 uint8_t CS42L52_t::SetSpeakerVolume(int8_t Volume_dB) {
     if(Volume_dB < -96 or Volume_dB > 0) return retvBadValue;
+    ISpkVolume = Volume_dB;
     Volume_dB *= 2; // 0.5dB step
     return WriteTwoTheSame(0x24, Volume_dB);
 }
 
 void CS42L52_t::VolumeUp() {
-    IVolume += 3;
-    if(IVolume > 0) IVolume = 0;
+    IVolume += Headphone_VOL_STEP;
+    if(IVolume > Headphone_VOL_MAX) IVolume = Headphone_VOL_MAX;
     if(IsOn) SetHeadphoneVolume(IVolume);
 }
-
 void CS42L52_t::VolumeDown() {
-    IVolume -= 3;
-    if(IVolume < -45) IVolume = -45;
+    IVolume -= Headphone_VOL_STEP;
+    if(IVolume < Headphone_VOL_MIN) IVolume = Headphone_VOL_MIN;
     if(IsOn) SetHeadphoneVolume(IVolume);
 }
-
 void CS42L52_t::SetVolume(int8_t AVolume) {
     if(IsOn) SetHeadphoneVolume(AVolume);
+}
+
+void CS42L52_t::SpeakerVolumeUp() {
+    ISpkVolume += Speaker_VOL_STEP;
+    if(ISpkVolume > Speaker_VOL_MAX) ISpkVolume = Speaker_VOL_MAX;
+    if(IsOn) SetSpeakerVolume(ISpkVolume);
+}
+void CS42L52_t::SpeakerVolumeDown() {
+    ISpkVolume -= Speaker_VOL_STEP;
+    if(ISpkVolume < Speaker_VOL_MIN) ISpkVolume = Speaker_VOL_MIN;
+    if(IsOn) SetSpeakerVolume(ISpkVolume);
 }
 
 #endif
@@ -529,6 +553,15 @@ void CS42L52_t::EnableSpeakerMono() {
     Reg |= 0b00001010;  // SpeakerA En , SpeakerB En (will not work otherwise)
     WriteReg(CS_R_PWR_CTRL3, Reg);
     WriteReg(0x0F, 0b00000010); // Spk mono en
+}
+
+void CS42L52_t::EnableSpeakerStereo() {
+    uint8_t Reg = 0;
+    ReadReg(CS_R_PWR_CTRL3, &Reg);
+    Reg &= 0xF0;        // Clear speaker ctrl bits
+    Reg |= 0b00001010;  // SpeakerA En , SpeakerB En
+    WriteReg(CS_R_PWR_CTRL3, Reg);
+    WriteReg(0x0F, 0b00000000);
 }
 
 void CS42L52_t::DisableSpeakers() {

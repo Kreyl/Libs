@@ -64,6 +64,7 @@
 #define AU_SAI_A        SAI1_Block_A
 #define AU_SAI_B        SAI1_Block_B
 #define AU_SAI_RccEn()  RCC->APB2ENR |= RCC_APB2ENR_SAI1EN
+#define AU_SAI_RccDis() RCC->APB2ENR &= ~RCC_APB2ENR_SAI1EN
 
 // Acc
 #define Acc_i2c         i2c2
