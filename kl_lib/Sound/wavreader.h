@@ -34,6 +34,10 @@ public:
               SeekCallback seek_callback,
               ReadCallback read_callback);
 
+    void init(TellCallback tell_callback,
+              SeekCallback seek_callback,
+              ReadCallback read_callback);
+
     bool open(void *file_context,
               Mode mode = Mode::Single,
               bool preload = true);

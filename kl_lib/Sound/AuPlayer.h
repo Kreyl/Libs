@@ -19,7 +19,7 @@
 size_t TellCallback(void *file_context);
 bool SeekCallback(void *file_context, size_t offset);
 size_t ReadCallback(void *file_context, uint8_t *buffer, size_t length);
-extern CS42L52_t Audio;
+extern CS42L52_t Codec;
 
 struct SndBuf_t {
     uint32_t Buf[BUF_SZ_FRAME], Sz;
@@ -57,7 +57,6 @@ private:
     SndBuf_t *PCurBuf;
     void IPlayNext(const char* AFName, PlayMode_t AMode = spmSingle);
     void IPrepareToPlayNext(const char* AFName, PlayMode_t AMode = spmSingle);
-    binary_semaphore_t IAuSem;
 public:
     void Init();
 
@@ -69,14 +68,17 @@ public:
     PlayMode_t GetPlaymode() {
         return (ICurSnd->Track.mode() == WavReader::Mode::Single)? spmSingle : spmRepeat;
     }
+    bool IsPlayingNow() { return ICurSnd->IsPlaying(); }
+    void FadeOut() { ICurSnd->FadeOut(); }
+
     // Inner use
     void ITask();
     void IHandleIrq();
     void TransmitBuf(SndBuf_t *PBuf) {
-        Audio.TransmitBuf(PBuf->Buf, PBuf->Sz*2);    // Sz16 == SzFrame*2
+        Codec.TransmitBuf(PBuf->Buf, PBuf->Sz*2);    // Sz16 == SzFrame*2
     }
     AuPlayer_t() : ISnd1(), ISnd2(), ICurSnd(&ISnd1), INextSnd(&ISnd2),
-            PCurBuf(nullptr), IAuSem(), FileToPlayNext(nullptr) {}
+            PCurBuf(nullptr), FileToPlayNext(nullptr) {}
 };
 
-extern AuPlayer_t Player;
+extern AuPlayer_t AuPlayer;

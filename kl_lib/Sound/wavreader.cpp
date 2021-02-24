@@ -31,6 +31,15 @@ WavReader::WavReader(TellCallback tell_callback,
 {
 }
 
+void WavReader::init(WavReader::TellCallback tell_callback,
+                     WavReader::SeekCallback seek_callback,
+                     WavReader::ReadCallback read_callback)
+{
+    tell_callback_ = tell_callback;
+    seek_callback_ = seek_callback;
+    read_callback_ = read_callback;
+}
+
 bool WavReader::open(void *file_context,
                      WavReader::Mode mode,
                      bool preload)
@@ -45,20 +54,29 @@ bool WavReader::open(void *file_context,
 
     mode_ = mode;
 
-    if (!seek(0)) {
-        return false;
-    }
+    next_chunk_offset = 0;
 
-    if (!readCharBuffer(chunk_id, sizeof(chunk_id))) {
-        return false;
-    }
+    while (true) {
+        if (!seek(next_chunk_offset)) {
+            return false;
+        }
 
-    if (memcmp(chunk_id, "RIFF", sizeof(chunk_id)) != 0) {
-        return false;
-    }
+        if (!readCharBuffer(chunk_id, sizeof(chunk_id))) {
+            return false;
+        }
 
-    if (!readU32(&chunk_size)) {
-        return false;
+        if (!readU32(&chunk_size)) {
+            return false;
+        }
+
+        if (memcmp(chunk_id, "RIFF", sizeof(chunk_id)) == 0) {
+            break;
+        }
+
+        next_chunk_offset = tell() + chunk_size;
+        if ((next_chunk_offset & 1) != 0) {
+            next_chunk_offset++;
+        }
     }
 
     file_size_ = chunk_size;
@@ -73,21 +91,27 @@ bool WavReader::open(void *file_context,
         return false;
     }
 
-    if (!readCharBuffer(chunk_id, sizeof(chunk_id))) {
-        return false;
-    }
+    while (true) {
+        if (!readCharBuffer(chunk_id, sizeof(chunk_id))) {
+            return false;
+        }
 
-    if (memcmp(chunk_id, "fmt ", sizeof(chunk_id)) != 0) {
-        return false;
-    }
+        if (!readU32(&chunk_size)) {
+            return false;
+        }
 
-    if (!readU32(&chunk_size)) {
-        return false;
-    }
+        next_chunk_offset = tell() + chunk_size;
+        if ((next_chunk_offset & 1) != 0) {
+            next_chunk_offset++;
+        }
 
-    next_chunk_offset = tell() + chunk_size;
-    if ((next_chunk_offset & 1) != 0) {
-        next_chunk_offset++;
+        if (memcmp(chunk_id, "fmt ", sizeof(chunk_id)) == 0) {
+            break;
+        }
+
+        if (!seek(next_chunk_offset)) {
+            return false;
+        }
     }
 
     uint16_t format;
@@ -219,7 +243,7 @@ bool WavReader::open(void *file_context,
 
             break;
         }
-    };
+    }
 
     opened_ = true;
 

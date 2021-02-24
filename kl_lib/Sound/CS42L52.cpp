@@ -10,6 +10,8 @@
 #include "kl_i2c.h"
 
 static const PinOutput_t PinRst(AU_RESET);
+static const stm32_dma_stream_t *PDmaTx;
+//static const stm32_dma_stream_t *PDmaRx;
 
 __attribute__((weak))
 void AuOnNewSampleI(SampleStereo_t &Sample) { }
@@ -150,21 +152,20 @@ void AuOnNewSampleI(SampleStereo_t &Sample) { }
 //                        STM32_DMA_CR_TCIE           /* Enable Transmission Complete IRQ */
 #endif
 
-#if MCLK_TIM_EN
-const PinOutputPWM_t MClk(AU_MCLK_TIM);
-#endif
 // DMA Tx Completed IRQ
 extern "C"
-void DmaSAITxIrq(void *p, uint32_t flags);
+void DmaSAITxIrq(void *p, uint32_t flags) {
+    chSysLockFromISR();
+    if(Codec.SaiDmaCallbackI) Codec.SaiDmaCallbackI();
+    chSysUnlockFromISR();
+}
 
 void CS42L52_t::Init() {
     PinRst.Init();
     // Remove reset
     PinRst.SetHi();
     chThdSleepMilliseconds(18);
-    // Init i2c
-    AU_i2c.Init();
-    AU_i2c.CheckAddress(CS42_I2C_ADDR); // Otherwise it does not work.
+    AU_i2c.CheckAddress(0x4A); // Otherwise it does not work.
 //    AU_i2c.ScanBus();
     // Check if connected
     uint8_t b;
@@ -220,18 +221,8 @@ void CS42L52_t::Init() {
 #endif // Setup regs
 #if 1 // ======= Setup SAI =======
     // === Clock ===
-#if MCLK_TIM_EN
-    MClk.Init();
-    MClk.SetFrequencyHz(12000000);
-    MClk.Set(1);
-#else
     Clk.EnableMCO(mcoHSE, mcoDiv1); // Master clock output
-#endif
     AU_SAI_RccEn();
-    // Clock Src: PLL SAI1 P
-//    Clk.SetupPllSai1(19, 2, 7);
-//    Clk.EnableSai1POut();
-//    MODIFY_REG(RCC->CCIPR, RCC_CCIPR_SAI1SEL, 0);
 
     // === GPIOs ===
     PinSetupAlterFunc(AU_LRCK); // Left/Right (Frame sync) clock output
@@ -263,9 +254,22 @@ void CS42L52_t::Init() {
 
 #if 1 // ==== DMA ====
     AU_SAI_A->CR1 |= SAI_xCR1_DMAEN;
-    PDmaA = dmaStreamAlloc(SAI_DMA_A, IRQ_PRIO_HIGH, DmaSAITxIrq, nullptr);
-    dmaStreamSetPeripheral(PDmaA, &AU_SAI_A->DR);
+    PDmaTx = dmaStreamAlloc(SAI_DMA_A, IRQ_PRIO_MEDIUM, DmaSAITxIrq, nullptr);
+    dmaStreamSetPeripheral(PDmaTx, &AU_SAI_A->DR);
 #endif
+}
+
+void CS42L52_t::Deinit() {
+    if(PDmaTx) {
+        dmaStreamDisable(PDmaTx);
+        dmaStreamFree(PDmaTx);
+        PDmaTx = nullptr;
+    }
+    AU_SAI_A->CR2 = SAI_xCR2_FFLUSH;
+    Clk.DisableMCO();
+    PinRst.SetLo();
+    AU_SAI_RccDis();
+    IsOn = false;
 }
 
 void CS42L52_t::Standby() {
@@ -317,7 +321,7 @@ uint8_t CS42L52_t::SetPcmMixerVolume(int8_t Volume_dB) {
 
 #if 1 // ============================= Tx/Rx ===================================
 void CS42L52_t::SetupMonoStereo(MonoStereo_t MonoStereo) {
-    dmaStreamDisable(PDmaA);
+    dmaStreamDisable(PDmaTx);
     DisableSAI();   // All settings must be changed when both blocks are disabled
     // Wait until really disabled
     while(AU_SAI_A->CR1 & SAI_xCR1_SAIEN);
@@ -328,6 +332,7 @@ void CS42L52_t::SetupMonoStereo(MonoStereo_t MonoStereo) {
 }
 
 void CS42L52_t::SetupSampleRate(uint32_t SampleRate) {  // Setup sample rate. No Auto, 32kHz, not27MHz
+//    Printf("CS fs: %u\r", SampleRate);
     uint8_t                      v = (0b10 << 5) | (1 << 4) | (0 << 3) | (0b01 << 1);    // 16 kHz
     if     (SampleRate == 22050) v = (0b10 << 5) | (0 << 4) | (0 << 3) | (0b11 << 1);
     else if(SampleRate == 44100) v = (0b01 << 5) | (0 << 4) | (0 << 3) | (0b11 << 1);
@@ -337,28 +342,30 @@ void CS42L52_t::SetupSampleRate(uint32_t SampleRate) {  // Setup sample rate. No
 //    Printf("v: %X\r", v);
 }
 
-void CS42L52_t::TransmitBuf(void *Buf, uint32_t Sz16) {
-    dmaStreamDisable(PDmaA);
-    dmaStreamSetMemory0(PDmaA, Buf);
-    dmaStreamSetMode(PDmaA, SAI_DMATX_MONO_MODE);
-    dmaStreamSetTransactionSize(PDmaA, Sz16);
-    dmaStreamEnable(PDmaA);
+void CS42L52_t::TransmitBuf(volatile void *Buf, uint32_t Sz16) {
+    dmaStreamDisable(PDmaTx);
+    dmaStreamSetMemory0(PDmaTx, Buf);
+    dmaStreamSetMode(PDmaTx, SAI_DMATX_MONO_MODE);
+    dmaStreamSetTransactionSize(PDmaTx, Sz16);
+    dmaStreamEnable(PDmaTx);
     EnableSAI(); // Start tx
 }
 
 bool CS42L52_t::IsTransmitting() {
-    return (PDmaA->channel->CNDTR != 0);
+    return (dmaStreamGetTransactionSize(PDmaTx) != 0);
 }
 
 void CS42L52_t::Stop() {
-    dmaStreamDisable(PDmaA);
+    dmaStreamDisable(PDmaTx);
     AU_SAI_A->CR2 = SAI_xCR2_FFLUSH;
 }
-#if MIC_EN
+
 void CS42L52_t::StartStream() {
     DisableSAI();   // All settings must be changed when both blocks are disabled
-    dmaStreamDisable(PDmaA);
-    dmaStreamDisable(PDmaB);
+    dmaStreamDisable(PDmaTx);
+#if MIC_EN
+    dmaStreamDisable(SAI_DMA_B);
+#endif
     AU_SAI_A->CR1 &= ~(SAI_xCR1_MONO | SAI_xCR1_DMAEN); // Always stereo, no DMA
     AU_SAI_A->CR2 = SAI_xCR2_FFLUSH | SAI_FIFO_THR; // Flush FIFO
     AU_SAI_B->CR2 = SAI_xCR2_FFLUSH | SAI_FIFO_THR; // Flush FIFO
@@ -367,7 +374,7 @@ void CS42L52_t::StartStream() {
     nvicEnableVector(SAI_IRQ_NUMBER, IRQ_PRIO_MEDIUM);
     EnableSAI();
 }
-#endif
+
 void CS42L52_t::PutSampleI(SampleStereo_t &Sample) {
     AU_SAI_A->DR = Sample.Right;    // }
     AU_SAI_A->DR = Sample.Left;     // } Somehow Left will be sent first if put last
@@ -403,9 +410,26 @@ void CS42L52_t::SetupNoiseGate(EnableDisable_t En, uint8_t Threshold, uint8_t De
 
 #if AU_BATMON_ENABLE
 uint32_t CS42L52_t::GetBatteryVmv() {
+//    if(!IsOn) {
+//        PinRst.SetHi();
+//        Clk.EnableMCO(mcoHSE, mcoDiv1); // Master clock output
+//        chThdSleepMilliseconds(18);
+//        AU_i2c.CheckAddress(0x4A); // Otherwise it does not work.
+//        WriteReg(CS_R_PWR_CTRL1, 0b11111110); // PwrCtrl 1: Power on codec only
+//        WriteReg(0x2F, 0b01001000); // Bat compensation dis, VP monitor en
+//        chThdSleepMilliseconds(999);
+//    }
+
     uint8_t b;
     ReadReg(0x30, &b);
-    return ((uint32_t)b * 10 * AU_VA_mv) / 633;
+    uint32_t Rslt = ((uint32_t)b * 10UL * AU_VA_mv) / 633UL;
+
+//    if(!IsOn) {
+//        Clk.DisableMCO();
+//        PinRst.SetLo();
+//    }
+
+    return Rslt;
 }
 #endif
 

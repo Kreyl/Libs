@@ -66,6 +66,16 @@ AudioTrack::AudioTrack(WavReader::TellCallback tell_callback,
 {
 }
 
+void AudioTrack::init(WavReader::TellCallback tell_callback,
+                      WavReader::SeekCallback seek_callback,
+                      WavReader::ReadCallback read_callback,
+                      unsigned int channels)
+{
+    reader_.init(tell_callback, seek_callback, read_callback);
+    channels_ = channels;
+    initialized_ = true;
+}
+
 bool AudioTrack::start(void *file,
                        Mode mode,
                        bool preload,
