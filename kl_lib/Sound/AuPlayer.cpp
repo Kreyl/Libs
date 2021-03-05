@@ -72,7 +72,7 @@ void AuPlayer_t::ITask() {
     while(true) {
         EvtMsgAudio_t Msg = EvtQAudio.Fetch(TIME_INFINITE);
         if(!SD.IsReady) {
-            EvtQMain.SendNowOrExit(EvtMsg_t(evtIdevtIdAudioPlayEnd));
+            EvtQMain.SendNowOrExit(EvtMsg_t(evtIdAudioPlayEnd));
             continue;
         }
         switch(Msg.ID) {
@@ -85,7 +85,7 @@ void AuPlayer_t::ITask() {
                     while(Codec.IsTransmitting()) chThdSleepMilliseconds(1);
 //                    Codec.Stop();
 
-                    EvtQMain.SendNowOrExit(EvtMsg_t(evtIdevtIdAudioPlayEnd));
+                    EvtQMain.SendNowOrExit(EvtMsg_t(evtIdAudioPlayEnd));
                     // Wake waiting thread if any
                     chThdResume(&ThdRef, MSG_OK);   // NotNull check performed inside chThdResume
                 }
@@ -136,7 +136,7 @@ void AuPlayer_t::IPrepareToPlayNext(const char* AFName, PlayMode_t AMode) {
     }
     else {
         Printf("Open %S failed\r", AFName);
-        EvtQMain.SendNowOrExit(EvtMsg_t(evtIdevtIdAudioPlayEnd));
+        EvtQMain.SendNowOrExit(EvtMsg_t(evtIdAudioPlayEnd));
         // Wake waiting thread if any
         chThdResume(&ThdRef, MSG_OK);   // NotNull check performed inside chThdResume
     }
