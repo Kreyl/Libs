@@ -318,6 +318,8 @@ public:
     }
     void Stop() { chVTReset(&Tmr); }
 
+    bool IsRunning() { return chVTIsArmed(&Tmr); }
+
     void SetNewPeriod_ms(uint32_t NewPeriod) { Period = TIME_MS2I(NewPeriod); }
     void SetNewPeriod_s(uint32_t NewPeriod) { Period = TIME_S2I(NewPeriod); }
 
