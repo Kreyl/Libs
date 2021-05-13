@@ -3157,7 +3157,7 @@ void VectorCC() {   // SPI1
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
     uint32_t SR = SPI1->SR;
-    if(SR & SPI_SR_RXNE and Spi1RxIrqHandler) Spi1RxIrqHandler();
+    if((SR & SPI_SR_RXNE) and Spi1RxIrqHandler) Spi1RxIrqHandler();
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -3167,7 +3167,7 @@ void VectorD0() {   // SPI2
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
     uint32_t SR = SPI2->SR;
-    if(SR & SPI_SR_RXNE and Spi2RxIrqHandler) Spi2RxIrqHandler();
+    if((SR & SPI_SR_RXNE) and Spi2RxIrqHandler) Spi2RxIrqHandler();
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
@@ -3177,7 +3177,7 @@ void Vector10C() {   // SPI3
     CH_IRQ_PROLOGUE();
     chSysLockFromISR();
     uint32_t SR = SPI3->SR;
-    if(SR & SPI_SR_RXNE and Spi3RxIrqHandler) Spi3RxIrqHandler();
+    if((SR & SPI_SR_RXNE) and Spi3RxIrqHandler) Spi3RxIrqHandler();
     chSysUnlockFromISR();
     CH_IRQ_EPILOGUE();
 }
