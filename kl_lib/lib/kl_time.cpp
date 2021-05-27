@@ -27,7 +27,9 @@ void TimeCounter_t::Init() {
         Printf("Nothing is set\r");
         // ==== Rtc config ====
         BackupSpc::Reset();     // Reset Backup Domain
+#if !defined STM32L4XX
         Clk.SetLSELevel(lselvlLow); // Set Low power of crystal
+#endif
         Clk.EnableLSE();
         // Let it start for a second
         systime_t StartTime = chVTGetSystemTimeX();
@@ -48,6 +50,7 @@ void TimeCounter_t::Init() {
                 RTC->CR |= RTC_CR_BYPSHAD;  // Bypass shadow regs
 
                 // ==== Setup wake-up timer ====
+#if !defined STM32L4XX
                 // Wait WakeUp timer to allow changes
                 while(!BitIsSet(RTC->ISR, RTC_ISR_WUTWF));
 //                RTC->WUTR = 0;      // Flag is set every WUTR+1 cycles => every second with 1Hz input freq
@@ -55,7 +58,7 @@ void TimeCounter_t::Init() {
                 RTC->WUTR = 2047; // Flag is set every WUTR+1 cycles => every second
                 RTC->CR &= ~(0b111UL); // RTC/16 clock is selected
                 RTC->CR |= RTC_CR_WUTE | RTC_CR_WUTIE;  // Enable Wake-up timer and its irq
-
+#endif
                 // Setup default time & date
                 RTC->TR = 0;    // Time = 0
                 RTC->DR = DATE2REG(1, 7, 7, 0, 9, 1, 8); // 17 09 18
@@ -68,7 +71,6 @@ void TimeCounter_t::Init() {
             else if(chVTTimeElapsedSinceX(StartTime) > TIME_MS2I(999)) {
                 // Timeout
                 Printf("32768 Failure\r");
-//                Interface.Error("32768 Fail");
                 break;
             }
         } // while
@@ -83,7 +85,11 @@ void TimeCounter_t::Init() {
     EXTI->IMR |= EXTI_IMR_MR22;
     EXTI->RTSR |= EXTI_RTSR_TR22;
 #endif
+
+#if !defined STM32L4XX
     Rtc::ClearWakeupFlag(); // Otherwise already set flag will not trigger interrupt
+#endif
+
 #if defined STM32F072xB
     nvicEnableVector(RTC_IRQn, IRQ_PRIO_LOW);
 #elif defined STM32F7XX
@@ -196,6 +202,7 @@ void TimeCounter_t::SetDateTime() {
     chSysUnlock();
 }
 
+#if !defined STM32L4XX
 extern "C" {
 #if defined STM32F072xB
 CH_IRQ_HANDLER(Vector48) {
@@ -217,3 +224,4 @@ CH_IRQ_HANDLER(Vector4C) {
     CH_IRQ_EPILOGUE();
 }
 } // extern c
+#endif
