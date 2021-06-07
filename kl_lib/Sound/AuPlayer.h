@@ -15,6 +15,8 @@
 
 #define BUF_SZ_FRAME        1024UL
 
+#define START_STOP_FADE_DUR 450
+
 // Callbacks. Returns true if OK
 size_t TellCallback(void *file_context);
 bool SeekCallback(void *file_context, size_t offset);

@@ -143,6 +143,7 @@ void AuPlayer_t::IPrepareToPlayNext(const char* AFName, PlayMode_t AMode) {
 }
 
 void AuPlayer_t::Play(const char* AFName, PlayMode_t Mode) {
+    Printf("Play %S\r", AFName);
     Codec.SaiDmaCallbackI = IDmaSAITxIrq;
     if(AFName == nullptr) return;
     EvtMsgAudio_t Msg(aevtPlay, (char*)AFName, Mode);
@@ -174,7 +175,11 @@ void AuPlayer_t::ISwitchSnds() {
 
 
 void FSound_t::FadeOut() {
-    Track.stop(AudioTrack::Fade::CosineOut, 540);
+#ifdef HAS_COSINE_TABLE
+    Track.stop(AudioTrack::Fade::CosineOut, START_STOP_FADE_DUR);
+#else
+    Track.stop(AudioTrack::Fade::LinearOut, START_STOP_FADE_DUR);
+#endif
 }
 
 
