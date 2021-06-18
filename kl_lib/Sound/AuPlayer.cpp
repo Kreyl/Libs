@@ -133,6 +133,12 @@ void AuPlayer_t::IPrepareToPlayNext(const char* AFName, PlayMode_t AMode) {
                 EvtQAudio.SendNowOrExit(EvtMsgAudio_t(aevtOnSoundSwitch));
             }
         }
+        else {
+            Printf("File %S is not supported\r", AFName);
+            EvtQMain.SendNowOrExit(EvtMsg_t(evtIdAudioPlayEnd));
+            // Wake waiting thread if any
+            chThdResume(&ThdRef, MSG_OK);   // NotNull check performed inside chThdResume
+        }
     }
     else {
         Printf("Open %S failed\r", AFName);
