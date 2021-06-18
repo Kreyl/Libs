@@ -13,11 +13,15 @@
                               (((x) & 0xff) << 24)))
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define htole16(x) ((uint16_t)(x))
 #define le16toh(x) ((uint16_t)(x))
+#define htole32(x) ((uint32_t)(x))
 #define le32toh(x) ((uint32_t)(x))
 #else
 #define le16toh(x) ((uint16_t)(swap16(x)))
+#define htole16(x) ((uint16_t)(swap16(x)))
 #define le32toh(x) ((uint32_t)(swap32(x)))
+#define htole32(x) ((uint32_t)(swap32(x)))
 #endif
 #endif
 
@@ -124,6 +128,11 @@ bool WavReader::open(void *file_context,
     case static_cast<uint16_t>(Format::Pcm):
         format_ = Format::Pcm;
         break;
+#ifdef HAS_IEEE_FLOAT
+    case static_cast<uint16_t>(Format::IeeeFloat):
+        format_ = Format::IeeeFloat;
+        break;
+#endif
     default:
         return false;
     }
@@ -164,29 +173,21 @@ bool WavReader::open(void *file_context,
 
     block_alignment_ = block_alignment;
 
-    if (format_ == Format::Pcm) {
-        uint16_t bits_per_sample;
+    uint16_t bits_per_sample;
 
-        if (!readU16(&bits_per_sample)) {
-            return false;
-        }
-
-        bits_per_sample_ = bits_per_sample;
-
-        frame_size_ = block_alignment_;
-
-        if (frame_size_ > MAX_FRAME_SIZE) {
-            return false;
-        }
-
-        channel_size_ = frame_size_ / channels_;
-    } else {
-        bits_per_sample_ = 0;
-
-        frame_size_ = 0;
-
-        channel_size_ = 0;
+    if (!readU16(&bits_per_sample)) {
+        return false;
     }
+
+    bits_per_sample_ = bits_per_sample;
+
+    frame_size_ = block_alignment_;
+
+    if (frame_size_ > MAX_FRAME_SIZE) {
+        return false;
+    }
+
+    channel_size_ = frame_size_ / channels_;
 
     while (true) {
         if (!seek(next_chunk_offset)) {
@@ -391,12 +392,54 @@ inline size_t WavReader::decodeNextFrames(size_t frames)
     switch (format_) {
     case Format::Pcm:
         return decodeNextPcmFrames(frames);
+#ifdef HAS_IEEE_FLOAT
+    case Format::IeeeFloat:
+        return decodeNextIeeeFloatFrames(frames);
+#endif
     }
 
     return 0;
 }
 
 size_t WavReader::decodeNextPcmFrames(size_t frames)
+{
+    return retrieveNextFrames(frames);
+}
+
+#ifdef HAS_IEEE_FLOAT
+size_t WavReader::decodeNextIeeeFloatFrames(size_t frames)
+{
+    frames = retrieveNextFrames(frames);
+
+    if (channel_size_ == 4) {
+        uint8_t *sample_pointer = current_frame_;
+
+        for (size_t frame_index = 0; frame_index < frames; frame_index++) {
+            for (unsigned int channel = 0; channel < channels_; channel++) {
+                float value;
+                memcpy(&value, sample_pointer, 4);
+
+                if (value > 1.0f) {
+                    value = 1.0f;
+                } else if (value < -1.0f) {
+                    value = -1.0f;
+                }
+
+                int32_t sample = htole32(static_cast<int32_t>(value * INT32_MAX));
+                memcpy(sample_pointer, &sample, 4);
+
+                sample_pointer += channel_size_;
+            }
+        }
+    } else {
+        memset(current_frame_, 0, frames * frame_size_);
+    }
+
+    return frames;
+}
+#endif
+
+size_t WavReader::retrieveNextFrames(size_t frames)
 {
     if (!prepareCurrentChunk()) {
         return 0;
