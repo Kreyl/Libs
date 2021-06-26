@@ -1,0 +1,21 @@
+(footprint "BAT_CONTACT_3X0d5" (version 20210228) (generator pcbnew) (layer "F.Cu")
+  (tedit 60D26134)
+  (fp_text reference "REF**" (at 0 -0.5 unlocked) (layer "F.SilkS") hide
+    (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 17aa5265-d473-4658-b34d-6b80de1ce324)
+  )
+  (fp_text value "BAT_CONTACT_3X0d5" (at 0 1 unlocked) (layer "F.Fab") hide
+    (effects (font (size 0.6 0.6) (thickness 0.15)))
+    (tstamp b9caf220-8028-468d-b95e-75451d7399dc)
+  )
+  (fp_text user "${REF}" (at 0 2.5 unlocked) (layer "F.Fab") hide
+    (effects (font (size 0.6 0.6) (thickness 0.15)))
+    (tstamp 3b1ce2b3-35ae-42e3-8a1d-8ec2432340bc)
+  )
+  (fp_line (start 0.3 5) (end -0.3 5) (layer "F.SilkS") (width 0.15) (tstamp 064ff581-d686-40dd-8963-b5cbdbfffd09))
+  (fp_line (start -0.3 0) (end -0.3 -5) (layer "F.SilkS") (width 0.15) (tstamp 18d34476-8db9-4983-acbd-c14b7cb9647c))
+  (fp_line (start 0.3 -5) (end 0.3 5) (layer "F.SilkS") (width 0.15) (tstamp 6cc14b29-54d7-46b2-98f8-e2ed55b3aa3d))
+  (fp_line (start -0.3 5) (end -0.3 0) (layer "F.SilkS") (width 0.15) (tstamp 71e68c25-ab06-4506-9800-5a0f273106b7))
+  (fp_line (start -0.3 -5) (end 0.3 -5) (layer "F.SilkS") (width 0.15) (tstamp 9731cf7b-7cf7-44c4-896b-736db787f9bb))
+  (pad "1" thru_hole oval (at 0 0) (size 1.2 4) (drill oval 0.5 3.2) (layers *.Cu *.Mask) (tstamp 2c1f9811-98ed-4e47-bdfe-9e3528ca81bd))
+)
