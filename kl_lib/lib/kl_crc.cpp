@@ -7,7 +7,6 @@
 
 #include "kl_crc.h"
 #include "shell.h"
-#include "board.h"
 
 namespace Crc {
 
@@ -39,6 +38,13 @@ uint16_t CalculateCRC16(uint8_t *Buf, uint32_t Len) {
 }
 
 uint16_t CalculateCRC16HW(uint8_t *Buf, uint32_t Len) {
+    StartHW();
+    // Calculate
+    while(Len--) *(volatile uint8_t*)&CRC->DR = *Buf++;
+    return CRC->DR;
+}
+
+void StartHW() {
     // Init HW
 #if defined STM32L4XX
     rccEnableCRC(FALSE);
@@ -48,14 +54,19 @@ uint16_t CalculateCRC16HW(uint8_t *Buf, uint32_t Len) {
     CRC->CR = (0b01 << 3); // poly sz = 16
     CRC->INIT = CRC_INITVALUE;
     CRC->POL = CRC_POLY;
-    // Calculate
-    while(Len--) *(volatile uint8_t*)&CRC->DR = *Buf++;
+}
+
+void AppendHW(uint8_t b) {
+    *(volatile uint8_t*)&CRC->DR = b;
+}
+
+uint16_t Get() {
     return CRC->DR;
 }
 
 #if defined STM32L4XX
 const stm32_dma_stream_t *PDma;
-#define CRC_DMA_MODE (STM32_DMA_CR_CHSEL(CRC_DMA_CHNL) | DMA_PRIORITY_HIGH | \
+#define CRC_DMA_MODE (STM32_DMA_CR_CHSEL(1) | DMA_PRIORITY_HIGH | \
         STM32_DMA_CR_MSIZE_BYTE | STM32_DMA_CR_PSIZE_BYTE | STM32_DMA_CR_PINC |\
         STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_EN)
 
@@ -64,7 +75,7 @@ void InitHWDMA() {
     CRC->CR = (0b01 << 3); // poly sz = 16
     CRC->INIT = CRC_INITVALUE;
     CRC->POL = 4129;
-    PDma = dmaStreamAlloc(CRC_DMA, IRQ_PRIO_LOW, nullptr, nullptr);
+    PDma = dmaStreamAlloc(STM32_DMA_STREAM_ID(1, 1), IRQ_PRIO_LOW, nullptr, nullptr);
 }
 
 uint16_t CalculateCRC16HWDMA(uint8_t *Buf, uint32_t Len) {

@@ -72,7 +72,7 @@ void AuPlayer_t::ITask() {
     while(true) {
         EvtMsgAudio_t Msg = EvtQAudio.Fetch(TIME_INFINITE);
         if(!SD.IsReady) {
-            EvtQMain.SendNowOrExit(EvtMsg_t(evtIdevtIdAudioPlayEnd));
+            EvtQMain.SendNowOrExit(EvtMsg_t(evtIdAudioPlayEnd));
             continue;
         }
         switch(Msg.ID) {
@@ -85,7 +85,7 @@ void AuPlayer_t::ITask() {
                     while(Codec.IsTransmitting()) chThdSleepMilliseconds(1);
 //                    Codec.Stop();
 
-                    EvtQMain.SendNowOrExit(EvtMsg_t(evtIdevtIdAudioPlayEnd));
+                    EvtQMain.SendNowOrExit(EvtMsg_t(evtIdAudioPlayEnd));
                     // Wake waiting thread if any
                     chThdResume(&ThdRef, MSG_OK);   // NotNull check performed inside chThdResume
                 }
@@ -133,16 +133,23 @@ void AuPlayer_t::IPrepareToPlayNext(const char* AFName, PlayMode_t AMode) {
                 EvtQAudio.SendNowOrExit(EvtMsgAudio_t(aevtOnSoundSwitch));
             }
         }
+        else {
+            Printf("File %S is not supported\r", AFName);
+            EvtQMain.SendNowOrExit(EvtMsg_t(evtIdAudioPlayEnd));
+            // Wake waiting thread if any
+            chThdResume(&ThdRef, MSG_OK);   // NotNull check performed inside chThdResume
+        }
     }
     else {
         Printf("Open %S failed\r", AFName);
-        EvtQMain.SendNowOrExit(EvtMsg_t(evtIdevtIdAudioPlayEnd));
+        EvtQMain.SendNowOrExit(EvtMsg_t(evtIdAudioPlayEnd));
         // Wake waiting thread if any
         chThdResume(&ThdRef, MSG_OK);   // NotNull check performed inside chThdResume
     }
 }
 
 void AuPlayer_t::Play(const char* AFName, PlayMode_t Mode) {
+    Printf("Play %S\r", AFName);
     Codec.SaiDmaCallbackI = IDmaSAITxIrq;
     if(AFName == nullptr) return;
     EvtMsgAudio_t Msg(aevtPlay, (char*)AFName, Mode);
@@ -174,7 +181,11 @@ void AuPlayer_t::ISwitchSnds() {
 
 
 void FSound_t::FadeOut() {
-    Track.stop(AudioTrack::Fade::CosineOut, 540);
+#ifdef HAS_COSINE_TABLE
+    Track.stop(AudioTrack::Fade::CosineOut, START_STOP_FADE_DUR);
+#else
+    Track.stop(AudioTrack::Fade::LinearOut, START_STOP_FADE_DUR);
+#endif
 }
 
 

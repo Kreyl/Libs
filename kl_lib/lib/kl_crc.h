@@ -19,6 +19,10 @@ namespace Crc {
 uint16_t CalculateCRC16(uint8_t *Buf, uint32_t Len);
 uint16_t CalculateCRC16HW(uint8_t *Buf, uint32_t Len);
 
+void StartHW();
+void AppendHW(uint8_t b);
+uint16_t Get();
+
 void InitHWDMA();
 uint16_t CalculateCRC16HWDMA(uint8_t *Buf, uint32_t Len);
 
