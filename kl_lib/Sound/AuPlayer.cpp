@@ -121,6 +121,7 @@ void AuPlayer_t::Init() {
 void AuPlayer_t::IPrepareToPlayNext(const char* AFName, PlayMode_t AMode) {
     if(INextSnd->TryOpenFile(AFName) == retvOk) {
         if(INextSnd->Start(AMode) == retvOk) {
+            Printf("Play %S\r", AFName);
             INextSnd->IsSoundFx = true;
             // Fill both buffers
             INextSnd->ReadToBuf(&INextSnd->Buf1);
@@ -149,7 +150,6 @@ void AuPlayer_t::IPrepareToPlayNext(const char* AFName, PlayMode_t AMode) {
 }
 
 void AuPlayer_t::Play(const char* AFName, PlayMode_t Mode) {
-    Printf("Play %S\r", AFName);
     Codec.SaiDmaCallbackI = IDmaSAITxIrq;
     if(AFName == nullptr) return;
     EvtMsgAudio_t Msg(aevtPlay, (char*)AFName, Mode);
