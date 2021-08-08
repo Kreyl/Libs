@@ -35,6 +35,8 @@ enum AdcSampleTime_t {
     ast640d5Cycles  = 7
 };
 
+enum VRefVoltage_t {vrefvDisabled, vrefv2048, vrefv2500};
+
 struct AdcChannel_t {
     GPIO_TypeDef *GPIO;
     uint32_t Pin;
@@ -42,6 +44,7 @@ struct AdcChannel_t {
 };
 
 struct AdcSetup_t {
+    VRefVoltage_t VRefVoltage;
     uint32_t SampleTime;
     enum Oversampling_t : uint32_t {
         oversmpDis = 0,
@@ -54,35 +57,36 @@ struct AdcSetup_t {
         oversmp128 = ((0b0111UL << 5) | (0b110UL << 2) | ADC_CFGR2_ROVSE),
         oversmp256 = ((0b1000UL << 5) | (0b111UL << 2) | ADC_CFGR2_ROVSE)
     } Oversampling;
-    ftVoidVoid DoneCallback;
+    ftVoidVoid DoneCallbackI;
     std::vector<AdcChannel_t> Channels;
 };
 
 typedef std::vector<uint16_t> AdcBuf_t;
 
-class Adc_t {
+class InnAdc_t {
 private:
     const stm32_dma_stream_t *PDma;
     AdcBuf_t IBuf1, IBuf2, *PBufW = &IBuf1, *PBufR = &IBuf2;
     void SetSequenceLength(uint32_t ALen);
     void SetChannelSampleTime(uint32_t AChnl, uint32_t ASampleTime);
     void SetSequenceItem(uint8_t SeqIndx, uint32_t AChnl);
-    ftVoidVoid ICallback = nullptr;
+    ftVoidVoid ICallbackI = nullptr;
     void DisableCalibrateEnableSetDMA(); // Service routine
+    void DisableVrefBuf();
 public:
     AdcBuf_t& GetBuf() { return *PBufR; }
     void Init(const AdcSetup_t& Setup);
     void Deinit();
-    void EnableVref();
-    void DisableVref();
+    void ConnectVref();
+    void DisconnectVref();
     void StartSingleMeasurement();
     void StartPeriodicMeasurement(uint32_t FSmpHz);
-//    uint32_t Adc2mV(uint32_t AdcChValue, uint32_t VrefValue);
+    uint32_t Adc2mV(uint32_t AdcChValue, uint32_t VrefValue);
 //    uint32_t GetResult(uint8_t AChannel);
     // Inner use
-    void IOnDmaIrq();
+    void IOnDmaIrqI();
 };
 
-extern Adc_t Adc;
+extern InnAdc_t InnAdc;
 
 #endif // ADC_REQUIRED

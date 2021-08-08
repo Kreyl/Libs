@@ -1,7 +1,7 @@
 /*
  * adc_f2.cpp
  *
- *  Created on: 25 àâã. 2013 ã.
+ *  Created on: 25 ï¿½ï¿½ï¿½. 2013 ï¿½.
  *      Author: kreyl
  */
 
@@ -12,7 +12,7 @@
 
 #if ADC_REQUIRED
 
-Adc_t Adc;
+InnAdc_t InnAdc;
 
 static const Timer_t ITmr(ADC_TIM);
 
@@ -20,11 +20,11 @@ static const Timer_t ITmr(ADC_TIM);
 extern "C"
 void AdcTxIrq(void *p, uint32_t flags) {
     chSysLockFromISR();
-    Adc.IOnDmaIrq();
+    InnAdc.IOnDmaIrqI();
     chSysUnlockFromISR();
 }
 
-void Adc_t::IOnDmaIrq() {
+void InnAdc_t::IOnDmaIrqI() {
     dmaStreamDisable(PDma);
     // Switch buffers
     if(PBufW == &IBuf1) { PBufW = &IBuf2; PBufR = &IBuf1; }
@@ -37,18 +37,30 @@ void Adc_t::IOnDmaIrq() {
         dmaStreamEnable(PDma);
     }
     // Signal event
-    if(ICallback != nullptr) ICallback();
+    if(ICallbackI != nullptr) ICallbackI();
 }
 
-void Adc_t::Init(const AdcSetup_t& Setup) {
+void InnAdc_t::Init(const AdcSetup_t& Setup) {
     rccEnableADC123(FALSE);      // Enable AHB clock
     // Power-on ADC, exit deep power-down mode
     ADC1->CR &= ~(ADC_CR_DEEPPWD | ADC_CR_ADCAL | ADC_CR_JADSTP | ADC_CR_ADSTP | ADC_CR_JADSTART | ADC_CR_ADSTART | ADC_CR_ADDIS | ADC_CR_ADEN);
     ADC1->CR |= ADC_CR_ADVREGEN; // Enable ADC internal voltage regulator
-    chThdSleepMicroseconds(20);
     // Setup clock
     ADC123_COMMON->CCR = 0b0000UL << 18; // Prescaler = 1
-    EnableVref();
+    // Enable VrefBuf if needed
+    switch(Setup.VRefVoltage) {
+        case vrefvDisabled: break;
+        case vrefv2048:
+            rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, TRUE); // Needed to control VRefBuf for inner ADC
+            VREFBUF->CSR = VREFBUF_CSR_ENVR; // VRS=0 => 2048; HiZ=0 => connected
+            break;
+        case vrefv2500:
+            rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, TRUE); // Needed to control VRefBuf for inner ADC
+            VREFBUF->CSR = VREFBUF_CSR_VRS | VREFBUF_CSR_ENVR; // VRS=1 => 2500; HiZ=0 => connected
+            break;
+    }
+    ConnectVref();
+    chThdSleepMilliseconds(27);
     // Enable: allowed to write them only if the ADC is enabled
     SET_BIT(ADC1->ISR, ADC_ISR_ADRDY);  // Clear ADRDY bit by writing 1 to it
     SET_BIT(ADC1->CR, ADC_CR_ADEN);     // Enable ADC
@@ -66,12 +78,14 @@ void Adc_t::Init(const AdcSetup_t& Setup) {
     SetSequenceLength(ChnlCnt);
     for(uint32_t i=0; i<ChnlCnt; i++) {
         const AdcChannel_t& Chnl = Setup.Channels[i];
-        PinSetupAnalog(Chnl.GPIO, Chnl.Pin);
-        PinConnectAdc(Chnl.GPIO, Chnl.Pin);
+        if(Chnl.GPIO != nullptr) {
+            PinSetupAnalog(Chnl.GPIO, Chnl.Pin);
+            PinConnectAdc(Chnl.GPIO, Chnl.Pin);
+        }
         SetChannelSampleTime(Chnl.ChannelN, Setup.SampleTime);
         SetSequenceItem(i+1, Chnl.ChannelN);   // First sequence item is 1, not 0
     }
-    ICallback = Setup.DoneCallback;
+    ICallbackI = Setup.DoneCallbackI;
 
     // ==== DMA ====
     PDma = dmaStreamAlloc(ADC_DMA, IRQ_PRIO_MEDIUM, AdcTxIrq, nullptr);
@@ -103,22 +117,24 @@ static inline void StartConversion() {
     ADC1->CR |= ADC_CR_ADSTART;
 }
 
-void Adc_t::Deinit() {
+void InnAdc_t::Deinit() {
     StopAndDisable();
     ITmr.Deinit();
-    DisableVref();
+    DisconnectVref();
+    DisableVrefBuf();
     rccDisableADC123(); // Disable clock
 }
 
-void Adc_t::EnableVref()  { ADC123_COMMON->CCR |= ADC_CCR_VREFEN; }
-void Adc_t::DisableVref() { ADC123_COMMON->CCR &= ADC_CCR_VREFEN; }
+void InnAdc_t::ConnectVref()    { ADC123_COMMON->CCR |= ADC_CCR_VREFEN; }
+void InnAdc_t::DisconnectVref() { ADC123_COMMON->CCR &= ADC_CCR_VREFEN; }
+void InnAdc_t::DisableVrefBuf() { VREFBUF->CSR = VREFBUF_CSR_HIZ; } // VRef dis, HiZ en
 
-void Adc_t::SetSequenceLength(uint32_t ALen) {
+void InnAdc_t::SetSequenceLength(uint32_t ALen) {
     ADC1->SQR1 &= ~ADC_SQR1_L;  // Clear count
     ADC1->SQR1 |= (ALen - 1);   // 0000: 1 conversion; 0001: 2 conversions...
 }
 
-void Adc_t::SetChannelSampleTime(uint32_t AChnl, uint32_t ASampleTime) {
+void InnAdc_t::SetChannelSampleTime(uint32_t AChnl, uint32_t ASampleTime) {
     uint32_t Offset;
     if(AChnl <= 9) { // [0; 9]
         Offset = AChnl * 3;
@@ -134,7 +150,7 @@ void Adc_t::SetChannelSampleTime(uint32_t AChnl, uint32_t ASampleTime) {
     }
 }
 
-void Adc_t::SetSequenceItem(uint8_t SeqIndx, uint32_t AChnl) {
+void InnAdc_t::SetSequenceItem(uint8_t SeqIndx, uint32_t AChnl) {
     uint32_t Offset;
     if(SeqIndx <= 4) {          // SQR1: [1; 4]
         Offset = SeqIndx * 6;   // 1,2,3,4 => 6,12,18,24
@@ -159,7 +175,7 @@ void Adc_t::SetSequenceItem(uint8_t SeqIndx, uint32_t AChnl) {
 }
 
 // Service routine
-void Adc_t::DisableCalibrateEnableSetDMA() {
+void InnAdc_t::DisableCalibrateEnableSetDMA() {
     StopAndDisable();
     Calibrate();
     // Enable
@@ -178,13 +194,13 @@ void Adc_t::DisableCalibrateEnableSetDMA() {
 }
 
 // Start sequence conversion and run callback when done
-void Adc_t::StartSingleMeasurement() {
+void InnAdc_t::StartSingleMeasurement() {
     DisableCalibrateEnableSetDMA();
     StartConversion();
 }
 
 // Start periodic conversions, run callback every time when done
-void Adc_t::StartPeriodicMeasurement(uint32_t FSmpHz) {
+void InnAdc_t::StartPeriodicMeasurement(uint32_t FSmpHz) {
     DisableCalibrateEnableSetDMA();
     // Enable trigger
     ADC1->CFGR &= ~(0b1111UL << ADC_CFGR_EXTSEL_Pos); // Clear it
@@ -214,8 +230,8 @@ void Adc_t::StartPeriodicMeasurement(uint32_t FSmpHz) {
 
 
 
-//uint32_t Adc_t::Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
-//    return ((3000UL * ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
-//}
+uint32_t InnAdc_t::Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
+    return ((3000UL * ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
+}
 
 #endif  // ADC_REQUIRED
