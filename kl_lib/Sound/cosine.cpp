@@ -4,7 +4,7 @@
 
 static const size_t POINTS = 4096;
 
-static int16_t cosine_table[POINTS + 1] = {
+static const int16_t cosine_table[POINTS + 1] = {
     32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767,
     32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767,
     32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767,

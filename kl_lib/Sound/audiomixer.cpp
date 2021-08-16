@@ -22,24 +22,27 @@ static inline int16_t saturate(int32_t value)
 #endif
 }
 
-AudioMixer::AudioMixer(WavReader::TellCallback tell_callback,
-                       WavReader::SeekCallback seek_callback,
-                       WavReader::ReadCallback read_callback,
-                       TrackEndCallback track_end_callback,
+AudioMixer::AudioMixer(TrackEndCallback track_end_callback,
                        unsigned int channels)
     : tracks_(),
+      sample_buffer_(),
       track_end_callback_(track_end_callback),
       sampling_rate_(0),
       channels_(channels),
       level_(UNIT_LEVEL)
-
 {
-    for (int track = 0; track < TRACKS; track++) {
-        tracks_[track].init(tell_callback,
-                            seek_callback,
-                            read_callback,
-                            channels);
+}
+
+bool AudioMixer::addTrack(Track *track)
+{
+    for (int slot = 0; slot < TRACK_SLOTS; slot++) {
+        if (!tracks_[slot]) {
+            tracks_[slot] = track;
+            return true;
+        }
     }
+
+    return false;
 }
 
 void AudioMixer::scale(uint16_t level)
@@ -55,13 +58,13 @@ int AudioMixer::start(void *file,
                       Mode mode,
                       bool preload,
                       uint16_t level,
-                      AudioMixer::Fade fade_mode,
+                      Fade fade_mode,
                       uint16_t fade_length_ms)
 {
-    for (int track = 0; track < TRACKS; track++) {
-        if (!tracks_[track].running()) {
-            if (start(track, file, mode, preload, level, fade_mode, fade_length_ms)) {
-                return track;
+    for (int slot = 0; slot < TRACK_SLOTS; slot++) {
+        if (tracks_[slot] && !tracks_[slot]->running()) {
+            if (start(slot, file, mode, preload, level, fade_mode, fade_length_ms)) {
+                return slot;
             }
 
             break;
@@ -71,7 +74,7 @@ int AudioMixer::start(void *file,
     return -1;
 }
 
-bool AudioMixer::start(int track,
+bool AudioMixer::start(int slot,
                        void *file,
                        Mode mode,
                        bool preload,
@@ -79,72 +82,88 @@ bool AudioMixer::start(int track,
                        Fade fade_mode,
                        uint16_t fade_length_ms)
 {
-    if (tracks_[track].running()) {
-        tracks_[track].stop();
-    }
-
-    if (!tracks_[track].start(file, mode, preload, level, fade_mode, fade_length_ms)) {
+    if (slot >= TRACK_SLOTS) {
         return false;
     }
 
-    if (tracks_[track].samplingRate() != sampling_rate_) {
-        for (int other_track = 0; other_track < TRACKS; other_track++) {
-            if (other_track != track) {
-                stop(other_track);
+    if (!tracks_[slot]) {
+        return false;
+    }
+
+    if (tracks_[slot]->running()) {
+        tracks_[slot]->stop();
+    }
+
+    if (!tracks_[slot]->start(file, mode, preload, level, fade_mode, fade_length_ms)) {
+        return false;
+    }
+
+    if (tracks_[slot]->samplingRate() != sampling_rate_) {
+        for (int other_index = 0; other_index < TRACK_SLOTS; other_index++) {
+            if (other_index != slot) {
+                stop(other_index);
             }
         }
 
-        sampling_rate_ = tracks_[track].samplingRate();
+        sampling_rate_ = tracks_[slot]->samplingRate();
     }
 
     return true;
 }
 
 void AudioMixer::fade(uint16_t level,
-                      AudioMixer::Fade fade_mode,
+                      Fade fade_mode,
                       uint16_t fade_length_ms)
 {
     if (level > MAX_LEVEL) {
         level = MAX_LEVEL;
     }
 
-    for (int track = 0; track < TRACKS; track++) {
-        fade(track, level, fade_mode, fade_length_ms);
+    for (int slot = 0; slot < TRACK_SLOTS; slot++) {
+        fade(slot, level, fade_mode, fade_length_ms);
     }
 }
 
-void AudioMixer::fade(int track,
+void AudioMixer::fade(int slot,
                       uint16_t level,
-                      AudioMixer::Fade fade_mode,
+                      Fade fade_mode,
                       uint16_t fade_length_ms)
 {
-    if (track >= TRACKS) {
+    if (slot >= TRACK_SLOTS) {
         return;
     }
 
-    if (tracks_[track].running()) {
-        tracks_[track].fade(level, fade_mode, fade_length_ms);
+    if (!tracks_[slot]) {
+        return;
+    }
+
+    if (tracks_[slot]->running()) {
+        tracks_[slot]->fade(level, fade_mode, fade_length_ms);
     }
 }
 
 void AudioMixer::stop(Fade fade_mode,
                       uint16_t fade_length_ms)
 {
-    for (int track = 0; track < TRACKS; track++) {
-        stop(track, fade_mode, fade_length_ms);
+    for (int slot = 0; slot < TRACK_SLOTS; slot++) {
+        stop(slot, fade_mode, fade_length_ms);
     }
 }
 
-void AudioMixer::stop(int track,
+void AudioMixer::stop(int slot,
                       Fade fade_mode,
                       uint16_t fade_length_ms)
 {
-    if (track >= TRACKS) {
+    if (slot >= TRACK_SLOTS) {
         return;
     }
 
-    if (tracks_[track].running()) {
-        tracks_[track].stop(fade_mode, fade_length_ms);
+    if (!tracks_[slot]) {
+        return;
+    }
+
+    if (tracks_[slot]->running()) {
+        tracks_[slot]->stop(fade_mode, fade_length_ms);
     }
 }
 
@@ -170,12 +189,12 @@ size_t AudioMixer::play(int16_t *buffer, size_t frames)
 
         memset(sample_buffer_, 0, batch_size);
 
-        for (int track = 0; track < TRACKS; track++) {
-            if (tracks_[track].running()) {
-                size_t track_frames = tracks_[track].play(buffer, batch_frames);
+        for (int slot = 0; slot < TRACK_SLOTS; slot++) {
+            if (tracks_[slot] && tracks_[slot]->running()) {
+                size_t track_frames = tracks_[slot]->play(buffer, batch_frames);
                 if (track_frames < 1) {
-                    tracks_[track].stop();
-                    track_end_callback_(track);
+                    tracks_[slot]->stop();
+                    track_end_callback_(slot);
                     continue;
                 }
 

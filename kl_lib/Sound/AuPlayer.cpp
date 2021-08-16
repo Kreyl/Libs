@@ -110,6 +110,8 @@ void AuPlayer_t::IPlayNext(const char* AFName, PlayMode_t AMode) {
 }
 
 void AuPlayer_t::Init() {
+    ISnd1.Init();
+    ISnd2.Init();
 #ifdef DBG_PINS
     PinSetupOut(DBG_GPIO1, DBG_PIN1, omPushPull);
 #endif    // Init radioIC

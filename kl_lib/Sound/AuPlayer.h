@@ -10,6 +10,7 @@
 #include "kl_lib.h"
 #include "ff.h"
 #include "CS42L52.h"
+#include "wavreader.h"
 #include "audiotrack.h"
 #include "kl_fs_utils.h"
 
@@ -33,9 +34,13 @@ class FSound_t {
 private:
     FIL IFile;
 public:
-    AudioTrack Track {TellCallback, SeekCallback, ReadCallback, 2};
+    WavReader WavPart {TellCallback, SeekCallback, ReadCallback};
+    AudioTrack Track {2};
     SndBuf_t Buf1, Buf2;
     bool IsSoundFx = false;
+    void Init() {
+        Track.addReader(&WavPart);
+    }
     uint8_t Start(PlayMode_t Mode) {
         return Track.start(&IFile,
                 (Mode == spmSingle)? AudioTrack::Mode::Single : AudioTrack::Mode::Continuous,

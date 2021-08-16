@@ -3,14 +3,12 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "wavreader.h"
-
-#define HAS_COSINE_TABLE
+#include "audioreader.h"
 
 class AudioTrack
 {
 public:
-    typedef WavReader::Mode Mode;
+    typedef AudioReader::Mode Mode;
 
     enum class Fade
     {
@@ -25,6 +23,8 @@ public:
 #endif
     };
 
+    static const int READER_SLOTS = 2;
+
     static const uint8_t UNIT_LEVEL_SHIFT = 12;
     static const uint16_t UNIT_LEVEL = 1 << UNIT_LEVEL_SHIFT;
 
@@ -34,17 +34,9 @@ public:
     static const unsigned int MAX_TRACK_CHANNELS = 2;
 
 public:
-    AudioTrack();
+    AudioTrack(unsigned int channels);
 
-    AudioTrack(WavReader::TellCallback tell_callback,
-               WavReader::SeekCallback seek_callback,
-               WavReader::ReadCallback read_callback,
-               unsigned int channels);
-
-    void init(WavReader::TellCallback tell_callback,
-              WavReader::SeekCallback seek_callback,
-              WavReader::ReadCallback read_callback,
-              unsigned int channels);
+    bool addReader(AudioReader *reader);
 
     bool start(void *file,
                Mode mode,
@@ -76,7 +68,12 @@ public:
 
     Mode mode()
     {
-        return reader_.mode();
+        return reader_ ? reader_->mode() : Mode::Single;
+    }
+
+    unsigned long samplingRate()
+    {
+        return reader_ ? reader_->samplingRate() : 0;
     }
 
     unsigned int channels()
@@ -84,13 +81,10 @@ public:
         return channels_;
     }
 
-    unsigned long samplingRate()
-    {
-        return reader_.samplingRate();
-    }
-
 private:
-    bool initialized_;
+    AudioReader *readers_[READER_SLOTS];
+    AudioReader *reader_;
+    void *file_;
 
     unsigned int channels_;
     unsigned int upmixing_;
@@ -107,9 +101,6 @@ private:
 
     uint16_t initial_level_;
     uint16_t final_level_;
-
-    WavReader reader_;
-    void *file_;
 
     bool running_;
     bool stopping_;

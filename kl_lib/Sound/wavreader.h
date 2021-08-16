@@ -3,27 +3,20 @@
 #include <cstddef>
 #include <cstdint>
 
+#include "audioreader.h"
+
 #define HAS_IEEE_FLOAT
 
 #ifndef WAVREADER_BUFFER_SIZE
 #define WAVREADER_BUFFER_SIZE 2048
 #endif
 
-class WavReader
+class WavReader : public AudioReader
 {
 public:
-    typedef size_t (*TellCallback)(void *file_context);
-    typedef bool (*SeekCallback)(void *file_context, size_t offset);
-    typedef size_t (*ReadCallback)(void *file_context, uint8_t *buffer, size_t length);
-
-    enum class Mode
-    {
-        Single,
-        Continuous,
-    };
-
     enum class Format : unsigned int
     {
+        Unknown = 0,
         Pcm = 1,
 #ifdef HAS_IEEE_FLOAT
         IeeeFloat = 3,
@@ -39,43 +32,19 @@ public:
               SeekCallback seek_callback,
               ReadCallback read_callback);
 
-    void init(TellCallback tell_callback,
-              SeekCallback seek_callback,
-              ReadCallback read_callback);
-
-    bool open(void *file_context,
+    bool open(void *file,
               Mode mode = Mode::Single,
-              bool preload = true);
+              bool preload = true) override;
 
-    void close();
+    void close() override;
 
-    void rewind(bool preload = true);
+    void rewind(bool preload = true) override;
 
-    size_t decodeToI16(int16_t *buffer, size_t frames, unsigned int upmixing = 1);
-
-    bool opened()
-    {
-        return opened_;
-    }
-
-    Mode mode()
-    {
-        return mode_;
-    }
+    size_t decodeToI16(int16_t *buffer, size_t frames, unsigned int upmixing = 1) override;
 
     Format format()
     {
         return format_;
-    }
-
-    unsigned int channels()
-    {
-        return channels_;
-    }
-
-    unsigned long samplingRate()
-    {
-        return sampling_rate_;
     }
 
     unsigned long bytesPerSecond()
@@ -83,19 +52,14 @@ public:
         return bytes_per_second_;
     }
 
-    size_t blockAlignment()
-    {
-        return block_alignment_;
-    }
-
     unsigned int bitsPerSample()
     {
         return bits_per_sample_;
     }
 
-    size_t frameSize()
+    size_t blockAlignment()
     {
-        return frame_size_;
+        return block_alignment_;
     }
 
 private:
@@ -120,24 +84,12 @@ private:
     size_t prefetchNextFrames();
 
 private:
-    bool opened_;
-
-    Mode mode_;
-
-    void *file_context_;
-
-    TellCallback tell_callback_;
-    SeekCallback seek_callback_;
-    ReadCallback read_callback_;
-
     size_t file_size_;
 
     Format format_;
-    unsigned int channels_;
-    unsigned long sampling_rate_;
     unsigned long bytes_per_second_;
-    size_t block_alignment_;
     unsigned int bits_per_sample_;
+    size_t block_alignment_;
     size_t frame_size_;
     size_t channel_size_;
 

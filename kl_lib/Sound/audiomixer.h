@@ -12,7 +12,7 @@
 class AudioMixer
 {
 public:
-    typedef void (*TrackEndCallback)(int track);
+    typedef void (*TrackEndCallback)(int slot);
 
     typedef AudioTrack Track;
 
@@ -20,20 +20,19 @@ public:
 
     typedef AudioTrack::Fade Fade;
 
+    static const int TRACK_SLOTS = 4;
+
     static const uint16_t UNIT_LEVEL = AudioTrack::UNIT_LEVEL;
 
     static const uint16_t MAX_LEVEL = AudioTrack::MAX_LEVEL;
 
-    static const int TRACKS = 5;
-
     static const size_t AUDIOMIXER_BUFFER_LENGTH = AUDIOMIXER_BUFFER_SIZE / 4;
 
 public:
-    AudioMixer(WavReader::TellCallback tell_callback,
-               WavReader::SeekCallback seek_callback,
-               WavReader::ReadCallback read_callback,
-               TrackEndCallback track_end_callback,
+    AudioMixer(TrackEndCallback track_end_callback,
                unsigned int channels);
+
+    bool addTrack(Track *track);
 
     void scale(uint16_t level);
 
@@ -44,7 +43,7 @@ public:
               Fade fade_mode = Fade::None,
               uint16_t fade_length_ms = 0);
 
-    bool start(int track,
+    bool start(int slot,
                void *file,
                Mode mode,
                bool preload = true,
@@ -56,7 +55,7 @@ public:
               Fade fade_mode = Fade::None,
               uint16_t fade_length_ms = 0);
 
-    void fade(int track,
+    void fade(int slot,
               uint16_t level,
               Fade fade_mode = Fade::None,
               uint16_t fade_length_ms = 0);
@@ -64,7 +63,7 @@ public:
     void stop(Fade fade_mode = Fade::None,
               uint16_t fade_length_ms = 0);
 
-    void stop(int track,
+    void stop(int slot,
               Fade fade_mode = Fade::None,
               uint16_t fade_length_ms = 0);
 
@@ -72,20 +71,20 @@ public:
 
     size_t play(int16_t *buffer, size_t frames);
 
-    unsigned int channels()
-    {
-        return channels_;
-    }
-
     unsigned long samplingRate()
     {
         return sampling_rate_;
     }
 
-private:
-    int32_t sample_buffer_[AUDIOMIXER_BUFFER_LENGTH];
+    unsigned int channels()
+    {
+        return channels_;
+    }
 
-    Track tracks_[TRACKS];
+private:
+    Track *tracks_[TRACK_SLOTS];
+
+    int32_t sample_buffer_[AUDIOMIXER_BUFFER_LENGTH];
 
     TrackEndCallback track_end_callback_;
 

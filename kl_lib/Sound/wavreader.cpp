@@ -28,24 +28,30 @@
 WavReader::WavReader(TellCallback tell_callback,
                      SeekCallback seek_callback,
                      ReadCallback read_callback)
-    : opened_(false),
-      tell_callback_(tell_callback),
-      seek_callback_(seek_callback),
-      read_callback_(read_callback)
+    : AudioReader(tell_callback,
+                  seek_callback,
+                  read_callback),
+      file_size_(0),
+      format_(Format::Unknown),
+      bytes_per_second_(0),
+      bits_per_sample_(0),
+      block_alignment_(0),
+      frame_size_(0),
+      channel_size_(0),
+      initial_data_chunk_offset_(0),
+      final_data_chunk_offset_(0),
+      next_data_chunk_offset_(0),
+      current_data_chunk_frames_(0),
+      frame_buffer_(),
+      prefetched_frames_(0),
+      current_frame_(nullptr),
+      next_frame_(nullptr),
+      silence_(false)
 {
 }
 
-void WavReader::init(WavReader::TellCallback tell_callback,
-                     WavReader::SeekCallback seek_callback,
-                     WavReader::ReadCallback read_callback)
-{
-    tell_callback_ = tell_callback;
-    seek_callback_ = seek_callback;
-    read_callback_ = read_callback;
-}
-
-bool WavReader::open(void *file_context,
-                     WavReader::Mode mode,
+bool WavReader::open(void *file,
+                     Mode mode,
                      bool preload)
 {
     char chunk_id[4];
@@ -54,7 +60,7 @@ bool WavReader::open(void *file_context,
 
     opened_ = false;
 
-    file_context_ = file_context;
+    file_ = file;
 
     mode_ = mode;
 
@@ -340,17 +346,17 @@ size_t WavReader::decodeToI16(int16_t *buffer, size_t frames, unsigned int upmix
 
 inline size_t WavReader::tell()
 {
-    return tell_callback_(file_context_);
+    return tell_callback_(file_);
 }
 
 inline bool WavReader::seek(size_t offset)
 {
-    return seek_callback_(file_context_, offset);
+    return seek_callback_(file_, offset);
 }
 
 inline size_t WavReader::read(uint8_t *buffer, size_t length)
 {
-    return read_callback_(file_context_, buffer, length);
+    return read_callback_(file_, buffer, length);
 }
 
 inline bool WavReader::readU16(uint16_t *value)
@@ -396,6 +402,8 @@ inline size_t WavReader::decodeNextFrames(size_t frames)
     case Format::IeeeFloat:
         return decodeNextIeeeFloatFrames(frames);
 #endif
+    default:
+        return 0;
     }
 
     return 0;
@@ -416,7 +424,9 @@ size_t WavReader::decodeNextIeeeFloatFrames(size_t frames)
 
         for (size_t frame_index = 0; frame_index < frames; frame_index++) {
             for (unsigned int channel = 0; channel < channels_; channel++) {
+                int32_t sample;
                 float value;
+
                 memcpy(&value, sample_pointer, 4);
 
                 if (value > 1.0f) {
@@ -425,7 +435,9 @@ size_t WavReader::decodeNextIeeeFloatFrames(size_t frames)
                     value = -1.0f;
                 }
 
-                int32_t sample = htole32(static_cast<int32_t>(value * INT32_MAX));
+                value *= static_cast<float>(INT32_MAX - 127);
+                sample = htole32(static_cast<int32_t>(value));
+
                 memcpy(sample_pointer, &sample, 4);
 
                 sample_pointer += channel_size_;

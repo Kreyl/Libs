@@ -25,30 +25,10 @@ static inline int16_t saturate(int32_t value)
 #include "cosine.h"
 #endif
 
-AudioTrack::AudioTrack()
-    : initialized_(false),
-      channels_(0),
-      upmixing_(1),
-      frames_per_ms_(0),
-      level_(UNIT_LEVEL),
-      fade_mode_(Fade::None),
-      fade_length_ms_(0),
-      fade_length_(0),
-      fade_progress_(0),
-      initial_level_(0),
-      final_level_(0),
-      reader_(nullptr, nullptr, nullptr),
+AudioTrack::AudioTrack(unsigned int channels)
+    : readers_(),
+      reader_(nullptr),
       file_(nullptr),
-      running_(false),
-      stopping_(false)
-{
-}
-
-AudioTrack::AudioTrack(WavReader::TellCallback tell_callback,
-                       WavReader::SeekCallback seek_callback,
-                       WavReader::ReadCallback read_callback,
-                       unsigned int channels)
-    : initialized_(true),
       channels_(channels),
       upmixing_(1),
       frames_per_ms_(0),
@@ -59,61 +39,66 @@ AudioTrack::AudioTrack(WavReader::TellCallback tell_callback,
       fade_progress_(0),
       initial_level_(0),
       final_level_(0),
-      reader_(tell_callback, seek_callback, read_callback),
-      file_(nullptr),
       running_(false),
       stopping_(false)
 {
 }
 
-void AudioTrack::init(WavReader::TellCallback tell_callback,
-                      WavReader::SeekCallback seek_callback,
-                      WavReader::ReadCallback read_callback,
-                      unsigned int channels)
+bool AudioTrack::addReader(AudioReader *reader)
 {
-    reader_.init(tell_callback, seek_callback, read_callback);
-    channels_ = channels;
-    initialized_ = true;
+    for (int slot = 0; slot < READER_SLOTS; slot++) {
+        if (!readers_[slot]) {
+            readers_[slot] = reader;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool AudioTrack::start(void *file,
                        Mode mode,
                        bool preload,
                        uint16_t level,
-                       AudioTrack::Fade fade_mode,
+                       Fade fade_mode,
                        uint16_t fade_length_ms)
 {
-    if (!initialized_) {
-        return false;
-    }
-
     running_ = false;
     stopping_ = false;
 
-    if (!reader_.open(file, mode, preload)) {
+    reader_ = nullptr;
+
+    for (int slot = 0; slot < READER_SLOTS; slot++) {
+        if (readers_[slot] && readers_[slot]->open(file, mode, preload)) {
+            reader_ = readers_[slot];
+            break;
+        }
+    }
+
+    if (!reader_) {
         return false;
     }
 
     file_ = file;
 
-    if (reader_.channels() > MAX_TRACK_CHANNELS) {
-        reader_.close();
+    if (reader_->channels() > MAX_TRACK_CHANNELS) {
+        reader_->close();
         return false;
     }
 
-    if (reader_.channels() != channels_) {
-        if (channels_ % reader_.channels() != 0) {
-            reader_.close();
+    if (reader_->channels() != channels_) {
+        if (channels_ % reader_->channels() != 0) {
+            reader_->close();
             return false;
         }
 
-        upmixing_ = channels_ / reader_.channels();
+        upmixing_ = channels_ / reader_->channels();
     } else {
         upmixing_ = 1;
     }
 
     // Not exactly precise, but good for overflow-free conversions
-    frames_per_ms_ = static_cast<uint16_t>(reader_.samplingRate() / 1000);
+    frames_per_ms_ = static_cast<uint16_t>(reader_->samplingRate() / 1000);
 
     level_ = 0;
 
@@ -125,10 +110,10 @@ bool AudioTrack::start(void *file,
 }
 
 void AudioTrack::fade(uint16_t level,
-                      AudioTrack::Fade fade_mode,
+                      Fade fade_mode,
                       uint16_t fade_length_ms)
 {
-    if (!initialized_) {
+    if (!reader_) {
         return;
     }
 
@@ -160,10 +145,10 @@ void AudioTrack::fade(uint16_t level,
     }
 }
 
-void AudioTrack::stop(AudioTrack::Fade fade_mode,
+void AudioTrack::stop(Fade fade_mode,
                       uint16_t fade_length_ms)
 {
-    if (!initialized_) {
+    if (!reader_) {
         return;
     }
 
@@ -172,7 +157,7 @@ void AudioTrack::stop(AudioTrack::Fade fade_mode,
     if (fade_mode_ != Fade::None) {
         stopping_ = true;
     } else {
-        reader_.close();
+        reader_->close();
 
         stopping_ = false;
         running_ = false;
@@ -181,7 +166,7 @@ void AudioTrack::stop(AudioTrack::Fade fade_mode,
 
 void AudioTrack::rewind(bool preload)
 {
-    if (!initialized_) {
+    if (!reader_) {
         return;
     }
 
@@ -189,12 +174,12 @@ void AudioTrack::rewind(bool preload)
         return;
     }
 
-    reader_.rewind(preload);
+    reader_->rewind(preload);
 }
 
 size_t AudioTrack::play(int16_t *buffer, size_t frames)
 {
-    if (!initialized_) {
+    if (!reader_) {
         return 0;
     }
 
@@ -202,7 +187,7 @@ size_t AudioTrack::play(int16_t *buffer, size_t frames)
         return 0;
     }
 
-    frames = reader_.decodeToI16(buffer, frames, upmixing_);
+    frames = reader_->decodeToI16(buffer, frames, upmixing_);
     if (frames < 1) {
         stop(Fade::None, 0);
         return frames;
