@@ -1,7 +1,7 @@
 /*
  * usb_cdc.cpp
  *
- *  Created on: 03 сент. 2015 г.
+ *  Created on: 03 пїЅпїЅпїЅпїЅ. 2015 пїЅ.
  *      Author: Kreyl
  */
 
@@ -115,10 +115,10 @@ static THD_FUNCTION(ThdCDCRX, arg) {
         if(UsbCDC.IsActive()) {
             msg_t m = SDU1.vmt->get(&SDU1);
             if(m > 0) {
-//                SDU1.vmt->put(&SDU1, (uint8_t)m);   // repeat what was sent
+                // SDU1.vmt->put(&SDU1, (uint8_t)m);   // repeat what was sent
                 if(UsbCDC.Cmd.PutChar((char)m) == pdrNewCmd) {
                     chSysLock();
-                    EvtQMain.SendNowOrExitI(EvtMsg_t(evtIdShellCmd, (Shell_t*)&UsbCDC));
+                    EvtQMain.SendNowOrExitI(EvtMsg_t(evtIdUsbCmdRcvd, (Shell_t*)&UsbCDC));
                     chSchGoSleepS(CH_STATE_SUSPENDED); // Wait until cmd processed
                     chSysUnlock();  // Will be here when application signals that cmd processed
                 }
@@ -136,6 +136,26 @@ void UsbCDC_t::SignalCmdProcessed() {
     chSysLock();
     if(PCdcThd->state == CH_STATE_SUSPENDED) chSchReadyI(PCdcThd);
     chSysUnlock();
+}
+
+uint8_t UsbCDC_t::ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) {
+    while(SDU1.vmt->gett(&SDU1, TIME_IMMEDIATE) > 0); // Flush RX buf
+    if(SDU1.vmt->putt(&SDU1, (uint8_t)'>', TIME_MS2I(999)) == MSG_OK) {
+        return (SDU1.vmt->readt(&SDU1, ptr, Len, TIME_MS2I(Timeout_ms)) == Len)? retvOk : retvFail;
+    }
+    else return retvFail;
+}
+
+uint8_t UsbCDC_t::TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) {
+    systime_t Start = chVTGetSystemTimeX();
+    // Wait '>'
+    msg_t m = 0;
+    while(m != '>') {
+        m = SDU1.vmt->gett(&SDU1, TIME_MS2I(333));
+        if(chVTTimeElapsedSinceX(Start) > TIME_MS2I(Timeout_ms)) return retvTimeout;
+    }
+    // Transmit
+    return (SDU1.vmt->writet(&SDU1, ptr, Len, TIME_MS2I(Timeout_ms)) == Len)? retvOk : retvFail;
 }
 #endif
 

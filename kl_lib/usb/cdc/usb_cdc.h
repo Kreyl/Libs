@@ -1,7 +1,7 @@
 /*
  * usb_cdc.h
  *
- *  Created on: 03 сент. 2015 г.
+ *  Created on: 03 пїЅпїЅпїЅпїЅ. 2015 пїЅ.
  *      Author: Kreyl
  */
 
@@ -26,6 +26,8 @@ public:
         va_end(args);
     }
     void SignalCmdProcessed();
+    uint8_t ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);
+    uint8_t TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);
 };
 
 extern UsbCDC_t UsbCDC;
