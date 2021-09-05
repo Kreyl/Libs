@@ -8,8 +8,8 @@
  * higher level software.
  * There are different timings for V2 and V5. Wir verachten sie.
  */
-#define WS2812B_V2    TRUE
-//#define WS2812B_V5      TRUE
+//#define WS2812B_V2    TRUE
+#define WS2812B_V5    TRUE  // (and SK6812SIDE)
 
 /*
  * WS2812 V2 requires timings, ns: (400 + 850) +- 150 each.
@@ -27,6 +27,15 @@
  * Then, LED's 0 is 100 (333+666), LED's 1 is 1100 (666+666).
  * To simplify BitBuffer construction, using 0 as 1000 (333+999) and 1 as 1100,
  * thus 1 LED byte is 4 real bytes.
+ *
+ * SK6812-SIDE (4020) requires timings, ns:
+ * 0 is [200;400(typ 320)]+[800;...]
+ * 1 is [620;1000(typ 640)]+[200;...]
+ * SPI bitrate must be 3000 kHz => 333nS per bit.
+ * Then, LED's 0 is 1000 (333+999), LED's 1 is 110 (666+333).
+ * To simplify BitBuffer construction, using 0 as 1000 and 1 as 1100 (666+666),
+ * thus 1 LED byte is 4 real bytes.
+ * Reset must be: 80uS => ~248bit => ~31 bytes
  */
 
 #include "ch.h"
@@ -56,7 +65,7 @@ typedef std::vector<Color_t> ColorBuf_t;
                         | STM32_DMA_CR_DIR_M2P)  /* Direction is memory to peripheral */ \
                         | STM32_DMA_CR_TCIE
 
-#else // WS2812B_V5
+#else // WS2812B_V5 and SK6812SIDE
 #define NPX_SPI_BITRATE         3000000
 #define NPX_SPI_BITNUMBER       bitn16
 #define NPX_BYTES_PER_BYTE      4 // 2 bits are 1 byte, 8 bits are 4 bytes
@@ -106,7 +115,7 @@ private:
 #if WS2812B_V2
     uint32_t IBitBufSz = 0;
     uint8_t *IBitBuf = nullptr;
-#else
+#else // WS2812B_V5 and SK6812SIDE
     uint32_t IBitBufWordCnt = 0;
     uint32_t *IBitBuf = nullptr;
 #endif

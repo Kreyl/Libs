@@ -7,13 +7,14 @@ void NpxDmaDone(void *p, uint32_t flags) {
 void Neopixels_t::Init() {
     // GPIO and DMA
     PinSetupAlterFunc(Params->PGpio, Params->Pin, omPushPull, pudNone, Params->Af);
-//    PinSetupAlterFunc(Params->PGpio, Params->Pin, omOpenDrain/, pudNone, Params->Af);
+//    PinSetupAlterFunc(Params->PGpio, Params->Pin, omOpenDrain, pudNone, Params->Af);
     Params->ISpi.Setup(boMSB, cpolIdleLow, cphaFirstEdge, NPX_SPI_BITRATE, NPX_SPI_BITNUMBER);
     Params->ISpi.Enable();
     Params->ISpi.EnableTxDma();
 
     // Allocate memory
     Printf("LedCnt: %u\r", Params->NpxCnt);
+//    Params->ISpi.PrintFreq();
 #if WS2812B_V2
     IBitBufSz = NPX_RST_BYTE_CNT + (Params->NpxCnt * (Params->Type == npxRGBW? 4 : 3) * NPX_BYTES_PER_BYTE);
 
@@ -21,11 +22,11 @@ void Neopixels_t::Init() {
     IBitBuf = (uint8_t*)malloc(IBitBufSz);
     ClrBuf.resize(Params->NpxCnt);
     memset(IBitBuf, 0, IBitBufSz);
-#else
-    IBitBufWordCnt = NPX_WORD_CNT(LedCntTotal);
+#else // WS2812B_V5 and SK6812SIDE
+    IBitBufWordCnt = NPX_WORD_CNT(Params->NpxCnt);
     Printf("TotalByteCnt: %u\r", IBitBufWordCnt*2);
     IBitBuf = (uint32_t*)malloc(IBitBufWordCnt*2);
-    ClrBuf.resize(LedCntTotal);
+    ClrBuf.resize(Params->NpxCnt);
     // Zero it all, to zero head and tail
     memset(IBitBuf, 0, IBitBufWordCnt*2);
 #endif
@@ -55,7 +56,7 @@ static uint32_t ITable[256] = {
         0x2469DA,0x2669DA,0x3469DA,0x3669DA,0xA469DA,0xA669DA,0xB469DA,0xB669DA,0x246DDA,0x266DDA,0x346DDA,0x366DDA,0xA46DDA,0xA66DDA,0xB46DDA,0xB66DDA,
         0x2449DB,0x2649DB,0x3449DB,0x3649DB,0xA449DB,0xA649DB,0xB449DB,0xB649DB,0x244DDB,0x264DDB,0x344DDB,0x364DDB,0xA44DDB,0xA64DDB,0xB44DDB,0xB64DDB,
         0x2469DB,0x2669DB,0x3469DB,0x3669DB,0xA469DB,0xA669DB,0xB469DB,0xB669DB,0x246DDB,0x266DDB,0x346DDB,0x366DDB,0xA46DDB,0xA66DDB,0xB46DDB,0xB66DDB,
-#else // WS2812B_V5
+#else // WS2812B_V5 and SK6812SIDE
         0x88888888,0x888C8888,0x88C88888,0x88CC8888,0x8C888888,0x8C8C8888,0x8CC88888,0x8CCC8888,
         0xC8888888,0xC88C8888,0xC8C88888,0xC8CC8888,0xCC888888,0xCC8C8888,0xCCC88888,0xCCCC8888,
         0x8888888C,0x888C888C,0x88C8888C,0x88CC888C,0x8C88888C,0x8C8C888C,0x8CC8888C,0x8CCC888C,
@@ -115,7 +116,7 @@ void Neopixels_t::SetCurrentColors() {
     dmaStreamSetTransactionSize(PDma, IBitBufSz);
     dmaStreamSetMode(PDma, Params->DmaMode);
     dmaStreamEnable(PDma);
-#else // WS2812B_V5
+#else // WS2812B_V5 and SK6812SIDE
     // Fill bit buffer
     uint32_t *p = IBitBuf + (NPX_RST_BYTE_CNT / 8); // First and last words are zero to form reset
     for(auto &Color : ClrBuf) {
@@ -141,7 +142,7 @@ void Neopixels_t::OnDmaDone() {
 void NpxPrintTable() {
 #if WS2812B_V2
 
-#else // WS2812B_V5
+#else // WS2812B_V5 and SK6812SIDE
     for(uint32_t i=0x00; i<=0xFF; i++) {
         uint32_t w = 0;
         int Shift = 24;
