@@ -232,6 +232,11 @@ uint8_t BaseUart_t::GetByte(uint8_t *b) {
     if(RIndx >= UART_RXBUF_SZ) RIndx = 0;
     return retvOk;
 }
+
+void BaseUart_t::FlushRx() {
+    uint8_t b;
+    while(GetByte(&b) == retvOk);
+}
 #endif // RX
 
 #if 1 // ==== Init ====
@@ -578,13 +583,6 @@ void HostUart485_t::OnUartIrqI(uint32_t flags) {
     }
 }
 
-void HostUart485_t::Print(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-    IVsPrintf(format, args);
-    va_end(args);
-}
-
 uint8_t HostUart485_t::TryParseRxBuff() {
     uint8_t b;
     while(GetByte(&b) == retvOk) {
@@ -593,13 +591,283 @@ uint8_t HostUart485_t::TryParseRxBuff() {
     return retvFail;
 }
 
-uint8_t HostUart485_t::SendCmd(uint32_t Timeout_ms, const char* ACmd, uint32_t Addr, char* S) {
+uint8_t HostUart485_t::SendCmd(uint32_t Timeout_ms, int32_t RetryCnt, const char* ACmd, uint32_t Addr, const char *format, ...) {
+    while(RetryCnt-- > 0) {
+        FlushRx();
+        Print("%S %u", ACmd, Addr);
+        if(format and *format != 0) {
+            IPutByte(' '); // Add space after addr if something follows
+            va_list args;
+            va_start(args, format);
+            IVsPrintf(format, args);
+            va_end(args);
+        }
+        chSysLock();
+        PrintEOL();
+        // Receive reply
+        msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, TIME_MS2I(Timeout_ms)); // Wait IRQ
+        chSysUnlock();  // Will be here when IRQ will fire, or timeout occur
+        if(Rslt == MSG_OK) {
+            if(TryParseRxBuff() == retvOk) return retvOk;
+        }
+    }
+    return retvTimeout;
+}
+
+void HostUart485_t::SendBroadcast(uint32_t Delay_ms, int32_t RepeatCnt, const char* ACmd, const char *format, ...) {
+    while(RepeatCnt-- > 0) {
+        Print("%S", ACmd); // FF means everybody
+        if(format and *format != 0) {
+            IPutByte(' '); // Add space after addr if something follows
+            va_list args;
+            va_start(args, format);
+            IVsPrintf(format, args);
+            va_end(args);
+        }
+        PrintEOL();
+        if(Delay_ms) chThdSleepMilliseconds(Delay_ms);
+    }
+}
+
+uint8_t HostUart485_t::SendCmdAndTransmitBuf(uint32_t Timeout_ms, uint8_t *PBuf, uint32_t Len, const char* ACmd, uint32_t Addr, const char *format, ...) {
+    Print("%S %u", ACmd, Addr);
+    if(format and *format != 0) {
+        IPutByte(' '); // Add space after addr if something follows
+        va_list args;
+        va_start(args, format);
+        IVsPrintf(format, args);
+        va_end(args);
+    }
+    PrintEOL();
+    if(TransmitBinaryFromBuf(PBuf, Len, Timeout_ms) == retvOk) {
+        // Receive reply
+        chSysLock();
+        msg_t Rslt = MSG_OK;
+        if(TryParseRxBuff() == retvOk) { // Maybe reply is already there
+            chSysUnlock();
+            return retvOk;
+        }
+        else {
+            Rslt = chThdSuspendTimeoutS(&ThdRef, TIME_MS2I(Timeout_ms)); // Wait IRQ
+        }
+        chSysUnlock();
+        if(Rslt == MSG_OK) return TryParseRxBuff();
+        else return retvTimeout;
+    }
+    else return retvFail;
+}
+
+uint8_t HostUart485_t::SendCmdAndReceiveBuf(uint32_t Timeout_ms, uint8_t *PBuf, uint32_t Len, const char* ACmd, uint32_t Addr, const char *format, ...) {
+    Print("%S %u", ACmd, Addr);
+    if(format and *format != 0) {
+        IPutByte(' '); // Add space after addr if something follows
+        va_list args;
+        va_start(args, format);
+        IVsPrintf(format, args);
+        va_end(args);
+    }
+    PrintEOL();
+    return ReceiveBinaryToBuf(PBuf, Len, Timeout_ms);
+}
+#endif
+
+#if 1 // ========================== CmdUart422_t ===============================
+void CmdUart422_t::OnUartIrqI(uint32_t flags) {
+    if(flags & USART_ISR_CMF) {
+        if (WaitingReply)
+            chThdResumeI(&ThdRef, MSG_OK); // NotNull check perfprmed inside chThdResumeI
+        else
+            EvtQMain.SendNowOrExitI(EvtMsg_t(evtIdShell422CmdRcvd, (void*)this));
+    }
+}
+
+void CmdUart422_t::Print(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    IVsPrintf(format, args);
+    va_end(args);
+}
+
+uint8_t CmdUart422_t::TryParseRxBuff() {
+    uint8_t b;
+    while(GetByte(&b) == retvOk) {
+        if(Reply->PutChar(b) == pdrNewCmd) return retvOk;
+    } // while get byte
+    return retvFail;
+}
+
+uint8_t CmdUart422_t::SendCmd(uint32_t Timeout_ms, const char* ACmd, char* S) {
     chSysLock();
-    Print("%S %u %S\r\n", ACmd, Addr, S);
+    Print("%S %S\r\n", ACmd, S);
+    WaitingReply = true;
     msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, TIME_MS2I(Timeout_ms)); // Wait IRQ
+    WaitingReply = false;
     chSysUnlock();  // Will be here when IRQ will fire, or timeout occur
     if(Rslt == MSG_OK) return TryParseRxBuff();
     else return retvTimeout;
+}
+
+uint8_t CmdUart422_t::ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) {
+    uint8_t Rslt = retvOk;
+    // Wait for previousTX to complete
+    dmaWaitCompletion(PDmaTx);
+    while(!(Params->Uart->ISR & USART_ISR_TXE));
+    while(!(Params->Uart->ISR & USART_ISR_TC));
+    Params->Uart->CR1 &= ~USART_CR1_UE; // Disable UART
+    Params->Uart->CR1 &= ~USART_CR1_CMIE; // Disable IRQ on char match
+    // Setup DMA to given buffer
+    dmaStreamDisable(PDmaRx);
+    dmaStreamSetMemory0(PDmaRx, ptr);
+    dmaStreamSetTransactionSize(PDmaRx, Len);
+    dmaStreamSetMode(PDmaRx, Params->DmaModeRx & (~STM32_DMA_CR_CIRC));
+    dmaStreamEnable(PDmaRx);
+    // Start transmission
+    Params->Uart->CR1 |= USART_CR1_UE; // Enable UART
+    systime_t Start = chVTGetSystemTimeX();
+    Params->Uart->TDR = '>';
+    while(PDmaRx->channel->CNDTR > 0U) {
+        if(chVTTimeElapsedSinceX(Start) > TIME_MS2I(Timeout_ms)) {
+            Rslt = retvTimeout;
+            break;
+        }
+    }
+    // Return to self buffer
+    Params->Uart->CR1 &= ~USART_CR1_UE; // Disable UART
+    dmaStreamDisable(PDmaRx);
+    dmaStreamSetMemory0(PDmaRx, IRxBuf);
+    dmaStreamSetTransactionSize(PDmaRx, UART_RXBUF_SZ);
+    dmaStreamSetMode(PDmaRx, Params->DmaModeRx);
+    Params->Uart->CR1 |= USART_CR1_CMIE; // Enable IRQ on match
+    dmaStreamEnable(PDmaRx);
+    // Reset RX buf pointer
+    RIndx = 0;
+    Params->Uart->CR1 |= USART_CR1_UE; // Enable UART
+    return Rslt;
+}
+
+uint8_t CmdUart422_t::TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) {
+    systime_t Start = chVTGetSystemTimeX();
+    // Wait '>'
+    uint8_t b = 0;
+    while(b != '>') {
+        GetByte(&b);
+        if(chVTTimeElapsedSinceX(Start) > TIME_MS2I(Timeout_ms)) return retvTimeout;
+    }
+    // Wait for previousTX to complete
+    dmaWaitCompletion(PDmaTx);
+    while(!(Params->Uart->ISR & USART_ISR_TXE));
+    while(!(Params->Uart->ISR & USART_ISR_TC));
+    // Setup DMA to given buffer
+    dmaStreamSetMemory0(PDmaTx, ptr);
+    dmaStreamSetTransactionSize(PDmaTx, Len);
+    dmaStreamSetMode(PDmaTx, Params->DmaModeTx & (~STM32_DMA_CR_TCIE));
+    dmaStreamEnable(PDmaTx);
+    dmaWaitCompletion(PDmaTx);
+    return retvOk;
+}
+#endif
+
+#if MODBUS_UART_EN // ========================= Modbus =========================
+ProcessDataResult_t ModbusCmd_t::PutChar(char c) {
+    // Start of cmd
+    if(c == ':') {
+        Started = true;
+        Cnt = 0;
+    }
+    // End of cmd
+    else if((c == '\r') or (c == '\n')) {   // end of line, check if cmd completed
+        Started = false;
+        if(Cnt >= 6) { // if not too short
+            IString[Cnt] = 0; // End of string
+            Cnt = 0;
+            if(Parse() == retvOk) return pdrNewCmd;
+        }
+    }
+    // Some other char
+    else {
+        if(Started) { // Ignore if not
+            // Check if ascii
+            if((c >= '0' and c <= '9') or (c >= 'A' and c <= 'F') or (c >= 'a' and c <= 'f')) {
+                if(Cnt < (CMD_BUF_SZ-1)) IString[Cnt++] = c;  // Add char if buffer not full
+            }
+        }
+    }
+    return pdrProceed;
+}
+
+uint8_t CharToByte(char c, uint8_t *PRslt) {
+    if(c >= '0' and c <= '9') { *PRslt = (c - '0'); return retvOk; }
+    else if(c >= 'A' and c <= 'F') { *PRslt = (0xA + c - 'A'); return retvOk; }
+    else if(c >= 'a' and c <= 'f') { *PRslt = (0xA + c - 'a'); return retvOk; }
+    else return retvFail;
+}
+
+uint8_t TwoCharsToByte(char c1, char c2, uint8_t *PRslt) {
+    uint8_t b1, b2;
+    if(CharToByte(c1, &b1) != retvOk) return retvFail;
+    if(CharToByte(c2, &b2) != retvOk) return retvFail;
+    b1 <<= 4;
+    b1 |= b2;
+    *PRslt = b1;
+    return retvOk;
+}
+
+uint8_t ModbusCmd_t::Parse() {
+    // Addr
+    if(TwoCharsToByte(IString[0], IString[1], &Addr) != retvOk) return retvFail;
+    // Function
+    if(TwoCharsToByte(IString[2], IString[3], &Function) != retvOk) return retvFail;
+    // Data
+    char* p = &IString[4];
+    uint8_t LRC = Addr + Function;
+    DataCnt = 0;
+    while(true) {
+        uint8_t b;
+        if(TwoCharsToByte(p[0], p[1], &b) != retvOk) break; // End of string
+        Data[DataCnt++] = b;
+        LRC += b;
+        p += 2;
+    }
+    // Check LRC
+    if(LRC == 0) {
+        DataCnt--; // Remove last LRC byte
+        return retvOk;
+    }
+    else return retvFail;
+}
+
+void ModbusUart485_t::ProcessByteIfReceived() {
+    if(!RxProcessed) return;
+    uint8_t b;
+    while(GetByte(&b) == retvOk) {
+        if(Cmd.PutChar(b) == pdrNewCmd) {
+            RxProcessed = false;
+//            EvtQMain.SendNowOrExit(EvtMsg_t(evtIdModbusCmd));
+        } // if new cmd
+    } // while get byte
+}
+
+void ModbusUart485_t::IOnTxEnd() {
+#ifdef USART_SR_TC
+    Params->Uart->SR &= ~USART_SR_TC; // Clear TxCompleted flag
+    for(volatile uint32_t i=0; i<1000; i++) {
+        if(Params->Uart->SR & USART_SR_TC) break; // wait last bit to be shifted out
+    }
+#else
+    Params->Uart->ISR &= ~USART_ISR_TC; // Clear TxCompleted flag
+    for(volatile uint32_t i=0; i<1000; i++) {
+        if(Params->Uart->ISR & USART_ISR_TC) break; // wait last bit to be shifted out
+    }
+#endif
+    PinTxRx.SetLo();
+}
+
+void ModbusUart485_t::Reply() {
+    // Calc LRC
+    uint8_t LRC = Cmd.Addr + Cmd.Function;
+    for(uint32_t i=0; i<Cmd.DataCnt; i++) LRC += Cmd.Data[i];
+    LRC = (uint8_t)(-(int32_t)LRC);
+    Print(":%02X%02X%A%02X\r\n", Cmd.Addr, Cmd.Function, Cmd.Data, Cmd.DataCnt, 0, LRC);
 }
 #endif
 
