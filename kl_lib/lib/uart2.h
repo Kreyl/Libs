@@ -144,24 +144,19 @@ public:
     void OnUartIrqI(uint32_t flags);
 };
 
-class CmdUart422_t : private BaseUart_t, public PrintfHelper_t, public Shell_t {
+class CmdUart422_t : public CmdUart_t  {
 private:
     thread_reference_t ThdRef = nullptr;
-    uint8_t IPutChar(char c) { return IPutByte(c);  }
-    void IStartTransmissionIfNotYet() { BaseUart_t::IStartTransmissionIfNotYet(); }
     bool WaitingReply = false;
 public:
-    void Print(const char *format, ...);
     uint8_t TryParseRxBuff();
-    void Init() {
-        BaseUart_t::Init();
-    }
-    CmdUart422_t(const UartParams_t &APParams) : BaseUart_t(APParams) {}
+    void Init() { CmdUart_t::Init(); }
+    CmdUart422_t(const UartParams_t &APParams) : CmdUart_t(APParams) {}
 
-    uint8_t SendCmd(uint32_t Timeout_ms, const char* ACmd, char* S = nullptr);
-    uint8_t ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);
-    uint8_t TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);
-    Cmd_t *Reply = &Cmd;
+    uint8_t SendCmd(uint32_t Timeout_ms, int32_t RetryCnt, const char* ACmd, const char *format = nullptr, ...);
+    uint8_t SendCmdAndTransmitBuf(uint32_t Timeout_ms, uint8_t *PBuf, uint32_t Len, const char* ACmd, const char *format = nullptr, ...);
+    uint8_t SendCmdAndReceiveBuf(uint32_t Timeout_ms, uint8_t *PBuf, uint32_t Len, const char* ACmd, const char *format = nullptr, ...);
+    Cmd_t &Reply = Cmd;
     void OnUartIrqI(uint32_t flags);
 };
 

@@ -518,11 +518,9 @@ void CmdUart_t::OnUartIrqI(uint32_t flags) {
 
 uint8_t CmdUart_t::ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) {
     uint8_t Rslt = retvOk;
-    // Wait for previousTX to complete
-    dmaWaitCompletion(PDmaTx);
-    while(!(Params->Uart->ISR & USART_ISR_TXE));
-    while(!(Params->Uart->ISR & USART_ISR_TC));
-    Params->Uart->CR1 &= ~USART_CR1_UE; // Disable UART
+    // Wait for previous TX to complete
+    while(!IDmaIsIdle);
+    while(!(Params->Uart->ISR & USART_ISR_TXE)); // Wait
     Params->Uart->CR1 &= ~USART_CR1_CMIE; // Disable IRQ on char match
     // Setup DMA to given buffer
     dmaStreamDisable(PDmaRx);
@@ -531,26 +529,22 @@ uint8_t CmdUart_t::ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeo
     dmaStreamSetMode(PDmaRx, Params->DmaModeRx & (~STM32_DMA_CR_CIRC));
     dmaStreamEnable(PDmaRx);
     // Start transmission
-    Params->Uart->CR1 |= USART_CR1_UE; // Enable UART
     systime_t Start = chVTGetSystemTimeX();
     Params->Uart->TDR = '>';
-    while(PDmaRx->channel->CNDTR > 0U) {
+    while(dmaStreamGetTransactionSize(PDmaRx) > 0U) {
         if(chVTTimeElapsedSinceX(Start) > TIME_MS2I(Timeout_ms)) {
             Rslt = retvTimeout;
             break;
         }
     }
     // Return to self buffer
-    Params->Uart->CR1 &= ~USART_CR1_UE; // Disable UART
     dmaStreamDisable(PDmaRx);
     dmaStreamSetMemory0(PDmaRx, IRxBuf);
     dmaStreamSetTransactionSize(PDmaRx, UART_RXBUF_SZ);
     dmaStreamSetMode(PDmaRx, Params->DmaModeRx);
     Params->Uart->CR1 |= USART_CR1_CMIE; // Enable IRQ on match
+    RIndx = 0; // Reset RX buf pointer
     dmaStreamEnable(PDmaRx);
-    // Reset RX buf pointer
-    RIndx = 0;
-    Params->Uart->CR1 |= USART_CR1_UE; // Enable UART
     return Rslt;
 }
 
@@ -563,10 +557,10 @@ uint8_t CmdUart_t::TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Ti
         if(chVTTimeElapsedSinceX(Start) > TIME_MS2I(Timeout_ms)) return retvTimeout;
     }
     // Wait for previousTX to complete
-    dmaWaitCompletion(PDmaTx);
+    while(!IDmaIsIdle);
     while(!(Params->Uart->ISR & USART_ISR_TXE));
-    while(!(Params->Uart->ISR & USART_ISR_TC));
     // Setup DMA to given buffer
+    dmaStreamDisable(PDmaTx);
     dmaStreamSetMemory0(PDmaTx, ptr);
     dmaStreamSetTransactionSize(PDmaTx, Len);
     dmaStreamSetMode(PDmaTx, Params->DmaModeTx & (~STM32_DMA_CR_TCIE));
@@ -654,7 +648,7 @@ uint8_t HostUart485_t::SendCmdAndTransmitBuf(uint32_t Timeout_ms, uint8_t *PBuf,
         if(Rslt == MSG_OK) return TryParseRxBuff();
         else return retvTimeout;
     }
-    else return retvFail;
+    else return retvNoAnswer;
 }
 
 uint8_t HostUart485_t::SendCmdAndReceiveBuf(uint32_t Timeout_ms, uint8_t *PBuf, uint32_t Len, const char* ACmd, uint32_t Addr, const char *format, ...) {
@@ -671,7 +665,7 @@ uint8_t HostUart485_t::SendCmdAndReceiveBuf(uint32_t Timeout_ms, uint8_t *PBuf, 
 }
 #endif
 
-#if 1 // ========================== CmdUart422_t ===============================
+#if 0 // ========================== CmdUart422_t ===============================
 void CmdUart422_t::OnUartIrqI(uint32_t flags) {
     if(flags & USART_ISR_CMF) {
         if (WaitingReply)
@@ -681,89 +675,80 @@ void CmdUart422_t::OnUartIrqI(uint32_t flags) {
     }
 }
 
-void CmdUart422_t::Print(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-    IVsPrintf(format, args);
-    va_end(args);
-}
-
 uint8_t CmdUart422_t::TryParseRxBuff() {
     uint8_t b;
     while(GetByte(&b) == retvOk) {
-        if(Reply->PutChar(b) == pdrNewCmd) return retvOk;
+        if(Reply.PutChar(b) == pdrNewCmd) return retvOk;
     } // while get byte
     return retvFail;
 }
 
-uint8_t CmdUart422_t::SendCmd(uint32_t Timeout_ms, const char* ACmd, char* S) {
-    chSysLock();
-    Print("%S %S\r\n", ACmd, S);
-    WaitingReply = true;
-    msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, TIME_MS2I(Timeout_ms)); // Wait IRQ
-    WaitingReply = false;
-    chSysUnlock();  // Will be here when IRQ will fire, or timeout occur
-    if(Rslt == MSG_OK) return TryParseRxBuff();
-    else return retvTimeout;
-}
-
-uint8_t CmdUart422_t::ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) {
-    uint8_t Rslt = retvOk;
-    // Wait for previousTX to complete
-    dmaWaitCompletion(PDmaTx);
-    while(!(Params->Uart->ISR & USART_ISR_TXE));
-    while(!(Params->Uart->ISR & USART_ISR_TC));
-    Params->Uart->CR1 &= ~USART_CR1_UE; // Disable UART
-    Params->Uart->CR1 &= ~USART_CR1_CMIE; // Disable IRQ on char match
-    // Setup DMA to given buffer
-    dmaStreamDisable(PDmaRx);
-    dmaStreamSetMemory0(PDmaRx, ptr);
-    dmaStreamSetTransactionSize(PDmaRx, Len);
-    dmaStreamSetMode(PDmaRx, Params->DmaModeRx & (~STM32_DMA_CR_CIRC));
-    dmaStreamEnable(PDmaRx);
-    // Start transmission
-    Params->Uart->CR1 |= USART_CR1_UE; // Enable UART
-    systime_t Start = chVTGetSystemTimeX();
-    Params->Uart->TDR = '>';
-    while(PDmaRx->channel->CNDTR > 0U) {
-        if(chVTTimeElapsedSinceX(Start) > TIME_MS2I(Timeout_ms)) {
-            Rslt = retvTimeout;
-            break;
+uint8_t CmdUart422_t::SendCmd(uint32_t Timeout_ms, int32_t RetryCnt, const char* ACmd, const char *format, ...) {
+    while(RetryCnt-- > 0) {
+        FlushRx();
+        Print("%S", ACmd);
+        if(format and *format != 0) {
+            IPutByte(' '); // Add space after cmd if something follows
+            va_list args;
+            va_start(args, format);
+            IVsPrintf(format, args);
+            va_end(args);
+        }
+        chSysLock();
+        PrintEOL();
+        // Receive reply
+        WaitingReply = true;
+        msg_t Rslt = chThdSuspendTimeoutS(&ThdRef, TIME_MS2I(Timeout_ms)); // Wait IRQ
+        WaitingReply = false;
+        chSysUnlock();  // Will be here when IRQ will fire, or timeout occur
+        if(Rslt == MSG_OK) {
+            if(TryParseRxBuff() == retvOk) return retvOk;
         }
     }
-    // Return to self buffer
-    Params->Uart->CR1 &= ~USART_CR1_UE; // Disable UART
-    dmaStreamDisable(PDmaRx);
-    dmaStreamSetMemory0(PDmaRx, IRxBuf);
-    dmaStreamSetTransactionSize(PDmaRx, UART_RXBUF_SZ);
-    dmaStreamSetMode(PDmaRx, Params->DmaModeRx);
-    Params->Uart->CR1 |= USART_CR1_CMIE; // Enable IRQ on match
-    dmaStreamEnable(PDmaRx);
-    // Reset RX buf pointer
-    RIndx = 0;
-    Params->Uart->CR1 |= USART_CR1_UE; // Enable UART
-    return Rslt;
+    return retvTimeout;
 }
 
-uint8_t CmdUart422_t::TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) {
-    systime_t Start = chVTGetSystemTimeX();
-    // Wait '>'
-    uint8_t b = 0;
-    while(b != '>') {
-        GetByte(&b);
-        if(chVTTimeElapsedSinceX(Start) > TIME_MS2I(Timeout_ms)) return retvTimeout;
+uint8_t CmdUart422_t::SendCmdAndTransmitBuf(uint32_t Timeout_ms, uint8_t *PBuf, uint32_t Len, const char* ACmd, const char *format, ...) {
+    Print("%S", ACmd);
+    if(format and *format != 0) {
+        IPutByte(' '); // Add space after cmd if something follows
+        va_list args;
+        va_start(args, format);
+        IVsPrintf(format, args);
+        va_end(args);
     }
-    // Wait for previousTX to complete
-    dmaWaitCompletion(PDmaTx);
-    while(!(Params->Uart->ISR & USART_ISR_TXE));
-    while(!(Params->Uart->ISR & USART_ISR_TC));
-    // Setup DMA to given buffer
-    dmaStreamSetMemory0(PDmaTx, ptr);
-    dmaStreamSetTransactionSize(PDmaTx, Len);
-    dmaStreamSetMode(PDmaTx, Params->DmaModeTx & (~STM32_DMA_CR_TCIE));
-    dmaStreamEnable(PDmaTx);
-    dmaWaitCompletion(PDmaTx);
-    return retvOk;
+    PrintEOL();
+    if(TransmitBinaryFromBuf(PBuf, Len, Timeout_ms) == retvOk) {
+        // Receive reply
+        chSysLock();
+        msg_t Rslt = MSG_OK;
+        if(TryParseRxBuff() == retvOk) { // Maybe reply is already there
+            chSysUnlock();
+            return retvOk;
+        }
+        else {
+            WaitingReply = true;
+            Rslt = chThdSuspendTimeoutS(&ThdRef, TIME_MS2I(Timeout_ms)); // Wait IRQ
+            WaitingReply = false;
+        }
+        chSysUnlock();
+        if(Rslt == MSG_OK) return TryParseRxBuff();
+        else return retvTimeout;
+    }
+    else return retvNoAnswer;
+}
+
+uint8_t CmdUart422_t::SendCmdAndReceiveBuf(uint32_t Timeout_ms, uint8_t *PBuf, uint32_t Len, const char* ACmd, const char *format, ...) {
+    Print("%S", ACmd);
+    if(format and *format != 0) {
+        IPutByte(' '); // Add space after cmd if something follows
+        va_list args;
+        va_start(args, format);
+        IVsPrintf(format, args);
+        va_end(args);
+    }
+    PrintEOL();
+    return ReceiveBinaryToBuf(PBuf, Len, Timeout_ms);
 }
 #endif
 
