@@ -231,15 +231,6 @@ uint8_t TryStrToFloat(char* S, float *POutput);
 }; // namespace
 #endif
 
-#if 1 // ============================ kl_string ================================
-int kl_strcasecmp(const char *s1, const char *s2);
-
-char* kl_strtok(register char* s, register const char* delim, register char**PLast);
-
-int kl_sscanf(const char* s, const char* format, ...);
-
-#endif
-
 #ifdef DMA_MEM2MEM
 namespace Mem2MemDma { // ========== MEM2MEM DMA ===========
 
@@ -1621,6 +1612,7 @@ enum APBDiv_t {apbDiv1=0b000, apbDiv2=0b100, apbDiv4=0b101, apbDiv8=0b110, apbDi
 
 class Clk_t {
 private:
+    uint8_t EnableHSE();
     uint8_t EnablePLL();
     uint8_t EnableMSI();
 public:
@@ -2040,7 +2032,10 @@ public:
     void EnablePllROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
     void EnablePllQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
     uint8_t EnablePllSai1();
+    void EnablePllSai1QOut() { RCC->PLLSAI1CFGR |= RCC_PLLSAI1CFGR_PLLSAI1QEN; }
+
     uint8_t EnablePllSai2();
+    void EnablePllSai2POut() { RCC->PLLSAI2CFGR |= RCC_PLLSAI2CFGR_PLLSAI2PEN; }
 
     void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
     void DisableHSI() { RCC->CR &= ~RCC_CR_HSION; }
@@ -2080,6 +2075,7 @@ public:
     void DisableLSI() { RCC->CSR &= RCC_CSR_LSION; }
 
     void SetCoreClk(CoreClk_t CoreClk);
+    void SetCoreClk80MHz();
 
     uint32_t GetSysClkHz();
 
