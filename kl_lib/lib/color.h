@@ -316,7 +316,9 @@ struct ColorHSV_t {
 
     void Adjust(const ColorHSV_t &Target) {
         int16_t dH = Target.H - H;
-//        Printf(" Adjust dH %i (%u %u)\r", dH, H, Target.H);
+        uint16_t sH = ABS(dH);
+        if (sH > 180) sH = 360 - sH;
+        // Change H
         if      ((0<dH and dH<=180) or -180>dH) {
             if (H >= 360-1) H = 0;
             else H++;
@@ -325,10 +327,13 @@ struct ColorHSV_t {
             if (H == 0) H = 360-1;
             else H--;
         }
-        if     (S < Target.S) S++;
+        // Change S
+        if     (S < Target.S and sH <= Target.S-S) S++;
         else if(S > Target.S) S--;
-        if     (V < Target.V) V++;
+        // Change V
+        if     (V < Target.V and sH <= Target.V-V) V++;
         else if(V > Target.V) V--;
+//        Printf(" Adjust dH %i (%u %u)\t sH %u\t sS %i (%u %u)\t sV %i (%u %u)\r", dH, H, Target.H, sH, Target.S-S, S, Target.S, Target.V-V, V, Target.V);
     }
 
     // Weight = 0: result is Back; Weight = 255: result is Fore; otherwise result is mix

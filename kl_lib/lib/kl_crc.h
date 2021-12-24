@@ -16,8 +16,8 @@
 
 namespace Crc {
 
-uint16_t CalculateCRC16(uint8_t *Buf, uint32_t Len);
-uint16_t CalculateCRC16HW(uint8_t *Buf, uint32_t Len);
+uint16_t CalculateCRC16(uint8_t *Buf, uint32_t Len, const uint32_t Init = CRC_INITVALUE);
+uint16_t CalculateCRC16HW(uint8_t *Buf, uint32_t Len, const uint32_t Init = CRC_INITVALUE);
 
 void StartHW();
 void AppendHW(uint8_t b);

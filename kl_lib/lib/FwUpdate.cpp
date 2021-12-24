@@ -148,7 +148,7 @@ uint8_t FwUpdater_t::ReadFileOnDisk() {
         BytesCnt = MIN_(TotalLen, FLASH_PAGE_SZ);
         TotalLen -= BytesCnt;
         // Read block
-        if(f_read(&CommonFile, FwUpdater.Buf, BytesCnt, &BytesCnt) != FR_OK) {
+        if(f_read(&CommonFile, Buf, BytesCnt, &BytesCnt) != FR_OK) {
             Printf("Read error\r");
             return retvFail;
         }
@@ -159,7 +159,45 @@ uint8_t FwUpdater_t::ReadFileOnDisk() {
         }
         else return retvFail;
     } // while
-
+    return DeliteFileOnDisk();
+}
+uint8_t FwUpdater_t::ReadFileOnDiskToBuff(uint32_t &BytesCnt, uint16_t &CrcOut) {
+    // ==== Read file block by block, do not write first page ====
+    if (TotalLen != 0) {
+        // How many bytes to read?
+        BytesCnt = MIN_(TotalLen, FLASH_PAGE_SZ);
+        TotalLen -= BytesCnt;
+        // Read block
+        if(f_read(&CommonFile, Buf, BytesCnt, &BytesCnt) != FR_OK) {
+            Printf("Read error\r");
+            return retvFail;
+        }
+        CrcOut = Crc::CalculateCRC16HWDMA(Buf, BytesCnt);
+        return retvOk;
+    } // if
+    else return retvEmpty;
+}
+uint8_t FwUpdater_t::CalcCrcOfFullyFile(uint16_t &CrcOut) {
+    uint32_t BytesCnt;
+    uint16_t Crc = CRC_INITVALUE;
+    f_close(&CommonFile);
+    if(TryOpenFileRead(FileInfo.fname, &CommonFile) != retvOk) return retvFail;
+    TotalLen = f_size(&CommonFile);
+    while(TotalLen != 0) {
+        // How many bytes to read?
+        BytesCnt = MIN_(TotalLen, FLASH_PAGE_SZ);
+        TotalLen -= BytesCnt;
+        // Read block
+        if(f_read(&CommonFile, Buf, BytesCnt, &BytesCnt) != FR_OK) {
+            Printf("Read error\r");
+            return retvFail;
+        }
+        Crc = Crc::CalculateCRC16HW(Buf, BytesCnt, Crc);
+    } // while
+    CrcOut = Crc;
+    return retvOk;
+}
+uint8_t FwUpdater_t::DeliteFileOnDisk() {
     Printf("\rWriting done\r");
     chThdSleepMilliseconds(99);
     f_close(&CommonFile);
@@ -168,4 +206,5 @@ uint8_t FwUpdater_t::ReadFileOnDisk() {
     chThdSleepMilliseconds(99);
     return retvOk;
 }
+
 #endif
