@@ -1,5 +1,5 @@
-(kicad_symbol_lib (version 20210619) (generator kicad_symbol_editor)
-  (symbol "Power_kl:A3906" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+(kicad_symbol_lib (version 20211014) (generator kicad_symbol_editor)
+  (symbol "A3906" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 7.62 -22.86 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -20,7 +20,8 @@
     )
     (symbol "A3906_0_1"
       (rectangle (start -15.24 19.05) (end 13.97 -21.59)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "A3906_1_1"
@@ -110,7 +111,7 @@
       )
     )
   )
-  (symbol "Power_kl:AAT3221" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "AAT3221" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -131,7 +132,8 @@
     )
     (symbol "AAT3221_0_1"
       (rectangle (start -5.08 3.81) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "AAT3221_1_1"
@@ -157,7 +159,7 @@
       )
     )
   )
-  (symbol "Power_kl:ADP3330" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "ADP3330" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 5.08 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -178,7 +180,8 @@
     )
     (symbol "ADP3330_0_1"
       (rectangle (start -6.35 7.62) (end 7.62 -7.62)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "ADP3330_1_1"
@@ -208,7 +211,7 @@
       )
     )
   )
-  (symbol "Power_kl:AIC286x" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "AIC286x" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -6.35 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -229,7 +232,8 @@
     )
     (symbol "AIC286x_0_1"
       (rectangle (start -7.62 7.62) (end 6.35 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "AIC286x_1_1"
@@ -271,7 +275,7 @@
       )
     )
   )
-  (symbol "Power_kl:AP7331" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "AP7331" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 3.81 6.35 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -286,7 +290,8 @@
     )
     (symbol "AP7331_0_1"
       (rectangle (start -6.35 5.08) (end 6.35 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "AP7331_1_1"
@@ -312,7 +317,7 @@
       )
     )
   )
-  (symbol "Power_kl:AXP202" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "AXP202" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -16.51 52.07 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -329,6 +334,30 @@
       (effects (font (size 1.524 1.524)) hide)
     )
     (symbol "AXP202_0_0"
+      (polyline
+        (pts
+          (xy -5.08 -33.02)
+          (xy -3.81 -33.02)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy -5.08 -20.32)
+          (xy -3.81 -20.32)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy -5.08 7.62)
+          (xy -3.81 7.62)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
       (text "1.8A" (at 8.89 24.13 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -362,101 +391,91 @@
       (text "Charger" (at 10.16 49.53 0)
         (effects (font (size 1.27 1.27)))
       )
-      (polyline
-        (pts
-          (xy -5.08 -33.02)
-          (xy -3.81 -33.02)
-        )
-        (stroke (width 0)) (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy -5.08 -20.32)
-          (xy -3.81 -20.32)
-        )
-        (stroke (width 0)) (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy -5.08 7.62)
-          (xy -3.81 7.62)
-        )
-        (stroke (width 0)) (fill (type none))
-      )
     )
     (symbol "AXP202_0_1"
       (rectangle (start -19.05 -45.72) (end 19.05 50.8)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -19.05 -33.02)
           (xy -5.08 -33.02)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -19.05 -20.32)
           (xy -5.08 -20.32)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -19.05 7.62)
           (xy -5.08 7.62)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -3.81 -45.72)
           (xy -3.81 50.8)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 6.35 0)
           (xy 19.05 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 6.35 27.94)
           (xy 19.05 27.94)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 6.35 50.8)
           (xy 6.35 -45.72)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 19.05 -31.75)
           (xy 6.35 -31.75)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 19.05 -7.62)
           (xy 6.35 -7.62)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 19.05 15.24)
           (xy 6.35 15.24)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "AXP202_1_1"
@@ -654,7 +673,7 @@
       )
     )
   )
-  (symbol "Power_kl:AXP202_UNITS" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "AXP202_UNITS" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -8.89 12.7 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -854,7 +873,8 @@
     )
     (symbol "AXP202_UNITS_2_1"
       (rectangle (start -11.43 11.43) (end 10.16 -12.7)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 15.24 -7.62 180) (length 5.08)
         (name "TS" (effects (font (size 1.27 1.27))))
@@ -884,7 +904,8 @@
     )
     (symbol "AXP202_UNITS_3_1"
       (rectangle (start -7.62 5.08) (end 6.35 -10.16)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 11.43 -3.81 180) (length 5.08)
         (name "DCDC2" (effects (font (size 1.27 1.27))))
@@ -918,7 +939,7 @@
       )
     )
   )
-  (symbol "Power_kl:AXP209" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "AXP209" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -16.51 52.07 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -935,6 +956,30 @@
       (effects (font (size 1.524 1.524)) hide)
     )
     (symbol "AXP209_0_0"
+      (polyline
+        (pts
+          (xy -5.08 -33.02)
+          (xy -3.81 -33.02)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy -5.08 -20.32)
+          (xy -3.81 -20.32)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy -5.08 7.62)
+          (xy -3.81 7.62)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
       (text "1.8A" (at 8.89 24.13 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -968,101 +1013,91 @@
       (text "Charger" (at 10.16 49.53 0)
         (effects (font (size 1.27 1.27)))
       )
-      (polyline
-        (pts
-          (xy -5.08 -33.02)
-          (xy -3.81 -33.02)
-        )
-        (stroke (width 0)) (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy -5.08 -20.32)
-          (xy -3.81 -20.32)
-        )
-        (stroke (width 0)) (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy -5.08 7.62)
-          (xy -3.81 7.62)
-        )
-        (stroke (width 0)) (fill (type none))
-      )
     )
     (symbol "AXP209_0_1"
       (rectangle (start -19.05 -45.72) (end 19.05 50.8)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -19.05 -33.02)
           (xy -5.08 -33.02)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -19.05 -20.32)
           (xy -5.08 -20.32)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -19.05 7.62)
           (xy -5.08 7.62)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -3.81 -45.72)
           (xy -3.81 50.8)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 6.35 0)
           (xy 19.05 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 6.35 27.94)
           (xy 19.05 27.94)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 6.35 50.8)
           (xy 6.35 -45.72)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 19.05 -33.02)
           (xy 6.35 -33.02)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 19.05 -10.16)
           (xy 6.35 -10.16)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 19.05 15.24)
           (xy 6.35 15.24)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "AXP209_1_1"
@@ -1264,7 +1299,7 @@
       )
     )
   )
-  (symbol "Power_kl:AXP803" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "AXP803" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -12.7 7.62 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -1285,7 +1320,8 @@
     )
     (symbol "AXP803_1_1"
       (rectangle (start -7.62 6.35) (end 8.89 -6.35)
-        (stroke (width 0.001)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 13.97 -1.27 180) (length 5.08)
         (name "SWOUT" (effects (font (size 1.27 1.27))))
@@ -1306,7 +1342,8 @@
     )
     (symbol "AXP803_2_1"
       (rectangle (start 7.62 7.62) (end -8.89 -10.16)
-        (stroke (width 0.001)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 12.7 -5.08 180) (length 5.08)
         (name "VIN2" (effects (font (size 1.27 1.27))))
@@ -1331,7 +1368,8 @@
     )
     (symbol "AXP803_3_1"
       (rectangle (start -8.89 6.35) (end 7.62 -8.89)
-        (stroke (width 0.001)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 12.7 3.81 180) (length 5.08)
         (name "LX3" (effects (font (size 1.27 1.27))))
@@ -1352,7 +1390,8 @@
     )
     (symbol "AXP803_4_1"
       (rectangle (start -6.35 6.35) (end 10.16 -6.35)
-        (stroke (width 0.001)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 15.24 -3.81 180) (length 5.08)
         (name "VIN4" (effects (font (size 1.27 1.27))))
@@ -1369,7 +1408,8 @@
     )
     (symbol "AXP803_5_1"
       (rectangle (start 8.89 7.62) (end -7.62 -8.89)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 13.97 -2.54 180) (length 5.08)
         (name "VIN5" (effects (font (size 1.27 1.27))))
@@ -1390,7 +1430,8 @@
     )
     (symbol "AXP803_6_1"
       (rectangle (start 8.89 6.35) (end -7.62 -6.35)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 13.97 3.81 180) (length 5.08)
         (name "LX6" (effects (font (size 1.27 1.27))))
@@ -1407,7 +1448,8 @@
     )
     (symbol "AXP803_7_1"
       (rectangle (start -7.62 7.62) (end 8.89 -7.62)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 13.97 -5.08 180) (length 5.08)
         (name "DLDO4" (effects (font (size 1.27 1.27))))
@@ -1432,7 +1474,8 @@
     )
     (symbol "AXP803_8_1"
       (rectangle (start 8.89 6.35) (end -7.62 -6.35)
-        (stroke (width 0.001)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 13.97 -1.27 180) (length 5.08)
         (name "ELDO2" (effects (font (size 1.27 1.27))))
@@ -1453,7 +1496,8 @@
     )
     (symbol "AXP803_9_1"
       (rectangle (start -6.35 6.35) (end 10.16 -6.35)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 15.24 1.27 180) (length 5.08)
         (name "ALDO1" (effects (font (size 1.27 1.27))))
@@ -1474,7 +1518,8 @@
     )
     (symbol "AXP803_10_1"
       (rectangle (start -8.89 7.62) (end 7.62 -10.16)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 12.7 2.54 180) (length 5.08)
         (name "FLDO1" (effects (font (size 1.27 1.27))))
@@ -1499,7 +1544,8 @@
     )
     (symbol "AXP803_11_1"
       (rectangle (start -7.62 7.62) (end 8.89 -12.7)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at -12.7 -2.54 0) (length 5.08)
         (name "VBUS" (effects (font (size 1.27 1.27))))
@@ -1524,7 +1570,8 @@
     )
     (symbol "AXP803_12_1"
       (rectangle (start -7.62 7.62) (end 8.89 -29.21)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at -12.7 -26.67 0) (length 5.08)
         (name "TS" (effects (font (size 1.27 1.27))))
@@ -1553,42 +1600,48 @@
     )
     (symbol "AXP803_13_1"
       (rectangle (start -13.97 6.35) (end 15.24 -19.05)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -13.97 -11.43)
           (xy -2.54 -11.43)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -13.97 -1.27)
           (xy -2.54 -1.27)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 6.35)
           (xy -2.54 -19.05)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 5.08 -3.81)
           (xy 15.24 -3.81)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 5.08 6.35)
           (xy 5.08 -19.05)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at -19.05 3.81 0) (length 5.08)
         (name "DP" (effects (font (size 1.27 1.27))))
@@ -1641,7 +1694,8 @@
     )
     (symbol "AXP803_14_1"
       (rectangle (start -7.62 6.35) (end 8.89 -8.89)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.2) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (pin passive line (at 13.97 3.81 180) (length 5.08)
         (name "GND" (effects (font (size 1.27 1.27))))
@@ -1665,7 +1719,7 @@
       )
     )
   )
-  (symbol "Power_kl:BAT" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "BAT" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "B" (id 0) (at 3.81 5.08 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -1688,7 +1742,8 @@
           (xy 5.08 0)
           (xy 5.08 0)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -1696,7 +1751,8 @@
           (xy -3.048 1.27)
           (xy -3.048 1.27)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -1704,7 +1760,8 @@
           (xy -3.81 0.508)
           (xy -3.81 0.508)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -1712,7 +1769,8 @@
           (xy 2.54 -1.27)
           (xy 2.54 -1.27)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
     )
     (symbol "BAT_1_1"
@@ -1726,7 +1784,7 @@
       )
     )
   )
-  (symbol "Power_kl:BAT_HOLDER" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "BAT_HOLDER" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "B" (id 0) (at 2.54 6.35 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -1744,28 +1802,32 @@
     )
     (symbol "BAT_HOLDER_0_1"
       (rectangle (start -3.81 2.54) (end 3.81 -3.81)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
           (xy -1.27 -0.635)
           (xy 1.27 -0.635)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 0 -0.635)
           (xy 0 -1.905)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 0 0)
           (xy 0 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1773,7 +1835,8 @@
           (xy 2.54 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
     )
     (symbol "BAT_HOLDER_1_1"
@@ -1791,7 +1854,7 @@
       )
     )
   )
-  (symbol "Power_kl:BAT_NO_CONN" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "BAT_NO_CONN" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "B" (id 0) (at -5.08 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -1812,21 +1875,24 @@
     )
     (symbol "BAT_NO_CONN_0_1"
       (rectangle (start -6.35 5.08) (end 6.35 -6.35)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
           (xy 0 -1.27)
           (xy 0 -5.08)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 0 0)
           (xy 0 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1834,7 +1900,8 @@
           (xy 5.08 0)
           (xy 5.08 0)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -1842,7 +1909,8 @@
           (xy -3.048 1.27)
           (xy -3.048 1.27)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -1850,7 +1918,8 @@
           (xy -3.81 0.508)
           (xy -3.81 0.508)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -1858,11 +1927,12 @@
           (xy 2.54 -1.27)
           (xy 2.54 -1.27)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
     )
   )
-  (symbol "Power_kl:BATx3" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "BATx3" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "BAT" (id 0) (at 0 22.86 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -1877,91 +1947,104 @@
     )
     (symbol "BATx3_0_1"
       (rectangle (start -3.81 19.05) (end 5.08 -19.05)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
           (xy -2.54 -11.43)
           (xy 0 -11.43)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 0)
           (xy 0 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 11.43)
           (xy 0 11.43)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 0 -6.35)
           (xy 0 -16.51)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 0 5.08)
           (xy 0 -5.08)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 0 6.35)
           (xy 0 16.51)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 -11.43)
           (xy 3.81 -11.43)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 -8.89)
           (xy 1.27 -13.97)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 0)
           (xy 3.81 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 2.54)
           (xy 1.27 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 11.43)
           (xy 3.81 11.43)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 13.97)
           (xy 1.27 8.89)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "BATx3_1_1"
@@ -1991,7 +2074,7 @@
       )
     )
   )
-  (symbol "Power_kl:BQ24010" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "BQ24010" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -5.08 11.43 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2009,7 +2092,8 @@
     )
     (symbol "BQ24010_0_1"
       (rectangle (start -7.62 10.16) (end 7.62 -12.7)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "BQ24010_1_1"
@@ -2059,7 +2143,7 @@
       )
     )
   )
-  (symbol "Power_kl:BQ24103" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "BQ24103" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -5.08 20.32 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -2086,7 +2170,8 @@
     )
     (symbol "BQ24103_0_1"
       (rectangle (start -8.89 19.05) (end 10.16 -19.05)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "BQ24103_1_1"
@@ -2176,7 +2261,7 @@
       )
     )
   )
-  (symbol "Power_kl:BQ24296" (in_bom yes) (on_board yes)
+  (symbol "BQ24296" (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -8.89 26.67 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -2197,77 +2282,88 @@
     )
     (symbol "BQ24296_0_1"
       (rectangle (start -10.16 25.4) (end 10.16 -26.67)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -10.16 -16.51)
           (xy -3.81 -16.51)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -10.16 -11.43)
           (xy -3.81 -11.43)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -10.16 -2.54)
           (xy -3.81 -2.54)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -10.16 10.16)
           (xy -3.81 10.16)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -10.16 17.78)
           (xy -3.81 17.78)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -3.81 -26.67)
           (xy -3.81 25.4)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 3.81 -26.67)
           (xy 3.81 25.4)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 3.81 -16.51)
           (xy 10.16 -16.51)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 3.81 -10.16)
           (xy 10.16 -10.16)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 3.81 20.32)
           (xy 10.16 20.32)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "BQ24296_1_1"
@@ -2373,7 +2469,7 @@
       )
     )
   )
-  (symbol "Power_kl:BQ2461x" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "BQ2461x" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -7.62 26.67 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2394,7 +2490,8 @@
     )
     (symbol "BQ2461x_0_1"
       (rectangle (start 10.16 -27.94) (end -8.89 25.4)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "BQ2461x_1_1"
@@ -2500,7 +2597,7 @@
       )
     )
   )
-  (symbol "Power_kl:BQ298x" (in_bom yes) (on_board yes)
+  (symbol "BQ298x" (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -7.62 8.89 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -2515,21 +2612,24 @@
     )
     (symbol "BQ298x_0_1"
       (rectangle (start -8.89 7.62) (end 8.89 -8.89)
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 7.62)
           (xy -2.54 -8.89)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 2.54 -8.89)
           (xy 2.54 7.62)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "BQ298x_1_1"
@@ -2567,7 +2667,7 @@
       )
     )
   )
-  (symbol "Power_kl:BSP742" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "BSP742" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 3.81 8.89 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -2585,21 +2685,24 @@
     )
     (symbol "BSP742_0_1"
       (rectangle (start -7.62 7.62) (end 7.62 -10.16)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 7.62)
           (xy -2.54 -10.16)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 2.54 -10.16)
           (xy 2.54 7.62)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "BSP742_1_1"
@@ -2637,7 +2740,7 @@
       )
     )
   )
-  (symbol "Power_kl:BSP762" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "BSP762" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 3.81 8.89 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -2655,21 +2758,24 @@
     )
     (symbol "BSP762_0_1"
       (rectangle (start -7.62 7.62) (end 7.62 -10.16)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 7.62)
           (xy -2.54 -10.16)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 2.54 -10.16)
           (xy 2.54 7.62)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "BSP762_1_1"
@@ -2707,7 +2813,7 @@
       )
     )
   )
-  (symbol "Power_kl:DRV8835" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "DRV8835" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 7.62 12.7 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2737,7 +2843,8 @@
     )
     (symbol "DRV8835_0_1"
       (rectangle (start -11.43 11.43) (end 11.43 -11.43)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "DRV8835_1_1"
@@ -2795,7 +2902,7 @@
       )
     )
   )
-  (symbol "Power_kl:HV9910" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "HV9910" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -8.89 11.43 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2816,7 +2923,8 @@
     )
     (symbol "HV9910_0_1"
       (rectangle (start -10.16 10.16) (end 6.35 -7.62)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "HV9910_1_1"
@@ -2854,7 +2962,7 @@
       )
     )
   )
-  (symbol "Power_kl:IPS6041" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "IPS6041" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 3.81 11.43 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2878,7 +2986,8 @@
     )
     (symbol "IPS6041_0_1"
       (rectangle (start 6.35 -7.62) (end -6.35 10.16)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "IPS6041_1_1"
@@ -2916,7 +3025,7 @@
       )
     )
   )
-  (symbol "Power_kl:IR3856" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "IR3856" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 7.62 20.32 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2937,7 +3046,8 @@
     )
     (symbol "IR3856_0_1"
       (rectangle (start 15.24 -20.32) (end -13.97 19.05)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "IR3856_1_1"
@@ -3007,7 +3117,7 @@
       )
     )
   )
-  (symbol "Power_kl:L5973" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "L5973" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 3.81 10.16 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3028,7 +3138,8 @@
     )
     (symbol "L5973_0_1"
       (rectangle (start -8.89 8.89) (end 8.89 -8.89)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "L5973_1_1"
@@ -3066,7 +3177,7 @@
       )
     )
   )
-  (symbol "Power_kl:L6203" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "L6203" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -5.08 15.24 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3083,16 +3194,21 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "L6203_0_1"
-      (circle (center 7.62 -8.89) (radius 4.0132) (stroke (width 0)) (fill (type none)))
       (rectangle (start -7.62 13.97) (end 13.97 -31.75)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 -31.75)
           (xy 1.27 13.97)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 7.62 -8.89) (radius 4.0132)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "L6203_1_1"
@@ -3142,7 +3258,7 @@
       )
     )
   )
-  (symbol "Power_kl:L6470" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "L6470" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "U" (id 0) (at 24.13 16.51 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3163,7 +3279,8 @@
     )
     (symbol "L6470_0_1"
       (rectangle (start -20.32 21.59) (end 20.32 -22.86)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "L6470_1_1"
@@ -3285,7 +3402,7 @@
       )
     )
   )
-  (symbol "Power_kl:LD1117" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LD1117" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -2.54 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3306,7 +3423,8 @@
     )
     (symbol "LD1117_0_1"
       (rectangle (start -5.08 3.81) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LD1117_1_1"
@@ -3328,7 +3446,7 @@
       )
     )
   )
-  (symbol "Power_kl:LDO_5pin_4NC" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LDO_5pin_4NC" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3346,7 +3464,8 @@
     )
     (symbol "LDO_5pin_4NC_0_1"
       (rectangle (start -5.08 3.81) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LDO_5pin_4NC_1_1"
@@ -3372,7 +3491,7 @@
       )
     )
   )
-  (symbol "Power_kl:LED2001" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LED2001" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 6.35 12.7 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3393,7 +3512,8 @@
     )
     (symbol "LED2001_0_1"
       (rectangle (start -7.62 11.43) (end 7.62 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LED2001_1_1"
@@ -3431,7 +3551,7 @@
       )
     )
   )
-  (symbol "Power_kl:LM2703" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LM2703" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -2.54 6.35 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3452,7 +3572,8 @@
     )
     (symbol "LM2703_0_1"
       (rectangle (start -7.62 5.08) (end 7.62 -7.62)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LM2703_1_1"
@@ -3478,7 +3599,7 @@
       )
     )
   )
-  (symbol "Power_kl:LM3150" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LM3150" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -7.62 13.97 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3505,7 +3626,8 @@
     )
     (symbol "LM3150_0_1"
       (rectangle (start -8.89 12.7) (end 8.89 -13.97)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LM3150_1_1"
@@ -3571,7 +3693,7 @@
       )
     )
   )
-  (symbol "Power_kl:LM317_SO8" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LM317_SO8" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 10.16 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3592,7 +3714,8 @@
     )
     (symbol "LM317_SO8_0_1"
       (rectangle (start -6.35 6.35) (end 6.35 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LM317_SO8_1_1"
@@ -3622,7 +3745,7 @@
       )
     )
   )
-  (symbol "Power_kl:LM338" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LM338" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3643,7 +3766,8 @@
     )
     (symbol "LM338_0_1"
       (rectangle (start -5.08 6.35) (end 6.35 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LM338_1_1"
@@ -3665,7 +3789,7 @@
       )
     )
   )
-  (symbol "Power_kl:LM3410" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LM3410" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3686,7 +3810,8 @@
     )
     (symbol "LM3410_0_1"
       (rectangle (start -5.08 3.81) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LM3410_1_1"
@@ -3712,7 +3837,7 @@
       )
     )
   )
-  (symbol "Power_kl:LM3410_LLP" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LM3410_LLP" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3733,7 +3858,8 @@
     )
     (symbol "LM3410_LLP_0_1"
       (rectangle (start -5.08 3.81) (end 5.08 -8.89)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LM3410_LLP_1_1"
@@ -3767,7 +3893,7 @@
       )
     )
   )
-  (symbol "Power_kl:LM3481" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LM3481" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 6.35 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3791,7 +3917,8 @@
     )
     (symbol "LM3481_0_1"
       (rectangle (start -11.43 7.62) (end 11.43 -8.89)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LM3481_1_1"
@@ -3837,7 +3964,7 @@
       )
     )
   )
-  (symbol "Power_kl:LM4041" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "LM4041" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 -6.35 90)
       (effects (font (size 1.524 1.524)))
     )
@@ -3862,7 +3989,8 @@
           (xy 0.635 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3871,7 +3999,8 @@
           (xy 1.27 1.27)
           (xy 1.905 1.905)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3880,7 +4009,8 @@
           (xy 1.27 -1.27)
           (xy -1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LM4041_1_1"
@@ -3898,7 +4028,7 @@
       )
     )
   )
-  (symbol "Power_kl:LP2951" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LP2951" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -7.62 10.16 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3916,7 +4046,8 @@
     )
     (symbol "LP2951_0_1"
       (rectangle (start -8.89 8.89) (end 8.89 -11.43)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LP2951_1_1"
@@ -3954,7 +4085,7 @@
       )
     )
   )
-  (symbol "Power_kl:LP2981" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LP2981" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3975,7 +4106,8 @@
     )
     (symbol "LP2981_0_1"
       (rectangle (start -5.08 3.81) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LP2981_1_1"
@@ -4001,7 +4133,68 @@
       )
     )
   )
-  (symbol "Power_kl:LT1932" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LPW5210" (in_bom yes) (on_board yes)
+    (property "Reference" "DA" (id 0) (at -7.62 6.35 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "LPW5210" (id 1) (at 3.81 6.35 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "SOT:SOT23-5" (id 2) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (id 3) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "ki_description" "PwrSwitch for USB" (id 4) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (symbol "LPW5210_0_1"
+      (rectangle (start -8.89 5.08) (end 8.89 -5.08)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy -2.54 5.08)
+          (xy -2.54 -5.08)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 2.54 5.08)
+          (xy 2.54 -5.08)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+    )
+    (symbol "LPW5210_1_1"
+      (pin passive line (at 13.97 2.54 180) (length 5.08)
+        (name "VOUT" (effects (font (size 1.27 1.27))))
+        (number "1" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at 13.97 -2.54 180) (length 5.08)
+        (name "GND" (effects (font (size 1.27 1.27))))
+        (number "2" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at 13.97 0 180) (length 5.08)
+        (name "RSET" (effects (font (size 1.27 1.27))))
+        (number "3" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at -13.97 -2.54 0) (length 5.08)
+        (name "EN" (effects (font (size 1.27 1.27))))
+        (number "4" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at -13.97 2.54 0) (length 5.08)
+        (name "VIN" (effects (font (size 1.27 1.27))))
+        (number "5" (effects (font (size 1.27 1.27))))
+      )
+    )
+  )
+  (symbol "LT1932" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 2.54 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4022,7 +4215,8 @@
     )
     (symbol "LT1932_0_1"
       (rectangle (start -7.62 6.35) (end 7.62 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LT1932_1_1"
@@ -4052,7 +4246,7 @@
       )
     )
   )
-  (symbol "Power_kl:LTC4054" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LTC4054" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -6.35 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4073,7 +4267,8 @@
     )
     (symbol "LTC4054_0_1"
       (rectangle (start 7.62 6.35) (end -7.62 -2.54)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LTC4054_1_1"
@@ -4099,7 +4294,7 @@
       )
     )
   )
-  (symbol "Power_kl:MAX14870" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MAX14870" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -2.54 12.7 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4126,7 +4321,8 @@
     )
     (symbol "MAX14870_0_1"
       (rectangle (start -10.16 11.43) (end 10.16 -10.16)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MAX14870_1_1"
@@ -4184,7 +4380,7 @@
       )
     )
   )
-  (symbol "Power_kl:MAX1555" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MAX1555" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4205,7 +4401,8 @@
     )
     (symbol "MAX1555_0_1"
       (rectangle (start -5.08 3.81) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MAX1555_1_1"
@@ -4231,7 +4428,7 @@
       )
     )
   )
-  (symbol "Power_kl:MAX1920" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MAX1920" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 6.35 10.16 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4252,7 +4449,8 @@
     )
     (symbol "MAX1920_0_1"
       (rectangle (start -6.35 8.89) (end 6.35 -11.43)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MAX1920_1_1"
@@ -4282,7 +4480,7 @@
       )
     )
   )
-  (symbol "Power_kl:MAX712" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MAX712" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "U" (id 0) (at -10.16 22.86 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4306,7 +4504,8 @@
     )
     (symbol "MAX712_0_1"
       (rectangle (start -11.43 21.59) (end 10.16 -17.78)
-        (stroke (width 0.1016)) (fill (type none))
+        (stroke (width 0.1016) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MAX712_1_1"
@@ -4376,7 +4575,7 @@
       )
     )
   )
-  (symbol "Power_kl:MAX8546" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MAX8546" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 16.51 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4397,7 +4596,8 @@
     )
     (symbol "MAX8546_0_1"
       (rectangle (start -11.43 15.24) (end 8.89 -16.51)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MAX8546_1_1"
@@ -4443,7 +4643,7 @@
       )
     )
   )
-  (symbol "Power_kl:MAX8881" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MAX8881" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -5.08 6.35 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4464,7 +4664,8 @@
     )
     (symbol "MAX8881_0_1"
       (rectangle (start -7.62 5.08) (end 8.89 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MAX8881_1_1"
@@ -4494,7 +4695,7 @@
       )
     )
   )
-  (symbol "Power_kl:MC33926" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MC33926" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -8.89 26.67 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4515,7 +4716,8 @@
     )
     (symbol "MC33926_0_1"
       (rectangle (start -10.16 25.4) (end 11.43 -24.13)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MC33926_1_1"
@@ -4653,7 +4855,7 @@
       )
     )
   )
-  (symbol "Power_kl:MC34063" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MC34063" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 12.7 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4671,7 +4873,8 @@
     )
     (symbol "MC34063_0_1"
       (rectangle (start -6.35 8.89) (end 6.35 -8.89)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MC34063_1_1"
@@ -4709,7 +4912,7 @@
       )
     )
   )
-  (symbol "Power_kl:MC34151" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MC34151" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 1.27 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4737,7 +4940,8 @@
           (xy -5.08 -6.35)
           (xy -5.08 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -4748,7 +4952,8 @@
           (xy -1.27 -1.27)
           (xy -1.27 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MC34151_1_1"
@@ -4780,7 +4985,7 @@
       )
     )
   )
-  (symbol "Power_kl:MC7800" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MC7800" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4801,7 +5006,8 @@
     )
     (symbol "MC7800_0_1"
       (rectangle (start -5.08 6.35) (end 6.35 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MC7800_1_1"
@@ -4819,7 +5025,7 @@
       )
     )
   )
-  (symbol "Power_kl:MCP1700" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MCP1700" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4846,7 +5052,8 @@
     )
     (symbol "MCP1700_0_1"
       (rectangle (start -5.08 6.35) (end 6.35 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MCP1700_1_1"
@@ -4864,7 +5071,7 @@
       )
     )
   )
-  (symbol "Power_kl:MCP73832" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MCP73832" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -6.35 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -4888,7 +5095,8 @@
     )
     (symbol "MCP73832_0_1"
       (rectangle (start -7.62 6.35) (end 7.62 -7.62)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MCP73832_1_1"
@@ -4914,7 +5122,72 @@
       )
     )
   )
-  (symbol "Power_kl:NCP1400" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MT3608" (in_bom yes) (on_board yes)
+    (property "Reference" "DA" (id 0) (at 3.81 7.62 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "MT3608" (id 1) (at -5.08 7.62 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "SOT:SOT23-6" (id 2) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (id 3) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "ki_description" "Boost converter" (id 4) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (symbol "MT3608_0_1"
+      (rectangle (start -8.89 6.35) (end 8.89 -6.35)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy -3.81 -6.35)
+          (xy -3.81 6.35)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 3.81 -6.35)
+          (xy 3.81 6.35)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+    )
+    (symbol "MT3608_1_1"
+      (pin passive line (at 13.97 3.81 180) (length 5.08)
+        (name "LX" (effects (font (size 1.27 1.27))))
+        (number "1" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at -13.97 -3.81 0) (length 5.08)
+        (name "GND" (effects (font (size 1.27 1.27))))
+        (number "2" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at 13.97 -3.81 180) (length 5.08)
+        (name "FB" (effects (font (size 1.27 1.27))))
+        (number "3" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at -13.97 0 0) (length 5.08)
+        (name "EN" (effects (font (size 1.27 1.27))))
+        (number "4" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at -13.97 3.81 0) (length 5.08)
+        (name "IN" (effects (font (size 1.27 1.27))))
+        (number "5" (effects (font (size 1.27 1.27))))
+      )
+      (pin no_connect line (at 13.97 0 180) (length 5.08)
+        (name "NC" (effects (font (size 1.27 1.27))))
+        (number "6" (effects (font (size 1.27 1.27))))
+      )
+    )
+  )
+  (symbol "NCP1400" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -5.08 6.35 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -4938,7 +5211,8 @@
     )
     (symbol "NCP1400_0_1"
       (rectangle (start -6.35 5.08) (end 5.08 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP1400_1_1"
@@ -4964,7 +5238,7 @@
       )
     )
   )
-  (symbol "Power_kl:NCP1403" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "NCP1403" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -5.08 6.35 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -4994,7 +5268,8 @@
     )
     (symbol "NCP1403_0_1"
       (rectangle (start -6.35 5.08) (end 5.08 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP1403_1_1"
@@ -5020,7 +5295,7 @@
       )
     )
   )
-  (symbol "Power_kl:NCP1529" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "NCP1529" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -6.35 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5041,7 +5316,8 @@
     )
     (symbol "NCP1529_0_1"
       (rectangle (start -6.35 6.35) (end 6.35 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP1529_1_1"
@@ -5067,7 +5343,7 @@
       )
     )
   )
-  (symbol "Power_kl:NCP1529DFN" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "NCP1529DFN" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -6.35 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5088,7 +5364,8 @@
     )
     (symbol "NCP1529DFN_0_1"
       (rectangle (start -6.35 6.35) (end 6.35 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP1529DFN_1_1"
@@ -5122,7 +5399,7 @@
       )
     )
   )
-  (symbol "Power_kl:NCP3066" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "NCP3066" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -6.35 13.97 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5143,7 +5420,8 @@
     )
     (symbol "NCP3066_0_1"
       (rectangle (start -7.62 12.7) (end 8.89 -10.16)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP3066_1_1"
@@ -5181,7 +5459,7 @@
       )
     )
   )
-  (symbol "Power_kl:NCP3127" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "NCP3127" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 5.08 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5211,7 +5489,8 @@
     )
     (symbol "NCP3127_0_1"
       (rectangle (start -10.16 6.35) (end 10.16 -8.89)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP3127_1_1"
@@ -5249,7 +5528,7 @@
       )
     )
   )
-  (symbol "Power_kl:NCP3170" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "NCP3170" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 6.35 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5279,7 +5558,8 @@
     )
     (symbol "NCP3170_0_1"
       (rectangle (start -11.43 7.62) (end 8.89 -12.7)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP3170_1_1"
@@ -5317,7 +5597,7 @@
       )
     )
   )
-  (symbol "Power_kl:NCP5007" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "NCP5007" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 6.35 12.7 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5338,7 +5618,8 @@
     )
     (symbol "NCP5007_0_1"
       (rectangle (start -6.35 11.43) (end 6.35 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP5007_1_1"
@@ -5364,7 +5645,7 @@
       )
     )
   )
-  (symbol "Power_kl:NCP5030" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "NCP5030" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 10.16 25.4 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5379,7 +5660,8 @@
     )
     (symbol "NCP5030_0_1"
       (rectangle (start -8.89 -10.16) (end 17.78 24.13)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP5030_1_1"
@@ -5437,7 +5719,7 @@
       )
     )
   )
-  (symbol "Power_kl:NCP5623B" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "NCP5623B" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -17.78 13.97 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5458,7 +5740,8 @@
     )
     (symbol "NCP5623B_0_1"
       (rectangle (start -10.16 -12.7) (end 10.16 10.16)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP5623B_1_1"
@@ -5516,7 +5799,7 @@
       )
     )
   )
-  (symbol "Power_kl:NCP583SQ" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "NCP583SQ" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 8.89 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -5540,7 +5823,8 @@
     )
     (symbol "NCP583SQ_0_1"
       (rectangle (start -5.08 5.08) (end 5.08 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP583SQ_1_1"
@@ -5562,7 +5846,7 @@
       )
     )
   )
-  (symbol "Power_kl:NCP662SQ" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "NCP662SQ" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5583,7 +5867,8 @@
     )
     (symbol "NCP662SQ_0_1"
       (rectangle (start -5.08 5.08) (end 5.08 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "NCP662SQ_1_1"
@@ -5605,7 +5890,7 @@
       )
     )
   )
-  (symbol "Power_kl:PT4110" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "PT4110" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -7.62 7.62 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -5623,21 +5908,24 @@
     )
     (symbol "PT4110_0_1"
       (rectangle (start -10.16 6.35) (end 8.89 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -3.81 -6.35)
           (xy -3.81 6.35)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 3.81 -6.35)
           (xy 3.81 6.35)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "PT4110_1_1"
@@ -5663,7 +5951,7 @@
       )
     )
   )
-  (symbol "Power_kl:PWR_SUPP" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "PWR_SUPP" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "U" (id 0) (at 6.35 6.35 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -5678,7 +5966,8 @@
     )
     (symbol "PWR_SUPP_0_1"
       (rectangle (start -8.89 5.08) (end 8.89 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "PWR_SUPP_1_1"
@@ -5700,7 +5989,7 @@
       )
     )
   )
-  (symbol "Power_kl:ST1CC40_SO8" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "ST1CC40_SO8" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at 7.62 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5727,7 +6016,8 @@
     )
     (symbol "ST1CC40_SO8_0_1"
       (rectangle (start -8.89 7.62) (end 8.89 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "ST1CC40_SO8_1_1"
@@ -5765,7 +6055,7 @@
       )
     )
   )
-  (symbol "Power_kl:ST1S06" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "ST1S06" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -10.16 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5798,7 +6088,8 @@
     )
     (symbol "ST1S06_0_1"
       (rectangle (start -11.43 7.62) (end 10.16 -7.62)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "ST1S06_1_1"
@@ -5832,7 +6123,7 @@
       )
     )
   )
-  (symbol "Power_kl:ST1S10" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "ST1S10" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -10.16 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5865,7 +6156,8 @@
     )
     (symbol "ST1S10_0_1"
       (rectangle (start -11.43 7.62) (end 10.16 -7.62)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "ST1S10_1_1"
@@ -5907,7 +6199,7 @@
       )
     )
   )
-  (symbol "Power_kl:STCS1" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "STCS1" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -5.08 10.16 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -5928,7 +6220,8 @@
     )
     (symbol "STCS1_0_1"
       (rectangle (start -7.62 8.89) (end 7.62 -8.89)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "STCS1_1_1"
@@ -5966,7 +6259,7 @@
       )
     )
   )
-  (symbol "Power_kl:STM6315" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "STM6315" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -7.62 7.62 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -5984,28 +6277,32 @@
     )
     (symbol "STM6315_0_1"
       (rectangle (start -8.89 6.35) (end 8.89 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -8.89 1.27)
           (xy -2.54 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 -6.35)
           (xy -2.54 6.35)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 2.54 6.35)
           (xy 2.54 -6.35)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "STM6315_1_1"
@@ -6027,7 +6324,7 @@
       )
     )
   )
-  (symbol "Power_kl:SY8120" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "SY8120" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -7.62 7.62 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -6042,21 +6339,24 @@
     )
     (symbol "SY8120_0_1"
       (rectangle (start -8.89 6.35) (end 8.89 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 6.35)
           (xy -2.54 -6.35)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 2.54 6.35)
           (xy 2.54 -6.35)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "SY8120_1_1"
@@ -6086,7 +6386,7 @@
       )
     )
   )
-  (symbol "Power_kl:TL431_SO8" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "TL431_SO8" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 -6.35 90)
       (effects (font (size 1.524 1.524)))
     )
@@ -6107,21 +6407,24 @@
     )
     (symbol "TL431_SO8_0_1"
       (rectangle (start 0 -2.54) (end 7.62 -2.54)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 0 -1.27)
           (xy 0 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 0.635 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -6130,7 +6433,8 @@
           (xy 1.27 1.27)
           (xy 1.905 1.905)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -6139,7 +6443,8 @@
           (xy 1.27 -1.27)
           (xy -1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TL431_SO8_1_1"
@@ -6169,7 +6474,7 @@
       )
     )
   )
-  (symbol "Power_kl:TL431_SOT23" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "TL431_SOT23" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 -6.35 90)
       (effects (font (size 1.524 1.524)))
     )
@@ -6197,7 +6502,8 @@
           (xy 0.635 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -6206,7 +6512,8 @@
           (xy 1.27 1.27)
           (xy 1.905 1.905)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -6215,7 +6522,8 @@
           (xy 1.27 -1.27)
           (xy -1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
     )
     (symbol "TL431_SOT23_1_1"
@@ -6233,7 +6541,7 @@
       )
     )
   )
-  (symbol "Power_kl:TLV6256x" (in_bom yes) (on_board yes)
+  (symbol "TLV6256x" (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -6.35 7.62 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -6251,21 +6559,24 @@
     )
     (symbol "TLV6256x_0_1"
       (rectangle (start -7.62 6.35) (end 7.62 -6.35)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 -6.35)
           (xy -2.54 6.35)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 2.54 6.35)
           (xy 2.54 -6.35)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TLV6256x_1_1"
@@ -6291,7 +6602,7 @@
       )
     )
   )
-  (symbol "Power_kl:TLV700xx" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "TLV700xx" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -6312,21 +6623,24 @@
     )
     (symbol "TLV700xx_0_1"
       (rectangle (start -6.35 3.81) (end 6.35 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -1.27 -6.35)
           (xy -1.27 3.81)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 3.81)
           (xy 1.27 -6.35)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TLV700xx_1_1"
@@ -6352,7 +6666,7 @@
       )
     )
   )
-  (symbol "Power_kl:TLV733xx" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "TLV733xx" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -6370,7 +6684,8 @@
     )
     (symbol "TLV733xx_0_1"
       (rectangle (start -5.08 3.81) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TLV733xx_1_1"
@@ -6396,7 +6711,7 @@
       )
     )
   )
-  (symbol "Power_kl:TP4056" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "TP4056" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -7.62 10.16 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -6420,7 +6735,8 @@
     )
     (symbol "TP4056_0_1"
       (rectangle (start -10.16 8.89) (end 8.89 -7.62)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TP4056_1_1"
@@ -6458,7 +6774,7 @@
       )
     )
   )
-  (symbol "Power_kl:TPS202x" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "TPS202x" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 11.43 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -6476,7 +6792,8 @@
     )
     (symbol "TPS202x_0_1"
       (rectangle (start 6.35 7.62) (end -6.35 -8.89)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TPS202x_1_1"
@@ -6514,7 +6831,7 @@
       )
     )
   )
-  (symbol "Power_kl:TPS20xxC" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "TPS20xxC" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -6535,7 +6852,8 @@
     )
     (symbol "TPS20xxC_0_1"
       (rectangle (start -6.35 5.08) (end 6.35 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TPS20xxC_1_1"
@@ -6561,7 +6879,7 @@
       )
     )
   )
-  (symbol "Power_kl:TPS562200" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "TPS562200" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -6.35 10.16 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -6582,7 +6900,8 @@
     )
     (symbol "TPS562200_0_1"
       (rectangle (start -7.62 8.89) (end 6.35 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TPS562200_1_1"
@@ -6612,7 +6931,7 @@
       )
     )
   )
-  (symbol "Power_kl:TPS56339" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "TPS56339" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -7.62 7.62 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -6627,21 +6946,24 @@
     )
     (symbol "TPS56339_0_1"
       (rectangle (start -8.89 6.35) (end 8.89 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 6.35)
           (xy -2.54 -6.35)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 2.54 6.35)
           (xy 2.54 -6.35)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TPS56339_1_1"
@@ -6671,7 +6993,7 @@
       )
     )
   )
-  (symbol "Power_kl:TPS61042" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "TPS61042" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 12.7 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -6692,7 +7014,8 @@
     )
     (symbol "TPS61042_0_1"
       (rectangle (start 7.62 8.89) (end -7.62 -8.89)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TPS61042_1_1"
@@ -6734,7 +7057,7 @@
       )
     )
   )
-  (symbol "Power_kl:TPS61230" (in_bom yes) (on_board yes)
+  (symbol "TPS61230" (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -6.35 12.7 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -6752,21 +7075,24 @@
     )
     (symbol "TPS61230_0_1"
       (rectangle (start -8.89 11.43) (end 8.89 -10.16)
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -3.81 -10.16)
           (xy -3.81 11.43)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 3.81 -10.16)
           (xy 3.81 11.43)
         )
-        (stroke (width 0.0006)) (fill (type none))
+        (stroke (width 0.0006) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TPS61230_1_1"
@@ -6816,7 +7142,7 @@
       )
     )
   )
-  (symbol "Power_kl:TPS71533" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "TPS71533" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 6.35 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -6837,7 +7163,8 @@
     )
     (symbol "TPS71533_0_1"
       (rectangle (start 5.08 -6.35) (end -5.08 2.54)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TPS71533_1_1"
@@ -6863,7 +7190,7 @@
       )
     )
   )
-  (symbol "Power_kl:TPS763xx" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "TPS763xx" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -6887,7 +7214,8 @@
     )
     (symbol "TPS763xx_0_1"
       (rectangle (start -5.08 3.81) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TPS763xx_1_1"
@@ -6913,7 +7241,7 @@
       )
     )
   )
-  (symbol "Power_kl:TRIAC" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "TRIAC" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "U" (id 0) (at -7.62 3.81 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -6935,7 +7263,8 @@
           (xy 0 1.27)
           (xy 1.27 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -6943,7 +7272,8 @@
           (xy -2.54 -1.27)
           (xy -3.81 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -6951,7 +7281,8 @@
           (xy 1.27 -1.27)
           (xy 0 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -6960,7 +7291,8 @@
           (xy 0 1.27)
           (xy -1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "TRIAC_1_1"
@@ -6978,7 +7310,7 @@
       )
     )
   )
-  (symbol "Power_kl:ZXLD1322" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "ZXLD1322" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -7.62 15.24 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -6993,7 +7325,8 @@
     )
     (symbol "ZXLD1322_0_1"
       (rectangle (start -13.97 12.7) (end 13.97 -13.97)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "ZXLD1322_1_1"
@@ -7059,7 +7392,7 @@
       )
     )
   )
-  (symbol "Power_kl:ZXSC400" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "ZXSC400" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "DA" (id 0) (at -6.35 6.35 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -7080,7 +7413,8 @@
     )
     (symbol "ZXSC400_0_1"
       (rectangle (start -7.62 5.08) (end 8.89 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "ZXSC400_1_1"
