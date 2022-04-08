@@ -1,0 +1,15 @@
+(footprint "HoleNM3d3_out5d5mm" (version 20211014) (generator pcbnew)
+  (layer "F.Cu")
+  (tedit 622E205F)
+  (attr through_hole)
+  (fp_text reference "Hole3_3mm" (at 0 3.2004) (layer "F.SilkS") hide
+    (effects (font (size 0.127 0.127) (thickness 0.00254)))
+    (tstamp 72327dc2-148b-4ec0-aefd-4e061e3c3cac)
+  )
+  (fp_text value "VAL**" (at -0.09906 -3.2004) (layer "F.SilkS") hide
+    (effects (font (size 0.127 0.127) (thickness 0.00254)))
+    (tstamp 482794b5-34f8-4ab0-9a59-ef2487104be2)
+  )
+  (pad "H" thru_hole circle (at 0 0) (size 5.5 5.5) (drill 3.3) (layers *.Mask)
+    (zone_connect 0) (tstamp a1d01247-a687-4cc8-9a96-269daba27011))
+)

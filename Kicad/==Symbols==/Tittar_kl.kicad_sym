@@ -1,5 +1,5 @@
-(kicad_symbol_lib (version 20201005) (generator kicad_symbol_editor)
-  (symbol "Tittar_kl:2xShottkyCC2" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+(kicad_symbol_lib (version 20211014) (generator kicad_symbol_editor)
+  (symbol "2xShottkyCC2" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at -5.08 3.81 0)
       (effects (font (size 1.016 1.016)))
     )
@@ -16,9 +16,9 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "2xShottkyCC2_0_1"
-      (circle (center 0 0) (radius 0.3556) (stroke (width 0)) (fill (type outline)))
       (rectangle (start -6.35 2.54) (end 6.35 -2.54)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -26,7 +26,8 @@
           (xy -5.08 0)
           (xy -5.08 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -34,7 +35,8 @@
           (xy -2.54 0)
           (xy -5.08 -1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -42,7 +44,8 @@
           (xy 2.54 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -50,7 +53,8 @@
           (xy 0 -2.54)
           (xy 0 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -58,7 +62,8 @@
           (xy 6.35 0)
           (xy 6.35 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -67,7 +72,8 @@
           (xy 2.5146 0)
           (xy 2.5146 0)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -77,7 +83,8 @@
           (xy -1.905 1.27)
           (xy -1.905 1.27)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -87,7 +94,12 @@
           (xy 3.175 -1.27)
           (xy 3.175 -1.27)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 0.3556)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "2xShottkyCC2_1_1"
@@ -105,7 +117,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:BAxxxA" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+  (symbol "BAxxxA" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at -5.08 3.81 0)
       (effects (font (size 1.016 1.016)))
     )
@@ -122,9 +134,9 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "BAxxxA_0_1"
-      (circle (center 0 0) (radius 0.3556) (stroke (width 0)) (fill (type outline)))
       (rectangle (start -6.35 2.54) (end 6.35 -2.54)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -132,7 +144,8 @@
           (xy -3.81 0)
           (xy -3.81 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -140,7 +153,8 @@
           (xy 0 0)
           (xy 0 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -148,7 +162,8 @@
           (xy 0 -2.54)
           (xy 0 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -156,7 +171,8 @@
           (xy 1.27 0)
           (xy 1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -164,7 +180,8 @@
           (xy 3.81 0)
           (xy 1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -172,7 +189,8 @@
           (xy 6.35 0)
           (xy 6.35 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -181,7 +199,8 @@
           (xy -3.8354 0)
           (xy -3.8354 0)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -191,7 +210,8 @@
           (xy -3.175 -1.27)
           (xy -3.175 -1.27)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -201,7 +221,12 @@
           (xy 4.445 1.27)
           (xy 4.445 1.27)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 0.3556)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "BAxxxA_1_1"
@@ -219,7 +244,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:BAxxxC" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+  (symbol "BAxxxC" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at -5.08 3.81 0)
       (effects (font (size 1.016 1.016)))
     )
@@ -236,9 +261,9 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "BAxxxC_0_1"
-      (circle (center 0 0) (radius 0.3556) (stroke (width 0)) (fill (type outline)))
       (rectangle (start -6.35 2.54) (end 6.35 -2.54)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -246,7 +271,8 @@
           (xy -5.08 0)
           (xy -5.08 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -254,7 +280,8 @@
           (xy -2.54 0)
           (xy -5.08 -1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -262,7 +289,8 @@
           (xy 2.54 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -270,7 +298,8 @@
           (xy 0 -2.54)
           (xy 0 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -278,7 +307,8 @@
           (xy 6.35 0)
           (xy 6.35 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -287,7 +317,8 @@
           (xy 2.5146 0)
           (xy 2.5146 0)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -297,7 +328,8 @@
           (xy -1.905 1.27)
           (xy -1.905 1.27)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -307,7 +339,12 @@
           (xy 3.175 -1.27)
           (xy 3.175 -1.27)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 0.3556)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "BAxxxC_1_1"
@@ -325,7 +362,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:BAxxxS" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+  (symbol "BAxxxS" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at -5.08 3.81 0)
       (effects (font (size 1.016 1.016)))
     )
@@ -342,9 +379,9 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "BAxxxS_0_1"
-      (circle (center 0 0) (radius 0.3556) (stroke (width 0)) (fill (type outline)))
       (rectangle (start -6.35 2.54) (end 6.35 -2.54)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -352,7 +389,8 @@
           (xy -5.08 0)
           (xy -5.08 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -360,7 +398,8 @@
           (xy -2.54 0)
           (xy -5.08 -1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -368,7 +407,8 @@
           (xy 2.54 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -376,7 +416,8 @@
           (xy 0 -2.54)
           (xy 0 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -384,7 +425,8 @@
           (xy 5.08 0)
           (xy 2.54 -1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -392,7 +434,8 @@
           (xy 6.35 0)
           (xy 6.35 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -402,7 +445,8 @@
           (xy -1.905 1.27)
           (xy -1.905 1.27)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -412,7 +456,12 @@
           (xy 5.715 1.27)
           (xy 5.715 1.27)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 0.3556)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "BAxxxS_1_1"
@@ -430,7 +479,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:BRIDGE" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "BRIDGE" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at 3.81 6.35 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -448,7 +497,8 @@
     )
     (symbol "BRIDGE_0_1"
       (rectangle (start -5.08 5.08) (end 5.08 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "BRIDGE_1_1"
@@ -470,7 +520,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:BUZZER" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "BUZZER" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "BZ" (id 0) (at 5.08 2.54 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -485,7 +535,8 @@
     )
     (symbol "BUZZER_0_1"
       (rectangle (start -1.27 2.54) (end 1.27 -2.54)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -493,7 +544,8 @@
           (xy -1.27 -3.81)
           (xy -1.27 -3.81)
         )
-        (stroke (width 0.254)) (fill (type background))
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
     )
     (symbol "BUZZER_1_1"
@@ -507,7 +559,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:C" (pin_numbers hide) (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+  (symbol "C" (pin_numbers hide) (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
     (property "Reference" "C" (id 0) (at -2.54 -2.54 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -559,14 +611,16 @@
           (xy -2.54 -0.762)
           (xy 2.54 -0.762)
         )
-        (stroke (width 0.254)) (fill (type none))
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 0.762)
           (xy 2.54 0.762)
         )
-        (stroke (width 0.254)) (fill (type none))
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "C_1_1"
@@ -580,7 +634,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:CHOKE_COIL" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "CHOKE_COIL" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "L" (id 0) (at -3.81 7.62 0)
       (effects (font (size 1.016 1.016)))
     )
@@ -600,32 +654,45 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "CHOKE_COIL_0_1"
-      (arc (start -1.27 -2.54) (end -3.81 -2.54) (radius (at -2.54 -2.54) (length 1.27) (angles 0.1 179.9))
-        (stroke (width 0)) (fill (type none))
+      (circle (center -3.937 -1.016) (radius 0.127)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (arc (start -3.81 2.54) (end -1.27 2.54) (radius (at -2.54 2.54) (length 1.27) (angles -179.9 -0.1))
-        (stroke (width 0)) (fill (type none))
+      (circle (center -3.937 1.016) (radius 0.127)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (arc (start 1.27 -2.54) (end -1.27 -2.54) (radius (at 0 -2.54) (length 1.27) (angles 0.1 179.9))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -3.81 2.54) (mid -2.54 1.27) (end -1.27 2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (arc (start -1.27 2.54) (end 1.27 2.54) (radius (at 0 2.54) (length 1.27) (angles -179.9 -0.1))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -1.27 -2.54) (mid -2.54 -1.27) (end -3.81 -2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (arc (start 3.81 -2.54) (end 1.27 -2.54) (radius (at 2.54 -2.54) (length 1.27) (angles 0.1 179.9))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -1.27 2.54) (mid 0 1.27) (end 1.27 2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (arc (start 1.27 2.54) (end 3.81 2.54) (radius (at 2.54 2.54) (length 1.27) (angles -179.9 -0.1))
-        (stroke (width 0)) (fill (type none))
-      )
-      (circle (center -3.937 -1.016) (radius 0.127) (stroke (width 0)) (fill (type none)))
-      (circle (center -3.937 1.016) (radius 0.127) (stroke (width 0)) (fill (type none)))
       (polyline
         (pts
           (xy -3.81 0)
           (xy 3.81 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 1.27 -2.54) (mid 0 -1.27) (end -1.27 -2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 1.27 2.54) (mid 2.54 1.27) (end 3.81 2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 3.81 -2.54) (mid 2.54 -1.27) (end 1.27 -2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "CHOKE_COIL_1_1"
@@ -647,7 +714,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:CP" (pin_numbers hide) (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+  (symbol "CP" (pin_numbers hide) (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
     (property "Reference" "C" (id 0) (at 1.27 2.54 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -675,14 +742,16 @@
           (xy -2.54 -0.762)
           (xy 2.54 -0.762)
         )
-        (stroke (width 0.254)) (fill (type none))
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 0.762)
           (xy 2.54 0.762)
         )
-        (stroke (width 0.254)) (fill (type none))
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -690,7 +759,8 @@
           (xy -1.27 1.778)
           (xy -1.27 1.778)
         )
-        (stroke (width 0.254)) (fill (type none))
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -698,7 +768,8 @@
           (xy -1.778 1.27)
           (xy -1.778 1.27)
         )
-        (stroke (width 0.254)) (fill (type none))
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "CP_1_1"
@@ -712,7 +783,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:CRYSTAL" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "CRYSTAL" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "XTAL" (id 0) (at 0 6.985 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -739,21 +810,24 @@
     )
     (symbol "CRYSTAL_0_1"
       (rectangle (start -0.635 1.905) (end 0.635 -1.905)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
           (xy -1.27 1.905)
           (xy -1.27 -1.905)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 1.905)
           (xy 1.27 -1.905)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "CRYSTAL_1_1"
@@ -767,7 +841,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:CRYSTAL_H" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "CRYSTAL_H" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "XTAL" (id 0) (at 0 6.985 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -794,21 +868,24 @@
     )
     (symbol "CRYSTAL_H_0_1"
       (rectangle (start -0.635 1.905) (end 0.635 -1.905)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
           (xy -1.27 1.905)
           (xy -1.27 -1.905)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 1.905)
           (xy 1.27 -1.905)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -816,7 +893,8 @@
           (xy 1.27 -2.54)
           (xy 1.27 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "CRYSTAL_H_1_1"
@@ -834,7 +912,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:CT" (pin_numbers hide) (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+  (symbol "CT" (pin_numbers hide) (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
     (property "Reference" "C" (id 0) (at -3.81 2.54 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -859,14 +937,16 @@
           (xy -2.54 -0.762)
           (xy 2.54 -0.762)
         )
-        (stroke (width 0.254)) (fill (type none))
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 0.762)
           (xy 2.54 0.762)
         )
-        (stroke (width 0.254)) (fill (type none))
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -874,7 +954,8 @@
           (xy 2.54 3.81)
           (xy 2.54 3.81)
         )
-        (stroke (width 0.127)) (fill (type none))
+        (stroke (width 0.127) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -882,7 +963,8 @@
           (xy 1.651 3.302)
           (xy 1.651 3.302)
         )
-        (stroke (width 0.127)) (fill (type none))
+        (stroke (width 0.127) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -890,7 +972,8 @@
           (xy 2.413 2.794)
           (xy 2.413 2.794)
         )
-        (stroke (width 0.127)) (fill (type none))
+        (stroke (width 0.127) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "CT_1_1"
@@ -904,7 +987,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:DIODE" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "DIODE" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at 0 2.54 0)
       (effects (font (size 1.016 1.016)))
     )
@@ -938,7 +1021,8 @@
           (xy 1.27 1.27)
           (xy 1.27 -1.27)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -948,7 +1032,8 @@
           (xy 1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "DIODE_1_1"
@@ -962,7 +1047,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:D_Shottky" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "D_Shottky" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at 0 2.54 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -993,7 +1078,8 @@
           (xy 1.905 1.27)
           (xy 1.905 1.27)
         )
-        (stroke (width 0.1524)) (fill (type none))
+        (stroke (width 0.1524) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1003,7 +1089,8 @@
           (xy 1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "D_Shottky_1_1"
@@ -1017,7 +1104,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:Encoder" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "Encoder" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "U" (id 0) (at -6.35 7.62 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -1032,28 +1119,32 @@
     )
     (symbol "Encoder_0_1"
       (rectangle (start -7.62 6.35) (end 7.62 -6.35)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
           (xy -1.27 -1.27)
           (xy 0 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -1.27 1.27)
           (xy 0 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -1.27 3.81)
           (xy -1.27 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1061,7 +1152,8 @@
           (xy 3.81 -3.81)
           (xy 5.08 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1070,7 +1162,8 @@
           (xy 3.81 1.27)
           (xy 2.54 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1081,7 +1174,8 @@
           (xy -2.54 3.81)
           (xy -1.27 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1093,7 +1187,8 @@
           (xy -1.27 -3.81)
           (xy -1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "Encoder_1_1"
@@ -1123,7 +1218,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:FUSE" (pin_numbers hide) (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "FUSE" (pin_numbers hide) (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "F" (id 0) (at 3.81 2.54 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -1141,14 +1236,16 @@
     )
     (symbol "FUSE_0_1"
       (rectangle (start -3.81 1.27) (end 3.81 -1.27)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -1.27 0)
           (xy 1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "FUSE_1_1"
@@ -1162,7 +1259,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:Fuse0R" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+  (symbol "Fuse0R" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
     (property "Reference" "F" (id 0) (at -1.778 0 90)
       (effects (font (size 1.27 1.27)))
     )
@@ -1186,7 +1283,8 @@
     )
     (symbol "Fuse0R_0_1"
       (rectangle (start -1.016 3.81) (end 1.016 -3.81)
-        (stroke (width 0.2032)) (fill (type none))
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "Fuse0R_1_1"
@@ -1200,7 +1298,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:GERCON" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "GERCON" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "GC" (id 0) (at 0 -3.81 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -1217,14 +1315,18 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "GERCON_0_1"
-      (circle (center 0 0) (radius 2.54) (stroke (width 0)) (fill (type background)))
       (polyline
         (pts
           (xy -1.27 0)
           (xy 1.27 1.27)
           (xy 1.27 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
     )
     (symbol "GERCON_1_1"
@@ -1238,7 +1340,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:Generator" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "Generator" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "GN" (id 0) (at 5.08 7.62 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -1258,23 +1360,26 @@
     )
     (symbol "Generator_0_1"
       (rectangle (start -8.89 6.35) (end 8.89 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -2.54 -6.35)
           (xy -2.54 6.35)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 3.81 6.35)
           (xy 3.81 -6.35)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (pin unconnected line (at -13.97 3.81 0) (length 5.08)
+      (pin no_connect line (at -13.97 3.81 0) (length 5.08)
         (name "NC" (effects (font (size 1.27 1.27))))
         (number "1" (effects (font (size 1.27 1.27))))
       )
@@ -1292,7 +1397,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:L" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "L" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "L" (id 0) (at -2.54 -3.556 90)
       (effects (font (size 1.27 1.27)))
     )
@@ -1327,14 +1432,17 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "L_0_1"
-      (arc (start -0.0254 -1.2192) (end -0.0254 -3.7846) (radius (at 0 -2.5146) (length 1.2954) (angles -88.9 88.9))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -0.0254 -1.2192) (mid -1.2956 -2.5143) (end -0.0254 -3.7846)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (arc (start -0.0254 1.3208) (end -0.0254 -1.2446) (radius (at 0 0.0254) (length 1.2954) (angles -88.9 88.9))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -0.0254 1.3208) (mid -1.2956 0.0257) (end -0.0254 -1.2446)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (arc (start -0.0254 3.7084) (end -0.0254 1.2954) (radius (at 0 2.4892) (length 1.2192) (angles -88.9 88.9))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -0.0254 3.7084) (mid -1.2195 2.4895) (end -0.0254 1.2954)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "L_1_1"
@@ -1348,7 +1456,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:LED" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "LED" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at 2.54 3.556 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -1374,27 +1482,29 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "LED_0_1"
-      (circle (center 0 0) (radius 2.1336) (stroke (width 0)) (fill (type none)))
       (polyline
         (pts
           (xy 1.27 1.27)
           (xy 1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 2.54 -3.048)
           (xy 1.778 -2.794)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 3.302 -2.286)
           (xy 2.54 -2.032)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1403,7 +1513,8 @@
           (xy 2.286 -2.286)
           (xy 2.286 -2.286)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1412,7 +1523,8 @@
           (xy 3.048 -1.524)
           (xy 3.048 -1.524)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1422,7 +1534,12 @@
           (xy 1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 2.1336)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LED_1_1"
@@ -1436,7 +1553,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:LED_5050" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "LED_5050" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "Q" (id 0) (at -5.08 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -1459,6 +1576,14 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "LED_5050_0_0"
+      (polyline
+        (pts
+          (xy -5.08 5.08)
+          (xy -3.81 6.35)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
       (text "B" (at 2.54 5.08 0)
         (effects (font (size 1.27 1.27)))
       )
@@ -1468,17 +1593,11 @@
       (text "R" (at 2.54 1.27 0)
         (effects (font (size 1.27 1.27)))
       )
-      (polyline
-        (pts
-          (xy -5.08 5.08)
-          (xy -3.81 6.35)
-        )
-        (stroke (width 0)) (fill (type none))
-      )
     )
     (symbol "LED_5050_0_1"
       (rectangle (start -5.08 6.35) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -1486,7 +1605,8 @@
           (xy -1.27 -3.81)
           (xy -1.27 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1494,7 +1614,8 @@
           (xy -2.54 0)
           (xy -2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1502,7 +1623,8 @@
           (xy -1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1510,7 +1632,8 @@
           (xy -1.27 3.81)
           (xy -1.27 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1518,7 +1641,8 @@
           (xy -1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1526,7 +1650,8 @@
           (xy 5.08 -3.81)
           (xy 5.08 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1534,7 +1659,8 @@
           (xy 1.27 -5.08)
           (xy 1.27 -5.08)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1542,7 +1668,8 @@
           (xy 5.08 0)
           (xy 5.08 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1550,7 +1677,8 @@
           (xy 1.27 -1.27)
           (xy 1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1558,7 +1686,8 @@
           (xy 5.08 3.81)
           (xy 5.08 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1566,7 +1695,8 @@
           (xy 1.27 2.54)
           (xy 1.27 2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1576,7 +1706,8 @@
           (xy -1.27 -2.54)
           (xy -1.27 -2.54)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -1586,7 +1717,8 @@
           (xy -1.27 1.27)
           (xy -1.27 1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -1596,7 +1728,8 @@
           (xy -1.27 5.08)
           (xy -1.27 5.08)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "LED_5050_1_1"
@@ -1626,7 +1759,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:LED_5050_new" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "LED_5050_new" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "Q" (id 0) (at -5.08 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -1658,7 +1791,8 @@
     )
     (symbol "LED_5050_new_0_1"
       (rectangle (start -5.08 6.35) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -1666,7 +1800,8 @@
           (xy -1.27 -3.81)
           (xy -1.27 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1674,7 +1809,8 @@
           (xy -2.54 0)
           (xy -2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1682,7 +1818,8 @@
           (xy -1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1690,7 +1827,8 @@
           (xy -1.27 3.81)
           (xy -1.27 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1698,7 +1836,8 @@
           (xy -1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1706,7 +1845,8 @@
           (xy 5.08 -3.81)
           (xy 5.08 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1714,7 +1854,8 @@
           (xy 1.27 -5.08)
           (xy 1.27 -5.08)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1722,7 +1863,8 @@
           (xy 5.08 0)
           (xy 5.08 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1730,7 +1872,8 @@
           (xy 1.27 -1.27)
           (xy 1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1738,7 +1881,8 @@
           (xy 5.08 3.81)
           (xy 5.08 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1746,7 +1890,8 @@
           (xy 1.27 2.54)
           (xy 1.27 2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1755,7 +1900,8 @@
           (xy 3.175 -6.35)
           (xy 5.08 -4.445)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -1765,7 +1911,8 @@
           (xy -1.27 -2.54)
           (xy -1.27 -2.54)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -1775,7 +1922,8 @@
           (xy -1.27 1.27)
           (xy -1.27 1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -1785,7 +1933,8 @@
           (xy -1.27 5.08)
           (xy -1.27 5.08)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "LED_5050_new_1_1"
@@ -1815,7 +1964,139 @@
       )
     )
   )
-  (symbol "Tittar_kl:LED_DOUBLE" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LED_7SEG" (in_bom yes) (on_board yes)
+    (property "Reference" "D" (id 0) (at 3.81 11.43 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "LED_7SEG" (id 1) (at -5.08 11.43 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "LEDs:LED_7SEG_TOS5161" (id 2) (at -2.54 -3.81 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (id 3) (at -2.54 -3.81 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (symbol "LED_7SEG_0_0"
+      (rectangle (start -7.62 10.16) (end 6.35 -12.7)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
+      (polyline
+        (pts
+          (xy -5.08 -3.81)
+          (xy -5.08 1.27)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy -5.08 -3.81)
+          (xy 0 -3.81)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy -5.08 1.27)
+          (xy 0 1.27)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 0 1.27)
+          (xy 0 -3.81)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 0 -3.81)
+          (xy 0 -8.89)
+          (xy -5.08 -8.89)
+          (xy -5.08 -3.81)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 1.27 -8.89) (radius 0.254)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (text "a" (at -2.54 1.905 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (text "b" (at 0.635 -1.27 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (text "c" (at 0.635 -6.35 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (text "d" (at -2.54 -8.255 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (text "e" (at -5.715 -6.35 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (text "f" (at -5.715 -1.27 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (text "g" (at -2.54 -2.54 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (text "p" (at 2.286 -8.382 0)
+        (effects (font (size 1.27 1.27)))
+      )
+    )
+    (symbol "LED_7SEG_1_1"
+      (pin passive line (at 11.43 -2.54 180) (length 5.08)
+        (name "e" (effects (font (size 1.27 1.27))))
+        (number "1" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at 11.43 -7.62 180) (length 5.08)
+        (name "g" (effects (font (size 1.27 1.27))))
+        (number "10" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at 11.43 0 180) (length 5.08)
+        (name "d" (effects (font (size 1.27 1.27))))
+        (number "2" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at -12.7 7.62 0) (length 5.08)
+        (name "Com" (effects (font (size 1.27 1.27))))
+        (number "3" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at 11.43 2.54 180) (length 5.08)
+        (name "c" (effects (font (size 1.27 1.27))))
+        (number "4" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at 11.43 -10.16 180) (length 5.08)
+        (name "p" (effects (font (size 1.27 1.27))))
+        (number "5" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at 11.43 5.08 180) (length 5.08)
+        (name "b" (effects (font (size 1.27 1.27))))
+        (number "6" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at 11.43 7.62 180) (length 5.08)
+        (name "a" (effects (font (size 1.27 1.27))))
+        (number "7" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at -12.7 5.08 0) (length 5.08)
+        (name "Com" (effects (font (size 1.27 1.27))))
+        (number "8" (effects (font (size 1.27 1.27))))
+      )
+      (pin passive line (at 11.43 -5.08 180) (length 5.08)
+        (name "f" (effects (font (size 1.27 1.27))))
+        (number "9" (effects (font (size 1.27 1.27))))
+      )
+    )
+  )
+  (symbol "LED_DOUBLE" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "Q" (id 0) (at -5.08 5.08 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -1833,28 +2114,32 @@
     )
     (symbol "LED_DOUBLE_0_1"
       (rectangle (start -6.35 3.81) (end 6.35 -5.08)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
           (xy -2.54 1.27)
           (xy -1.27 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 -2.54)
           (xy 2.54 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 1.27)
           (xy 2.54 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1862,7 +2147,8 @@
           (xy -1.27 -2.54)
           (xy -1.27 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1870,7 +2156,8 @@
           (xy 1.27 -3.81)
           (xy 1.27 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1878,7 +2165,8 @@
           (xy 1.27 0)
           (xy 1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1888,7 +2176,8 @@
           (xy -1.27 -1.27)
           (xy -1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -1898,7 +2187,8 @@
           (xy -1.27 2.54)
           (xy -1.27 2.54)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "LED_DOUBLE_1_1"
@@ -1920,7 +2210,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:LED_RAD" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "LED_RAD" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at 3.81 3.556 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -1937,27 +2227,29 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "LED_RAD_0_1"
-      (circle (center 0 0) (radius 2.1336) (stroke (width 0)) (fill (type none)))
       (polyline
         (pts
           (xy 1.27 1.27)
           (xy 1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 2.54 -3.048)
           (xy 1.778 -2.794)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 3.302 -2.286)
           (xy 2.54 -2.032)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1965,7 +2257,8 @@
           (xy 1.27 0)
           (xy -1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -1974,7 +2267,8 @@
           (xy 2.286 -2.286)
           (xy 2.286 -2.286)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -1983,7 +2277,12 @@
           (xy 3.048 -1.524)
           (xy 3.048 -1.524)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 2.1336)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LED_RAD_1_1"
@@ -2001,7 +2300,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:LED_RGB_6PIN_PAD" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "LED_RGB_6PIN_PAD" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "Q" (id 0) (at -5.08 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2025,7 +2324,8 @@
     )
     (symbol "LED_RGB_6PIN_PAD_0_1"
       (rectangle (start -5.08 6.35) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -2033,7 +2333,8 @@
           (xy -1.27 -3.81)
           (xy -1.27 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2041,7 +2342,8 @@
           (xy -2.54 0)
           (xy -2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2049,7 +2351,8 @@
           (xy -1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2057,7 +2360,8 @@
           (xy -1.27 3.81)
           (xy -1.27 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2065,7 +2369,8 @@
           (xy -1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2073,7 +2378,8 @@
           (xy 5.08 -3.81)
           (xy 5.08 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2081,7 +2387,8 @@
           (xy 1.27 -5.08)
           (xy 1.27 -5.08)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2089,7 +2396,8 @@
           (xy 5.08 0)
           (xy 5.08 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2097,7 +2405,8 @@
           (xy 1.27 -1.27)
           (xy 1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2105,7 +2414,8 @@
           (xy 5.08 3.81)
           (xy 5.08 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2113,7 +2423,8 @@
           (xy 1.27 2.54)
           (xy 1.27 2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2123,7 +2434,8 @@
           (xy -1.27 -2.54)
           (xy -1.27 -2.54)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -2133,7 +2445,8 @@
           (xy -1.27 1.27)
           (xy -1.27 1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -2143,7 +2456,8 @@
           (xy -1.27 5.08)
           (xy -1.27 5.08)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "LED_RGB_6PIN_PAD_1_1"
@@ -2173,7 +2487,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:LED_RGB_CA" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "LED_RGB_CA" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "Q" (id 0) (at -5.08 10.16 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2200,7 +2514,8 @@
     )
     (symbol "LED_RGB_CA_0_1"
       (rectangle (start -5.08 6.35) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -2208,7 +2523,8 @@
           (xy -2.54 0)
           (xy -2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2216,7 +2532,8 @@
           (xy -1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2224,7 +2541,8 @@
           (xy 5.08 -3.81)
           (xy 5.08 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2232,7 +2550,8 @@
           (xy 1.27 -5.08)
           (xy 1.27 -5.08)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2240,7 +2559,8 @@
           (xy 5.08 0)
           (xy 5.08 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2248,7 +2568,8 @@
           (xy 1.27 -1.27)
           (xy 1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2256,7 +2577,8 @@
           (xy 5.08 3.81)
           (xy 5.08 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2264,7 +2586,8 @@
           (xy 1.27 2.54)
           (xy 1.27 2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2274,7 +2597,8 @@
           (xy -1.27 -2.54)
           (xy -1.27 -2.54)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -2284,7 +2608,8 @@
           (xy -1.27 1.27)
           (xy -1.27 1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -2294,7 +2619,8 @@
           (xy -1.27 -3.81)
           (xy -1.27 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2304,7 +2630,8 @@
           (xy -1.27 5.08)
           (xy -1.27 5.08)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "LED_RGB_CA_1_1"
@@ -2326,7 +2653,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:LED_RGB_WS2812B" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "LED_RGB_WS2812B" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "Q" (id 0) (at -5.08 8.89 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2350,28 +2677,32 @@
     )
     (symbol "LED_RGB_WS2812B_0_1"
       (rectangle (start -6.35 5.08) (end 6.35 -5.08)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
           (xy -1.27 0)
           (xy -2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 1.27)
           (xy 1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2380,7 +2711,8 @@
           (xy -1.27 -1.27)
           (xy -1.27 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LED_RGB_WS2812B_1_1"
@@ -2402,7 +2734,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:LEDwPAD" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "LEDwPAD" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at 2.54 3.556 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -2428,34 +2760,37 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "LEDwPAD_0_1"
-      (circle (center 0 0) (radius 2.1336) (stroke (width 0)) (fill (type none)))
       (polyline
         (pts
           (xy 0 -2.54)
           (xy 0 -2.159)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 1.27 1.27)
           (xy 1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 2.54 -3.048)
           (xy 1.778 -2.794)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 3.302 -2.286)
           (xy 2.54 -2.032)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2464,7 +2799,8 @@
           (xy 2.286 -2.286)
           (xy 2.286 -2.286)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2473,7 +2809,8 @@
           (xy 3.048 -1.524)
           (xy 3.048 -1.524)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2483,7 +2820,12 @@
           (xy 1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 2.1336)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LEDwPAD_1_1"
@@ -2501,7 +2843,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:LEDx2_CmnA" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "LEDx2_CmnA" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at -3.81 3.81 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -2521,50 +2863,57 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "LEDx2_CmnA_0_1"
-      (circle (center -3.81 0) (radius 2.1336) (stroke (width 0)) (fill (type none)))
-      (circle (center 0 0) (radius 0.127) (stroke (width 0)) (fill (type background)))
-      (circle (center 3.81 0) (radius 2.1336) (stroke (width 0)) (fill (type none)))
+      (circle (center -3.81 0) (radius 2.1336)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
       (polyline
         (pts
           (xy -5.08 1.27)
           (xy -5.08 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -1.143 -3.175)
           (xy -1.905 -2.921)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -0.508 -2.286)
           (xy -1.27 -2.032)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 5.08 1.27)
           (xy 5.08 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 6.223 -3.302)
           (xy 5.461 -3.048)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 6.985 -2.794)
           (xy 6.223 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2572,7 +2921,8 @@
           (xy 2.54 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -2580,7 +2930,8 @@
           (xy -5.08 0)
           (xy -2.54 -1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -2589,7 +2940,8 @@
           (xy -1.397 -2.413)
           (xy -1.397 -2.413)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2598,7 +2950,8 @@
           (xy -0.762 -1.524)
           (xy -0.762 -1.524)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2607,7 +2960,8 @@
           (xy 5.969 -2.54)
           (xy 5.969 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2616,7 +2970,8 @@
           (xy 6.731 -2.032)
           (xy 6.731 -2.032)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2626,7 +2981,16 @@
           (xy 5.08 0)
           (xy 5.08 0)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
+      (circle (center 0 0) (radius 0.127)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
+      (circle (center 3.81 0) (radius 2.1336)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LEDx2_CmnA_1_1"
@@ -2644,7 +3008,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:LEDx2_CmnC" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "LEDx2_CmnC" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at -5.08 -5.08 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -2664,50 +3028,57 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "LEDx2_CmnC_0_1"
-      (circle (center -3.81 0) (radius 2.1336) (stroke (width 0)) (fill (type none)))
-      (circle (center 0 0) (radius 0.127) (stroke (width 0)) (fill (type background)))
-      (circle (center 3.81 0) (radius 2.1336) (stroke (width 0)) (fill (type none)))
+      (circle (center -3.81 0) (radius 2.1336)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
       (polyline
         (pts
           (xy -2.54 1.27)
           (xy -2.54 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -1.143 -3.175)
           (xy -1.905 -2.921)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -0.508 -2.286)
           (xy -1.27 -2.032)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 2.54 1.27)
           (xy 2.54 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 6.223 -3.302)
           (xy 5.461 -3.048)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 6.985 -2.794)
           (xy 6.223 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2715,7 +3086,8 @@
           (xy -2.54 0)
           (xy -5.08 -1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -2723,7 +3095,8 @@
           (xy 2.54 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (polyline
         (pts
@@ -2732,7 +3105,8 @@
           (xy -1.397 -2.413)
           (xy -1.397 -2.413)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2741,7 +3115,8 @@
           (xy -0.762 -1.524)
           (xy -0.762 -1.524)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2750,7 +3125,8 @@
           (xy 5.969 -2.54)
           (xy 5.969 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2759,7 +3135,8 @@
           (xy 6.731 -2.032)
           (xy 6.731 -2.032)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2769,7 +3146,16 @@
           (xy 2.54 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
+      (circle (center 0 0) (radius 0.127)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
+      (circle (center 3.81 0) (radius 2.1336)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "LEDx2_CmnC_1_1"
@@ -2787,7 +3173,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:MOTOR" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MOTOR" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "M" (id 0) (at -6.35 6.35 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2807,13 +3193,13 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "MOTOR_0_1"
-      (circle (center 0 0) (radius 5.08) (stroke (width 0)) (fill (type none)))
       (polyline
         (pts
           (xy 3.81 -3.81)
           (xy 3.81 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2823,7 +3209,8 @@
           (xy -3.81 3.81)
           (xy -3.81 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2833,7 +3220,12 @@
           (xy 3.81 -3.81)
           (xy 3.81 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 5.08)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MOTOR_1_1"
@@ -2847,7 +3239,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:MOTOR_PAD" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "MOTOR_PAD" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "M" (id 0) (at -6.35 6.35 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2867,13 +3259,13 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "MOTOR_PAD_0_1"
-      (circle (center 0 0) (radius 5.08) (stroke (width 0)) (fill (type none)))
       (polyline
         (pts
           (xy 3.81 -3.81)
           (xy 3.81 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2883,7 +3275,8 @@
           (xy -3.81 3.81)
           (xy -3.81 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -2893,7 +3286,12 @@
           (xy 3.81 -3.81)
           (xy 3.81 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 5.08)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "MOTOR_PAD_1_1"
@@ -2911,7 +3309,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:OPTOCOUPLER_TR" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "OPTOCOUPLER_TR" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "U" (id 0) (at 10.16 6.35 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -2932,7 +3330,8 @@
     )
     (symbol "OPTOCOUPLER_TR_0_1"
       (rectangle (start -7.62 5.08) (end 8.89 -5.08)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "OPTOCOUPLER_TR_1_1"
@@ -2944,7 +3343,7 @@
         (name "Cathode" (effects (font (size 1.27 1.27))))
         (number "2" (effects (font (size 1.27 1.27))))
       )
-      (pin unconnected line (at -12.7 -2.54 0) (length 5.08)
+      (pin no_connect line (at -12.7 -2.54 0) (length 5.08)
         (name "NC" (effects (font (size 1.27 1.27))))
         (number "3" (effects (font (size 1.27 1.27))))
       )
@@ -2952,7 +3351,7 @@
         (name "Main" (effects (font (size 1.27 1.27))))
         (number "4" (effects (font (size 1.27 1.27))))
       )
-      (pin unconnected line (at 13.97 0 180) (length 5.08)
+      (pin no_connect line (at 13.97 0 180) (length 5.08)
         (name "NC" (effects (font (size 1.27 1.27))))
         (number "5" (effects (font (size 1.27 1.27))))
       )
@@ -2962,7 +3361,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:R" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+  (symbol "R" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
     (property "Reference" "R" (id 0) (at 2.032 -3.81 90)
       (effects (font (size 1.27 1.27)))
     )
@@ -3004,7 +3403,8 @@
     )
     (symbol "R_0_1"
       (rectangle (start -1.016 3.81) (end 1.016 -3.81)
-        (stroke (width 0.2032)) (fill (type none))
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "R_1_1"
@@ -3018,7 +3418,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:RELAY_DPDT" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "RELAY_DPDT" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "RL" (id 0) (at -5.08 13.97 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3036,10 +3436,8 @@
     )
     (symbol "RELAY_DPDT_0_1"
       (rectangle (start -5.08 1.27) (end 0 -1.27)
-        (stroke (width 0)) (fill (type none))
-      )
-      (rectangle (start 6.35 12.7) (end -7.62 -12.7)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3048,7 +3446,8 @@
           (xy -2.54 -1.27)
           (xy -2.54 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3057,7 +3456,8 @@
           (xy -2.54 1.27)
           (xy -2.54 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3066,7 +3466,8 @@
           (xy 2.54 -7.62)
           (xy 2.54 -7.62)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3075,7 +3476,8 @@
           (xy 1.27 -5.08)
           (xy 1.27 -5.08)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3084,7 +3486,8 @@
           (xy 2.54 -5.08)
           (xy 2.54 -5.08)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3093,7 +3496,8 @@
           (xy 2.54 5.08)
           (xy 2.54 5.08)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3102,7 +3506,8 @@
           (xy 1.27 7.62)
           (xy 1.27 7.62)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3111,7 +3516,12 @@
           (xy 2.54 7.62)
           (xy 2.54 7.62)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (rectangle (start 6.35 12.7) (end -7.62 -12.7)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "RELAY_DPDT_1_1"
@@ -3149,7 +3559,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:RELAY_SPDT" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "RELAY_SPDT" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "RL" (id 0) (at -3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3164,10 +3574,12 @@
     )
     (symbol "RELAY_SPDT_0_1"
       (rectangle (start -6.35 6.35) (end 6.35 -6.35)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (rectangle (start -5.08 1.27) (end 0 -1.27)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3176,7 +3588,8 @@
           (xy -2.54 -1.27)
           (xy -2.54 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3185,7 +3598,8 @@
           (xy -2.54 1.27)
           (xy -2.54 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3194,7 +3608,8 @@
           (xy 2.54 -1.27)
           (xy 2.54 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3203,7 +3618,8 @@
           (xy 1.27 1.27)
           (xy 1.27 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3212,7 +3628,8 @@
           (xy 2.54 1.27)
           (xy 2.54 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "RELAY_SPDT_1_1"
@@ -3238,7 +3655,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:RVar" (pin_names (offset 0)) (in_bom yes) (on_board yes)
+  (symbol "RVar" (pin_names (offset 0)) (in_bom yes) (on_board yes)
     (property "Reference" "R" (id 0) (at 2.032 0 90)
       (effects (font (size 1.27 1.27)))
     )
@@ -3253,7 +3670,8 @@
     )
     (symbol "RVar_0_1"
       (rectangle (start -1.016 3.81) (end 1.016 -3.81)
-        (stroke (width 0.2032)) (fill (type none))
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3264,7 +3682,8 @@
           (xy -1.016 0)
           (xy -1.016 0)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "RVar_1_1"
@@ -3282,7 +3701,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:RVarWSw" (pin_names (offset 0)) (in_bom yes) (on_board yes)
+  (symbol "RVarWSw" (pin_names (offset 0)) (in_bom yes) (on_board yes)
     (property "Reference" "R" (id 0) (at -6.35 8.89 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -3300,17 +3719,20 @@
     )
     (symbol "RVarWSw_0_1"
       (rectangle (start -3.81 5.08) (end 7.62 -5.08)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (rectangle (start -1.016 3.81) (end 1.016 -3.81)
-        (stroke (width 0.2032)) (fill (type none))
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 5.08 2.54)
           (xy 5.08 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3318,7 +3740,8 @@
           (xy 5.08 -2.54)
           (xy 3.81 2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3329,7 +3752,8 @@
           (xy -1.016 0)
           (xy -1.016 0)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "RVarWSw_1_1"
@@ -3355,7 +3779,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:RX4" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "RX4" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "Rx" (id 0) (at 3.81 7.62 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -3370,19 +3794,24 @@
     )
     (symbol "RX4_0_1"
       (rectangle (start -5.08 6.35) (end 5.08 -6.35)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
       (rectangle (start -3.81 -2.794) (end 3.81 -4.826)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (rectangle (start -3.81 -0.254) (end 3.81 -2.286)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (rectangle (start -3.81 2.286) (end 3.81 0.254)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (rectangle (start -3.81 2.794) (end 3.81 4.826)
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "RX4_1_1"
@@ -3420,7 +3849,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:Thermistor" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+  (symbol "Thermistor" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
     (property "Reference" "R" (id 0) (at -4.318 3.81 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -3443,7 +3872,8 @@
     )
     (symbol "Thermistor_0_1"
       (rectangle (start -1.016 3.81) (end 1.016 -3.81)
-        (stroke (width 0.2032)) (fill (type none))
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3451,7 +3881,8 @@
           (xy -2.54 -2.54)
           (xy -5.08 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "Thermistor_1_1"
@@ -3465,7 +3896,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:Zener" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "Zener" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at 0 2.54 0)
       (effects (font (size 1.016 1.016)))
     )
@@ -3488,7 +3919,8 @@
           (xy 1.27 -1.27)
           (xy 0.635 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3498,7 +3930,8 @@
           (xy 1.27 0)
           (xy -1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "Zener_1_1"
@@ -3512,7 +3945,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:ZenerBidir" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "ZenerBidir" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at -1.27 2.54 0)
       (effects (font (size 1.016 1.016)))
     )
@@ -3540,7 +3973,8 @@
           (xy 0 1.27)
           (xy 0.635 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3548,7 +3982,8 @@
           (xy 0 -1.27)
           (xy -0.635 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3558,7 +3993,8 @@
           (xy 0 0)
           (xy -2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -3568,7 +4004,8 @@
           (xy 0 0)
           (xy 2.54 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "ZenerBidir_1_1"
@@ -3582,7 +4019,7 @@
       )
     )
   )
-  (symbol "Tittar_kl:Zener_SOT23" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+  (symbol "Zener_SOT23" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
     (property "Reference" "D" (id 0) (at -3.81 5.08 0)
       (effects (font (size 1.016 1.016)))
     )
@@ -3605,7 +4042,8 @@
           (xy 1.27 0)
           (xy -1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
@@ -3614,7 +4052,8 @@
           (xy 1.27 1.27)
           (xy 1.27 1.27)
         )
-        (stroke (width 0.254)) (fill (type none))
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "Zener_SOT23_1_1"
@@ -3622,7 +4061,7 @@
         (name "~" (effects (font (size 1.016 1.016))))
         (number "1" (effects (font (size 1.016 1.016))))
       )
-      (pin unconnected line (at 0 -5.08 90) (length 3.81)
+      (pin no_connect line (at 0 -5.08 90) (length 3.81)
         (name "~" (effects (font (size 1.016 1.016))))
         (number "2" (effects (font (size 1.016 1.016))))
       )
