@@ -1,4 +1,4 @@
-(kicad_symbol_lib (version 20201005) (generator kicad_symbol_editor)
+(kicad_symbol_lib (version 20211014) (generator kicad_symbol_editor)
   (symbol "FuseX2" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "F" (id 0) (at 5.08 3.81 0)
       (effects (font (size 1.524 1.524)))
@@ -13,38 +13,45 @@
       (effects (font (size 1.524 1.524)))
     )
     (symbol "FuseX2_0_1"
+      (rectangle (start -6.35 2.54) (end 6.35 -2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
       (rectangle (start -2.54 1.27) (end -5.08 -1.27)
-        (stroke (width 0)) (fill (type outline))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (rectangle (start -1.27 1.27) (end 1.27 -1.27)
-        (stroke (width 0)) (fill (type outline))
-      )
-      (rectangle (start 2.54 1.27) (end 5.08 -1.27)
-        (stroke (width 0)) (fill (type outline))
-      )
-      (rectangle (start -6.35 2.54) (end 6.35 -2.54)
-        (stroke (width 0)) (fill (type background))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
       (polyline
         (pts
           (xy -6.35 0)
           (xy -5.08 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 0 -1.27)
           (xy 0 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 5.08 0)
           (xy 6.35 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (rectangle (start 2.54 1.27) (end 5.08 -1.27)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type outline))
       )
     )
     (symbol "FuseX2_1_1"
@@ -88,7 +95,10 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "HOLE_METALLED_0_1"
-      (circle (center 0 0) (radius 2.54) (stroke (width 0)) (fill (type background)))
+      (circle (center 0 0) (radius 2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
     )
     (symbol "HOLE_METALLED_1_1"
       (pin passive line (at 7.62 0 180) (length 5.08)
@@ -116,28 +126,32 @@
           (xy -6.35 0)
           (xy 6.35 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy -3.81 3.81)
           (xy 3.81 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 0 10.16)
           (xy 0 -10.16)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
           (xy 3.81 3.81)
           (xy -3.81 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -151,7 +165,8 @@
           (xy -6.35 0)
           (xy -1.27 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -165,7 +180,8 @@
           (xy -3.81 3.81)
           (xy 0 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
   )
@@ -186,7 +202,6 @@
       (effects (font (size 1.524 1.524)) hide)
     )
     (symbol "MOTOR_NO_CONTACTS_0_1"
-      (circle (center 0 0) (radius 10.16) (stroke (width 0)) (fill (type none)))
       (polyline
         (pts
           (xy -10.16 -2.54)
@@ -194,11 +209,16 @@
           (xy -12.7 2.54)
           (xy -10.16 2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 10.16)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
   )
-  (symbol "REFPOINT" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "REFPOINT" (pin_names (offset 1.016)) (in_bom no) (on_board yes)
     (property "Reference" "RP" (id 0) (at 17.78 0 0)
       (effects (font (size 1.524 1.524)))
     )
@@ -211,21 +231,18 @@
     (property "Datasheet" "" (id 3) (at 0 0 0)
       (effects (font (size 1.524 1.524)) hide)
     )
-    (property "DoNotBOM" "1" (id 4) (at 0 0 0)
-      (effects (font (size 2.0066 2.0066)) hide)
-    )
-    (property "ki_fp_filters" "REF_POINT*" (id 5) (at 0 0 0)
+    (property "ki_fp_filters" "REF_POINT*" (id 4) (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "REFPOINT_0_1"
-      (circle (center 0 0) (radius 2.54) (stroke (width 0)) (fill (type none)))
       (polyline
         (pts
           (xy -1.27 0)
           (xy 1.27 0)
           (xy 1.27 0)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -233,7 +250,18 @@
           (xy 0 -1.27)
           (xy 0 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle (center 0 0) (radius 2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+    )
+    (symbol "REFPOINT_1_1"
+      (pin no_connect line (at -1.27 0 0) (length 2.54) hide
+        (name "~" (effects (font (size 1.27 1.27))))
+        (number "REF" (effects (font (size 1.27 1.27))))
       )
     )
   )
@@ -254,7 +282,10 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "SENSORPAD_0_1"
-      (circle (center 0 0) (radius 2.54) (stroke (width 0)) (fill (type background)))
+      (circle (center 0 0) (radius 2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
     )
     (symbol "SENSORPAD_1_1"
       (pin passive line (at -3.81 0 0) (length 1.27)
@@ -277,11 +308,13 @@
       (effects (font (size 1.524 1.524)))
     )
     (symbol "SOLDERFUSE_0_1"
-      (arc (start -0.127 1.143) (end -0.127 -1.143) (radius (at -0.127 0) (length 1.143) (angles 90.1 -90.1))
-        (stroke (width 0)) (fill (type background))
+      (arc (start -0.127 1.143) (mid -1.27 0) (end -0.127 -1.143)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
-      (arc (start 0.127 -1.143) (end 0.127 1.143) (radius (at 0.127 0) (length 1.143) (angles -89.9 89.9))
-        (stroke (width 0)) (fill (type background))
+      (arc (start 0.127 -1.143) (mid 1.27 0) (end 0.127 1.143)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
       )
     )
     (symbol "SOLDERFUSE_1_1"
@@ -321,7 +354,10 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "TESTPOINT_0_1"
-      (circle (center -1.905 0) (radius 0.635) (stroke (width 0)) (fill (type background)))
+      (circle (center -1.905 0) (radius 0.635)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
     )
     (symbol "TESTPOINT_1_1"
       (pin passive line (at 0 0 180) (length 1.27)
@@ -350,17 +386,13 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "WWP_PAD_0_1"
-      (arc (start -5.08 -2.54) (end -3.81 -3.81) (radius (at -3.8354 -2.54) (length 1.2446) (angles 180 -88.8))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -5.08 -2.54) (mid -4.7027 -3.4327) (end -3.81 -3.81)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (arc (start -5.08 2.54) (end -3.81 3.81) (radius (at -3.8354 2.54) (length 1.2446) (angles 180 88.8))
-        (stroke (width 0)) (fill (type none))
-      )
-      (arc (start 5.08 -3.81) (end 6.35 -2.54) (radius (at 5.08 -2.5654) (length 1.2446) (angles -90 1.1))
-        (stroke (width 0)) (fill (type none))
-      )
-      (arc (start 5.08 1.27) (end 5.08 3.81) (radius (at 5.08 2.54) (length 1.27) (angles -89.9 89.9))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -3.81 3.81) (mid -4.7209 3.4509) (end -5.08 2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -368,7 +400,8 @@
           (xy -5.08 -2.54)
           (xy -5.08 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -376,7 +409,8 @@
           (xy 5.08 -3.81)
           (xy 5.08 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -384,7 +418,8 @@
           (xy -1.27 -1.27)
           (xy -1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -392,7 +427,8 @@
           (xy 6.35 -2.54)
           (xy 6.35 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -400,7 +436,8 @@
           (xy -3.81 3.81)
           (xy -3.81 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -410,7 +447,16 @@
           (xy -1.27 1.27)
           (xy -1.27 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 5.08 -3.81) (mid 5.9727 -3.4327) (end 6.35 -2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 5.08 1.27) (mid 6.35 2.54) (end 5.08 3.81)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "WWP_PAD_1_1"
@@ -444,17 +490,13 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "WWP_PAD_NOCON_0_1"
-      (arc (start -5.08 -2.54) (end -3.81 -3.81) (radius (at -3.8354 -2.54) (length 1.2446) (angles 180 -88.8))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -5.08 -2.54) (mid -4.7027 -3.4327) (end -3.81 -3.81)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (arc (start -5.08 2.54) (end -3.81 3.81) (radius (at -3.8354 2.54) (length 1.2446) (angles 180 88.8))
-        (stroke (width 0)) (fill (type none))
-      )
-      (arc (start 5.08 -3.81) (end 6.35 -2.54) (radius (at 5.08 -2.5654) (length 1.2446) (angles -90 1.1))
-        (stroke (width 0)) (fill (type none))
-      )
-      (arc (start 5.08 1.27) (end 5.08 3.81) (radius (at 5.08 2.54) (length 1.27) (angles -89.9 89.9))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -3.81 3.81) (mid -4.7209 3.4509) (end -5.08 2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -462,7 +504,8 @@
           (xy -5.08 -2.54)
           (xy -5.08 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -470,7 +513,8 @@
           (xy 5.08 -3.81)
           (xy 5.08 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -478,7 +522,8 @@
           (xy -1.27 -1.27)
           (xy -1.27 -1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -486,7 +531,8 @@
           (xy 6.35 -2.54)
           (xy 6.35 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -494,7 +540,8 @@
           (xy -3.81 3.81)
           (xy -3.81 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -504,7 +551,16 @@
           (xy -1.27 1.27)
           (xy -1.27 1.27)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 5.08 -3.81) (mid 5.9727 -3.4327) (end 6.35 -2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 5.08 1.27) (mid 6.35 2.54) (end 5.08 3.81)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
   )
@@ -533,17 +589,13 @@
       )
     )
     (symbol "WWP_PAD_SERVICE_0_1"
-      (arc (start -5.08 -2.54) (end -3.81 -3.81) (radius (at -3.8354 -2.54) (length 1.2446) (angles 180 -88.8))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -5.08 -2.54) (mid -4.7027 -3.4327) (end -3.81 -3.81)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (arc (start -5.08 2.54) (end -3.81 3.81) (radius (at -3.8354 2.54) (length 1.2446) (angles 180 88.8))
-        (stroke (width 0)) (fill (type none))
-      )
-      (arc (start 5.08 -3.81) (end 6.35 -2.54) (radius (at 5.08 -2.5654) (length 1.2446) (angles -90 1.1))
-        (stroke (width 0)) (fill (type none))
-      )
-      (arc (start 5.08 1.27) (end 5.08 3.81) (radius (at 5.08 2.54) (length 1.27) (angles -89.9 89.9))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -3.81 3.81) (mid -4.7209 3.4509) (end -5.08 2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -551,7 +603,8 @@
           (xy -5.08 -2.54)
           (xy -5.08 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -559,7 +612,8 @@
           (xy 5.08 -3.81)
           (xy 5.08 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -567,7 +621,8 @@
           (xy 6.35 -2.54)
           (xy 6.35 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -575,7 +630,16 @@
           (xy -3.81 3.81)
           (xy -3.81 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 5.08 -3.81) (mid 5.9727 -3.4327) (end 6.35 -2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 5.08 1.27) (mid 6.35 2.54) (end 5.08 3.81)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
     (symbol "WWP_PAD_SERVICE_1_1"
@@ -614,17 +678,13 @@
       )
     )
     (symbol "WWP_PAD_SERVICE_NOCON_0_1"
-      (arc (start -5.08 -2.54) (end -3.81 -3.81) (radius (at -3.8354 -2.54) (length 1.2446) (angles 180 -88.8))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -5.08 -2.54) (mid -4.7027 -3.4327) (end -3.81 -3.81)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
-      (arc (start -5.08 2.54) (end -3.81 3.81) (radius (at -3.8354 2.54) (length 1.2446) (angles 180 88.8))
-        (stroke (width 0)) (fill (type none))
-      )
-      (arc (start 5.08 -3.81) (end 6.35 -2.54) (radius (at 5.08 -2.5654) (length 1.2446) (angles -90 1.1))
-        (stroke (width 0)) (fill (type none))
-      )
-      (arc (start 5.08 1.27) (end 5.08 3.81) (radius (at 5.08 2.54) (length 1.27) (angles -89.9 89.9))
-        (stroke (width 0)) (fill (type none))
+      (arc (start -3.81 3.81) (mid -4.7209 3.4509) (end -5.08 2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -632,7 +692,8 @@
           (xy -5.08 -2.54)
           (xy -5.08 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -640,7 +701,8 @@
           (xy 5.08 -3.81)
           (xy 5.08 -3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -648,7 +710,8 @@
           (xy 6.35 -2.54)
           (xy 6.35 -2.54)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
       (polyline
         (pts
@@ -656,7 +719,16 @@
           (xy -3.81 3.81)
           (xy -3.81 3.81)
         )
-        (stroke (width 0)) (fill (type none))
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 5.08 -3.81) (mid 5.9727 -3.4327) (end 6.35 -2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 5.08 1.27) (mid 6.35 2.54) (end 5.08 3.81)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
       )
     )
   )
