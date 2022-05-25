@@ -88,7 +88,7 @@ public:
 };
 
 class CmdUart_t : public BaseUart_t, public PrintfHelper_t, public Shell_t {
-private:
+protected:
     uint8_t IPutChar(char c) { return IPutByte(c); }
     void IStartTransmissionIfNotYet() { BaseUart_t::IStartTransmissionIfNotYet(); }
 public:
@@ -108,6 +108,25 @@ public:
     }
     uint8_t ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);
     uint8_t TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms);
+    void OnUartIrqI(uint32_t flags);
+};
+
+class HostUart_t : private CmdUart_t {
+private:
+    thread_reference_t ThdRef = nullptr;
+    uint8_t TryParseRxBuff();
+public:
+    void Init() { CmdUart_t::Init(); }
+    HostUart_t(const UartParams_t &APParams) : CmdUart_t(APParams) {}
+    uint8_t SendCmd(uint32_t Timeout_ms, const char *format, ...);
+    void Print(const char *format, ...) {
+        va_list args;
+        va_start(args, format);
+        IVsPrintf(format, args);
+        va_end(args);
+    }
+    Cmd_t &Reply = Cmd;
+    uint8_t WaitReply();
     void OnUartIrqI(uint32_t flags);
 };
 
