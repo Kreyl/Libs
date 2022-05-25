@@ -26,12 +26,12 @@ int kl_strcasecmp(const char *s1, const char *s2) {
   return result;
 }
 
-char* kl_strtok(register char* s, register const char* delim, register char**PLast) {
+char* kl_strtok(char* s, const char* delim, char**PLast) {
     if(s == nullptr and (s = *PLast) == nullptr) return nullptr;
-    register char* spanp;
+    char* spanp;
     // Skip leading delimiters
     cont:
-    register char c = *s++, sc;
+    char c = *s++, sc;
     for(spanp = (char*)delim; (sc = *spanp++) != 0;) {
         if(c == sc) goto cont;
     }

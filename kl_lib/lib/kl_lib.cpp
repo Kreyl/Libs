@@ -7,9 +7,9 @@
 
 #include "shell.h"
 #include <stdarg.h>
-#include <string.h>
 #include "MsgQ.h"
 #include <malloc.h>
+#include "board.h"
 #include <string>
 
 #if 0 // ============================ General ==================================
@@ -328,6 +328,7 @@ void PinOutputPWM_t::Init() const {
 #if !defined STM32L151xB
     ITmr->BDTR = 0xC000;   // Main output Enable
 #endif
+    ITmr->CR1 |= TIM_CR1_ARPE;
     ITmr->ARR = ISetup.TopValue;
     // Setup Output
     uint16_t tmp = (ISetup.Inverted == invInverted)? 0b111 : 0b110; // PWM mode 1 or 2
@@ -363,7 +364,10 @@ void PinOutputPWM_t::Init() const {
     PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF);
 #elif defined STM32F0XX
     if     (ITmr == TIM1)  PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF2);
-    else if(ITmr == TIM3)  PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF1);
+    else if(ITmr == TIM3) {
+        if(ISetup.PGpio == GPIOA or ISetup.PGpio == GPIOB) PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF1);
+        else PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF0);
+    }
     else if(ITmr == TIM14) {
         if(ISetup.PGpio == GPIOA) PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF4);
         else PinSetupAlterFunc(ISetup.PGpio, ISetup.Pin, ISetup.OutputType, pudNone, AF0);
@@ -440,20 +444,30 @@ void Timer_t::SetUpdateFrequencyChangingBoth(uint32_t FreqHz) const {
     ITmr->PSC = Psc;
     SetUpdateFrequencyChangingTopValue(FreqHz);
 }
+
+void Timer_t::SetTmrClkFreq(uint32_t FreqHz) const {
+    uint32_t Psc = Clk.GetTimInputFreq(ITmr) / FreqHz;
+    if(Psc != 0) Psc--;
+    ITmr->PSC = Psc;
+}
 #endif
 
 #if 1 // ========================= Virtual Timers ==============================
 // Universal VirtualTimer callback
-void TmrKLCallback(void *p) {
+void TmrKLCallback(virtual_timer_t *vtp, void *p) {
     chSysLockFromISR();
     ((IrqHandler_t*)p)->IIrqHandler();
     chSysUnlockFromISR();
 }
 
 void TmrKL_t::IIrqHandler() {    // Call it inside callback
-    EvtMsg_t Msg(EvtId);
-    EvtQMain.SendNowOrExitI(Msg);
+    EvtQMain.SendNowOrExitI(EvtMsg_t(EvtId));
     if(TmrType == tktPeriodic) StartI();
+}
+
+void TmrKL_t::StartI() {
+    if(Period == 0) EvtQMain.SendNowOrExitI(EvtMsg_t(EvtId)); // Do not restart even if periodic: this will not work good anyway
+    else chVTSetI(&Tmr, Period, TmrKLCallback, this); // Will be reset before start
 }
 #endif
 
@@ -553,14 +567,14 @@ static uint8_t GetStatus(void) {
     else return retvOk;
 }
 
-static uint8_t WaitForLastOperation(systime_t Timeout_st) {
+uint8_t WaitForLastOperation(systime_t Timeout_st) {
     uint8_t status = retvOk;
     // Wait for a Flash operation to complete or a TIMEOUT to occur
+    systime_t Start = chVTGetSystemTimeX();
     do {
         status = GetStatus();
-        Timeout_st--;
-    } while((status == retvBusy) and (Timeout_st != 0x00));
-    if(Timeout_st == 0x00) status = retvTimeout;
+        if(chVTTimeElapsedSinceX(Start) >= Timeout_st) return retvTimeout;
+    } while(status == retvBusy);
     return status;
 }
 #endif
@@ -581,6 +595,8 @@ static void LockEEAndPECR() { FLASH->PECR |= FLASH_PECR_PELOCK; }
 #endif // L151
 
 // ==== Flash ====
+bool IsLocked() { return (bool)(FLASH->CR & FLASH_CR_LOCK); }
+
 void UnlockFlash() {
 #if defined STM32L1XX
     UnlockEEAndPECR();
@@ -600,7 +616,7 @@ void LockFlash() {
 #endif
 }
 
-// Beware: use Page Address (0...255), not absolute address kind of 0x08003f00
+// Beware: for L4xx, use Page Address (0...255), not absolute address kind of 0x08003f00. For Fxx, absolute addr is required.
 uint8_t ErasePage(uint32_t PageAddress) {
     uint8_t status = WaitForLastOperation(FLASH_EraseTimeout);
     if(status == retvOk) {
@@ -634,10 +650,11 @@ uint8_t ErasePage(uint32_t PageAddress) {
         FLASH->CR |= FLASH_CR_PER;
         FLASH->AR = PageAddress;
         FLASH->CR |= FLASH_CR_STRT;
+        __NOP(); // The software should start checking if the BSY bit equals “0” at least one CPU cycle after setting the STRT bit.
         // Wait for last operation to be completed
         status = WaitForLastOperation(FLASH_EraseTimeout);
         // Disable the PER Bit
-        FLASH->CR &= 0x00001FFD;
+        FLASH->CR &= ~FLASH_CR_PER;
 #endif
     }
     return status;
@@ -684,17 +701,17 @@ uint8_t ProgramWord(uint32_t Address, uint32_t Data) {
         *((volatile uint32_t*)Address) = Data;
         status = WaitForLastOperation(FLASH_ProgramTimeout);
 #else
-        FLASH->CR |= 0x00000001; // FLASH_CR_PG_Set
+        FLASH->CR |= FLASH_CR_PG;
         // Program the new first half word
         *(volatile uint16_t*)Address = (uint16_t)Data;
         status = WaitForLastOperation(FLASH_ProgramTimeout);
         if(status == retvOk) {
             // Program the new second half word
-            uint32_t tmp = Address + 2;
-            *(volatile uint16_t*)tmp = Data >> 16;
+            Address += 2;
+            *(volatile uint16_t*)Address = Data >> 16;
             status = WaitForLastOperation(FLASH_ProgramTimeout);
         }
-        FLASH->CR &= 0x00001FFE;  // FLASH_CR_PG_Reset Disable the PG Bit
+        FLASH->CR &= ~FLASH_CR_PG;
 #endif
     }
     return status;
@@ -1259,7 +1276,7 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
 }; // namespace
 #endif
 
-#if 1 // ============================== IWDG ===================================
+#if 0 // ============================== IWDG ===================================
 namespace Iwdg {
 enum Pre_t {
     iwdgPre4 = 0x00,
@@ -1787,7 +1804,7 @@ void Clk_t::UpdateFreqValues() {
     // Timer multi
     TimerClkMulti = (tmp == 0)? 1 : 2;
     // ==== Update prescaler in System Timer ====
-    uint32_t Psc = (SYS_TIM_CLK / OSAL_ST_FREQUENCY) - 1;
+    uint32_t Psc = (STM32_TIMCLK1 / OSAL_ST_FREQUENCY) - 1;
     TMR_DISABLE(STM32_ST_TIM);          // Stop counter
     uint32_t Cnt = STM32_ST_TIM->CNT;   // Save current time
     STM32_ST_TIM->PSC = Psc;

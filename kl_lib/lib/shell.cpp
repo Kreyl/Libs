@@ -5,7 +5,6 @@
  *      Author: Kreyl
  */
 
-//#include <uart2.h>
 #include <uart.h>
 #include "shell.h"
 

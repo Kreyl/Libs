@@ -12,6 +12,7 @@
 #include "kl_lib.h"
 #include "board.h"
 #include "color.h"
+#include "kl_string.h"
 
 #define DELIMITERS              " ,"
 #define PREV_CHAR_TIMEOUT_ms    99UL
@@ -258,7 +259,6 @@ public:
 class Shell_t {
 public:
 	Cmd_t Cmd;
-	virtual void SignalCmdProcessed() = 0;
 	virtual void Print(const char *format, ...) = 0;
 //	void Reply(const char* CmdCode, int32_t Data) { Print("%S,%d\r\n", CmdCode, Data); }
 //	void Ack(int32_t Result) { Print("Ack %d\r\n", Result); }

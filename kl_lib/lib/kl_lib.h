@@ -278,14 +278,14 @@ static inline uint32_t GetUniqID3() {
  * TmrCheckBtn.InitAndStart(chThdGetSelfX());
  */
 
-void TmrKLCallback(void *p);    // Universal VirtualTimer callback
+void TmrKLCallback(virtual_timer_t *vtp, void *p);    // Universal VirtualTimer callback
 
 enum TmrKLType_t {tktOneShot, tktPeriodic};
 
 class TmrKL_t : private IrqHandler_t {
 private:
     virtual_timer_t Tmr;
-    void StartI() { chVTSetI(&Tmr, Period, TmrKLCallback, this); }  // Will be reset before start
+    void StartI();
     sysinterval_t Period;
     EvtMsgId_t EvtId;
     TmrKLType_t TmrType;
@@ -510,6 +510,7 @@ public:
     void SetUpdateFrequencyChangingPrescaler(uint32_t FreqHz) const;
     void SetUpdateFrequencyChangingTopValue(uint32_t FreqHz) const;
     void SetUpdateFrequencyChangingBoth(uint32_t FreqHz) const;
+    void SetTmrClkFreq(uint32_t FreqHz) const;
     void SetTopValue(uint32_t Value) const { ITmr->ARR = Value; }
     uint32_t GetTopValue() const { return ITmr->ARR; }
     void EnableArrBuffering()  const { ITmr->CR1 |=  TIM_CR1_ARPE; }
@@ -1085,6 +1086,8 @@ public:
     void Init() const;
     void Deinit() const { Timer_t::Deinit(); PinSetupAnalog(ISetup.PGpio, ISetup.Pin); }
     void SetFrequencyHz(uint32_t FreqHz) const { Timer_t::SetUpdateFrequencyChangingPrescaler(FreqHz); }
+    void SetTopValue(uint32_t Value) const { Timer_t::SetTopValue(Value); }
+    void SetTmrClkFreq(uint32_t FreqHz) const { Timer_t::SetTmrClkFreq(FreqHz); }
     PinOutputPWM_t(const PwmSetup_t &ASetup) : Timer_t(ASetup.PTimer), ISetup(ASetup) {}
     PinOutputPWM_t(GPIO_TypeDef *PGpio, uint16_t Pin,
             TIM_TypeDef *PTimer, uint32_t TimerChnl,
@@ -1507,12 +1510,13 @@ public:
 // =========================== Flash and Option bytes ==========================
 namespace Flash {
 
+bool IsLocked();
 void UnlockFlash();
 void LockFlash();
 void UnlockOptionBytes();
 void LockOptionBytes();
 
-
+uint8_t WaitForLastOperation(systime_t Timeout_st);
 void ClearPendingFlags();
 uint8_t ErasePage(uint32_t PageAddress);
 
