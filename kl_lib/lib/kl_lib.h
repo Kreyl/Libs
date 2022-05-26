@@ -324,14 +324,30 @@ public:
 
 #if 1 // ========================== Random =====================================
 namespace Random {
-//uint32_t last = 1;
+static uint32_t next = 1;
+
+static int32_t do_rand(uint32_t *ctx) {
+#if 0
+    if(*ctx == 0) *ctx = 123459876;
+    int32_t hi = *ctx / 127773;
+    int32_t lo = *ctx % 127773;
+    int32_t x = 16807 * lo - 2836 * hi;
+    if(x < 0) x += 0x7FFFFFFF;
+    return ((*ctx = x) % ((uint32_t)0x7fffffff + 1));
+#else
+    return ((*ctx = *ctx * 1103515245 + 12345) % ((uint32_t)0x7fffffff + 1));
+#endif
+}
+
+static int32_t rand() { return do_rand(&next); }
+
 // Generate pseudo-random value
 static inline long int Generate(long int LowInclusive, long int HighInclusive) {
-    uint32_t last = random();
+    uint32_t last = rand();
     return (last % (HighInclusive + 1 - LowInclusive)) + LowInclusive;
 }
 // Seed pseudo-random generator with new seed
-static inline void Seed(unsigned int Seed) { srandom(Seed); }
+static inline void Seed(unsigned int Seed) { next = Seed; }
 
 // True random
 #if defined STM32L4XX
@@ -1558,13 +1574,6 @@ namespace EE {
 #endif
 
 #if 1 // =========================== Clocking ==================================
-// Common
-enum CoreClk_t {
-    cclk8MHz = 8, cclk12MHz = 12, cclk16MHz = 16,
-    cclk24MHz = 24, cclk48MHz = 48, cclk64MHz = 64,
-    cclk72MHz = 72, cclk80MHz = 80
-};
-
 #if defined STM32L1XX
 #include "stm32l1xx.h"
 /*
@@ -2007,7 +2016,10 @@ enum AHBDiv_t {
 
 enum APBDiv_t {apbDiv1=0b000, apbDiv2=0b100, apbDiv4=0b101, apbDiv8=0b110, apbDiv16=0b111};
 enum MCUVoltRange_t {mvrHiPerf, mvrLoPerf};
+enum SrcAdc_t { srcAdcNone = 0b00, srcAdcPllSai1R = 0b01, srcAdcSai2R = 0b10, srcAdcSysclk = 0b11 };
 enum Src48MHz_t { src48None = 0b00, src48PllSai1Q = 0b01, src48PllQ = 0b10, src48Msi = 0b11 };
+enum SrcSaiClk_t { srcSaiPllSai1P = 0b00, srcSaiPllSai2P = 0b01, srcSaiPllP = 0b10, srcSaiExt = 0b11 };
+
 enum PllSrc_t { pllsrcNone = 0b00, pllsrcMsi = 0b01, pllsrcHsi16 = 0b10, pllsrcHse = 0b11 };
 
 enum McoSrc_t {mcoNone=0b0000, mcoSYSCLK=0b0001, mcoMSI=0b0010, mcoHSI16=0b0011, mcoHSE=0b0100, mcoMainPLL=0b0101, mcoLSI=0b0110, mcoLSE=0b0111 };
@@ -2029,61 +2041,58 @@ public:
     uint8_t SwitchToMSI();
 
     uint8_t EnableHSI();
-    uint8_t EnableMSI();
-    uint8_t EnableHSE();
-    uint8_t EnablePLL();
-    void EnableLSE()  { RCC->BDCR |= RCC_BDCR_LSEON; }
-    void EnablePllROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
-    void EnablePllQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
-    uint8_t EnablePllSai1();
-    void EnablePllSai1QOut() { RCC->PLLSAI1CFGR |= RCC_PLLSAI1CFGR_PLLSAI1QEN; }
-
-    uint8_t EnablePllSai2();
-    void EnablePllSai2POut() { RCC->PLLSAI2CFGR |= RCC_PLLSAI2CFGR_PLLSAI2PEN; }
-
-    void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
     void DisableHSI() { RCC->CR &= ~RCC_CR_HSION; }
-    void DisablePLL();
+    uint8_t EnableMSI();
     void DisableMSI() { RCC->CR &= ~RCC_CR_MSION; }
-    void DisablePllSai1();
-    void DisablePllSai2();
-
-    bool IsLseOn()      { return (RCC->BDCR & RCC_BDCR_LSERDY); }
-
-    void SetupBusDividers(AHBDiv_t AHBDiv, APBDiv_t APB1Div, APBDiv_t APB2Div);
-
-    // PLL and PLLSAI
-    uint8_t SetupM(uint32_t M);
-    void SetupPllSrc(PllSrc_t PllSrc);
-    PllSrc_t GetPllSrc();
-    uint8_t SetupPll(uint32_t N, uint32_t R, uint32_t Q);
-    void SetupPllSai1(uint32_t N, uint32_t R, uint32_t Q, uint32_t P);
-    void SetupPllSai2(uint32_t N, uint32_t R, uint32_t P);
-    void EnableSai1ROut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1REN); }
-    void EnableSai1QOut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1QEN); }
-    void EnableSai1POut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1PEN); }
-    void EnableSai2POut() { SET_BIT(RCC->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2PEN); }
-
-    void UpdateFreqValues();
-    void EnablePrefetch() { FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_DCEN | FLASH_ACR_ICEN; }
-    void SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange);
-    void SetVoltageRange(MCUVoltRange_t VoltRange);
-    void SetupSai1Qas48MhzSrc();
-    void SetupSai1Qas48MhzSrcWidhADC();
-    void SetupPllQas48MhzSrc();
-    // LSI
+    uint8_t EnableHSE();
+    void DisableHSE() { RCC->CR &= ~RCC_CR_HSEON; }
+    void EnableLSE()  { RCC->BDCR |= RCC_BDCR_LSEON; }
+    bool IsLseOn()    { return (RCC->BDCR & RCC_BDCR_LSERDY); }
     void EnableLSI() {
         RCC->CSR |= RCC_CSR_LSION;
         while(!(RCC->CSR & RCC_CSR_LSIRDY));
     }
     void DisableLSI() { RCC->CSR &= RCC_CSR_LSION; }
 
-    void SetCoreClk(CoreClk_t CoreClk);
-    void SetCoreClk80MHz();
+    // PLL Common
+    uint8_t SetupM(uint32_t M);
+    void SetupPllSrc(PllSrc_t PllSrc);
+    PllSrc_t GetPllSrc();
 
+    // PLL
+    uint8_t SetupPll(uint32_t N, uint32_t R, uint32_t Q);
+    uint8_t EnablePLL();
+    void EnablePllROut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN; }
+    void EnablePllQOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLQEN; }
+    void EnablePllPOut() { RCC->PLLCFGR |= RCC_PLLCFGR_PLLPEN; }
+    void DisablePll();
+
+    void SetupPllSai1(uint32_t N, uint32_t R, uint32_t Q, uint32_t P);
+    uint8_t EnablePllSai1();
+    void EnableSai1ROut() { RCC->PLLSAI1CFGR |= RCC_PLLSAI1CFGR_PLLSAI1REN; }
+    void EnableSai1QOut() { RCC->PLLSAI1CFGR |= RCC_PLLSAI1CFGR_PLLSAI1QEN; }
+    void EnableSai1POut() { RCC->PLLSAI1CFGR |= RCC_PLLSAI1CFGR_PLLSAI1PEN; }
+    void DisablePllSai1();
+
+    void SetupPllSai2(uint32_t N, uint32_t R, uint32_t P);
+    uint8_t EnablePllSai2();
+    void EnablePllSai2POut() { RCC->PLLSAI2CFGR |= RCC_PLLSAI2CFGR_PLLSAI2PEN; }
+    void DisablePllSai2();
+
+    // SYSCLK
+    void SetupBusDividers(AHBDiv_t AHBDiv, APBDiv_t APB1Div, APBDiv_t APB2Div);
+    void UpdateFreqValues();
+    void EnablePrefetch() { FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_DCEN | FLASH_ACR_ICEN; }
+    void SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange);
+    void SetVoltageRange(MCUVoltRange_t VoltRange);
     uint32_t GetSysClkHz();
 
-    // Setup independent clock
+    // Clock select
+    void Select48MHzClkSrc(Src48MHz_t ASrc) { RCC->CCIPR = (RCC->CCIPR & ~RCC_CCIPR_CLK48SEL) | (((uint32_t)ASrc) << 26); }
+    void SelectADCClkSrc(SrcAdc_t ASrc)     { RCC->CCIPR = (RCC->CCIPR & ~RCC_CCIPR_ADCSEL)   | (((uint32_t)ASrc) << 28); }
+    void SelectSAI1Clk(SrcSaiClk_t ASrc)    { RCC->CCIPR = (RCC->CCIPR & ~RCC_CCIPR_SAI1SEL)  | (((uint32_t)ASrc) << 22); }
+    void SelectSAI2Clk(SrcSaiClk_t ASrc)    { RCC->CCIPR = (RCC->CCIPR & ~RCC_CCIPR_SAI2SEL)  | (((uint32_t)ASrc) << 24); }
+
     void SetI2CClkSrc(I2C_TypeDef *i2c, i2cClk_t ClkSrc) {
         uint32_t tmp = RCC->CCIPR;
         if(i2c == I2C1) {

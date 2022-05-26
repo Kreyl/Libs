@@ -169,7 +169,7 @@ uint32_t TrueGenerate(uint32_t LowInclusive, uint32_t HighInclusive) {
 void SeedWithTrue() {
     while((RNG->SR & RNG_SR_DRDY) == 0);    // Wait for new random value
     uint32_t dw = RNG->DR;
-    srandom(dw);
+    Seed(dw);
 }
 
 } // namespace
@@ -2432,75 +2432,6 @@ void Clk_t::SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange) {
 //    while(FLASH->ACR != tmp);
 }
 
-void Clk_t::SetCoreClk(CoreClk_t CoreClk) {
-    EnablePrefetch();
-    // First, switch to MSI if clock src is not MSI
-    if((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_MSI) {
-        if(SwitchToMSI() != retvOk) return;
-    }
-
-    // Disable PLL and SAI1, enable HSE
-    DisablePLL();
-    DisablePllSai1();
-    if(CoreClk >= cclk16MHz) {
-        if(EnableHSE() != retvOk) return;
-        SetVoltageRange(mvrHiPerf);
-    }
-
-    // Setup dividers
-    switch(CoreClk) {
-        case cclk8MHz:
-            break;
-        // Setup PLL (must be disabled first)
-        case cclk16MHz:
-            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(16, mvrHiPerf);
-            // 12MHz / 1 = 12; 12 * 8 / 6 = 16
-            if(SetupPll(8, 6, 2) != retvOk) return;
-            SetupFlashLatency(16, mvrHiPerf);
-            break;
-        case cclk24MHz:
-            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(24, mvrHiPerf);
-            // 12MHz / 1 = 12; 12 * 8 / 4 = 24
-            if(SetupPll(8, 4, 2) != retvOk) return;
-            SetupFlashLatency(24, mvrHiPerf);
-            break;
-        case cclk48MHz:
-            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(48, mvrHiPerf);
-            // 12MHz / 1 = 12; 12 * 8 / 2 => 48
-            if(SetupPll(8, 2, 2) != retvOk) return;
-            SetupFlashLatency(48, mvrHiPerf);
-            break;
-        case cclk64MHz:
-            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(64, mvrHiPerf);
-            // 12MHz / 3 = 4; 4 * 32 / 2 => 64
-            if(SetupPll(32, 2, 2) != retvOk) return;
-            SetupFlashLatency(64, mvrHiPerf);
-            break;
-        case cclk72MHz:
-            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(72, mvrHiPerf);
-            // 12MHz / 1 = 12; 12 * 12 / 2 = 72
-            if(SetupPll(24, 4, 6) != retvOk) return;
-            SetupFlashLatency(72, mvrHiPerf);
-            break;
-        case cclk80MHz:
-            if(AHBFreqHz < (uint32_t)CoreClk) SetupFlashLatency(80, mvrHiPerf);
-            // 12MHz / 3 = 4; 4 * 40 / 2 = 80; * 24 / 2 = 48
-            if(SetupPll(40, 2, 2) != retvOk) return;
-            SetupFlashLatency(80, mvrHiPerf);
-            break;
-        default: break;
-    } // switch
-
-    if(CoreClk >= cclk16MHz) {
-        SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
-        if(EnablePLL() == retvOk) {
-            EnablePllROut();
-            SwitchToPLL();
-        }
-    }
-}
-
-
 void Clk_t::SetVoltageRange(MCUVoltRange_t VoltRange) {
     uint32_t tmp = PWR->CR1;
     tmp &= ~PWR_CR1_VOS;
@@ -2562,29 +2493,6 @@ void Clk_t::SetupPllSai2(uint32_t N, uint32_t R, uint32_t P) {
     else SET_BIT(RCC->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2P);
 }
 
-void Clk_t::SetupSai1Qas48MhzSrc() {
-    uint32_t tmp = RCC->CCIPR;
-    tmp &= ~RCC_CCIPR_CLK48SEL;
-    tmp |= ((uint32_t)src48PllSai1Q) << 26;
-    RCC->CCIPR = tmp;
-}
-
-void Clk_t::SetupSai1Qas48MhzSrcWidhADC() {
-    uint32_t tmp = RCC->CCIPR;
-    tmp &= ~RCC_CCIPR_ADCSEL;
-    tmp |= ((uint32_t)src48PllSai1Q) << 28; // SAI1R is ADC clock
-    tmp &= ~RCC_CCIPR_CLK48SEL;
-    tmp |= ((uint32_t)src48PllSai1Q) << 26;
-    RCC->CCIPR = tmp;
-}
-
-void Clk_t::SetupPllQas48MhzSrc() {
-    uint32_t tmp = RCC->CCIPR;
-    tmp &= ~RCC_CCIPR_CLK48SEL;
-    tmp |= ((uint32_t)src48PllQ) << 26;
-    RCC->CCIPR = tmp;
-}
-
 // ==== Enable/Disable ====
 uint8_t Clk_t::EnableHSI() {
     RCC->CR |= RCC_CR_HSION;
@@ -2617,7 +2525,7 @@ uint8_t Clk_t::EnablePLL() {
     return retvTimeout;
 }
 
-void Clk_t::DisablePLL() {
+void Clk_t::DisablePll() {
     RCC->CR &= ~RCC_CR_PLLON;
     while(RCC->CR & RCC_CR_PLLRDY); // Wait until ready
 }
