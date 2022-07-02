@@ -1,0 +1,38 @@
+(footprint "Tirusse868" (version 20220609) (generator pcbnew)
+  (layer "F.Cu")
+  (attr through_hole)
+  (fp_text reference "Ref**" (at 4.1 2.9) (layer "F.SilkS") hide
+      (effects (font (size 1.27 1.27) (thickness 0.15)))
+    (tstamp 4c5c2d54-cacf-46ac-9534-527dcb4f7995)
+  )
+  (fp_text value "Val**" (at 5.1 8.6) (layer "F.SilkS") hide
+      (effects (font (size 1.27 1.27) (thickness 0.15)))
+    (tstamp de0fab4c-8b8a-445c-9afe-23f54fab8521)
+  )
+  (fp_poly
+    (pts
+      (xy 1.2 6.398454)
+      (xy 8.2 6.398454)
+      (xy 8.2 6.798454)
+      (xy 1.2 6.798454)
+    )
+
+    (stroke (width 0.001) (type solid)) (fill solid) (layer "F.Cu") (tstamp 2b3c7554-8cd0-4eb1-8741-87f6afb9918d))
+  (fp_poly
+    (pts
+      (xy 8.2 0)
+      (xy 7.8 0)
+      (xy 7.8 65.482475)
+      (xy 8.2 65.482475)
+    )
+
+    (stroke (width 0.001) (type solid)) (fill solid) (layer "F.Cu") (tstamp b41b0772-2109-4b60-bbdd-291d81ec92dc))
+  (fp_line (start 0 0) (end 0 24.1)
+    (stroke (width 0.12) (type default)) (layer "F.SilkS") (tstamp 2b772fb9-c9da-4486-abc5-c54b39c79644))
+  (fp_line (start 0 0) (end 7.5 0)
+    (stroke (width 0.12) (type default)) (layer "F.SilkS") (tstamp 7d14e76a-4dbb-40ba-a734-d694613d4dc1))
+  (fp_line (start 1 0) (end 1 10)
+    (stroke (width 0.12) (type default)) (layer "F.SilkS") (tstamp 967e4b57-b735-42a9-8aec-d7fa8c98d621))
+  (pad "1" smd rect (at 1.4 6.6) (size 0.4 0.4) (layers "F.Cu") (tstamp 251bafe6-8425-4a67-b6f8-de70be4241b8))
+  (pad "2" smd rect (at 8 0.2) (size 0.4 0.4) (layers "F.Cu") (tstamp 5ee2c6b3-8a86-4cae-aa77-71b7364ec4cb))
+)
