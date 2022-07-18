@@ -1,12 +1,12 @@
 /*
  * SimpleSensors.cpp
  *
- *  Created on: 17 ÿíâ. 2015 ã.
+ *  Created on: 17 ï¿½ï¿½ï¿½. 2015 ï¿½.
  *      Author: Kreyl
  */
 
 #include "SimpleSensors.h"
-#include "uart.h"
+#include "uart2.h"
 
 #if SIMPLESENSORS_ENABLED
 #include "PinSnsSettings.h"
@@ -39,7 +39,7 @@ static void SensorsThread(void *arg) {
                 if(PostProcessor != nullptr) PostProcessor(PStates, GroupLen);
                 // Prepare for next group
                 PostProcessor = PinSns[i].Postprocessor;
-                GroupLen = 0;
+                GroupLen = 1; // There is one pin in new group already
                 PStates = &States[i];
             }
             else GroupLen++;    // else increase group len
