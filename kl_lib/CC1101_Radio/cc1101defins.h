@@ -5,8 +5,7 @@
  * Created on 3 Март 2010 г., 11:08
  */
 
-#ifndef _CC1101DEFINS_H
-#define	_CC1101DEFINS_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -23,6 +22,23 @@
 #define CC_PwrPlus7dBm         0xCD
 #define CC_PwrPlus10dBm        0xC5
 #define CC_PwrPlus12dBm        0xC0
+
+__attribute__((unused))
+static const char* CC_PwrToString(uint8_t APwr) {
+    if     (APwr == CC_PwrMinus30dBm) return "-30dBm";
+    else if(APwr == CC_PwrMinus27dBm) return "-27dBm";
+    else if(APwr == CC_PwrMinus25dBm) return "-25dBm";
+    else if(APwr == CC_PwrMinus20dBm) return "-20dBm";
+    else if(APwr == CC_PwrMinus15dBm) return "-15dBm";
+    else if(APwr == CC_PwrMinus10dBm) return "-10dBm";
+    else if(APwr == CC_PwrMinus6dBm)  return "-6dBm";
+    else if(APwr == CC_Pwr0dBm)       return "0dBm";
+    else if(APwr == CC_PwrPlus5dBm)   return "+5dBm";
+    else if(APwr == CC_PwrPlus7dBm)   return "+7dBm";
+    else if(APwr == CC_PwrPlus10dBm)  return "+10dBm";
+    else if(APwr == CC_PwrPlus12dBm)  return "+12dBm";
+    else                              return "??dBm";
+}
 
 // ======================= Registers, strobes etc. =============================
 // Flags
@@ -148,7 +164,4 @@
 
 // FIFO
 #define CC_FIFO     0x3F
-
-
-#endif	/* _CC1101DEFINS_H */
 
