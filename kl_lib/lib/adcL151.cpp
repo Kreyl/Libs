@@ -14,11 +14,10 @@
 
 Adc_t Adc;
 const uint8_t AdcChannels[ADC_CHANNEL_CNT] = ADC_CHANNELS;
-static thread_reference_t ThdRef;
-static bool FirstConversion;
 static const stm32_dma_stream_t *PAdcDma = nullptr;
 
-
+#ifdef ADC_PERIODIC_MEASUREMENT
+static thread_reference_t ThdRef;
 static THD_WORKING_AREA(waAdcThread, 128);
 __noreturn
 static void AdcThread(void *arg) {
@@ -47,22 +46,26 @@ static void AdcThread(void *arg) {
         } // not first conv
     } // while true
 }
+#endif
 
 // Wrapper for IRQ
-extern "C" {
-void AdcTxIrq(void *p, uint32_t flags) {
+void AdcRdyIrq(void *p, uint32_t flags) {
     dmaStreamDisable(PAdcDma);
     Adc.Disable();
-    // Wake thread
+#ifdef ADC_EN_AND_DIS_HSI
+    Clk.DisableHSI();
+#endif
     chSysLockFromISR();
-    chThdResumeI(&ThdRef, MSG_OK);
+#ifdef ADC_PERIODIC_MEASUREMENT
+    chThdResumeI(&ThdRef, MSG_OK); // Wake thread
+#elif defined ADC_MEASURE_BY_REQUEST
+    EvtQMain.SendNowOrExitI(EvtMsg_t(evtIdAdcRslt));
+#endif
     chSysUnlockFromISR();
-}
-} // extern C
 
-#if defined STM32L1XX
+}
+
 void Adc_t::Init() {
-    FirstConversion = true;
     rccEnableADC1(FALSE);   	// Enable digital clock
     SetupClk(ADC_CLK_DIVIDER);  // Setup ADCCLK
     // Setup channels
@@ -74,11 +77,13 @@ void Adc_t::Init() {
 	}
     EnableVRef();
     // ==== DMA ====
-    PAdcDma = dmaStreamAlloc(ADC_DMA, IRQ_PRIO_LOW, AdcTxIrq, NULL);
+    PAdcDma = dmaStreamAlloc(ADC_DMA, IRQ_PRIO_LOW, AdcRdyIrq, NULL);
     dmaStreamSetPeripheral(PAdcDma, &ADC1->DR);
     dmaStreamSetMode      (PAdcDma, ADC_DMA_MODE);
-    // ==== Thread ====
+
+#ifdef ADC_PERIODIC_MEASUREMENT // ==== Thread ====
     chThdCreateStatic(waAdcThread, sizeof(waAdcThread), NORMALPRIO, (tfunc_t)AdcThread, NULL);
+#endif
 }
 
 void Adc_t::SetSequenceLength(uint32_t ALen) {
@@ -134,6 +139,9 @@ void Adc_t::SetSequenceItem(uint8_t SeqIndx, uint32_t AChnl) {
 }
 
 void Adc_t::StartMeasurement() {
+#ifdef ADC_EN_AND_DIS_HSI
+    Clk.EnableHSI();
+#endif
     // DMA
     dmaStreamSetMemory0(PAdcDma, IBuf);
     dmaStreamSetTransactionSize(PAdcDma, ADC_SEQ_LEN);
@@ -145,7 +153,7 @@ void Adc_t::StartMeasurement() {
     StartConversion();
 }
 
-uint32_t Adc_t::GetResult(uint8_t AChannel) {
+uint32_t Adc_t::GetResultAverage(uint8_t AChannel) {
     uint32_t Indx = 0;
 #if (ADC_CHANNEL_CNT > 1)
     // Find Channel indx
@@ -164,6 +172,21 @@ uint32_t Adc_t::GetResult(uint8_t AChannel) {
     for(uint32_t i = Start; i < Stop; i++) Rslt += IBuf[i];
     return Rslt / ADC_SAMPLE_CNT;
 }
-#endif // f4xx & L151
+
+uint32_t Adc_t::GetResultMedian(uint8_t AChannel) {
+    uint32_t Indx = 0;
+#if (ADC_CHANNEL_CNT > 1)
+    // Find Channel indx
+    for(uint32_t i=0; i < ADC_CHANNEL_CNT; i++) {
+        if(AdcChannels[i] == AChannel) {
+            Indx = i;
+            break;
+        }
+    }
+#endif
+    // Find bounds
+    uint32_t Start = Indx * ADC_SAMPLE_CNT;
+    return FindMediana<uint16_t>(&IBuf[Start], ADC_SAMPLE_CNT);
+}
 
 #endif  // ADC_REQUIRED
