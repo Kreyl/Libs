@@ -732,7 +732,7 @@ uint8_t ProgramBuf(void *PData, uint32_t ByteSz, uint32_t Addr) {
     // Erase flash
     ClearPendingFlags();
     status = ErasePage(Addr);
-//    Uart.PrintfI("  Flash erase %u: %u\r", status);
+//    PrintfI("  Flash erase %u: %u\r", status);
     if(status != retvOk) {
         PrintfI("Flash erase error\r");
         goto end;
@@ -1282,7 +1282,7 @@ uint8_t TryStrToFloat(char* S, float *POutput) {
 }; // namespace
 #endif
 
-#if 1 // ============================== IWDG ===================================
+#if 0 // ============================== IWDG ===================================
 namespace Iwdg {
 enum Pre_t {
     iwdgPre4 = 0x00,

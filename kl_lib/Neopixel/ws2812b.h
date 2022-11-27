@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 /*
  * ========== WS2812 control module ==========
  * Only basic command "SetCurrentColors" is implemented, all other is up to
@@ -36,13 +34,22 @@
  * To simplify BitBuffer construction, using 0 as 1000 and 1 as 1100 (666+666),
  * thus 1 LED byte is 4 real bytes.
  * Reset must be: 80uS => ~248bit => ~31 bytes
+ *
+== EXAMPLE ==
+#define NPX_LED_CNT     (14*3)
+#define NPX_SPI         SPI2
+#define NPX_DATA_PIN    GPIOC, 3, AF1
+#define NPX_PWR_EN      GPIOC, 0
+
+static const NeopixelParams_t NpxParams{NPX_SPI, NPX_DATA_PIN, LEDWS_DMA, NPX_DMA_MODE(0), NPX_LED_CNT, npxRGBW};
+Neopixels_t Leds{&NpxParams};
  */
 
 #include "ch.h"
 #include "hal.h"
 #include "kl_lib.h"
 #include "color.h"
-#include "uart2.h"
+#include "uart.h"
 #include "board.h"
 #include <vector>
 
@@ -54,7 +61,6 @@ typedef std::vector<Color_t> ColorBuf_t;
 #define NPX_SPI_BITNUMBER       bitn8
 #define NPX_BYTES_PER_BYTE      3 // 3 bits of SPI to produce 1 bit of LED data
 #define NPX_RST_BYTE_CNT        100
-//#define DATA_BIT_CNT(LedCnt)    (LedCnt * 3 * 8 * NPX_SEQ_LEN_BITS) // Each led has 3 channels 8 bit each
 
 #define NPX_DMA_MODE(Chnl) \
                         (STM32_DMA_CR_CHSEL(Chnl) \
@@ -70,9 +76,6 @@ typedef std::vector<Color_t> ColorBuf_t;
 #define NPX_SPI_BITNUMBER       bitn16
 #define NPX_BYTES_PER_BYTE      4 // 2 bits are 1 byte, 8 bits are 4 bytes
 #define NPX_RST_BYTE_CNT        108
-#define NPX_DATA_BYTE_CNT(LedCnt)   ((LedCnt) * 3 * NPX_BYTES_PER_BYTE)
-#define NPX_TOTAL_BYTE_CNT(LedCnt)  (NPX_DATA_BYTE_CNT(LedCnt) + NPX_RST_BYTE_CNT)
-#define NPX_WORD_CNT(LedCnt)        ((NPX_TOTAL_BYTE_CNT(LedCnt) + 1) / 2)
 
 #define NPX_DMA_MODE(Chnl) \
                         (STM32_DMA_CR_CHSEL(Chnl) \
@@ -112,13 +115,8 @@ struct NeopixelParams_t {
 
 class Neopixels_t {
 private:
-#if WS2812B_V2
     uint32_t IBitBufSz = 0;
     uint8_t *IBitBuf = nullptr;
-#else // WS2812B_V5 and SK6812SIDE
-    uint32_t IBitBufWordCnt = 0;
-    uint32_t *IBitBuf = nullptr;
-#endif
     const NeopixelParams_t *Params;
     const stm32_dma_stream_t *PDma = nullptr;
 public:
@@ -131,9 +129,7 @@ public:
     void OnDmaDone();
     ColorBuf_t ClrBuf;
     void Init();
-    void SetAll(Color_t Clr) {
-        for(auto &IClr : ClrBuf) IClr = Clr;
-    }
+    void SetAll(Color_t Clr) { for(auto &IClr : ClrBuf) IClr = Clr; }
     void MixAllwWeight(Color_t Clr, uint32_t Weight) {
         for(auto &IClr : ClrBuf) IClr.MixwWeight(Clr, Weight);
     }
@@ -147,9 +143,7 @@ public:
         }
     }
     bool AreOff() {
-        for(auto &IClr : ClrBuf) {
-            if(IClr != clBlack) return false;
-        }
+        for(auto &IClr : ClrBuf) if(IClr != clBlack) return false;
         return true;
     }
 };

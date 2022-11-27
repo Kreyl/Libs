@@ -1,7 +1,7 @@
 /*
  * SaveToFlash.h
  *
- *  Created on: 5 февр. 2017 г.
+ *  Created on: 5 пїЅпїЅпїЅпїЅ. 2017 пїЅ.
  *      Author: Kreyl
  */
 
@@ -10,6 +10,7 @@
 #include "inttypes.h"
 #include "chtypes.h"
 #include "board.h"
+#include "stm32_registry.h"
 
 /* Time of saving: 32ms @ 8MHz
  *
@@ -25,7 +26,7 @@ SECTIONS {
 }
 */
 
-#if defined STM32L476xx || defined STM32L433xx
+#if defined STM32L476xx || defined STM32L433xx || defined STM32F10X_HD || defined STM32F0XX
 #define FLASH_PAGE_SIZE     2048UL
 #else
 #define FLASH_PAGE_SIZE     1024UL

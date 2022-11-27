@@ -172,6 +172,15 @@ public:
         G = ClrMix(Fore.G, G, Weight);
         B = ClrMix(Fore.B, B, Weight);
     }
+
+    // Weight = 0: not changed; Weight = 255: result is Fore; otherwise result is mix
+    void MixwWeightRGBW(const Color_t &Fore, uint32_t Weight) {
+        R = ClrMix(Fore.R, R, Weight);
+        G = ClrMix(Fore.G, G, Weight);
+        B = ClrMix(Fore.B, B, Weight);
+        W = ClrMix(Fore.W, W, Weight);
+    }
+
     void MixWith(const Color_t &Clr) {
         if(Clr.Brt == 0) return;    // Alien is off, no changes with us
         else if(Brt == 0) DWord32 = Clr.DWord32; // We are off
@@ -296,6 +305,13 @@ struct ColorHSL_t {
 
     void ToRGB(Color_t &AColor) { ToRGB(&AColor.R, &AColor.G, &AColor.B); }
 
+    Color_t ToRGB() {
+        Color_t Clr;
+        ToRGB(Clr);
+        return Clr;
+    }
+
+    ColorHSL_t() : H(0), S(0), L(0) {}
     ColorHSL_t(uint16_t AH, uint8_t AS, uint8_t AL) : H(AH), S(AS), L(AL) {}
 } __attribute__((packed));
 #endif

@@ -7,30 +7,21 @@ void NpxDmaDone(void *p, uint32_t flags) {
 void Neopixels_t::Init() {
     // GPIO and DMA
     PinSetupAlterFunc(Params->PGpio, Params->Pin, omPushPull, pudNone, Params->Af);
-//    PinSetupAlterFunc(Params->PGpio, Params->Pin, omOpenDrain, pudNone, Params->Af);
     Params->ISpi.Setup(boMSB, cpolIdleLow, cphaFirstEdge, NPX_SPI_BITRATE, NPX_SPI_BITNUMBER);
     Params->ISpi.Enable();
     Params->ISpi.EnableTxDma();
 
     // Allocate memory
     Printf("LedCnt: %u\r", Params->NpxCnt);
+    ClrBuf.resize(Params->NpxCnt);
 //    Params->ISpi.PrintFreq();
-#if WS2812B_V2
     IBitBufSz = NPX_RST_BYTE_CNT + (Params->NpxCnt * (Params->Type == npxRGBW? 4 : 3) * NPX_BYTES_PER_BYTE);
-
     Printf("TotalByteCnt: %u\r", IBitBufSz);
     IBitBuf = (uint8_t*)malloc(IBitBufSz);
-    ClrBuf.resize(Params->NpxCnt);
-    memset(IBitBuf, 0, IBitBufSz);
-#else // WS2812B_V5 and SK6812SIDE
-    IBitBufWordCnt = NPX_WORD_CNT(Params->NpxCnt);
-    Printf("TotalByteCnt: %u\r", IBitBufWordCnt*2);
-    IBitBuf = (uint32_t*)malloc(IBitBufWordCnt*2);
-    ClrBuf.resize(Params->NpxCnt);
-    // Zero it all, to zero head and tail
-    memset(IBitBuf, 0, IBitBufWordCnt*2);
+    memset(IBitBuf, 0, IBitBufSz); // Zero it all, to zero head and tail
+#if WS2812B_V5 // Since 16-bit SPI utilized, DMA transaction size is half of buf-sz-in-bytes
+    IBitBufSz = (IBitBufSz + 1) / 2;
 #endif
-
     // ==== DMA ====
     PDma = dmaStreamAlloc(Params->DmaID, IRQ_PRIO_LOW, NpxDmaDone, this);
     dmaStreamSetPeripheral(PDma, &Params->ISpi.PSpi->DR);
@@ -97,40 +88,53 @@ void Neopixels_t::SetCurrentColors() {
 #if WS2812B_V2
     uint8_t *p = IBitBuf + (NPX_RST_BYTE_CNT / 2); // First and last words are zero to form reset
     // Fill bit buffer
-    for(auto &Color : ClrBuf) {
-        memcpy(p, &ITable[Color.G], 4);
-        p += NPX_BYTES_PER_BYTE;
-        memcpy(p, &ITable[Color.R], 4);
-        p += NPX_BYTES_PER_BYTE;
-        memcpy(p, &ITable[Color.B], 4);
-        p += NPX_BYTES_PER_BYTE;
-        if(Params->Type == npxRGBW) {
+    if(Params->Type == npxRGBW) {
+        for(auto &Color : ClrBuf) {
+            memcpy(p, &ITable[Color.G], 4);
+            p += NPX_BYTES_PER_BYTE;
+            memcpy(p, &ITable[Color.R], 4);
+            p += NPX_BYTES_PER_BYTE;
+            memcpy(p, &ITable[Color.B], 4);
+            p += NPX_BYTES_PER_BYTE;
             memcpy(p, &ITable[Color.W], 4);
             p += NPX_BYTES_PER_BYTE;
         }
     }
-//    Printf("%A\r", IBitBuf, IBufSz, ' ');
+    else {
+        for(auto &Color : ClrBuf) {
+            memcpy(p, &ITable[Color.G], 4);
+            p += NPX_BYTES_PER_BYTE;
+            memcpy(p, &ITable[Color.R], 4);
+            p += NPX_BYTES_PER_BYTE;
+            memcpy(p, &ITable[Color.B], 4);
+            p += NPX_BYTES_PER_BYTE;
+        }
+    }
+#else // WS2812B_V5 and SK6812SIDE
+    // Fill bit buffer
+    uint32_t *p = (uint32_t*)IBitBuf + (NPX_RST_BYTE_CNT / 8); // First and last words are zero to form reset
+    if(Params->Type == npxRGBW) {
+        for(auto &Color : ClrBuf) {
+            *p++ = ITable[Color.G];
+            *p++ = ITable[Color.R];
+            *p++ = ITable[Color.B];
+            *p++ = ITable[Color.W];
+        }
+    }
+    else {
+        for(auto &Color : ClrBuf) {
+            *p++ = ITable[Color.G];
+            *p++ = ITable[Color.R];
+            *p++ = ITable[Color.B];
+        }
+    }
+#endif
     // Start transmission
     dmaStreamDisable(PDma);
     dmaStreamSetMemory0(PDma, IBitBuf);
     dmaStreamSetTransactionSize(PDma, IBitBufSz);
     dmaStreamSetMode(PDma, Params->DmaMode);
     dmaStreamEnable(PDma);
-#else // WS2812B_V5 and SK6812SIDE
-    // Fill bit buffer
-    uint32_t *p = IBitBuf + (NPX_RST_BYTE_CNT / 8); // First and last words are zero to form reset
-    for(auto &Color : ClrBuf) {
-        *p++ = ITable[Color.G];
-        *p++ = ITable[Color.R];
-        *p++ = ITable[Color.B];
-    }
-    // Start transmission
-    dmaStreamDisable(PDma);
-    dmaStreamSetMemory0(PDma, IBitBuf);
-    dmaStreamSetTransactionSize(PDma, IBitBufWordCnt);
-    dmaStreamSetMode(PDma, Params->DmaMode);
-    dmaStreamEnable(PDma);
-#endif
 }
 
 void Neopixels_t::OnDmaDone() {

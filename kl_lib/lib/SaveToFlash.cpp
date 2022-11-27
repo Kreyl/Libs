@@ -1,7 +1,7 @@
 /*
  * SaveToFlash.cpp
  *
- *  Created on: 5 февр. 2017 г.
+ *  Created on: 5 пїЅпїЅпїЅпїЅ. 2017 пїЅ.
  *      Author: Kreyl
  */
 
@@ -35,6 +35,7 @@ void* GetFlashPointer() {
 void LoadI(void *ptr, uint32_t ByteSz) {
     memcpy(ptr, (const void*)IData, ByteSz);
 }
+
 void Load(void *ptr, uint32_t ByteSz) {
     chSysLock();
     LoadI(ptr, ByteSz);
