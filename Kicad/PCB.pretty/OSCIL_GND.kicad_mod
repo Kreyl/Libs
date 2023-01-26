@@ -1,0 +1,18 @@
+(footprint "OSCIL_GND" (version 20221018) (generator pcbnew)
+  (layer "F.Cu")
+  (attr through_hole)
+  (fp_text reference "REF**" (at 0 -0.5 unlocked) (layer "F.SilkS") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 05b21f03-0794-4085-a01a-6cc727a1e524)
+  )
+  (fp_text value "OSCIL_GND" (at 0 1 unlocked) (layer "F.Fab") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 27e857a5-39ec-473a-a465-c6fa1d675b33)
+  )
+  (fp_text user "${REFERENCE}" (at 0 2.5 unlocked) (layer "F.Fab") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp ea138661-58e7-4c05-87d6-1e7ad788d784)
+  )
+  (pad "1" thru_hole oval (at 0 0) (size 7.6 3.1) (drill oval 7 2.5) (layers *.Cu *.Mask)
+    (solder_mask_margin 0.6) (zone_connect 2) (tstamp ccaf85bf-bef9-42db-a2cf-cfe8845404c1))
+)

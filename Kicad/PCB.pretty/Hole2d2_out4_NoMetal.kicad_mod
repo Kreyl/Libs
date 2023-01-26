@@ -1,0 +1,18 @@
+(footprint "Hole2d2_out4_NoMetal" (version 20221018) (generator pcbnew)
+  (layer "F.Cu")
+  (attr through_hole)
+  (fp_text reference "REF**" (at 0 -0.5 unlocked) (layer "F.SilkS") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 4a32a274-24d0-41fb-8540-b97909381b08)
+  )
+  (fp_text value "Hole2d2_out4_NoMetal" (at 0 1 unlocked) (layer "F.Fab") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 42b31f7e-f135-4b09-b4b2-e0a61bac4c37)
+  )
+  (fp_text user "${REFERENCE}" (at 0 2.5 unlocked) (layer "F.Fab") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp ba88d2a8-516b-4d66-9423-394d7ccf1d35)
+  )
+  (pad "" np_thru_hole circle (at 0 0) (size 4 4) (drill 2.2) (layers *.Mask)
+    (clearance 1.1) (tstamp 59666ea0-f3fe-4210-a3c2-5fdcb6383e14))
+)

@@ -1,11 +1,15 @@
-(module Square_1MM5 (layer F.Cu) (tedit 56D236C7)
+(footprint "Square_1MM5" (version 20221018) (generator pcbnew)
+  (layer "F.Cu")
   (descr "Single Square Conn 1.5x1mm")
   (tags "CONN DEV")
-  (fp_text reference SIL-1 (at 0 -2) (layer F.SilkS) hide
-    (effects (font (size 0.6 0.6) (thickness 0.15)))
+  (attr through_hole)
+  (fp_text reference "SIL-1" (at 0 -2) (layer "F.SilkS") hide
+      (effects (font (size 0.6 0.6) (thickness 0.15)))
+    (tstamp 21fc07f5-5069-42ad-9d4e-a6ebaab311aa)
   )
-  (fp_text value Val** (at 0 2.032) (layer F.SilkS) hide
-    (effects (font (size 0.6 0.6) (thickness 0.15)))
+  (fp_text value "Val**" (at 0 2.032) (layer "F.SilkS") hide
+      (effects (font (size 0.6 0.6) (thickness 0.15)))
+    (tstamp 10cf0624-11ef-423e-bdb7-bebff68624e6)
   )
-  (pad 1 thru_hole rect (at 0 0) (size 3 3) (drill 1.5) (layers *.Cu *.Mask F.SilkS))
+  (pad "1" thru_hole rect (at 0 0) (size 3 3) (drill 1.5) (layers *.Cu *.Mask) (tstamp 514b3a2f-7b51-40fb-a160-d8708c6b10b2))
 )
