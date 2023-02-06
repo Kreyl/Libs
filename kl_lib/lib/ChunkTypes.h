@@ -1,11 +1,12 @@
 /*
  * ChunkTypes.h
  *
- *  Created on: 08 џэт. 2015 у.
+ *  Created on: 08 Jan 2015
  *      Author: Kreyl
  */
 
-#pragma once
+#ifndef CHUNK_TYPES_H_
+#define CHUNK_TYPES_H_
 
 #include "color.h"
 #include "ch.h"
@@ -146,3 +147,5 @@ public:
     bool IsIdle() { return (IPStartChunk == nullptr and IPCurrentChunk == nullptr); }
 };
 #endif
+
+#endif // CHUNK_TYPES_H_

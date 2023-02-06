@@ -5,7 +5,8 @@
  *      Author: kreyl
  */
 
-#pragma once
+#ifndef KL_BUF_H_
+#define KL_BUF_H_
 
 #include "ch.h"
 #include "string.h" // for memcpy
@@ -510,6 +511,6 @@ public:
 
     T operator[](const uint32_t Indx) { return IBuf[Indx]; }
 };
-
-
 #endif
+
+#endif // KL_BUF_H_

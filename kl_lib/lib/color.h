@@ -5,7 +5,8 @@
  *      Author: Kreyl
  */
 
-#pragma once
+#ifndef COLOR_H_
+#define COLOR_H_
 
 #include "kl_lib.h"
 #include "inttypes.h"
@@ -20,8 +21,28 @@ struct ColorHSV_t;
 // The check and transmutation shall be made in upper level.
 #define RANDOM_CLR_BRT      255
 
+static const uint8_t gamma8[] = {
+    0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+    2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+    2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+    2,  3,  3,  3,  3,  3,  3,  3,  4,  4,  4,  4,  4,  5,  5,  5,
+    5,  6,  6,  6,  6,  7,  7,  7,  7,  8,  8,  8,  9,  9,  9, 10,
+   10, 10, 11, 11, 11, 12, 12, 13, 13, 13, 14, 14, 15, 15, 16, 16,
+   17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 24, 24, 25,
+   25, 26, 27, 27, 28, 29, 29, 30, 31, 32, 32, 33, 34, 35, 35, 36,
+   37, 38, 39, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 50,
+   51, 52, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 66, 67, 68,
+   69, 70, 72, 73, 74, 75, 77, 78, 79, 81, 82, 83, 85, 86, 87, 89,
+   90, 92, 93, 95, 96, 98, 99,101,102,104,105,107,109,110,112,114,
+  115,117,119,120,122,124,126,127,129,131,133,135,137,138,140,142,
+  144,146,148,150,152,154,156,158,160,162,164,167,169,171,173,175,
+  177,180,182,184,186,189,191,193,196,198,200,203,205,208,210,213,
+  215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255
+};
+
 // Mixing two colors
-#define ClrMix(Fore, Back, Weight)     ((Fore * Weight + Back * (255 - Weight)) / 255)
+//#define ClrMix(Fore, Back, Weight)     ((Fore * Weight + Back * (255 - Weight)) / 255)
+
 
 __attribute__((__always_inline__))
 static inline int32_t Abs32(int32_t w) { return (w < 0)? -w : w; }
@@ -36,15 +57,13 @@ static inline int32_t CalcSmooth_st_from_ms(int32_t Duration_ms) {
     return (TIME_MS2I(Duration_ms) * 10L) / 36L;
 }
 
-struct Color_t {
+class Color_t {
 private:
-    __always_inline
-    uint8_t SetSingleBrt(int32_t v, const int32_t Brt, const int32_t BrtMax) {
-        if(v > 0) {
-            v = (v * Brt) / BrtMax;
-            if(v == 0) v = 1;
-        }
-        return v;
+    __always_inline uint8_t  SetSingleBrt(int32_t v, const int32_t Brt, const int32_t BrtMax) { return (v * Brt) / BrtMax; }
+    __always_inline uint32_t MixSingleAvg(uint32_t Fore, uint32_t Back) { return (Fore + Back) / 2; }
+    __always_inline uint32_t MixSingleAdd(uint32_t Fore, uint32_t Back) {
+        uint32_t Sum = Fore + Back;
+        return Sum > 255? 255 : Sum;
     }
 public:
     union {
@@ -59,6 +78,20 @@ public:
     bool operator == (const Color_t &AColor) const { return (DWord32 == AColor.DWord32); }
     bool operator != (const Color_t &AColor) const { return (DWord32 != AColor.DWord32); }
     Color_t& operator = (const Color_t &Right) { DWord32 = Right.DWord32; return *this; }
+
+    void ApplyGammaCorrectionRGB() {
+        R = gamma8[R];
+        G = gamma8[G];
+        B = gamma8[B];
+    }
+
+    void ApplyGammaCorrectionRGBW() {
+        R = gamma8[R];
+        G = gamma8[G];
+        B = gamma8[B];
+        W = gamma8[W];
+    }
+
     void Adjust(const Color_t &PColor) {
         if     (R < PColor.R) R++;
         else if(R > PColor.R) R--;
@@ -69,6 +102,7 @@ public:
         if     (Brt < PColor.Brt) Brt++;
         else if(Brt > PColor.Brt) Brt--;
     }
+
     void Adjust(const Color_t &PColor, uint32_t Step, const int32_t BrtMax) {
         uint32_t ThrsR = 255 - Step;
         if(R < PColor.R) {
@@ -161,37 +195,63 @@ public:
     }
     // ==== Mixage ====
     // Weight = 0: result is Back; Weight = 255: result is Fore; otherwise result is mix
-    void MixwWeight(const Color_t &Fore, const Color_t &Back, uint32_t Weight) {
-        R = ClrMix(Fore.R, Back.R, Weight);
-        G = ClrMix(Fore.G, Back.G, Weight);
-        B = ClrMix(Fore.B, Back.B, Weight);
-    }
+//    void MixwWeight(const Color_t &Fore, const Color_t &Back, uint32_t Weight) {
+//        R = ClrMix(Fore.R, Back.R, Weight);
+//        G = ClrMix(Fore.G, Back.G, Weight);
+//        B = ClrMix(Fore.B, Back.B, Weight);
+//    }
     // Weight = 0: not changed; Weight = 255: result is Fore; otherwise result is mix
-    void MixwWeight(const Color_t &Fore, uint32_t Weight) {
-        R = ClrMix(Fore.R, R, Weight);
-        G = ClrMix(Fore.G, G, Weight);
-        B = ClrMix(Fore.B, B, Weight);
-    }
+//    void MixwWeight(const Color_t &Fore, uint32_t Weight) {
+//        R = ClrMix(Fore.R, R, Weight);
+//        G = ClrMix(Fore.G, G, Weight);
+//        B = ClrMix(Fore.B, B, Weight);
+//    }
 
     // Weight = 0: not changed; Weight = 255: result is Fore; otherwise result is mix
-    void MixwWeightRGBW(const Color_t &Fore, uint32_t Weight) {
-        R = ClrMix(Fore.R, R, Weight);
-        G = ClrMix(Fore.G, G, Weight);
-        B = ClrMix(Fore.B, B, Weight);
-        W = ClrMix(Fore.W, W, Weight);
+//    void MixwWeightRGBW(const Color_t &Fore, uint32_t Weight) {
+//        R = ClrMix(Fore.R, R, Weight);
+//        G = ClrMix(Fore.G, G, Weight);
+//        B = ClrMix(Fore.B, B, Weight);
+//        W = ClrMix(Fore.W, W, Weight);
+//    }
+
+    void MixAveragingRGBW(const Color_t &Other) {
+        R = MixSingleAvg(Other.R, R);
+        G = MixSingleAvg(Other.G, G);
+        B = MixSingleAvg(Other.B, B);
+        W = MixSingleAvg(Other.W, W);
     }
 
-    void MixWith(const Color_t &Clr) {
-        if(Clr.Brt == 0) return;    // Alien is off, no changes with us
-        else if(Brt == 0) DWord32 = Clr.DWord32; // We are off
-        else {
-            uint32_t BrtSum = (uint32_t)Brt + (uint32_t)Clr.Brt;
-            R = (uint8_t)(((uint32_t)R * (uint32_t)Brt + (uint32_t)Clr.R * (uint32_t)Clr.Brt) / BrtSum);
-            G = (uint8_t)(((uint32_t)G * (uint32_t)Brt + (uint32_t)Clr.G * (uint32_t)Clr.Brt) / BrtSum);
-            B = (uint8_t)(((uint32_t)B * (uint32_t)Brt + (uint32_t)Clr.B * (uint32_t)Clr.Brt) / BrtSum);
-            if(Brt < Clr.Brt) Brt = Clr.Brt; // Top brightness wins
-        }
+    void MixAddingRGBW(const Color_t &Other) {
+        R = MixSingleAdd(Other.R, R);
+        G = MixSingleAdd(Other.G, G);
+        B = MixSingleAdd(Other.B, B);
+        W = MixSingleAdd(Other.W, W);
     }
+
+    void MixAveragingRGB(const Color_t &Other) {
+        R = MixSingleAvg(Other.R, R);
+        G = MixSingleAvg(Other.G, G);
+        B = MixSingleAvg(Other.B, B);
+    }
+
+    void MixAddingRGB(const Color_t &Other) {
+        R = MixSingleAdd(Other.R, R);
+        G = MixSingleAdd(Other.G, G);
+        B = MixSingleAdd(Other.B, B);
+    }
+
+//    void MixWith(const Color_t &Clr) {
+//        if(Clr.Brt == 0) return;    // Alien is off, no changes with us
+//        else if(Brt == 0) DWord32 = Clr.DWord32; // We are off
+//        else {
+//            uint32_t BrtSum = (uint32_t)Brt + (uint32_t)Clr.Brt;
+//            R = (uint8_t)(((uint32_t)R * (uint32_t)Brt + (uint32_t)Clr.R * (uint32_t)Clr.Brt) / BrtSum);
+//            G = (uint8_t)(((uint32_t)G * (uint32_t)Brt + (uint32_t)Clr.G * (uint32_t)Clr.Brt) / BrtSum);
+//            B = (uint8_t)(((uint32_t)B * (uint32_t)Brt + (uint32_t)Clr.B * (uint32_t)Clr.Brt) / BrtSum);
+//            if(Brt < Clr.Brt) Brt = Clr.Brt; // Top brightness wins
+//        }
+//    }
 
     // Adjustment
     uint32_t DelayToNextAdj(const Color_t &AClr, uint32_t SmoothValue) {
@@ -205,11 +265,23 @@ public:
         return (Delay2 > Delay)? Delay2 : Delay;
     }
 
-    void SetRGBWBrightness(Color_t &AClr, int32_t Brt, const int32_t BrtMax) {
-        R = SetSingleBrt(AClr.R, Brt, BrtMax);
-        G = SetSingleBrt(AClr.G, Brt, BrtMax);
-        B = SetSingleBrt(AClr.B, Brt, BrtMax);
-        W = SetSingleBrt(AClr.W, Brt, BrtMax);
+    void SetRGBWBrightness(Color_t &AClr, int32_t BrtAll, const int32_t BrtMax) {
+        R = SetSingleBrt(AClr.R, BrtAll, BrtMax);
+        G = SetSingleBrt(AClr.G, BrtAll, BrtMax);
+        B = SetSingleBrt(AClr.B, BrtAll, BrtMax);
+        W = SetSingleBrt(AClr.W, BrtAll, BrtMax);
+    }
+    void SetRGBWBrightness(int32_t BrtAll, const int32_t BrtMax) {
+        R = SetSingleBrt(R, BrtAll, BrtMax);
+        G = SetSingleBrt(G, BrtAll, BrtMax);
+        B = SetSingleBrt(B, BrtAll, BrtMax);
+        W = SetSingleBrt(W, BrtAll, BrtMax);
+    }
+    void SetRGBWBrightness(int32_t BrtRGB, int32_t BrtW, const int32_t BrtMax) {
+        R = SetSingleBrt(R, BrtRGB, BrtMax);
+        G = SetSingleBrt(G, BrtRGB, BrtMax);
+        B = SetSingleBrt(B, BrtRGB, BrtMax);
+        W = SetSingleBrt(W, BrtW,   BrtMax);
     }
 
     void SetRGBBrightness(Color_t &AClr, const int32_t ABrt, const int32_t BrtMax) {
@@ -231,11 +303,11 @@ public:
     Color_t() : R(0), G(0), B(0), Brt(0) {}
     Color_t(uint8_t AR, uint8_t AG, uint8_t AB) : R(AR), G(AG), B(AB), Brt(0) {}
     Color_t(uint8_t AR, uint8_t AG, uint8_t AB, uint8_t ALum) : R(AR), G(AG), B(AB), Brt(ALum) {}
-    Color_t(const Color_t &Fore, const Color_t &Back, uint32_t Brt) {
-        R = ClrMix(Fore.R, Back.R, Brt);
-        G = ClrMix(Fore.G, Back.G, Brt);
-        B = ClrMix(Fore.B, Back.B, Brt);
-    }
+//    Color_t(const Color_t &Fore, const Color_t &Back, uint32_t Brt) {
+//        R = ClrMix(Fore.R, Back.R, Brt);
+//        G = ClrMix(Fore.G, Back.G, Brt);
+//        B = ClrMix(Fore.B, Back.B, Brt);
+//    }
 } __attribute__((packed));
 
 
@@ -353,28 +425,28 @@ struct ColorHSV_t {
     }
 
     // Weight = 0: result is Back; Weight = 255: result is Fore; otherwise result is mix
-    void MixwWeight(const ColorHSV_t &Fore, const ColorHSV_t &Back, uint32_t Weight) {
-        uint8_t R, G, B;
-        uint8_t ForeR, ForeG, ForeB;
-        uint8_t BackR, BackG, BackB;
-        Fore.ToRGB(&ForeR, &ForeG, &ForeB);
-        Back.ToRGB(&BackR, &BackG, &BackB);
-        R = ClrMix(ForeR, BackR, Weight);
-        G = ClrMix(ForeG, BackG, Weight);
-        B = ClrMix(ForeB, BackB, Weight);
-        FromRGB(R, G, B);
-    }
+//    void MixwWeight(const ColorHSV_t &Fore, const ColorHSV_t &Back, uint32_t Weight) {
+//        uint8_t R, G, B;
+//        uint8_t ForeR, ForeG, ForeB;
+//        uint8_t BackR, BackG, BackB;
+//        Fore.ToRGB(&ForeR, &ForeG, &ForeB);
+//        Back.ToRGB(&BackR, &BackG, &BackB);
+//        R = ClrMix(ForeR, BackR, Weight);
+//        G = ClrMix(ForeG, BackG, Weight);
+//        B = ClrMix(ForeB, BackB, Weight);
+//        FromRGB(R, G, B);
+//    }
     // Weight = 0: not changed; Weight = 255: result is Fore; otherwise result is mix
-    void MixwWeight(const ColorHSV_t &Fore, uint32_t Weight) {
-        uint8_t R, G, B;
-        uint8_t ForeR, ForeG, ForeB;
-        ToRGB(&R, &G, &B);
-        Fore.ToRGB(&ForeR, &ForeG, &ForeB);
-        R = ClrMix(ForeR, R, Weight);
-        G = ClrMix(ForeG, G, Weight);
-        B = ClrMix(ForeB, B, Weight);
-        FromRGB(R, G, B);
-    }
+//    void MixwWeight(const ColorHSV_t &Fore, uint32_t Weight) {
+//        uint8_t R, G, B;
+//        uint8_t ForeR, ForeG, ForeB;
+//        ToRGB(&R, &G, &B);
+//        Fore.ToRGB(&ForeR, &ForeG, &ForeB);
+//        R = ClrMix(ForeR, R, Weight);
+//        G = ClrMix(ForeG, G, Weight);
+//        B = ClrMix(ForeB, B, Weight);
+//        FromRGB(R, G, B);
+//    }
 
     uint32_t DelayToNextAdj(const ColorHSV_t &Target, uint32_t SmoothValue) {
         uint32_t Delay, Delay2;
@@ -419,10 +491,10 @@ struct ColorHSV_t {
         if(Min > Blue) Min = Blue;
         // H
         if(Max == Min) H = 0;
-        else if(Max == Red and Green >= Blue) H = (60 * (Green - Blue)) / (Max - Min) + 0;
-        else if(Max == Red and Green <  Blue) H = (60 * (Green - Blue)) / (Max - Min) + 360;
-        else if(Max == Green)                 H = (60 * (Blue - Red))   / (Max - Min) + 120;
-        else if(Max == Blue)                  H = (60 * (Red - Green))  / (Max - Min) + 240;
+        else if(Max == Red and Green >= Blue) H = (60 * (Green - Blue) + 254L) / (Max - Min) + 0;
+        else if(Max == Red and Green <  Blue) H = (60 * (Green - Blue) + 254L) / (Max - Min) + 360;
+        else if(Max == Green)                 H = (60 * (Blue - Red)   + 254L) / (Max - Min) + 120;
+        else if(Max == Blue)                  H = (60 * (Red - Green)  + 254L) / (Max - Min) + 240;
         // S
         if(Max == 0) S = 0;
         else S = 100 - (100 * Min) / Max;
@@ -493,3 +565,5 @@ struct ColorHSV_t {
 #define clRGBWCyan      ((Color_t){0, 255, 255,   0})
 #define clRGBWWhite     ((Color_t){0,   0,   0, 255})
 #endif
+
+#endif // COLOR_H_

@@ -5,7 +5,8 @@
  *      Author: kreyl
  */
 
-#pragma once
+#ifndef KL_LIB_H_
+#define KL_LIB_H_
 
 #include "ch.h"
 #include "hal.h"
@@ -2348,3 +2349,5 @@ public:
 extern Clk_t Clk;
 
 #endif // Clocking
+
+#endif // KL_LIB_H_

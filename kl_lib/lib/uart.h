@@ -5,7 +5,8 @@
  *      Author: kreyl
  */
 
-#pragma once
+#ifndef UART_H_
+#define UART_H_
 
 #include "kl_lib.h"
 #include <cstring>
@@ -253,3 +254,5 @@ public:
     void IRxTask();
 };
 #endif
+
+#endif // UART_H_

@@ -5,7 +5,8 @@
  *      Author: Kreyl
  */
 
-#pragma once
+#ifndef SHELL_H_
+#define SHELL_H_
 
 #include <cstring>
 #include <stdarg.h>
@@ -65,6 +66,50 @@ public:
                 *POutput = (T)dw32;
                 return retvOk;
             }
+            else return retvNotANumber;
+        }
+        return retvFail;
+    }
+
+    uint8_t GetNextU8(uint8_t *POutput) {
+        char* S = GetNextString();
+        if(S) {
+            char *p;
+            uint8_t v = strtoul(S, &p, 0);
+            if(*p == '\0') { *POutput = v; return retvOk; }
+            else return retvNotANumber;
+        }
+        return retvFail;
+    }
+
+    uint8_t GetNextU16(uint16_t *POutput) {
+        char* S = GetNextString();
+        if(S) {
+            char *p;
+            uint16_t v = strtoul(S, &p, 0);
+            if(*p == '\0') { *POutput = v; return retvOk; }
+            else return retvNotANumber;
+        }
+        return retvFail;
+    }
+
+    uint8_t GetNextI16(int16_t *POutput) {
+        char* S = GetNextString();
+        if(S) {
+            char *p;
+            int16_t v = strtol(S, &p, 0);
+            if(*p == '\0') { *POutput = v; return retvOk; }
+            else return retvNotANumber;
+        }
+        return retvFail;
+    }
+
+    uint8_t GetNextI32(int32_t *POutput) {
+        char* S = GetNextString();
+        if(S) {
+            char *p;
+            int32_t v = strtol(S, &p, 0);
+            if(*p == '\0') { *POutput = v; return retvOk; }
             else return retvNotANumber;
         }
         return retvFail;
@@ -224,6 +269,14 @@ public:
         return retvOk;
     }
 
+    uint8_t GetClrRGBW(Color_t *PClr) {
+        if(GetNext<uint8_t>(&PClr->R) != retvOk) return retvFail;
+        if(GetNext<uint8_t>(&PClr->G) != retvOk) return retvFail;
+        if(GetNext<uint8_t>(&PClr->B) != retvOk) return retvFail;
+        if(GetNext<uint8_t>(&PClr->W) != retvOk) return retvFail;
+        return retvOk;
+    }
+
     uint8_t GetClrHSV(ColorHSV_t *PClr) {
         if(GetNext<uint16_t>(&PClr->H) != retvOk) return retvFail;
         if(GetNext<uint8_t>(&PClr->S) != retvOk) return retvFail;
@@ -270,6 +323,7 @@ public:
     void Failure() { Print("Failure\r\n"); }
     void Timeout() { Print("Timeout\r\n"); }
     void NoAnswer() { Print("NoAnswer\r\n"); }
+    void Overflow() { Print("Overflow\r\n"); }
     void EOL() { Print("\r\n"); }
 	virtual uint8_t ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) = 0;
 	virtual uint8_t TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) = 0;
@@ -382,3 +436,5 @@ extern "C" {
 void PrintfC(const char *format, ...);
 //void PrintfCNow(const char *format, ...);
 }
+
+#endif // SHELL_H_

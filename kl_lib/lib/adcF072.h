@@ -5,7 +5,8 @@
  *      Author: kreyl
  */
 
-#pragma once
+#ifndef ADCF072_H_
+#define ADCF072_H_
 
 #include "kl_lib.h"
 #include "board.h"
@@ -82,3 +83,5 @@ extern Adc_t Adc;
 extern const AdcSetup_t AdcSetup;
 
 #endif // ADC_REQUIRED
+
+#endif // ADCF072_H_

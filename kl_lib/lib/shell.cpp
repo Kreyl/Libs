@@ -46,7 +46,7 @@ void PrintfC(const char *format, ...) {
     Uart.IVsPrintf(format, args);
     va_end(args);
 }
-} // exern C
+} // extern C
 
 
 class PrintToBuf_t : public PrintfHelper_t {

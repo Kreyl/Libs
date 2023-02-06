@@ -5,7 +5,8 @@
  *      Author: layst
  */
 
-#pragma once
+#ifndef KL_CRC_H_
+#define KL_CRC_H_
 
 #include <inttypes.h>
 
@@ -29,3 +30,5 @@ uint16_t CalculateCRC16HWDMA(uint8_t *Buf, uint32_t Len);
 void CCITT16_PrintTable();
 
 }
+
+#endif // KL_CRC_H_

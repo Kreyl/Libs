@@ -46,7 +46,7 @@ void Adc_t::Init() {
     rccEnableADC1(FALSE); // Enable digital clock
     // Configure clock
 //    ADC1->CFGR2 = (0b01 << 30); // Clock: PCLK/2
-    ADC1->CFGR2 = (0b00 << 30); // Clock: ADCCLK, will be turned in by ADC itself
+    ADC1->CFGR2 = (0b00 << 30); // Clock: ADCCLK, will be turned on by ADC itself
     // ==== Setup channels ====
     EnableVref();
     uint32_t ChnlCnt = AdcSetup.Channels.size();
@@ -61,23 +61,10 @@ void Adc_t::Init() {
     }
     ADC1->SMPR = (uint32_t)AdcSetup.SampleTime; // Setup sampling time
     ICallback = AdcSetup.DoneCallback;
-    // Calibrate
-    uint32_t cnt=0;
-    ADC1->CR |= ADC_CR_ADCAL;   // Start calibration
-    while(BitIsSet(ADC1->CR, ADC_CR_ADCAL)) {
-        if(cnt++ >= 63000) {
-            Printf("ADC calib fail\r");
-            return;
-        }
-    }
-    // Enable ADC
-    ADC1->CR |= ADC_CR_ADEN;   // Enable ADC
-    while(!BitIsSet(ADC1->ISR, ADC_ISR_ADRDY)); // Wait until ADC is ready
     // ==== DMA ====
     PDma = dmaStreamAlloc(ADC_DMA, IRQ_PRIO_MEDIUM, AdcRdyIrq, nullptr);
     dmaStreamSetPeripheral(PDma, &ADC1->DR);
     dmaStreamSetMode      (PDma, ADC_DMA_MODE);
-    // en DMA request, DMA is in circ mode
     ADC1->CFGR1 = ADC_CFGR1_DMACFG | ADC_CFGR1_DMAEN;
 }
 
@@ -117,8 +104,7 @@ void Adc_t::DisableVref() { ADC1_COMMON->CCR &= ADC_CCR_VREFEN; }
 void Adc_t::DisableCalibrateEnableSetDMA() {
     Stop();
     Calibrate();
-    // Enable
-    SET_BIT(ADC1->ISR, ADC_ISR_ADRDY);  // Clear ADRDY bit by writing 1 to it
+    ADC1->ISR |= ADC_ISR_ADRDY; // Clear flags
     SET_BIT(ADC1->CR, ADC_CR_ADEN);     // Enable ADC
     while(READ_BIT(ADC1->ISR, ADC_ISR_ADRDY) == 0);   // Let it to complete
     // Disable continuous mode
@@ -166,6 +152,7 @@ void Adc_t::StartContinuosMeasurement() {
 }
 
 uint32_t Adc_t::Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
+//    Printf("%u %u; %u\r", AdcChValue, VrefValue, ADC_VREFINT_CAL);
     return ((ADC_VREFINT_CAL_mV * (uint32_t)ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
 }
 #endif  // ADC_REQUIRED

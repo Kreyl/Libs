@@ -1,11 +1,12 @@
 /*
  * SimpleSensors.h
  *
- *  Created on: 17 џэт. 2015 у.
+ *  Created on: 17 Jan 2015
  *      Author: Kreyl
  */
 
-#pragma once
+#ifndef SIMPLESENSORS_H_
+#define SIMPLESENSORS_H_
 
 /*
  * Simple sensors are sensors with two logic states: Low and High.
@@ -34,3 +35,5 @@ namespace SimpleSensors {
     void Init();
     void Shutdown();
 };
+
+#endif // SIMPLESENSORS_H_

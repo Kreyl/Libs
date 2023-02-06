@@ -1,11 +1,12 @@
 /*
  * battery_consts.h
  *
- *  Created on: 30 дек. 2013 г.
+ *  Created on: 30 Dec 2013
  *      Author: kreyl
  */
 
-#pragma once
+#ifndef BATTERY_CONSTS_H_
+#define BATTERY_CONSTS_H_
 
 #ifndef countof
 #define countof(A)  (sizeof(A)/sizeof(A[0]))
@@ -39,7 +40,7 @@ static uint8_t mV2PercentAlkaline(uint16_t mV) {
 }
 #endif
 
-#if 0 // ========================= Alkaline 4.5V ===============================
+#if 1 // ========================= Alkaline 4.5V ===============================
 static const mVPercent_t mVPercentTableAlkaline[] = {
         {4320, 100},
         {4110, 80},
@@ -57,7 +58,7 @@ static uint8_t mV2PercentAlkaline(uint16_t mV) {
 }
 #endif
 
-#if 1 // ============================ Li-Ion ===================================
+#if 0 // ============================ Li-Ion ===================================
 static const mVPercent_t mVPercentTableLiIon[] = {
         {4100, 100, 10},
         {4000, 90,  10},
@@ -99,3 +100,5 @@ static const mVPercent_t mVPercentTableLi3V[] = {
         {1950, 10}
 };
 #endif
+
+#endif // BATTERY_CONSTS_H_

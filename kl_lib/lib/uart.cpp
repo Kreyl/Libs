@@ -519,7 +519,7 @@ void CmdUart_t::OnUartIrqI(uint32_t flags) {
 uint8_t CmdUart_t::ReceiveBinaryToBuf(uint8_t *ptr, uint32_t Len, uint32_t Timeout_ms) {
     uint8_t Rslt = retvOk;
     // Wait for previous TX to complete
-    while(!IDmaIsIdle);
+    FlushTx();
     while(!(Params->Uart->ISR & USART_ISR_TXE)); // Wait
     Params->Uart->CR1 &= ~USART_CR1_CMIE; // Disable IRQ on char match
     // Setup DMA to given buffer
@@ -570,38 +570,10 @@ uint8_t CmdUart_t::TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Ti
 }
 #endif
 
-#if 1 // ============================ HostUart =================================
-uint8_t HostUart_t::WaitReply() {
-    chSysLock();
-    msg_t msg = chThdSuspendS(&ThdRef);
-    chSysUnlock();
-    return (msg == MSG_OK)? retvOk : retvFail;
-}
-
-
-void HostUart_t::OnUartIrqI(uint32_t flags) {
-    if(flags & USART_ISR_CMF) {
-        if(TryParseRxBuff() == retvOk) {
-//            PrintfI("Esp: %S\r\n", Reply.Name);
-            chThdResumeI(&ThdRef, MSG_OK); // NotNull check performed inside chThdResumeI
-        }
-    }
-}
-
-uint8_t HostUart_t::TryParseRxBuff() {
-    uint8_t b;
-    while(GetByte(&b) == retvOk) {
-        if(Reply.PutChar(b) == pdrNewCmd) return retvOk;
-    } // while get byte
-    return retvFail;
-}
-
-#endif
-
 #if 1 // ========================== HostUart485_t ==============================
 void HostUart485_t::OnUartIrqI(uint32_t flags) {
     if(flags & USART_ISR_CMF) {
-        chThdResumeI(&ThdRef, MSG_OK); // NotNull check performed inside chThdResumeI
+        chThdResumeI(&ThdRef, MSG_OK); // NotNull check perfprmed inside chThdResumeI
     }
 }
 

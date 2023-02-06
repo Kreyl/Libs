@@ -1,11 +1,12 @@
 /*
  * CRS_defins.h
  *
- *  Created on: 26 дек. 2015 г.
+ *  Created on: 26 Dec 2015
  *      Author: Kreyl
  */
 
-#pragma once
+#ifndef CRS_DEFINS_H_
+#define CRS_DEFINS_H_
 
 #define RCC_CRS_SYNC_DIV1        ((uint32_t)0x00)                          /*!< Synchro Signal not divided (default) */
 #define RCC_CRS_SYNC_DIV2        CRS_CFGR_SYNCDIV_0                        /*!< Synchro Signal divided by 2 */
@@ -36,3 +37,12 @@
                                                                     The trimming step is around 67 kHz between two consecutive TRIM steps. A higher TRIM value
                                                                     corresponds to a higher output frequency */
 
+// CRS
+#define CRS_PRESCALER   RCC_CRS_SYNC_DIV1
+#define CRS_SOURCE      RCC_CRS_SYNC_SOURCE_USB
+#define CRS_POLARITY    RCC_CRS_SYNC_POLARITY_RISING
+#define CRS_RELOAD_VAL  ((48000000 / 1000) - 1) // Ftarget / Fsync - 1
+#define CRS_ERROR_LIMIT 34
+#define HSI48_CALIBRATN 32
+
+#endif // CRS_DEFINS_H_
