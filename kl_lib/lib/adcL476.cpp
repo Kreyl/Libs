@@ -45,21 +45,29 @@ void InnAdc_t::Init(const AdcSetup_t& Setup) {
     // Power-on ADC, exit deep power-down mode
     ADC1->CR &= ~(ADC_CR_DEEPPWD | ADC_CR_ADCAL | ADC_CR_JADSTP | ADC_CR_ADSTP | ADC_CR_JADSTART | ADC_CR_ADSTART | ADC_CR_ADDIS | ADC_CR_ADEN);
     ADC1->CR |= ADC_CR_ADVREGEN; // Enable ADC internal voltage regulator
-    // Setup clock
-    ADC123_COMMON->CCR = 0b0000UL << 18; // Prescaler = 1
+    chThdSleepMicroseconds(20);
+    // Setup clock: Prescaler = 1
+#ifdef ADC123_COMMON
+    ADC123_COMMON->CCR = 0b0000UL << 18;
+#elif defined ADC1_COMMON
+    ADC1_COMMON->CCR = 0b0000UL << 18;
+#else
+#error "ADC COMMON REG is not defined"
+#endif
     // Enable VrefBuf if needed
-    switch(Setup.VRefVoltage) {
-        case vrefvDisabled: break;
-        case vrefv2048:
-            rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, TRUE); // Needed to control VRefBuf for inner ADC
+    rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, FALSE); // Needed to control VRefBuf for inner ADC
+    switch(Setup.VRefBufVoltage) {
+        case vrefBufDisabled:
+            VREFBUF->CSR = VREFBUF_CSR_HIZ; // VRef+ pin is high impedance
+            break;
+        case vrefBufv2048:
             VREFBUF->CSR = VREFBUF_CSR_ENVR; // VRS=0 => 2048; HiZ=0 => connected
             break;
-        case vrefv2500:
-            rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, TRUE); // Needed to control VRefBuf for inner ADC
+        case vrefBufv2500:
             VREFBUF->CSR = VREFBUF_CSR_VRS | VREFBUF_CSR_ENVR; // VRS=1 => 2500; HiZ=0 => connected
             break;
     }
-    ConnectVref();
+    EnableVref();
     chThdSleepMilliseconds(27);
     // Enable: allowed to write them only if the ADC is enabled
     SET_BIT(ADC1->ISR, ADC_ISR_ADRDY);  // Clear ADRDY bit by writing 1 to it
@@ -80,10 +88,12 @@ void InnAdc_t::Init(const AdcSetup_t& Setup) {
         const AdcChannel_t& Chnl = Setup.Channels[i];
         if(Chnl.GPIO != nullptr) {
             PinSetupAnalog(Chnl.GPIO, Chnl.Pin);
+#ifdef STM32L476xx
             PinConnectAdc(Chnl.GPIO, Chnl.Pin);
+#endif
         }
         SetChannelSampleTime(Chnl.ChannelN, Setup.SampleTime);
-        SetSequenceItem(i+1, Chnl.ChannelN);   // First sequence item is 1, not 0
+        SetSequenceItem(i+1, Chnl.ChannelN); // First sequence item is 1, not 0
     }
     ICallbackI = Setup.DoneCallbackI;
 
@@ -96,6 +106,7 @@ void InnAdc_t::Init(const AdcSetup_t& Setup) {
 
 static bool IsEnabled() { return (ADC1->CR & ADC_CR_ADEN); }
 
+// Not used directly, only by StartMeasurement etc.
 static void Calibrate() {
     ADC1->CR &= ~ADC_CR_ADCALDIF;   // Calibration for single-ended inputs
     ADC1->CR |= ADC_CR_ADCAL;        // Start calibration
@@ -120,13 +131,20 @@ static inline void StartConversion() {
 void InnAdc_t::Deinit() {
     StopAndDisable();
     ITmr.Deinit();
-    DisconnectVref();
+    DisableVref();
     DisableVrefBuf();
     rccDisableADC123(); // Disable clock
 }
 
-void InnAdc_t::ConnectVref()    { ADC123_COMMON->CCR |= ADC_CCR_VREFEN; }
-void InnAdc_t::DisconnectVref() { ADC123_COMMON->CCR &= ADC_CCR_VREFEN; }
+#ifdef ADC123_COMMON
+void InnAdc_t::EnableVref()  { ADC123_COMMON->CCR |=  ADC_CCR_VREFEN; }
+void InnAdc_t::DisableVref() { ADC123_COMMON->CCR &= ~ADC_CCR_VREFEN; }
+#elif defined ADC1_COMMON
+void Adc_t::EnableVref()     { ADC1_COMMON->CCR |=  ADC_CCR_VREFEN; }
+void Adc_t::DisableVref()    { ADC1_COMMON->CCR &= ~ADC_CCR_VREFEN; }
+#else
+#error "ADC COMMON REG is not defined"
+#endif
 void InnAdc_t::DisableVrefBuf() { VREFBUF->CSR = VREFBUF_CSR_HIZ; } // VRef dis, HiZ en
 
 void InnAdc_t::SetSequenceLength(uint32_t ALen) {
@@ -231,7 +249,7 @@ void InnAdc_t::StartPeriodicMeasurement(uint32_t FSmpHz) {
 
 
 uint32_t InnAdc_t::Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
-    return ((3000UL * ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
+    return ((ADC_VREFINT_CAL_mV * (uint32_t)ADC_VREFINT_CAL_ADC / (uint32_t)ADC_MAX_VALUE) * AdcChValue) / VrefValue;
 }
 
 #endif  // ADC_REQUIRED

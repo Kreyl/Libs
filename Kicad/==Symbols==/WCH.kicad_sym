@@ -118,7 +118,7 @@
         (number "33" (effects (font (size 1.27 1.27))))
       )
       (pin passive line (at 5.08 -13.97 180) (length 5.08)
-        (name "<FT>SCK2/I2SCK/PB13" (effects (font (size 1.27 1.27))))
+        (name "<FT>SCK2/I2S2CK/PB13" (effects (font (size 1.27 1.27))))
         (number "34" (effects (font (size 1.27 1.27))))
       )
       (pin passive line (at 5.08 -16.51 180) (length 5.08)

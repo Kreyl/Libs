@@ -5,7 +5,8 @@
  *      Author: kreyl
  */
 
-#pragma once
+#ifndef ADC_L476_H_
+#define ADC_L476_H_
 
 #include "kl_lib.h"
 #include "board.h"
@@ -21,7 +22,9 @@
 #define ADC_TEMPERATURE_CHNL    17
 #define ADC_VBAT_CHNL           18
 #define ADC_MAX_SEQ_LEN         16  // 1...16; Const, see ref man p.38
-#define ADC_VREFINT_CAL         (*(volatile uint16_t*)0x1FFF75AA)
+// VRefInt calibration values for L476 and L433
+#define ADC_VREFINT_CAL_mV      3000UL
+#define ADC_VREFINT_CAL_ADC     (*(volatile uint16_t*)0x1FFF75AA)
 
 // ADC sampling_times
 enum AdcSampleTime_t {
@@ -35,7 +38,7 @@ enum AdcSampleTime_t {
     ast640d5Cycles  = 7
 };
 
-enum VRefVoltage_t {vrefvDisabled, vrefv2048, vrefv2500};
+enum VRefVoltage_t {vrefBufDisabled, vrefBufv2048, vrefBufv2500};
 
 struct AdcChannel_t {
     GPIO_TypeDef *GPIO;
@@ -44,7 +47,8 @@ struct AdcChannel_t {
 };
 
 struct AdcSetup_t {
-    VRefVoltage_t VRefVoltage;
+    // When the VREF+ pin is bonded with VDDA pin, the voltage reference buffer is not available and must be kept disabled
+    VRefVoltage_t VRefBufVoltage;
     uint32_t SampleTime;
     enum Oversampling_t : uint32_t {
         oversmpDis = 0,
@@ -77,8 +81,8 @@ public:
     AdcBuf_t& GetBuf() { return *PBufR; }
     void Init(const AdcSetup_t& Setup);
     void Deinit();
-    void ConnectVref();
-    void DisconnectVref();
+    void EnableVref();
+    void DisableVref();
     void StartSingleMeasurement();
     void StartPeriodicMeasurement(uint32_t FSmpHz);
     uint32_t Adc2mV(uint32_t AdcChValue, uint32_t VrefValue);
@@ -90,3 +94,5 @@ public:
 extern InnAdc_t InnAdc;
 
 #endif // ADC_REQUIRED
+
+#endif // ADC_L476_H_
