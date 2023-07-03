@@ -9,15 +9,16 @@
 #include <cstring> // memcpy
 #include "kl_lib.h"
 
+#if 1 // ============================= SHA 256 =================================
 #define SHA_Ch(x, y, z)      (((x) & ((y) ^ (z))) ^ (z))
 #define SHA_Maj(x, y, z)     (((x) & ((y) | (z))) | ((y) & (z)))
 
-/* Define the SHA shift, rotate left, and rotate right macros */
+// Define the SHA shift, rotate left, and rotate right macros
 #define SHA256_SHR(bits,word)   ((word) >> (bits))
 #define SHA256_ROTL(bits,word)  (((word) << (bits)) | ((word) >> (32-(bits))))
 #define SHA256_ROTR(bits,word)  (((word) >> (bits)) | ((word) << (32-(bits))))
 
-/* Define the SHA SIGMA and sigma macros */
+// Define the SHA SIGMA and sigma macros
 #define SHA256_SIGMA0(word)     (SHA256_ROTR( 2,word) ^ SHA256_ROTR(13,word) ^ SHA256_ROTR(22,word))
 #define SHA256_SIGMA1(word)     (SHA256_ROTR( 6,word) ^ SHA256_ROTR(11,word) ^ SHA256_ROTR(25,word))
 #define SHA256_sigma0(word)     (SHA256_ROTR( 7,word) ^ SHA256_ROTR(18,word) ^ SHA256_SHR( 3,word))
@@ -45,7 +46,7 @@ void SHA256_t::Reset() {
  * names used in the Secure Hash Standard.
 */
 void SHA256_t::ProcessBlock(uint8_t *ptr) {
-    /* Constants defined in FIPS 180-3, section 4.2.2 */
+    // Constants defined in FIPS 180-3, section 4.2.2
     static const uint32_t K[64] = {
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b,
         0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01,
@@ -61,10 +62,10 @@ void SHA256_t::ProcessBlock(uint8_t *ptr) {
         0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
         0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
     };
-    int        t, t4;                   /* Loop counter */
-    uint32_t   temp1, temp2;            /* Temporary word value */
-    uint32_t   W[64];                   /* Word sequence */
-    uint32_t   A, B, C, D, E, F, G, H;  /* Word buffers */
+    int      t, t4;                   // Loop counter
+    uint32_t temp1, temp2;            // Temporary word value
+    uint32_t W[64];                   // Word sequence
+    uint32_t A, B, C, D, E, F, G, H;  // Word buffers
 
     // Initialize the first 16 words in the array W
     for(t = t4 = 0; t < 16; t++, t4 += 4)
@@ -122,25 +123,26 @@ void SHA256_t::Update(uint8_t* pData, uint32_t Sz) {
         ProcessBlock(Block); // Do not worry about BlockIndx. It will be set to zero in ProcessBlock.
     }
     // Process Data
-    while (Sz  >= SHA256BlockSize) {
+    while(Sz  >= SHA256BlockSize) {
         ProcessBlock(pData);
         pData += SHA256BlockSize;
         Sz -= SHA256BlockSize;
     }
-    // Save remaining data in buff, will be reused on next call or finalize
+    // Save remaining data in buff, it will be reused on next call or finalize
     memcpy(Block, pData, Sz);
     BlockIndx += Sz;
 }
 
-void SHA256_t::Finalize() {
+void SHA256_t::GetResult(uint8_t Digest[SHA256HashSize]) {
+    // ==== Finalize ====
     Block[BlockIndx++] = 0x80; // The first padding bit must be a '1'
-    // Check if there is enough space to put 8 bytes of 64-bit length. If no - fill with zeros and process
+    // Check if there is enough space to put 8 bytes of 64-bit length. If no - append with zeros and process
     if(BlockIndx >= (SHA256BlockSize - 8)) {
         memset(&Block[BlockIndx], 0, (SHA256BlockSize - BlockIndx));
         ProcessBlock(Block);
     }
     // Fill the rest of the block with zeros
-    memset(Block, 0, (SHA256BlockSize - 8));
+    memset(&Block[BlockIndx], 0, ((SHA256BlockSize - 8) - BlockIndx));
     // Store the message length as the last 8 bytes
     uint64_t Length = DataSz * 8;
     Block[56] = (uint8_t) (Length >> 56);
@@ -152,22 +154,80 @@ void SHA256_t::Finalize() {
     Block[62] = (uint8_t) (Length >> 8);
     Block[63] = (uint8_t) (Length);
     ProcessBlock(Block);
-}
-
-void SHA256_t::Read2BinArr(uint8_t Message_Digest[SHA256HashSize]) {
+    // ==== Read to arr ====
     for(int i = 0; i < SHA256HashSize; ++i)
-        Message_Digest[i] = (uint8_t) (Hash[i >> 2] >> 8 * (3 - (i & 0x03)));
+        Digest[i] = (uint8_t) (Hash[i >> 2] >> 8 * (3 - (i & 0x03)));
 }
 
 // Hash array and return 32-byte binary array
-void SHA256_t::Hash2BinArr(uint8_t *pData, uint32_t Sz, uint8_t* Hash) {
+void SHA256_t::DoHash(uint8_t *pData, uint32_t Sz, uint8_t* Hash) {
     Reset();
     Update(pData, Sz);
-    Finalize();
-    Read2BinArr(Hash);
+    GetResult(Hash);
 }
 
-void Sha256Hash2BinArr(uint8_t *pData, uint32_t Sz, uint8_t* Hash) {
+void Sha256DoHash(uint8_t *pData, uint32_t Sz, uint8_t* Hash) {
     SHA256_t Sha;
-    Sha.Hash2BinArr(pData, Sz, Hash);
+    Sha.DoHash(pData, Sz, Hash);
 }
+#endif
+
+#if 1 // ============================== HMAC ===================================
+/*
+ * The HMAC transform looks like:
+ *
+ * SHA(K XOR opad, SHA(K XOR ipad, text))
+ *
+ * where K is an n byte key.
+ * ipad is the byte 0x36 repeated blocksize times
+ * opad is the byte 0x5c repeated blocksize times
+ * and text is the data being protected.
+ */
+
+void HMAC_SHA256(uint8_t *pData, uint32_t Sz,
+        uint8_t *pKey, uint32_t KeySz, uint8_t digest[SHA256HashSize]) {
+    HMAC_t hmac;
+    hmac.Reset(pKey, KeySz);
+    hmac.Update(pData, Sz);
+    hmac.GetResult(digest);
+}
+
+void HMAC_t::Reset(uint8_t *pKey, uint32_t KeySz) {
+    int i;
+    uint8_t k_ipad[SHA256BlockSize]; // inner padding - key XORd with ipad
+    uint8_t tempkey[SHA256HashSize]; // temporary buffer when keylen > blocksize
+    // If key is longer than the hash blocksize, reset it to key = HASH(key).
+    if(KeySz > SHA256BlockSize) {
+        ISha.DoHash(pKey, KeySz, tempkey);
+        pKey = tempkey;
+        KeySz = SHA256HashSize;
+    }
+    // Store key into the pads, XOR'd with ipad and opad values
+    for(i=0; i<KeySz; i++) {
+        k_ipad[i] = pKey[i] ^ 0x36;
+        k_opad[i] = pKey[i] ^ 0x5c;
+    }
+    // remaining pad bytes are '\0' XOR'd with ipad and opad values
+    for(; i < SHA256BlockSize; i++) {
+        k_ipad[i] = 0x36;
+        k_opad[i] = 0x5c;
+    }
+    // Perform inner hash
+    ISha.Reset(); // Init context for 1st pass
+    ISha.Update(k_ipad, SHA256BlockSize); // and start with inner pad
+}
+
+void HMAC_t::Update(uint8_t *pData, uint32_t Sz) {
+    ISha.Update(pData, Sz);
+}
+
+void HMAC_t::GetResult(uint8_t Digest[SHA256HashSize]) {
+    // Finish up 1st pass (use digest here as a temporary buffer)
+    ISha.GetResult(Digest);
+    // Perform outer SHA
+    ISha.Reset(); // init context for 2nd pass
+    ISha.Update(k_opad, SHA256BlockSize); // Start with outer pad
+    ISha.Update(Digest, SHA256HashSize);  // Then results of 1st hash
+    ISha.GetResult(Digest); // finish up 2nd pass
+}
+#endif

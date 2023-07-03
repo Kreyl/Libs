@@ -10,7 +10,7 @@
 
 #include <inttypes.h>
 
-#define SHA256HashSize          32
+#define SHA256HashSize   32
 #define SHA256BlockSize  64
 
 class SHA256_t {
@@ -24,12 +24,28 @@ public:
     // Step by step
     void Reset(); // Initialization, must be called before any further use
     void Update(uint8_t* pData, uint32_t Sz); // Process block of data of arbitary length
-    void Finalize();  // Produces final hash values (digest) to be read
-    void Read2BinArr(uint8_t Message_Digest[SHA256HashSize]);
+    void GetResult(uint8_t Digest[SHA256HashSize]);
     // All in one
-    void Hash2BinArr(uint8_t *pData, uint32_t Sz, uint8_t* Hash);
+    void DoHash(uint8_t *pData, uint32_t Sz, uint8_t* Hash);
 };
 
-void Sha256Hash2BinArr(uint8_t *pData, uint32_t Sz, uint8_t* Hash);
+// Single function
+void Sha256DoHash(uint8_t *pData, uint32_t Sz, uint8_t* Hash);
+
+/* In case of chunk-bychunk aproach, do next
+ * Reset(); Update(chunk1); Update(chunk2); ... Update(chunkLast); GetResult(rslt);
+ */
+class HMAC_t {
+private:
+    uint8_t k_opad[SHA256BlockSize];
+    SHA256_t ISha;
+public:
+    void Reset(uint8_t *key, uint32_t key_len);
+    void Update(uint8_t *pData, uint32_t Sz);
+    void GetResult(uint8_t Digest[SHA256HashSize]);
+};
+
+void HMAC_SHA256(uint8_t *pData, uint32_t Sz,
+        uint8_t *pKey, uint32_t KeySz, uint8_t digest[SHA256HashSize]);
 
 #endif /* KL_LIB_KL_CRYPTO_H_ */
