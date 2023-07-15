@@ -1,6 +1,6 @@
 (footprint "LQFP64" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
-  (attr through_hole)
+  (attr smd)
   (fp_text reference "DD2" (at 0 -2.25) (layer "F.SilkS")
       (effects (font (size 0.6 0.6) (thickness 0.15) bold))
     (tstamp fd4dabcb-18d2-466b-b827-05bda2ed2a9c)
