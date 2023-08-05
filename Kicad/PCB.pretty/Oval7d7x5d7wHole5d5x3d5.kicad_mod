@@ -1,0 +1,13 @@
+(footprint "Oval7d7x5d7wHole5d5x3d5" (version 20221018) (generator pcbnew)
+  (layer "F.Cu")
+  (attr through_hole)
+  (fp_text reference "REF**" (at -0.1 2) (layer "F.SilkS") hide
+      (effects (font (size 0.6 0.6) (thickness 0.15)))
+    (tstamp 4529fc57-1eb6-4e5d-8927-a16d3df4b868)
+  )
+  (fp_text value "Oval7d7x5d7wHole5d5x3d5" (at -0.1 -2) (layer "F.SilkS") hide
+      (effects (font (size 0.6 0.6) (thickness 0.15)))
+    (tstamp 133883d9-d17c-408e-8ae4-af29cd344495)
+  )
+  (pad "H" thru_hole oval (at 0 0) (size 7.7 5.7) (drill oval 5.5 3.5) (layers "*.Cu" "*.Mask") (tstamp d18e6479-fd8b-4995-9dd7-06cbf03a6808))
+)
