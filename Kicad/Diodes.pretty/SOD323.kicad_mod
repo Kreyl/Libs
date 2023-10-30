@@ -35,7 +35,7 @@
     (stroke (width 0.15) (type solid)) (layer "F.SilkS") (tstamp b8ca7e38-335b-4836-98f0-32c4a6ad2a6f))
   (pad "A" smd rect (at 1.30048 0) (size 1.00076 1.00076) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 0625bed4-d7c3-4f56-9de4-9a6c76aff966))
   (pad "C" smd rect (at -1.30048 0) (size 1.00076 1.00076) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 4d6e90b1-2448-4af2-aa2a-f6f2f218c9ac))
-  (model ":KICAD6_3DMODEL_DIR:Diodes/SOD323F.step"
+  (model ":KICAD7_3DMODEL_DIR:Diodes/SOD323F.step"
     (offset (xyz 0 0 0))
     (scale (xyz 1 1 1))
     (rotate (xyz -90 0 180))

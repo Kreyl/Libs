@@ -24,7 +24,7 @@
   (pad "3" smd oval (at 0.95 1.3) (size 0.635 1.1) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 840622c0-3dff-4b51-9fae-c239523e890a))
   (pad "4" smd oval (at 0.95 -1.3) (size 0.635 1.1) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp e2a740d2-54fd-4c03-8ee4-fd71b4edf4ae))
   (pad "5" smd oval (at -0.95 -1.3) (size 0.635 1.1) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 22770b8c-daa1-4594-8be0-ccdcb8b2dff5))
-  (model "${KICAD_SYMBOL_DIR}/3d/SOT/SOT-23-5.step"
+  (model ":KICAD7_3DMODEL_DIR:SOT/SOT-23-5.step"
     (offset (xyz 0 0 0))
     (scale (xyz 1 1 1))
     (rotate (xyz -90 0 0))

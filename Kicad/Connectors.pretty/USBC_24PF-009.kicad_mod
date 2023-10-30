@@ -34,7 +34,7 @@
   (fp_line (start 3.15 1.51) (end -3.15 1.51)
     (stroke (width 0.05) (type default)) (layer "F.CrtYd") (tstamp 36bd92c0-a920-4827-8eb6-016bb6514a6f))
   (pad "" np_thru_hole circle (at -3.75 0) (size 1 1) (drill 0.6) (layers "*.Mask") (tstamp 0f09681a-c4e3-49a7-a7dd-2bf6c5ea9df4))
-  (pad "" np_thru_hole oval (at 3.75 0) (size 1.4 1) (drill oval 1 0.6) (layers "*.Mask") (tstamp 2bfa6c02-72d5-4f02-8908-e1674861429f))
+  (pad "" np_thru_hole circle (at 3.75 0) (size 1 1) (drill 0.6) (layers "*.Mask") (tstamp 2bfa6c02-72d5-4f02-8908-e1674861429f))
   (pad "A1" smd roundrect (at -2.75 -0.835) (size 0.3 0.85) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25)
     (thermal_bridge_angle 45) (tstamp 14199733-62a5-44bd-a425-6c6cc018b40b))
   (pad "A2" smd roundrect (at -2.25 -0.835) (size 0.3 0.85) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25)
