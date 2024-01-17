@@ -281,7 +281,7 @@ void BaseUart_t::Init() {
 #else
 #error "UART AF not defined"
 #endif
-    PinSetupAlterFunc(Params->PGpioTx, Params->PinTx, omPushPull, pudNone, PinAF);
+    PinSetupAlterFunc(Params->PGpioTx, Params->PinTx, omPushPull, pudPullUp, PinAF);
 #endif
 
 #if 1 // Setup independent clock if possible and required
@@ -558,7 +558,7 @@ uint8_t CmdUart_t::TransmitBinaryFromBuf(uint8_t *ptr, uint32_t Len, uint32_t Ti
     }
     // Wait for previousTX to complete
     while(!IDmaIsIdle);
-    while(!(Params->Uart->ISR & USART_ISR_TXE));
+    while(!(Params->Uart->ISR & USART_ISR_TXE)){};
     // Setup DMA to given buffer
     dmaStreamDisable(PDmaTx);
     dmaStreamSetMemory0(PDmaTx, ptr);
