@@ -5,7 +5,8 @@
  * Created on 7 Март 2010 г., 12:42
  */
 
-#pragma once
+#ifndef CC1101_RF_SETTINGS_H__
+#define CC1101_RF_SETTINGS_H__
 
 // All this is for 27.0 MHz crystal, and for 868 MHz carrier
 
@@ -19,9 +20,15 @@
 #define CC_FREQ0_VALUE      0xED        // Frequency control word, low byte.
 
 // ===================== Channel spacing =======================================
-#define CC_CHANNEL_SPACING  421     // 200, 400, 421(top)
+#define CC_CHANNEL_SPACING  50     // 30, 50, 200, 400, 421(top)
 
-#if CC_CHANNEL_SPACING == 200
+#if CC_CHANNEL_SPACING == 30
+#define CC_MDMCFG0_VALUE    36
+#define CC_CHANSPC_E        0
+#elif CC_CHANNEL_SPACING == 50
+#define CC_MDMCFG0_VALUE    230
+#define CC_CHANSPC_E        0
+#elif CC_CHANNEL_SPACING == 200
 #define CC_MDMCFG0_VALUE    229     // Channel spacing mantissa. See exponent at MDMCFG1. RF studio.
 #define CC_CHANSPC_E        2       // Exponent of Channel Spacing, RF Studio
 #elif CC_CHANNEL_SPACING == 421
@@ -252,3 +259,5 @@ static const CCRegValue_t CCBitrate500k[CC_BRSETUP_CNT] = {
 // Rare use settings
 #define CC_SYNC1_VALUE      0xD3
 #define CC_SYNC0_VALUE      0x91
+
+#endif //CC1101_RF_SETTINGS_H__

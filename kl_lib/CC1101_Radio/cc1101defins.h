@@ -5,7 +5,8 @@
  * Created on 3 Март 2010 г., 11:08
  */
 
-#pragma once
+#ifndef CC1101DEFINS_H__
+#define CC1101DEFINS_H__
 
 #include <inttypes.h>
 
@@ -22,6 +23,22 @@
 #define CC_PwrPlus7dBm         0xCD
 #define CC_PwrPlus10dBm        0xC5
 #define CC_PwrPlus12dBm        0xC0
+
+__unused
+static const uint8_t PwrTable[12] = {
+        CC_PwrMinus30dBm, // 0
+        CC_PwrMinus27dBm, // 1
+        CC_PwrMinus25dBm, // 2
+        CC_PwrMinus20dBm, // 3
+        CC_PwrMinus15dBm, // 4
+        CC_PwrMinus10dBm, // 5
+        CC_PwrMinus6dBm,  // 6
+        CC_Pwr0dBm,       // 7
+        CC_PwrPlus5dBm,   // 8
+        CC_PwrPlus7dBm,   // 9
+        CC_PwrPlus10dBm,  // 10
+        CC_PwrPlus12dBm   // 11
+};
 
 __attribute__((unused))
 static const char* CC_PwrToString(uint8_t APwr) {
@@ -165,3 +182,5 @@ static const char* CC_PwrToString(uint8_t APwr) {
 // FIFO
 #define CC_FIFO     0x3F
 
+
+#endif //CC1101DEFINS_H__
