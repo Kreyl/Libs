@@ -8,37 +8,33 @@
 #ifndef COLOR_H_
 #define COLOR_H_
 
-#include "kl_lib.h"
+#include "gd_lib.h"
 #include "inttypes.h"
 #include <sys/cdefs.h>
 #include <stdlib.h> // for random
 
 void Printf(const char *format, ...);
 
+/* For gamma table generation. use next python code:
+gamma_name = "2dot8"
+gamma = 2.8
+max: int = 255
+offset = 1  # will be added to all values save 0 one, with restriction to max.
+
+def main():
+    print("static const uint8_t gamma_{}[] = {{".format(gamma_name))
+    for i in range(0, max + 1):
+        g = 0 if i == 0 else offset + round(max * pow((i / max), gamma))
+        g = g if g < max else max
+        print("{: 4d},".format(g), end="\n" if (i + 1) % 16 == 0 else "")
+    print("};")
+*/
+
 struct ColorHSV_t;
 
 // In Settings, if Color.Brt == RANDOM_CLR_BRT then color should be random.
 // The check and transmutation shall be made in upper level.
 #define RANDOM_CLR_BRT      255
-
-static const uint8_t gamma8[] = {
-    0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
-    2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
-    2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
-    2,  3,  3,  3,  3,  3,  3,  3,  4,  4,  4,  4,  4,  5,  5,  5,
-    5,  6,  6,  6,  6,  7,  7,  7,  7,  8,  8,  8,  9,  9,  9, 10,
-   10, 10, 11, 11, 11, 12, 12, 13, 13, 13, 14, 14, 15, 15, 16, 16,
-   17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 24, 24, 25,
-   25, 26, 27, 27, 28, 29, 29, 30, 31, 32, 32, 33, 34, 35, 35, 36,
-   37, 38, 39, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 50,
-   51, 52, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 66, 67, 68,
-   69, 70, 72, 73, 74, 75, 77, 78, 79, 81, 82, 83, 85, 86, 87, 89,
-   90, 92, 93, 95, 96, 98, 99,101,102,104,105,107,109,110,112,114,
-  115,117,119,120,122,124,126,127,129,131,133,135,137,138,140,142,
-  144,146,148,150,152,154,156,158,160,162,164,167,169,171,173,175,
-  177,180,182,184,186,189,191,193,196,198,200,203,205,208,210,213,
-  215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255
-};
 
 // Mixing two colors
 //#define ClrMix(Fore, Back, Weight)     ((Fore * Weight + Back * (255 - Weight)) / 255)
@@ -53,9 +49,9 @@ static inline uint32_t ClrCalcDelay(uint16_t AValue, uint32_t Smooth) {
 }
 
 // Calculate Smooth value from desired duration of switching
-static inline int32_t CalcSmooth_st_from_ms(int32_t Duration_ms) {
-    return (TIME_MS2I(Duration_ms) * 10L) / 36L;
-}
+//static inline int32_t CalcSmooth_st_from_ms(int32_t Duration_ms) {
+//    return (TIME_MS2I(Duration_ms) * 10L) / 36L;
+//}
 
 class Color_t {
 private:
@@ -79,17 +75,17 @@ public:
     bool operator != (const Color_t &AColor) const { return (DWord32 != AColor.DWord32); }
     Color_t& operator = (const Color_t &Right) { DWord32 = Right.DWord32; return *this; }
 
-    void ApplyGammaCorrectionRGB() {
-        R = gamma8[R];
-        G = gamma8[G];
-        B = gamma8[B];
+    void ApplyGammaCorrectionRGB(uint8_t* gamma_table) {
+        R = gamma_table[R];
+        G = gamma_table[G];
+        B = gamma_table[B];
     }
 
-    void ApplyGammaCorrectionRGBW() {
-        R = gamma8[R];
-        G = gamma8[G];
-        B = gamma8[B];
-        W = gamma8[W];
+    void ApplyGammaCorrectionRGBW(uint8_t* gamma_table) {
+        R = gamma_table[R];
+        G = gamma_table[G];
+        B = gamma_table[B];
+        W = gamma_table[W];
     }
 
     void Adjust(const Color_t &PColor) {
