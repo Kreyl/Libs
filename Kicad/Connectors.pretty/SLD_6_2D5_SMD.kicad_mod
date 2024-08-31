@@ -1,11 +1,11 @@
-(footprint "SLD_5_2D5_SMD"
+(footprint "SLD_6_2D5_SMD"
 	(version 20240108)
 	(generator "pcbnew")
 	(generator_version "8.0")
 	(layer "F.Cu")
-	(descr "Single-line SMD connector 3-pin")
-	(property "Reference" "SLD_3_2D5_SMD"
-		(at -2.6 -2.15 0)
+	(descr "Single-line SMD connector 6-pin")
+	(property "Reference" "SLD_6_2D5_SMD"
+		(at -3.85 -2.15 0)
 		(layer "F.SilkS")
 		(hide yes)
 		(uuid "572d8395-fbbd-4501-89a6-ab989ab72a01")
@@ -17,22 +17,22 @@
 		)
 	)
 	(property "Value" "Val**"
-		(at -5.35 -2.1 0)
+		(at -6.6 -2.1 0)
 		(layer "F.SilkS")
 		(hide yes)
 		(uuid "4a944df8-1a3e-4561-8f57-b152bfcffe49")
 		(effects
 			(font
-				(size 0.635 0.635)
-				(thickness 0.16002)
+				(size 0.6 0.6)
+				(thickness 0.15)
 			)
 		)
 	)
 	(property "Footprint" ""
-		(at 0 0 0)
+		(at -1.25 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "1fdcd269-85f0-4340-ac28-15c85c34e1a9")
+		(uuid "4e24c1fb-444a-4874-bce6-50fc2468b020")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -41,10 +41,10 @@
 		)
 	)
 	(property "Datasheet" ""
-		(at 0 0 0)
+		(at -1.25 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "bad91757-a039-4071-b81a-1325f47bac9f")
+		(uuid "6dd6bbe2-d293-4a8d-8e43-a484cffa4967")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -53,10 +53,10 @@
 		)
 	)
 	(property "Description" ""
-		(at 0 0 0)
+		(at -1.25 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "e49f9641-e46a-4aba-9235-29a0b4097dbf")
+		(uuid "07772b11-2043-4072-a1ac-0a7f6552694a")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -66,8 +66,8 @@
 	)
 	(attr through_hole exclude_from_bom)
 	(fp_line
-		(start -6.3 -1.55)
-		(end -6.3 1.55)
+		(start -7.55 -1.55)
+		(end -7.55 1.55)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -76,8 +76,8 @@
 		(uuid "5416c5c2-61be-41a9-932d-f9dac79ee616")
 	)
 	(fp_line
-		(start -6.3 1.55)
-		(end -6 1.55)
+		(start -7.55 1.55)
+		(end -7.25 1.55)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -86,8 +86,8 @@
 		(uuid "c9809e3b-ca5d-4a3e-ac25-275a13296e1a")
 	)
 	(fp_line
-		(start -6.15 1.55)
-		(end -6.15 -1.55)
+		(start -7.4 1.55)
+		(end -7.4 -1.55)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -96,8 +96,8 @@
 		(uuid "b0e5e457-75a5-4329-b5f2-bfb322ea0ef8")
 	)
 	(fp_line
-		(start -6.05 1.55)
-		(end -6.05 -1.55)
+		(start -7.3 1.55)
+		(end -7.3 -1.55)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -106,8 +106,8 @@
 		(uuid "f53c3c34-ecf6-4817-ab66-d92badc26dc4")
 	)
 	(fp_line
-		(start -6 -1.55)
-		(end -6.3 -1.55)
+		(start -7.25 -1.55)
+		(end -7.55 -1.55)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -116,8 +116,8 @@
 		(uuid "4e595354-86e6-4afc-ab09-5d679d60897b")
 	)
 	(fp_line
-		(start -6 -1.55)
-		(end 6.05 -1.55)
+		(start -7.25 -1.55)
+		(end 7.3 -1.55)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -126,8 +126,8 @@
 		(uuid "0294a51c-94c0-4dc7-83bb-95ba2541f052")
 	)
 	(fp_line
-		(start 6.05 -1.55)
-		(end 6.05 1.55)
+		(start 7.3 -1.55)
+		(end 7.3 1.55)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -136,8 +136,8 @@
 		(uuid "848a77b6-71b5-48df-b7cd-695a26e13085")
 	)
 	(fp_line
-		(start 6.05 1.55)
-		(end -6 1.55)
+		(start 7.3 1.55)
+		(end -7.25 1.55)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -146,7 +146,7 @@
 		(uuid "bb0d7bf1-6625-4f71-b7f0-612d64c96c53")
 	)
 	(fp_text user "1"
-		(at -7.032 0 0)
+		(at -8.282 0 0)
 		(layer "F.SilkS")
 		(uuid "7472cf25-d7ad-4375-ab77-feab95b3454d")
 		(effects
@@ -157,34 +157,40 @@
 		)
 	)
 	(pad "1" smd roundrect
-		(at -5 0)
+		(at -6.25 0)
 		(size 1.6 2.6)
-		(layers "F.Cu" "F.Paste" "F.Mask")
+		(layers "F.Cu" "F.Mask")
 		(roundrect_rratio 0.18)
 		(uuid "2d488059-8ceb-4b73-892b-ab236f12d681")
 	)
 	(pad "2" smd oval
-		(at -2.5 0)
+		(at -3.75 0)
 		(size 1.6 2.6)
-		(layers "F.Cu" "F.Paste" "F.Mask")
+		(layers "F.Cu" "F.Mask")
 		(uuid "605256ad-9806-412c-bcfb-45e3648552da")
 	)
 	(pad "3" smd oval
-		(at 0 0)
+		(at -1.25 0)
 		(size 1.6 2.6)
-		(layers "F.Cu" "F.Paste" "F.Mask")
+		(layers "F.Cu" "F.Mask")
 		(uuid "278d695f-582d-4325-9eb2-e41d4d668c29")
 	)
 	(pad "4" smd oval
-		(at 2.5 0)
+		(at 1.25 0)
 		(size 1.6 2.6)
-		(layers "F.Cu" "F.Paste" "F.Mask")
+		(layers "F.Cu" "F.Mask")
 		(uuid "e5500d0e-d222-4065-9ef0-5bb0ccc7379f")
 	)
 	(pad "5" smd oval
-		(at 5 0)
+		(at 3.75 0)
 		(size 1.6 2.6)
-		(layers "F.Cu" "F.Paste" "F.Mask")
+		(layers "F.Cu" "F.Mask")
 		(uuid "5373ea20-f63f-4c6c-80ed-4988bcf39ee1")
+	)
+	(pad "6" smd oval
+		(at 6.25 0)
+		(size 1.6 2.6)
+		(layers "F.Cu" "F.Mask")
+		(uuid "3f9f2aeb-5476-4df4-be3c-137049c3b670")
 	)
 )

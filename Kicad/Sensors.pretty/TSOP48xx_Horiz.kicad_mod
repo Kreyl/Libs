@@ -1,21 +1,193 @@
-(module TSOP48xx_Horiz (layer F.Cu) (tedit 553BDDCD)
-  (descr "IR Receiver Horizontal position")
-  (fp_text reference REF** (at 0 -6.604) (layer F.SilkS)
-    (effects (font (size 0.6 0.6) (thickness 0.15)))
-  )
-  (fp_text value TSOP48xx (at -0.508 -2.794) (layer F.SilkS)
-    (effects (font (size 0.6 0.6) (thickness 0.15)))
-  )
-  (fp_line (start 2.54 -2.032) (end 2.54 -0.762) (layer F.SilkS) (width 0.15))
-  (fp_line (start 0 -2.032) (end 0 -0.762) (layer F.SilkS) (width 0.15))
-  (fp_line (start -2.54 -2.032) (end -2.54 -0.762) (layer F.SilkS) (width 0.15))
-  (fp_circle (center 0 -6.604) (end 2.54 -6.604) (layer F.SilkS) (width 0.15))
-  (fp_line (start -3.048 -3.81) (end 3.048 -3.81) (layer F.SilkS) (width 0.15))
-  (fp_line (start -3.048 -2.032) (end -3.048 -9.144) (layer F.SilkS) (width 0.15))
-  (fp_line (start -3.048 -9.144) (end 3.048 -9.144) (layer F.SilkS) (width 0.15))
-  (fp_line (start 3.048 -9.144) (end 3.048 -2.032) (layer F.SilkS) (width 0.15))
-  (fp_line (start -3.048 -2.032) (end 3.048 -2.032) (layer F.SilkS) (width 0.15))
-  (pad 2 thru_hole circle (at 0 0) (size 1.4 1.4) (drill 0.8) (layers *.Cu *.Mask F.SilkS))
-  (pad 3 thru_hole circle (at 2.54 0) (size 1.4 1.4) (drill 0.8) (layers *.Cu *.Mask F.SilkS))
-  (pad 1 thru_hole rect (at -2.54 0) (size 1.4 1.4) (drill 0.8) (layers *.Cu *.Mask F.SilkS))
+(footprint "TSOP48xx_Horiz"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "IR Receiver Horizontal position")
+	(property "Reference" "REF**"
+		(at 0 -6.604 0)
+		(layer "F.SilkS")
+		(uuid "f31a55a3-3ad2-4080-b00c-e60ac6d48b12")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "TSOP48xx"
+		(at -0.508 -2.794 0)
+		(layer "F.SilkS")
+		(uuid "090f1a78-04fe-4b7d-b3ac-e8c8b383902c")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "792d87ac-4e5c-45ce-b7d2-821a715889e2")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "752939ec-54eb-4040-b0ea-19525b231ad5")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "808866e1-7e10-4b69-b6bc-3ae8df73c1bb")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_line
+		(start -3.048 -9.144)
+		(end 3.048 -9.144)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "b5e57630-b254-4348-ba69-4475e80f6077")
+	)
+	(fp_line
+		(start -3.048 -3.81)
+		(end 3.048 -3.81)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "bf9c45aa-87cb-40f6-bd79-1156caace908")
+	)
+	(fp_line
+		(start -3.048 -2.032)
+		(end -3.048 -9.144)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "4af67a12-55c2-4f15-a418-e523ecf2f133")
+	)
+	(fp_line
+		(start -3.048 -2.032)
+		(end 3.048 -2.032)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "7e825b38-f3cb-4c4f-bdb2-20a1bef37e8f")
+	)
+	(fp_line
+		(start -2.54 -2.032)
+		(end -2.54 -0.9)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "a156c0bf-a3d2-4bc1-92fc-390b725dcfd5")
+	)
+	(fp_line
+		(start 0 -2.032)
+		(end 0 -0.9)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "72e5d695-6091-41a2-ae64-3044c07ff401")
+	)
+	(fp_line
+		(start 2.54 -2.032)
+		(end 2.54 -0.9)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "bca440f8-f5ca-444b-9e73-0ecbe3337e16")
+	)
+	(fp_line
+		(start 3.048 -9.144)
+		(end 3.048 -2.032)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "5bc32126-e2bd-4bd8-af2c-89a874a611f4")
+	)
+	(fp_circle
+		(center 0 -6.5)
+		(end 2.2 -6.56)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "16388220-8a80-4d22-921f-f3c3aa499be5")
+	)
+	(pad "1" thru_hole roundrect
+		(at -2.54 0)
+		(size 1.4 1.4)
+		(drill 0.8)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(roundrect_rratio 0.18)
+		(uuid "f17cba2b-d20d-41a1-bc9d-79fef9f239ac")
+	)
+	(pad "2" thru_hole circle
+		(at 0 0)
+		(size 1.4 1.4)
+		(drill 0.8)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "e4448a40-159d-4274-9ef7-10e2f82de582")
+	)
+	(pad "3" thru_hole circle
+		(at 2.54 0)
+		(size 1.4 1.4)
+		(drill 0.8)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "d10cd83f-ae40-48ec-a231-f2732577e01a")
+	)
+	(model "${KICAD6_3DMODEL_DIR}/Sensors/tsop4836_R.STEP"
+		(offset
+			(xyz 0 -17.6 1.4)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
 )

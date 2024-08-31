@@ -1,11 +1,11 @@
-(footprint "PBS-4R"
+(footprint "PBS-3R"
 	(version 20240108)
 	(generator "pcbnew")
 	(generator_version "8.0")
 	(layer "F.Cu")
 	(descr "Receptacle 4pin@2.54 Right angle")
-	(property "Reference" "PBS-4R"
-		(at -2 2.4 0)
+	(property "Reference" "PBS-3R"
+		(at -0.73 2.4 0)
 		(layer "F.SilkS")
 		(uuid "5bd5abcc-085f-45f6-bdfa-9aff92bcc588")
 		(effects
@@ -16,7 +16,7 @@
 		)
 	)
 	(property "Value" "Val**"
-		(at -2.6 3.3 0)
+		(at -1.33 3.3 0)
 		(layer "F.SilkS")
 		(uuid "cdf6ed00-d57d-495f-88b4-534d7495ccbd")
 		(effects
@@ -27,7 +27,7 @@
 		)
 	)
 	(property "Footprint" ""
-		(at 0 0 0)
+		(at 1.27 0 0)
 		(layer "F.Fab")
 		(hide yes)
 		(uuid "3d962f1a-9ec4-4d1a-b360-7cfa478f1c70")
@@ -39,7 +39,7 @@
 		)
 	)
 	(property "Datasheet" ""
-		(at 0 0 0)
+		(at 1.27 0 0)
 		(layer "F.Fab")
 		(hide yes)
 		(uuid "5e10d683-e5b0-4e81-a7d2-0b8b2e601256")
@@ -51,7 +51,7 @@
 		)
 	)
 	(property "Description" ""
-		(at 0 0 0)
+		(at 1.27 0 0)
 		(layer "F.Fab")
 		(hide yes)
 		(uuid "3b8a132c-5753-4208-81b5-b5a6c8a3079f")
@@ -64,28 +64,8 @@
 	)
 	(attr through_hole)
 	(fp_line
-		(start -5.40004 0)
-		(end -5.40004 1.6002)
-		(stroke
-			(width 0.2)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "96448d8d-6224-477a-87ab-d5407a713370")
-	)
-	(fp_line
-		(start -5.40004 0)
-		(end -4.8006 0)
-		(stroke
-			(width 0.2)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "1bc958ab-c405-4063-99c4-f2955a2f0a35")
-	)
-	(fp_line
-		(start -5.40004 1.6002)
-		(end -5.40004 9.99998)
+		(start -4 1.6001)
+		(end -4 9.99988)
 		(stroke
 			(width 0.2)
 			(type solid)
@@ -94,8 +74,8 @@
 		(uuid "005e1f58-ea04-4722-97d5-c39df7ad5cb5")
 	)
 	(fp_line
-		(start -5.40004 1.6002)
-		(end 5.40004 1.6002)
+		(start -4 1.6001)
+		(end 4 1.6002)
 		(stroke
 			(width 0.2)
 			(type solid)
@@ -104,8 +84,8 @@
 		(uuid "6a16f6fa-95ee-4695-8416-c3bc10aa8139")
 	)
 	(fp_line
-		(start -5.40004 9.99998)
-		(end 5.40004 9.99998)
+		(start -4 9.99988)
+		(end 4 10)
 		(stroke
 			(width 0.2)
 			(type solid)
@@ -114,58 +94,8 @@
 		(uuid "9d1b1692-fa0e-4f84-babf-b25ed018b0ce")
 	)
 	(fp_line
-		(start -2.79908 0)
-		(end -2.4003 0)
-		(stroke
-			(width 0.2)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "b742c0da-d80c-408f-ae7b-5d46c937236a")
-	)
-	(fp_line
-		(start -0.20066 0)
-		(end 0.20066 0)
-		(stroke
-			(width 0.2)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "fc914cbc-1397-4171-81f2-1c65a021698b")
-	)
-	(fp_line
-		(start 2.79908 0)
-		(end 2.4003 0)
-		(stroke
-			(width 0.2)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "ee3bb483-ef53-4133-849a-59fed4679c3c")
-	)
-	(fp_line
-		(start 5.40004 0)
-		(end 4.8006 0)
-		(stroke
-			(width 0.2)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "84c55e21-4e0d-491f-92ea-10f4145b9ef8")
-	)
-	(fp_line
-		(start 5.40004 1.6002)
-		(end 5.40004 0)
-		(stroke
-			(width 0.2)
-			(type solid)
-		)
-		(layer "F.SilkS")
-		(uuid "318bd31d-be4b-4c7e-8eee-c7fa56d2e487")
-	)
-	(fp_line
-		(start 5.40004 9.99998)
-		(end 5.40004 1.6002)
+		(start 4 9.99998)
+		(end 4 1.6)
 		(stroke
 			(width 0.2)
 			(type solid)
@@ -173,17 +103,16 @@
 		(layer "F.SilkS")
 		(uuid "c5752a59-d2d3-4c4c-94ac-0167c3806128")
 	)
-	(pad "1" thru_hole roundrect
-		(at -3.81 0)
-		(size 1.5 1.5)
-		(drill 0.9)
+	(pad "1" thru_hole circle
+		(at -2.54 0)
+		(size 1.3 1.3)
+		(drill 0.8)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
-		(roundrect_rratio 0.18)
 		(uuid "eaa4af6a-b56f-40fd-b3cd-6c1cfdf1fce0")
 	)
 	(pad "2" thru_hole circle
-		(at -1.27 0)
+		(at 0 0)
 		(size 1.5 1.5)
 		(drill 0.9)
 		(layers "*.Cu" "*.Mask")
@@ -191,24 +120,16 @@
 		(uuid "3569cafe-c91f-4b46-8621-38e23849023c")
 	)
 	(pad "3" thru_hole circle
-		(at 1.27 0)
-		(size 1.5 1.5)
-		(drill 0.9)
+		(at 2.54 0)
+		(size 1.3 1.3)
+		(drill 0.8)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
 		(uuid "94dad431-63ad-4db3-aa1d-13728fc09f3c")
 	)
-	(pad "4" thru_hole circle
-		(at 3.81 0)
-		(size 1.5 1.5)
-		(drill 0.9)
-		(layers "*.Cu" "*.Mask")
-		(remove_unused_layers no)
-		(uuid "992d6f21-a4bc-4fbf-afdc-0960b60dc900")
-	)
-	(model "${KICAD6_3DMODEL_DIR}/Connectors/PBS-4R.step"
+	(model "${KICAD6_3DMODEL_DIR}/Connectors/PBS-3R.step"
 		(offset
-			(xyz -3.8 0 0)
+			(xyz -2.54 0 0)
 		)
 		(scale
 			(xyz 1 1 1)

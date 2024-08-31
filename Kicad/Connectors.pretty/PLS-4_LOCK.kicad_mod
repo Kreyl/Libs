@@ -1,11 +1,11 @@
-(footprint "PLS-6_LOCK"
+(footprint "PLS-4_LOCK"
 	(version 20240108)
 	(generator "pcbnew")
 	(generator_version "8.0")
 	(layer "F.Cu")
 	(descr "Single-line 8-pin @2.54")
 	(property "Reference" "XL1"
-		(at 5.14096 -1.84912 0)
+		(at 8.255 -1.84912 0)
 		(layer "F.SilkS")
 		(hide yes)
 		(uuid "3d593094-1bbf-481a-8abe-4a3809623617")
@@ -16,15 +16,16 @@
 			)
 		)
 	)
-	(property "Value" "CONN_6"
-		(at 12.48918 -1.84912 0)
+	(property "Value" "CONN_4"
+		(at 0 -1.84912 0)
 		(layer "F.SilkS")
 		(hide yes)
 		(uuid "a75fa1b7-53ce-42cf-b3c1-04dc3df277ed")
 		(effects
 			(font
-				(size 0.635 0.635)
-				(thickness 0.16002)
+				(size 0.6 0.6)
+				(thickness 0.15)
+				(bold yes)
 			)
 		)
 	)
@@ -32,7 +33,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "d89deb36-4c18-45c1-971a-b96203d78830")
+		(uuid "aaa1607d-e436-40d4-819b-a6993669cadd")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -44,7 +45,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "c99dfc29-e9a6-40aa-bbe5-c154ad4805d0")
+		(uuid "2463a5ef-959a-44dd-a60d-93144e49e46a")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -56,7 +57,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "34fc10ff-37e9-4739-8042-8000ef11fef2")
+		(uuid "52576098-2f96-4d0e-9451-6f56681cbdca")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -77,7 +78,7 @@
 	)
 	(fp_line
 		(start -1.524 -1.27)
-		(end 13.97 -1.27)
+		(end 8.89 -1.27)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -126,8 +127,8 @@
 		(uuid "dcce6d87-e6b7-4840-a059-2bc2dbd30498")
 	)
 	(fp_line
-		(start 13.97 -1.27)
-		(end 13.97 1.27)
+		(start 8.89 -1.27)
+		(end 8.89 1.27)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -136,7 +137,7 @@
 		(uuid "031297d9-311a-4266-9b03-73c969bfe01c")
 	)
 	(fp_line
-		(start 13.97 1.27)
+		(start 8.89 1.27)
 		(end -1.524 1.27)
 		(stroke
 			(width 0.15)
@@ -207,7 +208,7 @@
 	)
 	(fp_line
 		(start -1.27 1.27)
-		(end 13.97 1.27)
+		(end 8.89 1.27)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -216,7 +217,7 @@
 		(uuid "0dbcd740-afd4-4fdb-93c2-6be6a88f97fb")
 	)
 	(fp_line
-		(start 13.97 -1.27)
+		(start 8.89 -1.27)
 		(end -1.27 -1.27)
 		(stroke
 			(width 0.15)
@@ -226,8 +227,8 @@
 		(uuid "dc1f986f-0b87-4252-b394-b904b9065e15")
 	)
 	(fp_line
-		(start 13.97 -1.27)
-		(end 13.97 1.27)
+		(start 8.89 -1.27)
+		(end 8.89 1.27)
 		(stroke
 			(width 0.15)
 			(type solid)
@@ -289,25 +290,9 @@
 		(drill 0.9)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
-		(uuid "bf9510cb-c32f-4f2a-a03b-12a76f1315de")
+		(uuid "72e9c8bd-b1a6-4a63-af64-2cd21a2937a5")
 	)
-	(pad "5" thru_hole oval
-		(at 10.16 0.127)
-		(size 1.6 2)
-		(drill 0.9)
-		(layers "*.Cu" "*.Mask")
-		(remove_unused_layers no)
-		(uuid "b42a12ad-eb97-4f71-8d54-669b1fdb1197")
-	)
-	(pad "6" thru_hole oval
-		(at 12.7 -0.127)
-		(size 1.6 2)
-		(drill 0.9)
-		(layers "*.Cu" "*.Mask")
-		(remove_unused_layers no)
-		(uuid "e43f8275-2cc3-4a4d-b1e7-4fc90c59660a")
-	)
-	(model "${KICAD6_3DMODEL_DIR}/Connectors/Conn_PLS-6.STEP"
+	(model "${KICAD6_3DMODEL_DIR}/Connectors/Conn_PLS-4.STEP"
 		(offset
 			(xyz 0 -1.27 0)
 		)

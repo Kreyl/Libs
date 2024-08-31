@@ -1,32 +1,217 @@
-(module "PLS-6-NoHole" (layer F.Cu) (tedit 5EA2E557)
-  (descr "Single-line 8-pin @2.54")
-  (fp_text reference "XL3" (at 5.14096 -1.84912) (layer F.SilkS) hide
-    (effects (font (size 0.6 0.6) (thickness 0.15)))
-  )
-  (fp_text value "CONN_6" (at 12.48918 -1.84912) (layer F.SilkS) hide
-    (effects (font (size 0.635 0.635) (thickness 0.16002)))
-  )
-  (fp_line (start -1.27 1.27) (end -1.27 -1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.397 -1.27) (end -1.397 1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.27 -1.27) (end -1.397 -1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.524 -1.27) (end -1.27 -1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.524 1.27) (end -1.524 -1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.27 1.27) (end -1.524 1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start 13.97 -1.27) (end 13.97 1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start 13.97 -1.27) (end -1.27 -1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.27 1.27) (end 13.97 1.27) (layer F.SilkS) (width 0.15))
-  (fp_text user "1" (at -2 0) (layer F.SilkS)
-    (effects (font (size 1 1) (thickness 0.15)))
-  )
-  (pad "1" smd rect (at 0 0) (size 1.5 1.5) (layers "F.Cu" "F.Mask") (tstamp 60a537f6-8dd7-4958-9c1e-f8328089285e))
-  (pad "2" smd circle (at 2.54 0) (size 1.5 1.5) (layers "F.Cu" "F.Mask") (tstamp 991f908c-654e-4d18-8cfa-ca7490f08c0d))
-  (pad "3" smd circle (at 5.08 0) (size 1.5 1.5) (layers "F.Cu" "F.Mask") (tstamp be363e3f-ac2c-47b2-8882-d9be6c5352de))
-  (pad "4" smd circle (at 7.62 0) (size 1.5 1.5) (layers "F.Cu" "F.Mask") (tstamp 470977de-6f23-40d5-9fe7-a6a8df531f06))
-  (pad "5" smd circle (at 10.16 0) (size 1.5 1.5) (layers "F.Cu" "F.Mask") (tstamp 18b16285-74f6-483e-a351-4dead0b512e3))
-  (pad "6" smd circle (at 12.7 0) (size 1.5 1.5) (layers "F.Cu" "F.Mask") (tstamp 5448441e-7b50-4ac3-9f09-ad2f1199e553))
-  (model "${KICAD_SYMBOL_DIR}/3d/Connectors/PLS6_NoHole.STEP"
-    (at (xyz 0 0 0))
-    (scale (xyz 1 1 1))
-    (rotate (xyz 0 0 0))
-  )
+(footprint "PLS-6-NoHole"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "Single-line 8-pin @2.54")
+	(property "Reference" "XL3"
+		(at 5.14096 -1.84912 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "5cfebcba-699f-4023-a4bf-b8321f17981d")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "CONN_6"
+		(at 12.48918 -1.84912 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "4ee3d7b0-5cf8-4119-9a3a-4d3264d045fe")
+		(effects
+			(font
+				(size 0.635 0.635)
+				(thickness 0.16002)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "1b3cde30-7ef5-4160-a9ef-07511b0250ed")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "54562f4e-b0ff-4bcb-8104-6f4f8af57fba")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "a12e1d8a-4fdb-4af6-a799-9d24148b85de")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_line
+		(start -1.524 -1.27)
+		(end -1.27 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "5db1cb54-6ce5-4606-a838-595ab5ac3918")
+	)
+	(fp_line
+		(start -1.524 1.27)
+		(end -1.524 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "b1c523fe-c372-4779-b067-142c98497035")
+	)
+	(fp_line
+		(start -1.397 -1.27)
+		(end -1.397 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "2d94e170-fceb-4bf0-af43-7ed5a533199d")
+	)
+	(fp_line
+		(start -1.27 -1.27)
+		(end -1.397 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "3f6f0d4f-5e1c-4645-824e-d02d61acf143")
+	)
+	(fp_line
+		(start -1.27 1.27)
+		(end -1.524 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "c936a36c-a7d8-4c77-b8a5-9999b9a1fab2")
+	)
+	(fp_line
+		(start -1.27 1.27)
+		(end -1.27 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "4a22c6db-fcd0-4230-b071-04ead627a754")
+	)
+	(fp_line
+		(start -1.27 1.27)
+		(end 13.97 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "3ffece0f-a578-4f2f-96ca-bed227c9fac0")
+	)
+	(fp_line
+		(start 13.97 -1.27)
+		(end -1.27 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "95360164-f4f1-45c4-8634-71f401b62b78")
+	)
+	(fp_line
+		(start 13.97 -1.27)
+		(end 13.97 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "f3353962-9306-47a7-8355-e8a9fa7288e3")
+	)
+	(fp_text user "1"
+		(at -2 0 0)
+		(layer "F.SilkS")
+		(uuid "f97fc9e4-2153-45be-b2fe-932ce61e7273")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" smd roundrect
+		(at 0 0)
+		(size 1.5 1.5)
+		(layers "F.Cu" "F.Mask")
+		(roundrect_rratio 0.18)
+		(uuid "60a537f6-8dd7-4958-9c1e-f8328089285e")
+	)
+	(pad "2" smd circle
+		(at 2.54 0)
+		(size 1.5 1.5)
+		(layers "F.Cu" "F.Mask")
+		(uuid "991f908c-654e-4d18-8cfa-ca7490f08c0d")
+	)
+	(pad "3" smd circle
+		(at 5.08 0)
+		(size 1.5 1.5)
+		(layers "F.Cu" "F.Mask")
+		(uuid "be363e3f-ac2c-47b2-8882-d9be6c5352de")
+	)
+	(pad "4" smd circle
+		(at 7.62 0)
+		(size 1.5 1.5)
+		(layers "F.Cu" "F.Mask")
+		(uuid "470977de-6f23-40d5-9fe7-a6a8df531f06")
+	)
+	(pad "5" smd circle
+		(at 10.16 0)
+		(size 1.5 1.5)
+		(layers "F.Cu" "F.Mask")
+		(uuid "18b16285-74f6-483e-a351-4dead0b512e3")
+	)
+	(pad "6" smd circle
+		(at 12.7 0)
+		(size 1.5 1.5)
+		(layers "F.Cu" "F.Mask")
+		(uuid "5448441e-7b50-4ac3-9f09-ad2f1199e553")
+	)
+	(model "${KICAD_SYMBOL_DIR}/3d/Connectors/PLS6_NoHole.STEP"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
 )

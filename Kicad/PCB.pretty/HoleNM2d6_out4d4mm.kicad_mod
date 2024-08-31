@@ -1,29 +1,29 @@
-(footprint "HoleNM3d3_out5d5mm"
+(footprint "HoleNM2d6_out4d4mm"
 	(version 20240108)
 	(generator "pcbnew")
 	(generator_version "8.0")
 	(layer "F.Cu")
-	(property "Reference" "Hole3_3mm"
-		(at 0 3.2004 0)
+	(property "Reference" "Hole2d6mm"
+		(at 0 2.8 0)
 		(layer "F.SilkS")
 		(hide yes)
-		(uuid "72327dc2-148b-4ec0-aefd-4e061e3c3cac")
+		(uuid "073cacb9-51ae-42b1-a4a8-9b8c25b8a456")
 		(effects
 			(font
-				(size 0.127 0.127)
-				(thickness 0.00254)
+				(size 0.6 0.6)
+				(thickness 0.15)
 			)
 		)
 	)
 	(property "Value" "VAL**"
-		(at -0.09906 -3.2004 0)
+		(at 0 -2.8 0)
 		(layer "F.SilkS")
 		(hide yes)
-		(uuid "482794b5-34f8-4ab0-9a59-ef2487104be2")
+		(uuid "d894ab41-8b48-4011-9f3a-231b7350d67c")
 		(effects
 			(font
-				(size 0.127 0.127)
-				(thickness 0.00254)
+				(size 0.6 0.6)
+				(thickness 0.15)
 			)
 		)
 	)
@@ -31,7 +31,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "a0e105ea-86bd-4079-a3ba-1747952ca8b7")
+		(uuid "33c56df0-5c72-47d1-a21f-b212d37fb8c4")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -43,7 +43,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "bf21b2c6-ee79-4e1c-bf25-2c6820a895bb")
+		(uuid "88198aec-a3e9-487c-90b5-1ffa250f0e92")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -55,7 +55,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "9b1b775a-2d43-4513-91ab-320abf5630b2")
+		(uuid "b4341dc5-2f30-4a6f-9968-296728d60445")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -66,11 +66,11 @@
 	(attr through_hole)
 	(pad "" np_thru_hole circle
 		(at 0 0)
-		(size 5.5 5.5)
-		(drill 3.3)
+		(size 4.4 4.4)
+		(drill 2.6)
 		(layers "*.Mask")
-		(clearance 1.2)
+		(clearance 1)
 		(zone_connect 0)
-		(uuid "a1d01247-a687-4cc8-9a96-269daba27011")
+		(uuid "3a3759e2-7c12-4772-9790-7da83dd44d21")
 	)
 )

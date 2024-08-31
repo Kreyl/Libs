@@ -1,387 +1,1110 @@
-(kicad_symbol_lib (version 20220914) (generator kicad_symbol_editor)
-  (symbol "FuseX2" (pin_names (offset 1.016)) (in_bom no) (on_board yes)
-    (property "Reference" "F" (at 5.08 3.81 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Value" "FuseX2" (at -3.81 3.81 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Footprint" "" (at 0 0 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Datasheet" "" (at 0 0 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (symbol "FuseX2_0_1"
-      (rectangle (start -6.35 2.54) (end 6.35 -2.54)
-        (stroke (width 0) (type default))
-        (fill (type background))
-      )
-      (rectangle (start -2.54 1.27) (end -5.08 -1.27)
-        (stroke (width 0) (type default))
-        (fill (type outline))
-      )
-      (rectangle (start -1.27 1.27) (end 1.27 -1.27)
-        (stroke (width 0) (type default))
-        (fill (type outline))
-      )
-      (polyline
-        (pts
-          (xy -6.35 0)
-          (xy -5.08 0)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy 0 -1.27)
-          (xy 0 -2.54)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy 5.08 0)
-          (xy 6.35 0)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (rectangle (start 2.54 1.27) (end 5.08 -1.27)
-        (stroke (width 0) (type default))
-        (fill (type outline))
-      )
-    )
-    (symbol "FuseX2_1_1"
-      (pin passive line (at -8.89 0 0) (length 2.54)
-        (name "~" (effects (font (size 1.27 1.27))))
-        (number "1" (effects (font (size 1.27 1.27))))
-      )
-      (pin passive line (at 8.89 0 180) (length 2.54)
-        (name "~" (effects (font (size 1.27 1.27))))
-        (number "2" (effects (font (size 1.27 1.27))))
-      )
-      (pin passive line (at 0 -5.08 90) (length 2.54)
-        (name "~" (effects (font (size 1.27 1.27))))
-        (number "3" (effects (font (size 1.27 1.27))))
-      )
-    )
-  )
-  (symbol "HOLE_METALLED" (pin_names (offset 1.016)) (in_bom no) (on_board yes)
-    (property "Reference" "HOLE" (at -12.7 -1.27 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Value" "HOLE_METALLED" (at -13.97 1.27 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Footprint" "" (at -15.24 -3.81 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "Datasheet" "" (at -12.7 -1.27 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "Price" "0" (at -10.16 1.27 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "SolderPoints" "0" (at -7.62 3.81 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "ki_fp_filters" "HOLE*" (at 0 0 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (symbol "HOLE_METALLED_0_1"
-      (circle (center 0 0) (radius 2.54)
-        (stroke (width 0) (type default))
-        (fill (type background))
-      )
-    )
-    (symbol "HOLE_METALLED_1_1"
-      (pin passive line (at 7.62 0 180) (length 5.08)
-        (name "~" (effects (font (size 1.27 1.27))))
-        (number "H" (effects (font (size 1.27 1.27))))
-      )
-    )
-  )
-  (symbol "HOLE_NO_METAL" (in_bom no) (on_board yes)
-    (property "Reference" "H" (at 3.81 0 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Value" "" (at 0 0 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at 0 0 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 0 0 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (symbol "HOLE_NO_METAL_0_1"
-      (circle (center 0 0) (radius 1.27)
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (circle (center 0 0) (radius 2.54)
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-    )
-  )
-  (symbol "Logo" (pin_names (offset 1.016)) (in_bom no) (on_board yes)
-    (property "Reference" "Logo" (at -2.54 11.43 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Value" "Logo" (at 5.08 11.43 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Footprint" "" (at 0 0 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "Datasheet" "" (at 0 0 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (symbol "Logo_0_1"
-      (polyline
-        (pts
-          (xy -6.35 0)
-          (xy 6.35 0)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy -3.81 3.81)
-          (xy 3.81 -3.81)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy 0 10.16)
-          (xy 0 -10.16)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy 3.81 3.81)
-          (xy -3.81 -3.81)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy -1.27 1.27)
-          (xy 0 10.16)
-          (xy 1.27 1.27)
-          (xy 6.35 0)
-          (xy 1.27 -1.27)
-          (xy 0 -10.16)
-          (xy -1.27 -1.27)
-          (xy -6.35 0)
-          (xy -1.27 1.27)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy 0 1.27)
-          (xy 3.81 3.81)
-          (xy 1.27 0)
-          (xy 3.81 -3.81)
-          (xy 0 -1.27)
-          (xy -3.81 -3.81)
-          (xy -1.27 0)
-          (xy -3.81 3.81)
-          (xy 0 1.27)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-    )
-  )
-  (symbol "MOTOR_NO_CONTACTS" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
-    (property "Reference" "M" (at -12.7 13.97 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Value" "MOTOR_NO_CONTACTS" (at -2.54 11.43 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at -15.24 11.43 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "Datasheet" "" (at -12.7 13.97 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "SolderPoints" "0" (at -10.16 16.51 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (symbol "MOTOR_NO_CONTACTS_0_1"
-      (polyline
-        (pts
-          (xy -10.16 -2.54)
-          (xy -12.7 -2.54)
-          (xy -12.7 2.54)
-          (xy -10.16 2.54)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (circle (center 0 0) (radius 10.16)
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-    )
-  )
-  (symbol "REFPOINT" (pin_names (offset 1.016)) (in_bom no) (on_board yes)
-    (property "Reference" "RP" (at 17.78 0 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Value" "REFPOINT" (at 8.89 0 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Footprint" "" (at 0 0 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "Datasheet" "" (at 0 0 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "ki_fp_filters" "REF_POINT*" (at 0 0 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (symbol "REFPOINT_0_1"
-      (polyline
-        (pts
-          (xy -1.27 0)
-          (xy 1.27 0)
-          (xy 1.27 0)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (polyline
-        (pts
-          (xy 0 1.27)
-          (xy 0 -1.27)
-          (xy 0 -1.27)
-        )
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-      (circle (center 0 0) (radius 2.54)
-        (stroke (width 0) (type default))
-        (fill (type none))
-      )
-    )
-    (symbol "REFPOINT_1_1"
-      (pin no_connect line (at -1.27 0 0) (length 2.54) hide
-        (name "~" (effects (font (size 1.27 1.27))))
-        (number "REF" (effects (font (size 1.27 1.27))))
-      )
-    )
-  )
-  (symbol "SENSORPAD" (pin_numbers hide) (pin_names (offset 1.016)) (in_bom no) (on_board yes)
-    (property "Reference" "SNSP" (at 0 3.81 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Value" "SENSORPAD" (at -0.635 5.715 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "Footprint" "" (at 0 0 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Datasheet" "" (at 0 0 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "ki_fp_filters" "TESTPOINT* PAD*" (at 0 0 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (symbol "SENSORPAD_0_1"
-      (circle (center 0 0) (radius 2.54)
-        (stroke (width 0) (type default))
-        (fill (type background))
-      )
-    )
-    (symbol "SENSORPAD_1_1"
-      (pin passive line (at -3.81 0 0) (length 1.27)
-        (name "~" (effects (font (size 1.27 1.27))))
-        (number "1" (effects (font (size 1.27 1.27))))
-      )
-    )
-  )
-  (symbol "SOLDERFUSE" (pin_names (offset 1.016)) (in_bom no) (on_board yes)
-    (property "Reference" "FU" (at 0.635 3.175 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Value" "SOLDERFUSE" (at 0.635 5.715 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "Footprint" "" (at 0 0 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Datasheet" "" (at 0 0 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (symbol "SOLDERFUSE_0_1"
-      (arc (start -0.127 1.143) (mid -1.2651 0) (end -0.127 -1.143)
-        (stroke (width 0) (type default))
-        (fill (type background))
-      )
-      (arc (start 0.127 -1.143) (mid 1.2651 0) (end 0.127 1.143)
-        (stroke (width 0) (type default))
-        (fill (type background))
-      )
-    )
-    (symbol "SOLDERFUSE_1_1"
-      (pin passive line (at -3.81 0 0) (length 2.54)
-        (name "~" (effects (font (size 1.27 1.27))))
-        (number "1" (effects (font (size 1.27 1.27))))
-      )
-      (pin passive line (at 3.81 0 180) (length 2.54)
-        (name "~" (effects (font (size 1.27 1.27))))
-        (number "2" (effects (font (size 1.27 1.27))))
-      )
-    )
-  )
-  (symbol "TESTPOINT" (pin_numbers hide) (pin_names (offset 1.016)) (in_bom no) (on_board yes)
-    (property "Reference" "TP" (at -5.715 0 0)
-      (effects (font (size 1.524 1.524)))
-    )
-    (property "Value" "TESTPOINT" (at -0.635 5.715 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "Footprint" "PCB:TESTPOINT_1MM" (at -2.54 1.27 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "Datasheet" "" (at 0 3.81 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "Price" "0" (at 2.54 6.35 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "SolderPoints" "0" (at 5.08 8.89 0)
-      (effects (font (size 1.524 1.524)) hide)
-    )
-    (property "ki_fp_filters" "TESTPOINT*" (at 0 0 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (symbol "TESTPOINT_0_1"
-      (circle (center -1.905 0) (radius 0.635)
-        (stroke (width 0) (type default))
-        (fill (type background))
-      )
-    )
-    (symbol "TESTPOINT_1_1"
-      (pin passive line (at 0 0 180) (length 1.27)
-        (name "~" (effects (font (size 1.27 1.27))))
-        (number "1" (effects (font (size 1.27 1.27))))
-      )
-    )
-  )
+(kicad_symbol_lib
+	(version 20231120)
+	(generator "kicad_symbol_editor")
+	(generator_version "8.0")
+	(symbol "FuseX2"
+		(pin_names
+			(offset 1.016)
+		)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(property "Reference" "F"
+			(at 5.08 3.81 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "FuseX2"
+			(at -3.81 3.81 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "FuseX2_0_1"
+			(rectangle
+				(start -6.35 2.54)
+				(end 6.35 -2.54)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+			(rectangle
+				(start -2.54 1.27)
+				(end -5.08 -1.27)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+			(rectangle
+				(start -1.27 1.27)
+				(end 1.27 -1.27)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+			(polyline
+				(pts
+					(xy -6.35 0) (xy -5.08 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -1.27) (xy 0 -2.54)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 5.08 0) (xy 6.35 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(rectangle
+				(start 2.54 1.27)
+				(end 5.08 -1.27)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+		)
+		(symbol "FuseX2_1_1"
+			(pin passive line
+				(at -8.89 0 0)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 8.89 0 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -5.08 90)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+	(symbol "HOLE_METALLED"
+		(pin_names
+			(offset 1.016)
+		)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(property "Reference" "HOLE"
+			(at -12.7 -1.27 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "HOLE_METALLED"
+			(at -13.97 1.27 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at -15.24 -3.81 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at -12.7 -1.27 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Price" "0"
+			(at -10.16 1.27 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "SolderPoints" "0"
+			(at -7.62 3.81 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "HOLE*"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "HOLE_METALLED_0_1"
+			(circle
+				(center 0 0)
+				(radius 2.54)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "HOLE_METALLED_1_1"
+			(pin passive line
+				(at 7.62 0 180)
+				(length 5.08)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "H"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+	(symbol "HOLE_NO_METAL"
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(property "Reference" "H"
+			(at 3.81 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "HOLE_NO_METAL_0_1"
+			(circle
+				(center 0 0)
+				(radius 1.27)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 0 0)
+				(radius 2.54)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+	)
+	(symbol "Logo"
+		(pin_names
+			(offset 1.016)
+		)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(property "Reference" "Logo"
+			(at -2.54 11.43 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "Logo"
+			(at 5.08 11.43 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "Logo_0_1"
+			(polyline
+				(pts
+					(xy -6.35 0) (xy 6.35 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -3.81 3.81) (xy 3.81 -3.81)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 10.16) (xy 0 -10.16)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 3.81 3.81) (xy -3.81 -3.81)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.27 1.27) (xy 0 10.16) (xy 1.27 1.27) (xy 6.35 0) (xy 1.27 -1.27) (xy 0 -10.16) (xy -1.27 -1.27)
+					(xy -6.35 0) (xy -1.27 1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 1.27) (xy 3.81 3.81) (xy 1.27 0) (xy 3.81 -3.81) (xy 0 -1.27) (xy -3.81 -3.81) (xy -1.27 0)
+					(xy -3.81 3.81) (xy 0 1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+	)
+	(symbol "MOTOR_NO_CONTACTS"
+		(pin_names
+			(offset 1.016)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "M"
+			(at -12.7 13.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "MOTOR_NO_CONTACTS"
+			(at -2.54 11.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at -15.24 11.43 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at -12.7 13.97 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "SolderPoints" "0"
+			(at -10.16 16.51 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "MOTOR_NO_CONTACTS_0_1"
+			(polyline
+				(pts
+					(xy -10.16 -2.54) (xy -12.7 -2.54) (xy -12.7 2.54) (xy -10.16 2.54)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 0 0)
+				(radius 10.16)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+	)
+	(symbol "MouseBites"
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(property "Reference" "MB?"
+			(at 0 5.842 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "MouseBites_0_1"
+			(circle
+				(center 0 -3.81)
+				(radius 0.635)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 0 -1.905)
+				(radius 0.635)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 0 0)
+				(radius 0.635)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 0 1.905)
+				(radius 0.635)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 0 3.81)
+				(radius 0.635)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+	)
+	(symbol "REFPOINT"
+		(pin_names
+			(offset 1.016)
+		)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(property "Reference" "RP"
+			(at 17.78 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "REFPOINT"
+			(at 8.89 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "REF_POINT*"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "REFPOINT_0_1"
+			(polyline
+				(pts
+					(xy -1.27 0) (xy 1.27 0) (xy 1.27 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 1.27) (xy 0 -1.27) (xy 0 -1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 0 0)
+				(radius 2.54)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "REFPOINT_1_1"
+			(pin no_connect line
+				(at -1.27 0 0)
+				(length 2.54) hide
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "REF"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+	(symbol "SENSORPAD"
+		(pin_numbers hide)
+		(pin_names
+			(offset 1.016)
+		)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(property "Reference" "SNSP"
+			(at 0 3.81 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "SENSORPAD"
+			(at -0.635 5.715 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "TESTPOINT* PAD*"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "SENSORPAD_0_1"
+			(circle
+				(center 0 0)
+				(radius 2.54)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "SENSORPAD_1_1"
+			(pin passive line
+				(at -3.81 0 0)
+				(length 1.27)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+	(symbol "SOLDERFUSE"
+		(pin_names
+			(offset 1.016)
+		)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(property "Reference" "FU"
+			(at 0.635 3.175 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "SOLDERFUSE"
+			(at 0.635 5.715 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "SOLDERFUSE_0_1"
+			(arc
+				(start -0.127 1.143)
+				(mid -1.2651 0)
+				(end -0.127 -1.143)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+			(arc
+				(start 0.127 -1.143)
+				(mid 1.2651 0)
+				(end 0.127 1.143)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "SOLDERFUSE_1_1"
+			(pin passive line
+				(at -3.81 0 0)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 3.81 0 180)
+				(length 2.54)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+	(symbol "TESTPOINT"
+		(pin_numbers hide)
+		(pin_names
+			(offset 1.016) hide)
+		(exclude_from_sim yes)
+		(in_bom no)
+		(on_board yes)
+		(property "Reference" "TP"
+			(at -5.715 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "TESTPOINT"
+			(at -0.635 5.715 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "PCB:TESTPOINT_1MM"
+			(at -2.54 1.27 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 3.81 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "TESTPOINT*"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "TESTPOINT_0_1"
+			(circle
+				(center -1.905 0)
+				(radius 0.635)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "TESTPOINT_1_1"
+			(pin passive line
+				(at 0 0 180)
+				(length 1.27)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
 )

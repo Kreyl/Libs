@@ -1,42 +1,320 @@
-(module PLS-3 (layer F.Cu) (tedit 5AD78F8C)
-  (descr "Single-line connector 3-pin")
-  (fp_text reference XL2 (at 0.06096 -1.84912) (layer F.SilkS) hide
-    (effects (font (size 0.6 0.6) (thickness 0.15)))
-  )
-  (fp_text value CONN_3 (at 4.2 -1.84912) (layer F.SilkS) hide
-    (effects (font (size 0.635 0.635) (thickness 0.16002)))
-  )
-  (fp_text user 1 (at -2 0) (layer F.SilkS) hide
-    (effects (font (size 1 1) (thickness 0.15)))
-  )
-  (fp_text user 1 (at -2 0) (layer B.SilkS) hide
-    (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
-  )
-  (fp_line (start -1.397 -1.27) (end -1.27 -1.27) (layer B.SilkS) (width 0.15))
-  (fp_line (start -1.524 1.27) (end -1.397 1.27) (layer B.SilkS) (width 0.15))
-  (fp_line (start -1.27 1.27) (end 6.35 1.27) (layer B.SilkS) (width 0.15))
-  (fp_line (start 6.35 -1.27) (end -1.27 -1.27) (layer B.SilkS) (width 0.15))
-  (fp_line (start -1.27 1.27) (end 6.35 1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.27 -1.27) (end 6.35 -1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start 6.35 -1.27) (end 6.35 1.27) (layer B.SilkS) (width 0.15))
-  (fp_line (start -1.524 1.27) (end -1.524 -1.27) (layer B.SilkS) (width 0.15))
-  (fp_line (start -1.524 -1.27) (end -1.397 -1.27) (layer B.SilkS) (width 0.15))
-  (fp_line (start -1.397 -1.27) (end -1.397 1.27) (layer B.SilkS) (width 0.15))
-  (fp_line (start -1.397 1.27) (end -1.27 1.27) (layer B.SilkS) (width 0.15))
-  (fp_line (start -1.27 1.27) (end -1.27 -1.27) (layer B.SilkS) (width 0.15))
-  (fp_line (start -1.27 1.27) (end -1.524 1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.524 1.27) (end -1.524 -1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.524 -1.27) (end -1.27 -1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.27 -1.27) (end -1.397 -1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.397 -1.27) (end -1.397 1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start 6.35 -1.27) (end 6.35 1.27) (layer F.SilkS) (width 0.15))
-  (fp_line (start -1.27 1.27) (end -1.27 -1.27) (layer F.SilkS) (width 0.15))
-  (pad 1 thru_hole rect (at 0 0) (size 1.5 1.5) (drill 0.9) (layers *.Cu *.Mask))
-  (pad 2 thru_hole circle (at 2.54 0) (size 1.5 1.5) (drill 0.9) (layers *.Cu *.Mask))
-  (pad 3 thru_hole circle (at 5.08 0) (size 1.5 1.5) (drill 0.9) (layers *.Cu *.Mask))
-  (model ${KICAD_SYMBOL_DIR}/3d/Connectors/Conn_PLS-3.STEP
-    (offset (xyz 0 -1.27 0))
-    (scale (xyz 1 1 1))
-    (rotate (xyz 90 90 0))
-  )
+(footprint "PLS-3"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "Single-line connector 3-pin")
+	(property "Reference" "XL2"
+		(at 0.06096 -1.84912 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "45785d7c-6f33-4819-88d7-baf17f6a4c4e")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "CONN_3"
+		(at 4.2 -1.84912 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "42002a5e-0fb5-428f-92ff-2bdd1302f776")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+				(bold yes)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "2f37481e-e73b-4335-9995-2a185ec35b79")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "3c2a3b56-4849-4853-ab69-eb2762591388")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "ddd79c74-aa0b-4389-a277-52ab625d00b5")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_line
+		(start -1.524 -1.27)
+		(end -1.397 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "cc4612bf-d4c1-4655-b583-9b4200154b55")
+	)
+	(fp_line
+		(start -1.524 1.27)
+		(end -1.524 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "6bd59ff6-7040-40de-b4fa-10f3d927e1e5")
+	)
+	(fp_line
+		(start -1.524 1.27)
+		(end -1.397 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "348b321a-1939-4d84-9c83-16f895b7ba19")
+	)
+	(fp_line
+		(start -1.397 -1.27)
+		(end -1.397 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "9ee9d28e-9923-41ed-b534-35ea1c24ec5d")
+	)
+	(fp_line
+		(start -1.397 -1.27)
+		(end -1.27 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "69a757c8-9d05-44bf-97c6-7ed7473d5629")
+	)
+	(fp_line
+		(start -1.397 1.27)
+		(end -1.27 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "44a5e7e1-a139-4d64-a02e-18e541de3db4")
+	)
+	(fp_line
+		(start -1.27 1.27)
+		(end -1.27 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "5e58e549-709c-4b08-affd-af5338f39a07")
+	)
+	(fp_line
+		(start -1.27 1.27)
+		(end 6.35 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "5e031197-5599-4e8b-8566-f2003f4e07ae")
+	)
+	(fp_line
+		(start 6.35 -1.27)
+		(end -1.27 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "bb05076d-02f8-4afc-8ead-021d85e17bea")
+	)
+	(fp_line
+		(start 6.35 -1.27)
+		(end 6.35 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "de0d956c-9d72-4460-9917-6c4fb11e3c99")
+	)
+	(fp_line
+		(start -1.524 -1.27)
+		(end -1.27 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "55933760-8604-4815-bfb5-bc2023385eab")
+	)
+	(fp_line
+		(start -1.524 1.27)
+		(end -1.524 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "84c45280-2b76-4a6b-a7f1-125a823cc122")
+	)
+	(fp_line
+		(start -1.397 -1.27)
+		(end -1.397 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "694482e4-5600-4935-80f6-5833825544bb")
+	)
+	(fp_line
+		(start -1.27 -1.27)
+		(end -1.397 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "f58663c9-73e9-4a60-8b38-2e6358672ebc")
+	)
+	(fp_line
+		(start -1.27 -1.27)
+		(end 6.35 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "0e526d38-62be-426f-afa6-e0fb823ead29")
+	)
+	(fp_line
+		(start -1.27 1.27)
+		(end -1.524 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "368f89df-25a1-4812-8830-5cb5af5324e1")
+	)
+	(fp_line
+		(start -1.27 1.27)
+		(end -1.27 -1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "49b6bc33-e38a-4117-a62a-709039aa0010")
+	)
+	(fp_line
+		(start -1.27 1.27)
+		(end 6.35 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "4af04adf-cf99-4c83-95aa-8e984640e442")
+	)
+	(fp_line
+		(start 6.35 -1.27)
+		(end 6.35 1.27)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "4b68c793-fbf2-419f-beab-e02396691a46")
+	)
+	(fp_text user "1"
+		(at -2 0 0)
+		(layer "B.SilkS")
+		(hide yes)
+		(uuid "b9ccf965-e311-4e4b-b0a7-9084d5f41214")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+			(justify mirror)
+		)
+	)
+	(fp_text user "1"
+		(at -2 0 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "f5c5e3f4-fa81-4d14-9d10-88084addb5e5")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole roundrect
+		(at 0 0)
+		(size 1.5 1.5)
+		(drill 0.9)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(roundrect_rratio 0.18)
+		(uuid "3fab8644-647b-4610-be0d-abb65fb141a6")
+	)
+	(pad "2" thru_hole circle
+		(at 2.54 0)
+		(size 1.5 1.5)
+		(drill 0.9)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "d3a18ecc-1775-426e-afd0-69305a9f4c6b")
+	)
+	(pad "3" thru_hole circle
+		(at 5.08 0)
+		(size 1.5 1.5)
+		(drill 0.9)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "9edb1b74-dbb5-40e1-b4a3-20e67bb18a95")
+	)
+	(model "${KICAD6_3DMODEL_DIR}/Connectors/Conn_PLS-3.STEP"
+		(offset
+			(xyz 0 -1.27 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 90 90 0)
+		)
+	)
 )

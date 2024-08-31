@@ -1,29 +1,139 @@
-(footprint "SOT23-3" (version 20221018) (generator pcbnew)
-  (layer "F.Cu")
-  (descr "Module SOT23")
-  (attr smd)
-  (fp_text reference "SOT23-3" (at 0 -2.159) (layer "F.SilkS")
-      (effects (font (size 0.6 0.6) (thickness 0.15)))
-    (tstamp 7d8e90ff-3bb4-477c-ad1d-0d6ff1ebeca8)
-  )
-  (fp_text value "VAL" (at 0 2.10058) (layer "F.SilkS")
-      (effects (font (size 0.6 0.6) (thickness 0.15) bold))
-    (tstamp c4c1236f-659a-40c8-9327-5055d8fa8e91)
-  )
-  (fp_line (start -1.524 -0.381) (end 1.524 -0.381)
-    (stroke (width 0.127) (type solid)) (layer "F.SilkS") (tstamp 954d2eaf-5640-48ab-a280-9764306ba688))
-  (fp_line (start -1.524 0.381) (end -1.524 -0.381)
-    (stroke (width 0.127) (type solid)) (layer "F.SilkS") (tstamp 048fd2db-3ff8-411d-8de2-5c6b369e1cad))
-  (fp_line (start 1.524 -0.381) (end 1.524 0.381)
-    (stroke (width 0.127) (type solid)) (layer "F.SilkS") (tstamp eb5dd927-2568-4cd3-8cfb-fa355c93ec5c))
-  (fp_line (start 1.524 0.381) (end -1.524 0.381)
-    (stroke (width 0.127) (type solid)) (layer "F.SilkS") (tstamp 3a8077a8-f632-4993-8707-ebd9b2250349))
-  (pad "1" smd rect (at 0.889 -1.016) (size 0.9144 0.9144) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 433de95b-e8bc-4f91-9841-370d2f242f5a))
-  (pad "2" smd rect (at -0.889 -1.016) (size 0.9144 0.9144) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp af17cf4c-47aa-45f5-9518-1493f5da2800))
-  (pad "3" smd rect (at 0 1.016) (size 0.9144 0.9144) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 22aef7d2-5c08-476c-b704-661598e7c484))
-  (model "${KICAD7_3DMODEL_DIR}/SOT/SOT-23.step"
-    (offset (xyz 0 0 0))
-    (scale (xyz 1 1 1))
-    (rotate (xyz 0 0 -180))
-  )
+(footprint "SOT23-3"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "Module SOT23")
+	(property "Reference" "SOT23-3"
+		(at 0 -2.159 0)
+		(layer "F.SilkS")
+		(uuid "7d8e90ff-3bb4-477c-ad1d-0d6ff1ebeca8")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "VAL"
+		(at 0 2.10058 0)
+		(layer "F.SilkS")
+		(uuid "c4c1236f-659a-40c8-9327-5055d8fa8e91")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+				(bold yes)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "b5b92e89-4a08-4ffe-b213-69f702fe6797")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "d3a6c990-9acd-4f57-98d0-03a665eed8de")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "086b1400-ccb2-432c-8570-2c7e494b770f")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -1.524 -0.381)
+		(end 1.524 -0.381)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "954d2eaf-5640-48ab-a280-9764306ba688")
+	)
+	(fp_line
+		(start -1.524 0.381)
+		(end -1.524 -0.381)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "048fd2db-3ff8-411d-8de2-5c6b369e1cad")
+	)
+	(fp_line
+		(start 1.524 -0.381)
+		(end 1.524 0.381)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "eb5dd927-2568-4cd3-8cfb-fa355c93ec5c")
+	)
+	(fp_line
+		(start 1.524 0.381)
+		(end -1.524 0.381)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "3a8077a8-f632-4993-8707-ebd9b2250349")
+	)
+	(pad "1" smd roundrect
+		(at 0.889 -1.016)
+		(size 0.9144 0.9144)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(roundrect_rratio 0.25)
+		(uuid "433de95b-e8bc-4f91-9841-370d2f242f5a")
+	)
+	(pad "2" smd roundrect
+		(at -0.889 -1.016)
+		(size 0.9144 0.9144)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(roundrect_rratio 0.25)
+		(uuid "af17cf4c-47aa-45f5-9518-1493f5da2800")
+	)
+	(pad "3" smd roundrect
+		(at 0 1.016)
+		(size 0.9144 0.9144)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(roundrect_rratio 0.25)
+		(uuid "22aef7d2-5c08-476c-b704-661598e7c484")
+	)
+	(model "${KICAD7_3DMODEL_DIR}/SOT/SOT-23.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 -180)
+		)
+	)
 )
