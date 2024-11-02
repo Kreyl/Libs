@@ -1320,10 +1320,10 @@
 			)
 		)
 		(property "Voltage" "10V"
-			(at 0 0 0)
+			(at -1.016 0 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 0.8 0.8)
 				)
 				(justify left)
 			)
