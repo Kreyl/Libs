@@ -4340,4 +4340,2346 @@
 			)
 		)
 	)
+	(symbol "GD32F405V"
+		(pin_names
+			(offset 1.016)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "DD"
+			(at -11.43 39.37 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "GD32F405V"
+			(at 5.08 39.37 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" "LQFP_TQFP:LQFP100"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "LQFP64"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "GD32F405V_0_1"
+			(rectangle
+				(start -29.21 38.1)
+				(end 34.29 -102.87)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -29.21 -59.69) (xy -1.27 -59.69)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -29.21 -48.26) (xy -1.27 -48.26)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -29.21 -5.08) (xy -1.27 -5.08)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.27 38.1) (xy -1.27 -102.87)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 6.35 -102.87) (xy 6.35 38.1)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 6.35 -91.44) (xy 34.29 -91.44)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 6.35 -48.26) (xy 34.29 -48.26)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 6.35 -5.08) (xy 34.29 -5.08)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(text "MCU"
+				(at 2.54 35.56 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+				)
+			)
+		)
+		(symbol "GD32F405V_1_1"
+			(polyline
+				(pts
+					(xy 34.29 21.59) (xy 6.35 21.59)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 34.29 26.67) (xy 6.35 26.67)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(text "Non-5V Tol"
+				(at 12.7 24.13 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(pin passive line
+				(at 39.37 -55.88 180)
+				(length 5.08)
+				(name "PE2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -34.29 -92.71 0)
+				(length 5.08)
+				(name "VSS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -34.29 -88.9 0)
+				(length 5.08)
+				(name "VDD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "100"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -34.29 -76.2 0)
+				(length 5.08)
+				(name "VDD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -34.29 -50.8 0)
+				(length 5.08)
+				(name "OSCIN"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "12"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PH0" passive line)
+			)
+			(pin passive line
+				(at -34.29 -53.34 0)
+				(length 5.08)
+				(name "OSCOUT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "13"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PH1" passive line)
+			)
+			(pin passive line
+				(at -34.29 -57.15 0)
+				(length 5.08)
+				(name "NRST"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "14"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 39.37 -7.62 180)
+				(length 5.08)
+				(name "PC0"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "15"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC012_IN10/PC0" passive line)
+				(alternate "ULPI_STP/PC0" passive line)
+			)
+			(pin passive line
+				(at 39.37 -10.16 180)
+				(length 5.08)
+				(name "PC1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "16"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC012_IN11/PC1" passive line)
+				(alternate "I2S1_SD/PC1" passive line)
+				(alternate "I2S2_SD/PC1" passive line)
+				(alternate "SPI1_MOSI/PC1" passive line)
+				(alternate "SPI2_MOSI/PC1" passive line)
+			)
+			(pin passive line
+				(at 39.37 -12.7 180)
+				(length 5.08)
+				(name "PC2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "17"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC012_IN12/PC2" passive line)
+				(alternate "I2S1_ADD_SD/PC2" passive line)
+				(alternate "SPI2_MISO/PC2" passive line)
+				(alternate "ULPI_DIR/PC2" passive line)
+			)
+			(pin passive line
+				(at 39.37 -15.24 180)
+				(length 5.08)
+				(name "PC3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "18"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC012_IN13/PC3" passive line)
+				(alternate "I2S1_SD/PC3" passive line)
+				(alternate "SPI1_MOSI/PC3" passive line)
+				(alternate "ULPI_NXT/PC3" passive line)
+			)
+			(pin power_in line
+				(at -34.29 -78.74 0)
+				(length 5.08)
+				(name "VDD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "19"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 39.37 -58.42 180)
+				(length 5.08)
+				(name "PE3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -34.29 -67.31 0)
+				(length 5.08)
+				(name "VSSA"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "20"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -34.29 -62.23 0)
+				(length 5.08)
+				(name "VREFP"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "21"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -34.29 -64.77 0)
+				(length 5.08)
+				(name "VDDA"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "22"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 39.37 35.56 180)
+				(length 5.08)
+				(name "PA0"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "23"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC012_IN0/PA0" passive line)
+				(alternate "T1_C0/PA0" passive line)
+				(alternate "T1_ETI/PA0" passive line)
+				(alternate "T4_C0/PA0" passive line)
+				(alternate "T7_ETI/PA0" passive line)
+				(alternate "U1_CTS/PA0" passive line)
+				(alternate "U3_TX/PA0" passive line)
+				(alternate "WKUP/PA0" passive line)
+			)
+			(pin passive line
+				(at 39.37 33.02 180)
+				(length 5.08)
+				(name "PA1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "24"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC012_IN1/PA1" passive line)
+				(alternate "T1_C1/PA1" passive line)
+				(alternate "T4_C1/PA1" passive line)
+				(alternate "U1_RTS/PA1" passive line)
+				(alternate "U3_RX/PA1" passive line)
+			)
+			(pin passive line
+				(at 39.37 30.48 180)
+				(length 5.08)
+				(name "PA2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "25"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC012_IN2/PA2" passive line)
+				(alternate "I2S_CKIN/PA2" passive line)
+				(alternate "T1_C2/PA2" passive line)
+				(alternate "T4_C2/PA2" passive line)
+				(alternate "T8_C0/PA2" passive line)
+				(alternate "U1_TX/PA2" passive line)
+			)
+			(pin passive line
+				(at 39.37 27.94 180)
+				(length 5.08)
+				(name "PA3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "26"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC012_IN3/PA3" passive line)
+				(alternate "I2S1_MCK/PA3" passive line)
+				(alternate "T1_C3/PA3" passive line)
+				(alternate "T4_C3/PA3" passive line)
+				(alternate "T8_C1/PA3" passive line)
+				(alternate "U1_RX/PA3" passive line)
+				(alternate "ULPI_D0/PA3" passive line)
+			)
+			(pin power_in line
+				(at -34.29 -95.25 0)
+				(length 5.08)
+				(name "VSS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "27"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -34.29 -81.28 0)
+				(length 5.08)
+				(name "VDD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "28"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 39.37 25.4 180)
+				(length 5.08)
+				(name "PA4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "29"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC01_IN4/PA4" passive line)
+				(alternate "DAC_OUT0/PA4" passive line)
+				(alternate "DCI_HSYNC/PA4" passive line)
+				(alternate "I2S2_WS/PA4" passive line)
+				(alternate "SPI0_NSS/PA4" passive line)
+				(alternate "SPI2_NSS/PA4" passive line)
+				(alternate "U1_CK/PA4" passive line)
+				(alternate "USBHS_SOF/PA4" passive line)
+			)
+			(pin passive line
+				(at 39.37 -60.96 180)
+				(length 5.08)
+				(name "PE4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D4/PE4" passive line)
+			)
+			(pin passive line
+				(at 39.37 22.86 180)
+				(length 5.08)
+				(name "PA5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "30"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC01_IN5/PA5" passive line)
+				(alternate "DAC_OUT1/PA5" passive line)
+				(alternate "SPI0_SCK/PA5" passive line)
+				(alternate "T1_C0/PA5" passive line)
+				(alternate "T1_ETI/PA5" passive line)
+				(alternate "T7_C0_ON/PA5" passive line)
+				(alternate "ULPI_CK/PA5" passive line)
+			)
+			(pin passive line
+				(at 39.37 20.32 180)
+				(length 5.08)
+				(name "PA6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "31"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC01_IN6/PA6" passive line)
+				(alternate "DCI_PIXCLK/PA6" passive line)
+				(alternate "I2S1_MCK/PA6" passive line)
+				(alternate "SDIO_CMD/PA6" passive line)
+				(alternate "SPI0_MISO/PA6" passive line)
+				(alternate "T0_BRKIN/PA6" passive line)
+				(alternate "T12_C0/PA6" passive line)
+				(alternate "T2_C0/PA6" passive line)
+				(alternate "T7_BRKIN/PA6" passive line)
+			)
+			(pin passive line
+				(at 39.37 17.78 180)
+				(length 5.08)
+				(name "PA7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "32"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC01_IN7/PA7" passive line)
+				(alternate "SPI0_MOSI/PA7" passive line)
+				(alternate "T0_C0_ON/PA7" passive line)
+				(alternate "T13_C0/PA7" passive line)
+				(alternate "T2_C1/PA7" passive line)
+				(alternate "T7_C0_ON/PA7" passive line)
+			)
+			(pin passive line
+				(at 39.37 -17.78 180)
+				(length 5.08)
+				(name "PC4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "33"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC01_IN14/PC4" passive line)
+			)
+			(pin passive line
+				(at 39.37 -20.32 180)
+				(length 5.08)
+				(name "PC5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "34"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC01_IN15/PC5" passive line)
+				(alternate "U2_RX/PC5" passive line)
+			)
+			(pin passive line
+				(at -34.29 35.56 0)
+				(length 5.08)
+				(name "PB0"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "35"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB0/ADC01_IN8" passive line)
+				(alternate "PB0/I2S2_SD" passive line)
+				(alternate "PB0/IREF" passive line)
+				(alternate "PB0/SDIO_D1" passive line)
+				(alternate "PB0/SPI2_MOSI" passive line)
+				(alternate "PB0/T0_C1_ON" passive line)
+				(alternate "PB0/T2_C2" passive line)
+				(alternate "PB0/T7_C1_ON" passive line)
+				(alternate "PB0/ULPI_D1" passive line)
+			)
+			(pin passive line
+				(at -34.29 33.02 0)
+				(length 5.08)
+				(name "PB1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "36"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB1/ADC01_IN9" passive line)
+				(alternate "PB1/SDIO_D2" passive line)
+				(alternate "PB1/T0_C2_ON" passive line)
+				(alternate "PB1/T2_C3" passive line)
+				(alternate "PB1/T7_C2_ON" passive line)
+				(alternate "PB1/ULPI_D2" passive line)
+			)
+			(pin passive line
+				(at -34.29 30.48 0)
+				(length 5.08)
+				(name "PB2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "37"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "BOOT1" passive line)
+				(alternate "PB2/I2S2_SD" passive line)
+				(alternate "PB2/SDIO_CK" passive line)
+				(alternate "PB2/SPI2_MOSI" passive line)
+				(alternate "PB2/T1_C3" passive line)
+				(alternate "PB2/ULPI_D4" passive line)
+			)
+			(pin passive line
+				(at 39.37 -68.58 180)
+				(length 5.08)
+				(name "PE7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "38"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "T0_ETI/PE7" passive line)
+			)
+			(pin passive line
+				(at 39.37 -71.12 180)
+				(length 5.08)
+				(name "PE8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "39"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "T0_C0_ON/PE8" passive line)
+			)
+			(pin passive line
+				(at 39.37 -63.5 180)
+				(length 5.08)
+				(name "PE5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D6/PE5" passive line)
+				(alternate "T8_C0/PE5" passive line)
+			)
+			(pin passive line
+				(at 39.37 -73.66 180)
+				(length 5.08)
+				(name "PE9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "40"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "T0_C0/PE9" passive line)
+			)
+			(pin passive line
+				(at 39.37 -76.2 180)
+				(length 5.08)
+				(name "PE10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "41"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "T0_C1_ON/PE10" passive line)
+			)
+			(pin passive line
+				(at 39.37 -78.74 180)
+				(length 5.08)
+				(name "PE11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "42"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "T0_C1/PE11" passive line)
+			)
+			(pin passive line
+				(at 39.37 -81.28 180)
+				(length 5.08)
+				(name "PE12"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "43"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "T0_C2_ON/PE12" passive line)
+			)
+			(pin passive line
+				(at 39.37 -83.82 180)
+				(length 5.08)
+				(name "PE13"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "44"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "T0_C2/PE13" passive line)
+			)
+			(pin passive line
+				(at 39.37 -86.36 180)
+				(length 5.08)
+				(name "PE14"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "45"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "T0_C3/PE14" passive line)
+			)
+			(pin passive line
+				(at 39.37 -88.9 180)
+				(length 5.08)
+				(name "PE15"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "46"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "T0_BRKIN/PE15" passive line)
+			)
+			(pin passive line
+				(at -34.29 10.16 0)
+				(length 5.08)
+				(name "PB10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "47"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB10/I2C1_SCL" passive line)
+				(alternate "PB10/I2S1_CK" passive line)
+				(alternate "PB10/I2S2_MCK" passive line)
+				(alternate "PB10/SDIO_D7" passive line)
+				(alternate "PB10/SPI1_SCK" passive line)
+				(alternate "PB10/T1_C2" passive line)
+				(alternate "PB10/U2_TX" passive line)
+				(alternate "PB10/ULPI_D3" passive line)
+			)
+			(pin passive line
+				(at -34.29 7.62 0)
+				(length 5.08)
+				(name "PB11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "48"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB11/I2C1_SDA" passive line)
+				(alternate "PB11/I2S_CKIN" passive line)
+				(alternate "PB11/T1_C3" passive line)
+				(alternate "PB11/U2_RX" passive line)
+				(alternate "PB11/ULPI_D4" passive line)
+			)
+			(pin no_connect line
+				(at 39.37 -93.98 180)
+				(length 5.08)
+				(name "NC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "49"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 39.37 -66.04 180)
+				(length 5.08)
+				(name "PE6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D7/PE6" passive line)
+				(alternate "T8_C1/PE6" passive line)
+			)
+			(pin power_in line
+				(at -34.29 -83.82 0)
+				(length 5.08)
+				(name "VDD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "50"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -34.29 5.08 0)
+				(length 5.08)
+				(name "PB12"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "51"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB12/CAN1_RX" passive line)
+				(alternate "PB12/I2C1_SMBA" passive line)
+				(alternate "PB12/I2S1_WS" passive line)
+				(alternate "PB12/SPI1_NSS" passive line)
+				(alternate "PB12/T0_BRKIN" passive line)
+				(alternate "PB12/U2_CK" passive line)
+				(alternate "PB12/ULPI_D5" passive line)
+				(alternate "PB12/USBHS_ID" passive line)
+			)
+			(pin passive line
+				(at -34.29 2.54 0)
+				(length 5.08)
+				(name "PB13"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "52"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB13/CAN1_TX" passive line)
+				(alternate "PB13/I2C1_TXFRAME" passive line)
+				(alternate "PB13/I2S1_CK" passive line)
+				(alternate "PB13/SPI1_SCK" passive line)
+				(alternate "PB13/T0_C0_ON" passive line)
+				(alternate "PB13/U2_CTS" passive line)
+				(alternate "PB13/ULPI_D6" passive line)
+				(alternate "PB13/USBHS_VBUS" passive line)
+			)
+			(pin passive line
+				(at -34.29 0 0)
+				(length 5.08)
+				(name "PB14"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "53"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB14/I2S1_ADD_SD" passive line)
+				(alternate "PB14/SPI1_MISO" passive line)
+				(alternate "PB14/T0_C1_ON" passive line)
+				(alternate "PB14/T11_C0" passive line)
+				(alternate "PB14/T7_C1_ON" passive line)
+				(alternate "PB14/U2_RTS" passive line)
+				(alternate "PB14/USBHS_DM" passive line)
+			)
+			(pin passive line
+				(at -34.29 -2.54 0)
+				(length 5.08)
+				(name "PB15"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "54"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB15/I2S1_SD" passive line)
+				(alternate "PB15/RTC_REFIN" passive line)
+				(alternate "PB15/SPI1_MOSI" passive line)
+				(alternate "PB15/T0_C2_ON" passive line)
+				(alternate "PB15/T11_C1" passive line)
+				(alternate "PB15/T7_C2_ON" passive line)
+				(alternate "PB15/USBHS_DP" passive line)
+			)
+			(pin passive line
+				(at -34.29 -27.94 0)
+				(length 5.08)
+				(name "PD8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "55"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD8/U2_TX" passive line)
+			)
+			(pin passive line
+				(at -34.29 -30.48 0)
+				(length 5.08)
+				(name "PD9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "56"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD9/U2_RX" passive line)
+			)
+			(pin passive line
+				(at -34.29 -33.02 0)
+				(length 5.08)
+				(name "PD10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "57"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD10/U2_CK" passive line)
+			)
+			(pin passive line
+				(at -34.29 -35.56 0)
+				(length 5.08)
+				(name "PD11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "58"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD11/U2_CTS" passive line)
+			)
+			(pin passive line
+				(at -34.29 -38.1 0)
+				(length 5.08)
+				(name "PD12"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "59"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD12/T3_C0" passive line)
+				(alternate "PD12/U2_RTS" passive line)
+			)
+			(pin power_in line
+				(at -34.29 -72.39 0)
+				(length 5.08)
+				(name "VBAT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -34.29 -40.64 0)
+				(length 5.08)
+				(name "PD13"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "60"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD13/T3_C1" passive line)
+			)
+			(pin passive line
+				(at -34.29 -43.18 0)
+				(length 5.08)
+				(name "PD14"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "61"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD14/T3_C2" passive line)
+			)
+			(pin passive line
+				(at -34.29 -45.72 0)
+				(length 5.08)
+				(name "PD15"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "62"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD15/CTC_SYNC" passive line)
+				(alternate "PD15/T3_C3" passive line)
+			)
+			(pin passive line
+				(at 39.37 -22.86 180)
+				(length 5.08)
+				(name "PC6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "63"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D0/PC6" passive line)
+				(alternate "I2S1_MCK/PC6" passive line)
+				(alternate "SDIO_D6/PC6" passive line)
+				(alternate "T2_C0/PC6" passive line)
+				(alternate "T7_C0/PC6" passive line)
+				(alternate "U5_TX/PC6" passive line)
+			)
+			(pin passive line
+				(at 39.37 -25.4 180)
+				(length 5.08)
+				(name "PC7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "64"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D1/PC7" passive line)
+				(alternate "I2S1_CK/PC7" passive line)
+				(alternate "I2S2_MCK/PC7" passive line)
+				(alternate "SDIO_D7/PC7" passive line)
+				(alternate "SPI1_SCK/PC7" passive line)
+				(alternate "T2_C1/PC7" passive line)
+				(alternate "T7_C1/PC7" passive line)
+				(alternate "U5_RX/PC7" passive line)
+			)
+			(pin passive line
+				(at 39.37 -27.94 180)
+				(length 5.08)
+				(name "PC8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "65"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D2/PC8" passive line)
+				(alternate "SDIO_D0/PC8" passive line)
+				(alternate "T2_C2/PC8" passive line)
+				(alternate "T7_C2/PC8" passive line)
+				(alternate "U5_CK/PC8" passive line)
+			)
+			(pin passive line
+				(at 39.37 -30.48 180)
+				(length 5.08)
+				(name "PC9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "66"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "CK_OUT1/PC9" passive line)
+				(alternate "DCI_D3/PC9" passive line)
+				(alternate "I2C2_SDA/PC9" passive line)
+				(alternate "I2S_CKIN/PC9" passive line)
+				(alternate "SDIO_D1/PC9" passive line)
+				(alternate "T2_C3/PC9" passive line)
+				(alternate "T7_C3/PC9" passive line)
+			)
+			(pin passive line
+				(at 39.37 15.24 180)
+				(length 5.08)
+				(name "PA8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "67"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "CK_OUT0/PA8" passive line)
+				(alternate "CTC_SYNC/PA8" passive line)
+				(alternate "I2C2_SCL/PA8" passive line)
+				(alternate "SDIO_D1/PA8" passive line)
+				(alternate "T0_C0/PA8" passive line)
+				(alternate "U0_CK/PA8" passive line)
+				(alternate "USBFS_SOF/PA8" passive line)
+			)
+			(pin passive line
+				(at 39.37 12.7 180)
+				(length 5.08)
+				(name "PA9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "68"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D0/PA9" passive line)
+				(alternate "I2C2_SMBA/PA9" passive line)
+				(alternate "I2S1_CK/PA9" passive line)
+				(alternate "SDIO_D2/PA9" passive line)
+				(alternate "SPI1_SCK/PA9" passive line)
+				(alternate "T0_C1/PA9" passive line)
+				(alternate "U0_TX/PA9" passive line)
+				(alternate "USBFS_VBUS/PA9" passive line)
+			)
+			(pin passive line
+				(at 39.37 10.16 180)
+				(length 5.08)
+				(name "PA10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "69"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D1/PA10" passive line)
+				(alternate "I2C2_TXFRAME/PA10" passive line)
+				(alternate "T0_C2/PA10" passive line)
+				(alternate "U0_RX/PA10" passive line)
+				(alternate "USBFS_ID/PA10" passive line)
+			)
+			(pin passive line
+				(at 39.37 -40.64 180)
+				(length 5.08)
+				(name "PC13"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "RTC_OUT/PC13" passive line)
+				(alternate "RTC_TAMP0/PC13" passive line)
+				(alternate "RTC_TS/PC13" passive line)
+			)
+			(pin passive line
+				(at 39.37 7.62 180)
+				(length 5.08)
+				(name "PA11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "70"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "CAN0_RX/PA11" passive line)
+				(alternate "T0_C3/PA11" passive line)
+				(alternate "U0_CTS/PA11" passive line)
+				(alternate "U5_TX/PA11" passive line)
+				(alternate "USBFS_DM/PA11" passive line)
+			)
+			(pin passive line
+				(at 39.37 5.08 180)
+				(length 5.08)
+				(name "PA12"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "71"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "CAN0_TX/PA12" passive line)
+				(alternate "T0_ETI/PA12" passive line)
+				(alternate "U0_RTS/PA12" passive line)
+				(alternate "U5_RX/PA12" passive line)
+				(alternate "USBFS_DP/PA12" passive line)
+			)
+			(pin passive line
+				(at 39.37 2.54 180)
+				(length 5.08)
+				(name "SWDIO"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "72"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "JTMS" passive line)
+				(alternate "PA13" passive line)
+			)
+			(pin no_connect line
+				(at 39.37 -96.52 180)
+				(length 5.08)
+				(name "NC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "73"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -34.29 -97.79 0)
+				(length 5.08)
+				(name "VSS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "74"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -34.29 -86.36 0)
+				(length 5.08)
+				(name "VDD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "75"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 39.37 0 180)
+				(length 5.08)
+				(name "SWCLK"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "76"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "JTCK" passive line)
+				(alternate "PA14" passive line)
+			)
+			(pin passive line
+				(at 39.37 -2.54 180)
+				(length 5.08)
+				(name "JTDI"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "77"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "I2S2_WS/PA15" passive line)
+				(alternate "PA15" passive line)
+				(alternate "SPI0_NSS/PA15" passive line)
+				(alternate "SPI2_NSS/PA15" passive line)
+				(alternate "T1_C0/PA15" passive line)
+				(alternate "T1_ETI/PA15" passive line)
+				(alternate "U0_TX/PA15" passive line)
+			)
+			(pin passive line
+				(at 39.37 -33.02 180)
+				(length 5.08)
+				(name "PC10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "78"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D8/PC10" passive line)
+				(alternate "I2S2_CK/PC10" passive line)
+				(alternate "SDIO_D2/PC10" passive line)
+				(alternate "SPI2_SCK/PC10" passive line)
+				(alternate "U2_TX/PC10" passive line)
+				(alternate "U3_TX/PC10" passive line)
+			)
+			(pin passive line
+				(at 39.37 -35.56 180)
+				(length 5.08)
+				(name "PC11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "79"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D4/PC11" passive line)
+				(alternate "I2S2_ADD_SD/PC11" passive line)
+				(alternate "SDIO_D3/PC11" passive line)
+				(alternate "SPI2_MISO/PC11" passive line)
+				(alternate "U2_RX/PC11" passive line)
+				(alternate "U3_RX/PC11" passive line)
+			)
+			(pin passive line
+				(at 39.37 -43.18 180)
+				(length 5.08)
+				(name "PC14"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "OC32IN/PC14" passive line)
+			)
+			(pin passive line
+				(at 39.37 -38.1 180)
+				(length 5.08)
+				(name "PC12"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "80"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D9/PC12" passive line)
+				(alternate "I2C1_SDA/PC12" passive line)
+				(alternate "I2S2_SD/PC12" passive line)
+				(alternate "SDIO_CK/PC12" passive line)
+				(alternate "SPI2_MOSI/PC12" passive line)
+				(alternate "U2_CK/PC12" passive line)
+				(alternate "U4_TX/PC12" passive line)
+			)
+			(pin passive line
+				(at -34.29 -7.62 0)
+				(length 5.08)
+				(name "PD0"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "81"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD0/CAN0_RX" passive line)
+				(alternate "PD0/I2S2_SD" passive line)
+				(alternate "PD0/SPI2_MOSI" passive line)
+			)
+			(pin passive line
+				(at -34.29 -10.16 0)
+				(length 5.08)
+				(name "PD1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "82"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD1/CAN0_TX" passive line)
+				(alternate "PD1/I2S1_WS" passive line)
+				(alternate "PD1/SPI1_NSS" passive line)
+			)
+			(pin passive line
+				(at -34.29 -12.7 0)
+				(length 5.08)
+				(name "PD2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "83"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD2/DCI_D11" passive line)
+				(alternate "PD2/SDIO_CMD" passive line)
+				(alternate "PD2/T2_ETI" passive line)
+				(alternate "PD2/U4_RX" passive line)
+			)
+			(pin passive line
+				(at -34.29 -15.24 0)
+				(length 5.08)
+				(name "PD3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "84"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD3/DCI_D5" passive line)
+				(alternate "PD3/I2S1_CK" passive line)
+				(alternate "PD3/SPI1_SCK" passive line)
+				(alternate "PD3/U1_CTS" passive line)
+			)
+			(pin passive line
+				(at -34.29 -17.78 0)
+				(length 5.08)
+				(name "PD4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "85"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD4/U1_RTS" passive line)
+			)
+			(pin passive line
+				(at -34.29 -20.32 0)
+				(length 5.08)
+				(name "PD5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "86"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD5/U1_TX" passive line)
+			)
+			(pin passive line
+				(at -34.29 -22.86 0)
+				(length 5.08)
+				(name "PD6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "87"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD6/DCI_D10" passive line)
+				(alternate "PD6/I2S2_SD" passive line)
+				(alternate "PD6/SPI2_MOSI" passive line)
+				(alternate "PD6/U1_RX" passive line)
+			)
+			(pin passive line
+				(at -34.29 -25.4 0)
+				(length 5.08)
+				(name "PD7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "88"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PD7/U1_CK" passive line)
+			)
+			(pin passive line
+				(at -34.29 27.94 0)
+				(length 5.08)
+				(name "JTDO"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "89"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB3" passive line)
+				(alternate "PB3/I2C1_SDA" passive line)
+				(alternate "PB3/I2S2_CK" passive line)
+				(alternate "PB3/SPI0_SCK" passive line)
+				(alternate "PB3/SPI2_SCK" passive line)
+				(alternate "PB3/T1_C1" passive line)
+				(alternate "PB3/U0_RX" passive line)
+				(alternate "TRACESWO" passive line)
+			)
+			(pin passive line
+				(at 39.37 -45.72 180)
+				(length 5.08)
+				(name "PC15"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "OC32OUT/PC15" passive line)
+			)
+			(pin passive line
+				(at -34.29 25.4 0)
+				(length 5.08)
+				(name "NJTRST"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "90"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB4" passive line)
+				(alternate "PB4/I2C0_TXFRAME" passive line)
+				(alternate "PB4/I2C2_SDA" passive line)
+				(alternate "PB4/I2S2_ADD_SD" passive line)
+				(alternate "PB4/SDIO_D0" passive line)
+				(alternate "PB4/SPI0_MISO" passive line)
+				(alternate "PB4/SPI2_MISO" passive line)
+				(alternate "PB4/T2_C0" passive line)
+			)
+			(pin passive line
+				(at -34.29 22.86 0)
+				(length 5.08)
+				(name "PB5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "91"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB5/CAN1_RX" passive line)
+				(alternate "PB5/DCI_D10" passive line)
+				(alternate "PB5/I2C0_SMBA" passive line)
+				(alternate "PB5/I2S2_SD" passive line)
+				(alternate "PB5/SPI0_MOSI" passive line)
+				(alternate "PB5/SPI2_MOSI" passive line)
+				(alternate "PB5/T2_C1" passive line)
+				(alternate "PB5/ULPI_D7" passive line)
+			)
+			(pin passive line
+				(at -34.29 20.32 0)
+				(length 5.08)
+				(name "PB6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "92"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB6/CAN1_TX" passive line)
+				(alternate "PB6/DCI_D5" passive line)
+				(alternate "PB6/I2C0_SCL" passive line)
+				(alternate "PB6/T3_C0" passive line)
+				(alternate "PB6/U0_TX" passive line)
+			)
+			(pin passive line
+				(at -34.29 17.78 0)
+				(length 5.08)
+				(name "PB7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "93"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB7/DCI_VSYNC" passive line)
+				(alternate "PB7/I2C0_SDA" passive line)
+				(alternate "PB7/T3_C1" passive line)
+				(alternate "PB7/U0_RX" passive line)
+			)
+			(pin passive line
+				(at 39.37 -100.33 180)
+				(length 5.08)
+				(name "BOOT0"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "94"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -34.29 15.24 0)
+				(length 5.08)
+				(name "PB8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "95"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB8/CAN0_RX" passive line)
+				(alternate "PB8/DCI_D6" passive line)
+				(alternate "PB8/I2C0_SCL" passive line)
+				(alternate "PB8/SDIO_D4" passive line)
+				(alternate "PB8/T1_C0" passive line)
+				(alternate "PB8/T1_ETI" passive line)
+				(alternate "PB8/T3_C2" passive line)
+				(alternate "PB8/T9_C0" passive line)
+			)
+			(pin passive line
+				(at -34.29 12.7 0)
+				(length 5.08)
+				(name "PB9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "96"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "PB9/CAN0_TX" passive line)
+				(alternate "PB9/DCI_D7" passive line)
+				(alternate "PB9/I2C0_SDA" passive line)
+				(alternate "PB9/I2S1_WS" passive line)
+				(alternate "PB9/SDIO_D5" passive line)
+				(alternate "PB9/SPI1_NSS" passive line)
+				(alternate "PB9/T10_C0" passive line)
+				(alternate "PB9/T1_C1" passive line)
+				(alternate "PB9/T3_C3" passive line)
+			)
+			(pin passive line
+				(at 39.37 -50.8 180)
+				(length 5.08)
+				(name "PE0"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "97"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D2/PE0" passive line)
+				(alternate "T3_ETI/PE0" passive line)
+			)
+			(pin passive line
+				(at 39.37 -53.34 180)
+				(length 5.08)
+				(name "PE1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "98"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "DCI_D3/PE1" passive line)
+				(alternate "T0_C1_ON/PE1" passive line)
+			)
+			(pin power_in line
+				(at -34.29 -100.33 0)
+				(length 5.08)
+				(name "VSS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "99"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
 )
