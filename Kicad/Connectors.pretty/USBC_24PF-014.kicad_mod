@@ -282,9 +282,9 @@
 		(remove_unused_layers no)
 		(uuid "3efdceaa-cbd0-4fcc-89bd-ca1d17d44caf")
 	)
-	(model ":KICAD6_3DMODEL_DIR:Connectors/USBC_10PF-074.STEP"
+	(model "${KICAD6_3DMODEL_DIR}/Connectors/USBC_24PF-014.stp"
 		(offset
-			(xyz 0 -5.7 0)
+			(xyz -0.254 -2.7 0)
 		)
 		(scale
 			(xyz 1 1 1)
