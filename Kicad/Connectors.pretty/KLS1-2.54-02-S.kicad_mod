@@ -1,4 +1,4 @@
-(footprint "KLS1-2d54-02-S"
+(footprint "KLS1-2.54-02-S"
 	(version 20240108)
 	(generator "pcbnew")
 	(generator_version "8.0")
@@ -15,7 +15,7 @@
 			)
 		)
 	)
-	(property "Value" "KLS1-2d54-02-S"
+	(property "Value" "KLS1-2.54-02-S"
 		(at 1.25 -3.4 0)
 		(unlocked yes)
 		(layer "F.Fab")

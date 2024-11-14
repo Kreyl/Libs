@@ -1,0 +1,225 @@
+(footprint "KLS1-3.96A-02-R"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 2.2 2.5 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "6a881a43-e576-4803-9096-76f73da6d4bb")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "KLS1-3.96A-02-R"
+		(at 1.6 3.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "2e14c7cf-6e7b-4f5f-b9b5-7f28402fb7fb")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at -0.6 -10.6 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "74fad100-e5b4-471a-a276-b10258bacf43")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at -0.6 -10.6 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "1eb19a95-0925-4eb9-ae76-25c38d83b256")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at -0.6 -10.6 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "376d8a8a-3146-46de-ab03-e397b730ab2b")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_line
+		(start -0.6 -14)
+		(end -0.3 -14.6)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "c429fd77-1483-4a08-b87f-d6dc6e835920")
+	)
+	(fp_line
+		(start -0.3 -14.6)
+		(end 0.3 -14.6)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "1958ce60-de8a-496d-b142-0efb3590e542")
+	)
+	(fp_line
+		(start 0.3 -14.6)
+		(end 0.6 -14)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "8814002f-48e2-4d9c-95d6-e1ad9ed98bed")
+	)
+	(fp_line
+		(start 3.36 -14)
+		(end 3.66 -14.6)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "adfccf57-7387-4e4c-b64c-c28cfce2e536")
+	)
+	(fp_line
+		(start 3.66 -14.6)
+		(end 4.26 -14.6)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "0540cc62-259a-4927-a1da-681d9d17547b")
+	)
+	(fp_line
+		(start 4.26 -14.6)
+		(end 4.56 -14)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "faf1205d-12b1-43f1-8d6a-500e2e39f255")
+	)
+	(fp_rect
+		(start -1.98 -7.1)
+		(end 5.94 -3.9)
+		(stroke
+			(width 0.15)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "315f63bd-b372-44fa-9af5-689c3b2a82ea")
+	)
+	(fp_rect
+		(start -0.6 -14)
+		(end 0.6 -7.1)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "c3d64dae-c1e6-4b7c-9315-d0078c661716")
+	)
+	(fp_rect
+		(start -0.6 -3.9)
+		(end 0.6 -1.9)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "3895ee00-7364-4928-bfc4-5d4480240cbe")
+	)
+	(fp_rect
+		(start 0 -12.95)
+		(end 3.96 -7.1)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "4e958aba-7e92-473e-9fbe-a73f2adbf257")
+	)
+	(fp_rect
+		(start 3.36 -14)
+		(end 4.56 -7.1)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "c92feadf-3a74-46c3-b430-93f79ffcec5d")
+	)
+	(fp_rect
+		(start 3.36 -3.9)
+		(end 4.56 -1.9)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "224dafdb-f585-4a68-9063-8004824661b2")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 1.8 4.6 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "937e7d6b-e938-45fb-8f62-d3a95e89d095")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole roundrect
+		(at 0 0)
+		(size 3 3)
+		(drill 1.75)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(roundrect_rratio 0.08928571429)
+		(uuid "66d810d6-3513-43fb-bada-400a65f0269a")
+	)
+	(pad "2" thru_hole circle
+		(at 3.96 0)
+		(size 3 3)
+		(drill 1.75)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "aae6a494-7de0-4119-805b-404d3dab92aa")
+	)
+)
