@@ -249,4 +249,15 @@
 		(remove_unused_layers no)
 		(uuid "06a227f1-828e-4778-b672-6b38071f079a")
 	)
+	(model "${KICAD6_3DMODEL_DIR}/BtnsSwitches/ESP2010.STEP"
+		(offset
+			(xyz 0 2.54 -2)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 180 -90)
+		)
+	)
 )
