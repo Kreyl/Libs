@@ -388,4 +388,15 @@
 		)
 		(uuid "fd658dbc-ba08-45d4-bfb5-d5e9aaa68d14")
 	)
+	(model "${KICAD6_3DMODEL_DIR}/LGA/LGA12-2x2x0_9.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
 )

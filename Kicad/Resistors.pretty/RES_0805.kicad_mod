@@ -126,7 +126,7 @@
 		(roundrect_rratio 0.25)
 		(uuid "b51c8607-4d3c-4e54-8cc6-56763cbc4425")
 	)
-	(model "${KICAD_SYMBOL_DIR}/3d/Resistors/R_0805.step"
+	(model "${KICAD6_3DMODEL_DIR}/Resistors/R_0805.step"
 		(offset
 			(xyz 0 0 0)
 		)

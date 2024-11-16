@@ -1,0 +1,132 @@
+(footprint "KLS1-3.96A-02-S"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 2 6 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "f541096c-825c-4381-ae6a-44e9e1393ee5")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "KLS1-3.96A-02-S"
+		(at -3 1 90)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "e339dfc3-89d9-4ed5-901e-9bad1d0610fe")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at -1 -12.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "18f507e2-7dc7-4b62-8f3a-032edacc2686")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at -1 -12.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "ea28c24d-c519-4090-af66-edc4b82088ea")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at -1 -12.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "04ed5870-b044-4427-9a0c-b0abce434684")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_rect
+		(start -2 -3.23)
+		(end 6 4.77)
+		(stroke
+			(width 0.15)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "cd3529d8-ec6c-4f62-9cae-c8068ef0c9ab")
+	)
+	(fp_rect
+		(start 0 -3.78)
+		(end 3.96 -3.23)
+		(stroke
+			(width 0.15)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "e27951dc-9da4-4ab4-b14d-2f87357af659")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 2 4 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "ad763b48-eb23-4ba1-8eda-97c31ddb003f")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole roundrect
+		(at 0 0)
+		(size 3 3)
+		(drill 1.75)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(roundrect_rratio 0.08928571429)
+		(uuid "60ee17a9-33f5-4af2-9950-42694ab04351")
+	)
+	(pad "2" thru_hole circle
+		(at 3.96 0)
+		(size 3 3)
+		(drill 1.75)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "8cd3b9b7-9aa3-435e-a473-3a74f5d9866c")
+	)
+	(model "${KICAD6_3DMODEL_DIR}/Connectors/KLS1-3.96A-02-S.STEP"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
