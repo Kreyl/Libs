@@ -4,7 +4,7 @@
 	(generator_version "8.0")
 	(layer "F.Cu")
 	(property "Reference" "REF**"
-		(at -11.5 -3.3 0)
+		(at -11.3 -10.4 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "c14769db-2ffb-4333-adbf-badd86940d4a")
@@ -16,7 +16,7 @@
 		)
 	)
 	(property "Value" "BUZZER_IPhone8"
-		(at -11.5 -1.5 0)
+		(at -4.9 -10.3 0)
 		(unlocked yes)
 		(layer "F.Fab")
 		(uuid "082a2513-843f-430b-bc65-e8a02b9cd5c7")
@@ -528,16 +528,6 @@
 		(uuid "fb5210f2-ea4f-4856-9be9-e302427a6816")
 	)
 	(fp_line
-		(start -8.470129 9.622379)
-		(end 8.001547 9.622379)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "F.SilkS")
-		(uuid "0ac973db-a191-44b2-868f-90ab340b777a")
-	)
-	(fp_line
 		(start -4.810198 11.218972)
 		(end -4.810198 -9.077621)
 		(stroke
@@ -566,16 +556,6 @@
 		)
 		(layer "F.SilkS")
 		(uuid "892b3b79-1074-4518-aa43-e29e1b5cc61d")
-	)
-	(fp_line
-		(start 3.294478 -9.077621)
-		(end -19.618443 -9.077621)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "F.SilkS")
-		(uuid "3ed53da9-52ba-49b5-8909-5632a863d04d")
 	)
 	(fp_line
 		(start 4.294478 -8.677621)
@@ -1122,8 +1102,21 @@
 		(layer "F.SilkS")
 		(uuid "f9af2c58-263e-446b-8458-0af0d28f94bf")
 	)
+	(fp_poly
+		(pts
+			(xy -23.2 -9.2) (xy -1.4 -9.2) (xy -0.8 -7.8) (xy 0.7 -7.8) (xy 1.3 -9.2) (xy 10.6 -9.2) (xy 10.6 10.2)
+			(xy 1.4 10.2) (xy 1 8.4) (xy -0.8 8.4) (xy -1.4 10.2) (xy -10.998453 9.559078) (xy -23.2 8.5)
+		)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill solid)
+		(layer "F.SilkS")
+		(uuid "07ff7447-6302-4ab8-9790-47771ab0b48a")
+	)
 	(fp_text user "${REFERENCE}"
-		(at -12 -0.1 0)
+		(at 4.5 -10.4 0)
 		(unlocked yes)
 		(layer "F.Fab")
 		(uuid "154aeaca-b036-4d43-99c9-b0c03ff48325")
