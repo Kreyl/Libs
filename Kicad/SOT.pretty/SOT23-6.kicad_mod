@@ -162,7 +162,7 @@
 		(layers "F.Cu" "F.Paste" "F.Mask")
 		(uuid "6395f899-b027-4aba-b89c-5788f647c162")
 	)
-	(model "${KICAD_SYMBOL_DIR}/3d/SOT/SOT-23-6.step"
+	(model "${KICAD8_3DMODEL_DIR}/SOT/SOT-23-6.step"
 		(offset
 			(xyz 0 0 0)
 		)
