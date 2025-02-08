@@ -10,9 +10,8 @@
 
 #include <inttypes.h>
 
-struct RGBW32 {
-    int32_t R, G, B, W;
-};
+struct RGBW32 { int32_t R, G, B, W; };
+struct MinMaxI32 { int32_t min, max; };
 
 template <typename T>
 class TBuf {
@@ -61,6 +60,9 @@ public:
         OutOfMemory =   25,
         NotAuthorised = 26,
         NoChanges =     27,
+        Stop =          28,
+        Continue =      29,
+        Ended =         30,
     } rslt;
     constexpr retv() : rslt(this->Ok) {}
     constexpr retv(Enum avalue) : rslt(avalue) {}
@@ -87,6 +89,7 @@ struct RetvVal : public retv {
     T v;
     RetvVal() : retv() {}
     RetvVal(retv arslt) : retv(arslt) {}
+    RetvVal(retv arslt, T av) : retv(arslt), v(av) {}
     constexpr RetvVal& operator = (retv aretv) { this->rslt = aretv.rslt; return *this; }
     constexpr RetvVal& operator = (RetvVal<T> aretvval) {
         this->rslt = aretvval.rslt;
@@ -108,17 +111,24 @@ using RetvValU16x2 = RetvVal<uint16_t[2]>;
 using RetvValI32x2 = RetvVal<int32_t[2]>;
 using RetvValTBufBool = RetvVal<TBufBool>;
 
+union Int32OrPChar {
+    int32_t i32;
+    char *pchar;
+};
+using RetvValInt32OrPChar = RetvVal<Int32OrPChar>;
+
 // ==== Functional types ====
 typedef void (*ftVoidVoid)(void);
 typedef retv (*ftRetvVoid_t)(void);
 typedef void (*ftVoidU8)(uint8_t);
 typedef void (*ftVoidU32)(uint32_t);
-typedef void (*ftVoidPVoid)(void*p);
-typedef void (*ftVoidPVoidW32)(void*p, uint32_t W32);
+typedef void (*ftVoidPVoid)(void*);
+typedef void (*ftVoidPVoidW32)(void*, uint32_t);
+typedef void (*ftVoidU8U16)(uint8_t, uint16_t);
 
 #define NAME2VOIDFUNC(name) void name(void)
 
-enum Inverted_t {invNotInverted, invInverted};
+enum class Inv {NotInverted, Inverted};
 enum class BitOrder {MSB, LSB};
 enum class RiseFall {None, Rising, Falling, Both};
 
