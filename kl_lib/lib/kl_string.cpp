@@ -39,47 +39,63 @@ static inline RetvValU8 char2byte(char c) {
 
 namespace Str {
 
+// Returns pointer on last (\0) char of dst
+char* Cpy(char* dst, const char* src) {
+    while(*src) *dst++ = *src++;
+    *dst = '\0';
+    return dst;
+}
+
+// Finds char in string and returns pointer on it. Or nullptr if not found.
+char* Chr(const char* s, char c) {
+    while(*s) {
+        if(*s == c) return (char*)s;
+        s++;
+    }
+    return nullptr;
+}
+
 /* Compare S1 and S2, ignoring case. Returning less than, equal to or
    greater than zero if S1 is lexicographically less than,
    equal to or greater than S2.  */
 int32_t CmpCase(const char *s1, const char *s2) {
-  const unsigned char *p1 = (const unsigned char *) s1;
-  const unsigned char *p2 = (const unsigned char *) s2;
-  int result;
-  if(p1 == p2) return 0;
-  while((result = ToLower(*p1) - ToLower(*p2++)) == 0) {
-      if(*p1++ == '\0') break;
-  }
-  return result;
+    if(s1 == nullptr or s2 == nullptr) return -1;
+    int result;
+    if(s1 == s2) return 0;
+    while((result = ToLower(*s1) - ToLower(*s2++)) == 0) {
+        if(*s1++ == '\0') break;
+    }
+    return result;
 }
 
 // Compare N chars of S1 and S2
 int32_t CmpN(const char *s1, const char *s2, int n) {
-    const unsigned char *p1 = (const unsigned char *)s1;
-    const unsigned char *p2 = (const unsigned char *)s2;
+    if(s1 == nullptr or s2 == nullptr) return -1;
     int result;
-    if(p1 == p2) return 0;
-    while(n-- > 0 and (result = *p1 - *p2++) == 0) {
-        if(*p1++ == '\0') break;
+    if(s1 == s2) return 0;
+    while(n-- > 0 and (result = *s1 - *s2++) == 0) {
+        if(*s1++ == '\0') break;
     }
     return result;
 }
 
 // Compare N chars of S1 and S2, ignoring case
 int32_t CmpNCase(const char *s1, const char *s2, int n) {
-    const unsigned char *p1 = (const unsigned char *) s1;
-    const unsigned char *p2 = (const unsigned char *) s2;
+    if(s1 == nullptr or s2 == nullptr) return -1;
     int result;
-    if(p1 == p2) return 0;
-    while(n-- > 0 and (result = ToLower(*p1) - ToLower(*p2++)) == 0) {
-        if(*p1++ == '\0') break;
+    if(s1 == s2) return 0;
+    while(n-- > 0 and (result = ToLower(*s1) - ToLower(*s2++)) == 0) {
+        if(*s1++ == '\0') break;
     }
     return result;
 }
 
 // Split str to tokens. When S==nullptr, proceed using remainer instead of starting from the beginning
 char* Tokens(char* s, const char* delim, char**remainer) {
-    if(s == nullptr and (s = *remainer) == nullptr) return nullptr;
+    if(s == nullptr) {
+        if(remainer == nullptr) return nullptr; // Both are null
+        s = *remainer;
+    }
     char* spanp;
     // Skip leading delimiters
     cont:
@@ -265,13 +281,93 @@ RetvValColor HexToColor(const char* S) {
     return r;
 }
 
+retv HexToColor(const char* S, Color_t* pclr) {
+    RetvValU8 b = HexToByte(S);
+    if(b.IsOk()) {
+        pclr->R = *b;
+        S += 2;
+        b = HexToByte(S);
+        if(b.IsOk()) {
+            pclr->G = *b;
+            S += 2;
+            b = HexToByte(S);
+            if(b.IsOk()) {
+                pclr->B = *b;
+                return retv::Ok;
+            }
+        }
+    }
+    return retv::Fail;
+}
+
 bool StartsWith(const char* s, const char* prefix) {
+    if(s == nullptr or prefix == nullptr) return false;
     if(s == prefix) return true;
-    while(*s++ == *prefix) {
-        prefix++;
+    while(*s++ == *prefix++) {
         if(*prefix == '\0') return true;
+        if(*s == '\0') return false; // String ended before prefix
     }
     return false;
+}
+
+bool StartsWithCase(const char* s, const char* prefix) {
+    if(s == nullptr or prefix == nullptr) return false;
+    if(s == prefix) return true;
+    while(ToLower(*s++) == ToLower(*prefix++)) {
+        if(*prefix == '\0') return true;
+        if(*s == '\0') return false; // String ended before prefix
+    }
+    return false;
+}
+
+bool EndsWith(const char* s, const char* suffix) {
+    if(s == nullptr or suffix == nullptr) return false;
+    if(s == suffix) return true;
+    const char *ends = s, *endsuffix = suffix;
+    while(*ends) ends++; // Move to end of string
+    while(*endsuffix) endsuffix++; // Move to end of string
+    while(*ends == *endsuffix) {
+        if(endsuffix == suffix) return true; // suffix ended
+        if(ends == s) return false; // String ended before suffix
+        ends--;
+        endsuffix--;
+    }
+    return false;
+}
+
+bool EndsWithCase(const char* s, const char* suffix) {
+    if(s == nullptr or suffix == nullptr) return false;
+    if(s == suffix) return true;
+    const char *ends = s, *endsuffix = suffix;
+    while(*ends) ends++; // Move to end of string
+    while(*endsuffix) endsuffix++; // Move to end of string
+    while(ToLower(*ends) == ToLower(*endsuffix)) {
+        if(endsuffix == suffix) return true; // suffix ended
+        if(ends == s) return false; // String ended before suffix
+        ends--;
+        endsuffix--;
+    }
+    return false;
+}
+
+
+char *CopyReplacingSpecCharsWSpace(char* dst, const char* src) {
+    while(*src) {
+        switch(*src) {
+            case '\"': *dst++ = '\\'; *dst++ = '\"'; break;
+            case '\\': *dst++ = '\\'; *dst++ = '\\'; break;
+            case '/' : *dst++ = '\\'; *dst++ = '/'; break;
+            case '\b': *dst++ = '\\'; *dst++ = 'b'; break;
+            case '\f': *dst++ = '\\'; *dst++ = 'f'; break;
+            case '\n': *dst++ = ' '; break;
+            case '\r': *dst++ = ' '; break;
+            case '\t': *dst++ = ' '; break;
+            default: *dst++ = *src;
+        }
+        src++;
+    } // while
+    *dst = 0; // End of string
+    return dst;
 }
 
 } // namespace Str
