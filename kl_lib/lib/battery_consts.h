@@ -5,61 +5,69 @@
  *      Author: kreyl
  */
 
-#ifndef BATTERY_CONSTS_H_
-#define BATTERY_CONSTS_H_
+#pragma once
 
-#ifndef countof
-#define countof(A)  (sizeof(A)/sizeof(A[0]))
-#endif
+#include <cstdint>
+//#include <iterator> // For std::size
 
-// Table of charge
-struct mVPercent_t {
-    uint16_t mV;
-    uint8_t Percent;
-    uint8_t k;
+namespace Battery {
+
+enum class ChargingState {Discharging, Charging, Idle};
+enum class ChargeState {Unknown, Empty, Half, Full};
+
+struct mVPercent {
+    uint32_t mV;
+    uint32_t percent;
 };
 
-//enum BatteryState_t {bstDischarging, bstCharging, bstIdle};
-enum BatteryState_t {bsNone, bsEmpty, bsHalf, bsFull};
-
-#if 0 // ========================= Alkaline 1.5V ===============================
-static const mVPercent_t mVPercentTableAlkaline[] = {
-        {1440, 100},
-        {1370, 80},
-        {1270, 60},
-        {1170, 40},
-        {1080, 20},
-        {930,  10}
-};
-#define mVPercentTableAlkalineSz    countof(mVPercentTableAlkaline)
-
-static uint8_t mV2PercentAlkaline(uint16_t mV) {
-    for(uint8_t i=0; i<mVPercentTableAlkalineSz; i++)
-        if(mV >= mVPercentTableAlkaline[i].mV) return mVPercentTableAlkaline[i].Percent;
+uint32_t mV2Percent(uint32_t mV, mVPercent *table, uint32_t tbl_sz) {
+    for (uint32_t i = 0; i < tbl_sz; ++i) {
+        if (mV >= table[i].mV) {
+            return table[i].percent;
+        }
+    }
     return 0;
 }
-#endif
 
-#if 1 // ========================= Alkaline 4.5V ===============================
-static const mVPercent_t mVPercentTableAlkaline[] = {
-        {4320, 100},
-        {4110, 80},
-        {3810, 60},
-        {3510, 40},
-        {3240, 20},
-        {2790, 10}
+static inline constexpr mVPercent mVPercentTblAlkaline1v5[] = {
+    {1550, 100},
+    {1500, 90},
+    {1450, 80},
+    {1400, 60},
+    {1350, 40},
+    {1300, 20},
+    {1200, 10},
+    {1100, 5},
 };
-#define mVPercentTableAlkalineSz    countof(mVPercentTableAlkaline)
 
-static uint8_t mV2PercentAlkaline(uint16_t mV) {
-    for(uint8_t i=0; i<mVPercentTableAlkalineSz; i++)
-        if(mV >= mVPercentTableAlkaline[i].mV) return mVPercentTableAlkaline[i].Percent;
-    return 0;
-}
-#endif
+static inline constexpr mVPercent mVPercentTblAlkaline3v0[] = {
+    {1550 * 2, 100},
+    {1500 * 2, 90},
+    {1450 * 2, 80},
+    {1400 * 2, 60},
+    {1350 * 2, 40},
+    {1300 * 2, 20},
+    {1200 * 2, 10},
+    {1100 * 2, 5},
+};
+
+static inline constexpr uint32_t kLowVoltageAlkaline3v0_mV = mVPercentTblAlkaline3v0[7].mV;
+
+static inline constexpr mVPercent mVPercentTblAlkaline4v5[] = {
+    {1550 * 3, 100},
+    {1500 * 3, 90},
+    {1450 * 3, 80},
+    {1400 * 3, 60},
+    {1350 * 3, 40},
+    {1300 * 3, 20},
+    {1200 * 3, 10},
+    {1100 * 3, 5},
+};
+} // namespace
+
 
 #if 0 // ============================ Li-Ion ===================================
-static const mVPercent_t mVPercentTableLiIon[] = {
+static const mVPercent mVPercentTableLiIon[] = {
         {4100, 100, 10},
         {4000, 90,  10},
         {3900, 80,  10},
@@ -91,7 +99,7 @@ static uint8_t mV2PercentLiIon(uint16_t mV) {
 #endif
 
 #if 0 // ============================ 3V Li ====================================
-static const mVPercent_t mVPercentTableLi3V[] = {
+static const mVPercent mVPercentTableLi3V[] = {
         {2640, 100},
         {2550, 80},
         {2410, 60},
@@ -100,5 +108,3 @@ static const mVPercent_t mVPercentTableLi3V[] = {
         {1950, 10}
 };
 #endif
-
-#endif // BATTERY_CONSTS_H_

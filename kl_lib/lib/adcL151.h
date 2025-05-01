@@ -15,26 +15,18 @@
 // ==== Config ====
 // Don't forget to enable HSI. It runs on HSI.
 // If defined, HSI will be enabled and disabled when required by ADC
-#define ADC_EN_AND_DIS_HSI
+// #define ADC_EN_AND_DIS_HSI
 
-//#define ADC_PERIODIC_MEASUREMENT
-#ifndef ADC_PERIODIC_MEASUREMENT
-#define ADC_MEASURE_BY_REQUEST
-#endif
+// Select one of the next modes
+// #define ADC_MODE_PERIODIC_MEASUREMENT
+// #define ADC_MODE_SYNC_MEASUREMENT  // Sleep until measurement done
+#define ADC_MODE_MEASURE_BY_REQUEST
 
-// Variables and consts
-#define ADC_MAX_VALUE           4095    // const: 2^12
-extern const uint8_t AdcChannels[ADC_CHANNEL_CNT];
-#define ADC_MAX_SEQ_LEN     27  // 1...27; Const, see ref man p.301
+namespace Adc {
 
-#if (ADC_SEQ_LEN > ADC_MAX_SEQ_LEN) || (ADC_SEQ_LEN == 0)
-#error "Wrong ADC channel count and sample count"
-#endif
+extern const uint8_t kAdcChannels[ADC_CHANNEL_CNT];
 
-// See datasheet, search VREFINT_CAL
-#define ADC_VREFINT_CAL     (*(volatile uint16_t*)0x1FF80078)
-
-enum AdcSampleTime_t {
+enum SampleTime {
         ast4Cycles = 0b000,
         ast9Cycles = 0b001,
         ast16Cycles = 0b010,
@@ -45,39 +37,19 @@ enum AdcSampleTime_t {
         ast384Cycles = 0b111
 };
 
-#define ADC_SAMPLE_TIME_DEFAULT     ast96Cycles
 
-enum ADCDiv_t {
-    adcDiv1 = (uint32_t)(0b00 << 16),
-    adcDiv2 = (uint32_t)(0b01 << 16),
-    adcDiv4 = (uint32_t)(0b10 << 16),
-};
-#endif
+void Init();
+void StartMeasurement();
+void StartMeasurementAndWaitCompletion();
 
-#if defined STM32F2XX || defined STM32F4XX ||defined STM32L1XX
-class Adc_t {
-private:
-    uint16_t IBuf[ADC_SEQ_LEN];
-    void SetupClk(ADCDiv_t Div) { ADC->CCR = (ADC->CCR & ~ADC_CCR_ADCPRE) | (uint32_t)Div; }
-    void SetSequenceLength(uint32_t ALen);
-    void SetChannelSampleTime(uint32_t AChnl, AdcSampleTime_t ASampleTime);
-    void SetSequenceItem(uint8_t SeqIndx, uint32_t AChnl);
-    void StartConversion() { ADC1->CR2 |= ADC_CR2_SWSTART; }
-    void WaitConversionCompletion() { while(!(ADC1->SR & ADC_SR_EOC)); }
-public:
-    void EnableVRef()  { ADC->CCR |= (uint32_t)ADC_CCR_TSVREFE; }
-    void DisableVRef() { ADC->CCR &= (uint32_t)(~ADC_CCR_TSVREFE); }
-    uint32_t GetVDAmV(uint32_t VrefADC) { return ((ADC_VREFINT_CAL * 3000UL) / VrefADC); }
-    void Init();
-    void StartMeasurement();
-    void Disable() { ADC1->CR2 = 0; }
-    void ClockOff() { rccDisableADC1(); }
-    uint32_t GetResultAverage(uint8_t AChannel);
-    uint32_t GetResultMedian(uint8_t AChannel);
-    uint32_t Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
-        return ((3300UL * ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
-    }
-};
+uint32_t GetVDAmV(uint32_t Vref_ADC);
+uint32_t GetResultAverage(uint8_t channel);
+uint32_t GetResultMedian(uint8_t channel);
+uint32_t Adc2mV(uint32_t adc_ch_value, uint32_t Vref_value);
+uint32_t GetVdda_mv(uint32_t vref_value);
 
-extern Adc_t Adc;
+void ClockOff();
+
+} // namespace Adc
+
 #endif // ADC_REQUIRED
